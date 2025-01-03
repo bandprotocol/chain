@@ -8,8 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-
-	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 var _ types.UnpackInterfacesMessage = Tunnel{}
@@ -19,7 +17,6 @@ func NewTunnel(
 	id uint64,
 	sequence uint64,
 	route RouteI,
-	encoder feedstypes.Encoder,
 	feePayer string,
 	signalDeviations []SignalDeviation,
 	interval uint64,
@@ -41,7 +38,6 @@ func NewTunnel(
 		ID:               id,
 		Sequence:         sequence,
 		Route:            any,
-		Encoder:          encoder,
 		FeePayer:         feePayer,
 		SignalDeviations: signalDeviations,
 		Interval:         interval,

@@ -16,6 +16,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgComplain{}, "tss/MsgComplaint")
 	legacy.RegisterAminoMsg(cdc, &MsgConfirm{}, "tss/MsgConfirm")
 	legacy.RegisterAminoMsg(cdc, &MsgSubmitDEs{}, "tss/MsgSubmitDEs")
+	legacy.RegisterAminoMsg(cdc, &MsgResetDE{}, "tss/MsgResetDE")
 	legacy.RegisterAminoMsg(cdc, &MsgSubmitSignature{}, "tss/MsgSubmitSignature")
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "tss/MsgUpdateParams")
 
@@ -37,6 +38,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&MsgComplain{},
 		&MsgConfirm{},
 		&MsgSubmitDEs{},
+		&MsgResetDE{},
 		&MsgSubmitSignature{},
 		&MsgUpdateParams{},
 	)

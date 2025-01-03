@@ -16,10 +16,11 @@ import (
 
 func TestParseSubmitSignEvents(t *testing.T) {
 	tests := []struct {
-		name     string
-		events   sdk.StringEvents
-		expEvent []de.Event
-		expError string
+		name      string
+		events    sdk.StringEvents
+		eventType string
+		expEvent  []de.PubDE
+		expError  string
 	}{
 		{
 			"success",
@@ -35,7 +36,8 @@ func TestParseSubmitSignEvents(t *testing.T) {
 					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString([]byte("signature"))),
 				)),
 			}),
-			[]de.Event{
+			types.EventTypeSubmitSignature,
+			[]de.PubDE{
 				{
 					PubDE: types.DE{
 						PubD: []byte("pubD"),
@@ -69,7 +71,8 @@ func TestParseSubmitSignEvents(t *testing.T) {
 					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString([]byte("signature"))),
 				)),
 			}),
-			[]de.Event{
+			types.EventTypeSubmitSignature,
+			[]de.PubDE{
 				{
 					PubDE: types.DE{
 						PubD: []byte("pubD 1"),
@@ -106,7 +109,8 @@ func TestParseSubmitSignEvents(t *testing.T) {
 					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString([]byte("signature"))),
 				)),
 			}),
-			[]de.Event{
+			types.EventTypeSubmitSignature,
+			[]de.PubDE{
 				{
 					PubDE: types.DE{
 						PubD: []byte("pubD 1"),
@@ -125,6 +129,7 @@ func TestParseSubmitSignEvents(t *testing.T) {
 		{
 			"no event",
 			sdk.StringifyEvents([]abci.Event{}),
+			types.EventTypeSubmitSignature,
 			nil,
 			"",
 		},
@@ -142,14 +147,48 @@ func TestParseSubmitSignEvents(t *testing.T) {
 					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString([]byte("signature"))),
 				)),
 			}),
+			types.EventTypeSubmitSignature,
 			nil,
 			"encoding/hex: invalid byte",
+		},
+		{
+			"success - de_deleted",
+			sdk.StringifyEvents([]abci.Event{
+				abci.Event(sdk.NewEvent(
+					types.EventTypeDEDeleted,
+					sdk.NewAttribute(types.AttributeKeyAddress, "member 1"),
+					sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString([]byte("pubD 1"))),
+					sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString([]byte("pubE 1"))),
+				)),
+				abci.Event(sdk.NewEvent(
+					types.EventTypeDEDeleted,
+					sdk.NewAttribute(types.AttributeKeyAddress, "member 1"),
+					sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString([]byte("pubD 2"))),
+					sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString([]byte("pubE 2"))),
+				)),
+			}),
+			types.EventTypeDEDeleted,
+			[]de.PubDE{
+				{
+					PubDE: types.DE{
+						PubD: []byte("pubD 1"),
+						PubE: []byte("pubE 1"),
+					},
+				},
+				{
+					PubDE: types.DE{
+						PubD: []byte("pubD 2"),
+						PubE: []byte("pubE 2"),
+					},
+				},
+			},
+			"",
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			events, err := de.ParseSubmitSignEvents(test.events)
+			events, err := de.ParsePubDEFromEvents(test.events, test.eventType)
 			assert.Equal(t, test.expEvent, events)
 			if test.expError != "" {
 				assert.ErrorContains(t, err, test.expError)

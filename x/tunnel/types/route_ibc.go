@@ -23,8 +23,8 @@ func NewIBCRoute(channelID string) *IBCRoute {
 // ValidateBasic validates the IBCRoute
 func (r *IBCRoute) ValidateBasic() error {
 	// Validate the ChannelID format
-	if !channeltypes.IsChannelIDFormat(r.ChannelID) {
-		return fmt.Errorf("channel identifier is not in the format: `channel-{N}`")
+	if r.ChannelID != "" && !channeltypes.IsChannelIDFormat(r.ChannelID) {
+		return fmt.Errorf("channel identifier is not in the format: `channel-{N}` or be empty string")
 	}
 	return nil
 }

@@ -66,7 +66,7 @@ func (suite *KeeperTestSuite) TestGetSetDeletePrices() {
 		SignalID:  "CS:ETH-USD",
 		Status:    types.PRICE_STATUS_NOT_IN_CURRENT_FEEDS,
 		Price:     0,
-		Timestamp: 0,
+		Timestamp: suite.ctx.BlockTime().Unix(),
 	})
 	prices = suite.feedsKeeper.GetPrices(ctx, []string{"CS:ATOM-USD", "CS:BAND-USD", "CS:ETH-USD"})
 	suite.Require().Equal(expPrices, prices)

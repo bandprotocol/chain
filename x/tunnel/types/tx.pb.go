@@ -6,11 +6,10 @@ package types
 import (
 	context "context"
 	fmt "fmt"
-	types1 "github.com/bandprotocol/chain/v3/x/feeds/types"
 	_ "github.com/cosmos/cosmos-proto"
 	types "github.com/cosmos/cosmos-sdk/codec/types"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
-	types2 "github.com/cosmos/cosmos-sdk/types"
+	types1 "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/cosmos-sdk/types/msgservice"
 	_ "github.com/cosmos/cosmos-sdk/types/tx/amino"
 	_ "github.com/cosmos/gogoproto/gogoproto"
@@ -43,12 +42,10 @@ type MsgCreateTunnel struct {
 	Interval uint64 `protobuf:"varint,2,opt,name=interval,proto3" json:"interval,omitempty"`
 	// route is the route for delivering the signal prices
 	Route *types.Any `protobuf:"bytes,3,opt,name=route,proto3" json:"route,omitempty"`
-	// encoder is the mode of encoding price signal data.
-	Encoder types1.Encoder `protobuf:"varint,4,opt,name=encoder,proto3,enum=band.feeds.v1beta1.Encoder" json:"encoder,omitempty"`
 	// initial_deposit is the deposit value that must be paid at tunnel creation.
-	InitialDeposit github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,5,rep,name=initial_deposit,json=initialDeposit,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"initial_deposit"`
+	InitialDeposit github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,4,rep,name=initial_deposit,json=initialDeposit,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"initial_deposit"`
 	// creator is the address of the creator.
-	Creator string `protobuf:"bytes,6,opt,name=creator,proto3" json:"creator,omitempty"`
+	Creator string `protobuf:"bytes,5,opt,name=creator,proto3" json:"creator,omitempty"`
 }
 
 func (m *MsgCreateTunnel) Reset()         { *m = MsgCreateTunnel{} }
@@ -103,13 +100,6 @@ func (m *MsgCreateTunnel) GetRoute() *types.Any {
 		return m.Route
 	}
 	return nil
-}
-
-func (m *MsgCreateTunnel) GetEncoder() types1.Encoder {
-	if m != nil {
-		return m.Encoder
-	}
-	return types1.ENCODER_UNSPECIFIED
 }
 
 func (m *MsgCreateTunnel) GetInitialDeposit() github_com_cosmos_cosmos_sdk_types.Coins {
@@ -171,9 +161,109 @@ func (m *MsgCreateTunnelResponse) GetTunnelID() uint64 {
 	return 0
 }
 
-// MsgUpdateAndResetTunnel is the transaction message to update a tunnel information
-// and reset the interval.
-type MsgUpdateAndResetTunnel struct {
+// MsgUpdateRoute is the transaction message to update a route information of the tunnel.
+type MsgUpdateRoute struct {
+	// tunnel_id is the ID of the tunnel to edit.
+	TunnelID uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
+	// route is the route for delivering the signal prices
+	Route *types.Any `protobuf:"bytes,2,opt,name=route,proto3" json:"route,omitempty"`
+	// creator is the address of the creator.
+	Creator string `protobuf:"bytes,3,opt,name=creator,proto3" json:"creator,omitempty"`
+}
+
+func (m *MsgUpdateRoute) Reset()         { *m = MsgUpdateRoute{} }
+func (m *MsgUpdateRoute) String() string { return proto.CompactTextString(m) }
+func (*MsgUpdateRoute) ProtoMessage()    {}
+func (*MsgUpdateRoute) Descriptor() ([]byte, []int) {
+	return fileDescriptor_d18351d83b4705d0, []int{2}
+}
+func (m *MsgUpdateRoute) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgUpdateRoute) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgUpdateRoute.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgUpdateRoute) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgUpdateRoute.Merge(m, src)
+}
+func (m *MsgUpdateRoute) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgUpdateRoute) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgUpdateRoute.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgUpdateRoute proto.InternalMessageInfo
+
+func (m *MsgUpdateRoute) GetTunnelID() uint64 {
+	if m != nil {
+		return m.TunnelID
+	}
+	return 0
+}
+
+func (m *MsgUpdateRoute) GetRoute() *types.Any {
+	if m != nil {
+		return m.Route
+	}
+	return nil
+}
+
+func (m *MsgUpdateRoute) GetCreator() string {
+	if m != nil {
+		return m.Creator
+	}
+	return ""
+}
+
+// MsgUpdateRouteResponse is the response type for the Msg/UpdateRoute RPC method.
+type MsgUpdateRouteResponse struct {
+}
+
+func (m *MsgUpdateRouteResponse) Reset()         { *m = MsgUpdateRouteResponse{} }
+func (m *MsgUpdateRouteResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgUpdateRouteResponse) ProtoMessage()    {}
+func (*MsgUpdateRouteResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_d18351d83b4705d0, []int{3}
+}
+func (m *MsgUpdateRouteResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgUpdateRouteResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgUpdateRouteResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgUpdateRouteResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgUpdateRouteResponse.Merge(m, src)
+}
+func (m *MsgUpdateRouteResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgUpdateRouteResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgUpdateRouteResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgUpdateRouteResponse proto.InternalMessageInfo
+
+// MsgUpdateSignalsAndInterval is the transaction message to update signals and interval of the tunnel.
+type MsgUpdateSignalsAndInterval struct {
 	// tunnel_id is the ID of the tunnel to edit.
 	TunnelID uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
 	// signal_deviations is the list of signal deviations.
@@ -184,18 +274,18 @@ type MsgUpdateAndResetTunnel struct {
 	Creator string `protobuf:"bytes,4,opt,name=creator,proto3" json:"creator,omitempty"`
 }
 
-func (m *MsgUpdateAndResetTunnel) Reset()         { *m = MsgUpdateAndResetTunnel{} }
-func (m *MsgUpdateAndResetTunnel) String() string { return proto.CompactTextString(m) }
-func (*MsgUpdateAndResetTunnel) ProtoMessage()    {}
-func (*MsgUpdateAndResetTunnel) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d18351d83b4705d0, []int{2}
+func (m *MsgUpdateSignalsAndInterval) Reset()         { *m = MsgUpdateSignalsAndInterval{} }
+func (m *MsgUpdateSignalsAndInterval) String() string { return proto.CompactTextString(m) }
+func (*MsgUpdateSignalsAndInterval) ProtoMessage()    {}
+func (*MsgUpdateSignalsAndInterval) Descriptor() ([]byte, []int) {
+	return fileDescriptor_d18351d83b4705d0, []int{4}
 }
-func (m *MsgUpdateAndResetTunnel) XXX_Unmarshal(b []byte) error {
+func (m *MsgUpdateSignalsAndInterval) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgUpdateAndResetTunnel) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgUpdateSignalsAndInterval) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgUpdateAndResetTunnel.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgUpdateSignalsAndInterval.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -205,62 +295,62 @@ func (m *MsgUpdateAndResetTunnel) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return b[:n], nil
 	}
 }
-func (m *MsgUpdateAndResetTunnel) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgUpdateAndResetTunnel.Merge(m, src)
+func (m *MsgUpdateSignalsAndInterval) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgUpdateSignalsAndInterval.Merge(m, src)
 }
-func (m *MsgUpdateAndResetTunnel) XXX_Size() int {
+func (m *MsgUpdateSignalsAndInterval) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgUpdateAndResetTunnel) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgUpdateAndResetTunnel.DiscardUnknown(m)
+func (m *MsgUpdateSignalsAndInterval) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgUpdateSignalsAndInterval.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgUpdateAndResetTunnel proto.InternalMessageInfo
+var xxx_messageInfo_MsgUpdateSignalsAndInterval proto.InternalMessageInfo
 
-func (m *MsgUpdateAndResetTunnel) GetTunnelID() uint64 {
+func (m *MsgUpdateSignalsAndInterval) GetTunnelID() uint64 {
 	if m != nil {
 		return m.TunnelID
 	}
 	return 0
 }
 
-func (m *MsgUpdateAndResetTunnel) GetSignalDeviations() []SignalDeviation {
+func (m *MsgUpdateSignalsAndInterval) GetSignalDeviations() []SignalDeviation {
 	if m != nil {
 		return m.SignalDeviations
 	}
 	return nil
 }
 
-func (m *MsgUpdateAndResetTunnel) GetInterval() uint64 {
+func (m *MsgUpdateSignalsAndInterval) GetInterval() uint64 {
 	if m != nil {
 		return m.Interval
 	}
 	return 0
 }
 
-func (m *MsgUpdateAndResetTunnel) GetCreator() string {
+func (m *MsgUpdateSignalsAndInterval) GetCreator() string {
 	if m != nil {
 		return m.Creator
 	}
 	return ""
 }
 
-// MsgUpdateAndResetTunnelResponse is the response type for the Msg/UpdateAndResetTunnel RPC method.
-type MsgUpdateAndResetTunnelResponse struct {
+// MsgUpdateSignalsAndIntervalResponse is the response type for the Msg/UpdateSignalsAndInterval RPC method.
+type MsgUpdateSignalsAndIntervalResponse struct {
 }
 
-func (m *MsgUpdateAndResetTunnelResponse) Reset()         { *m = MsgUpdateAndResetTunnelResponse{} }
-func (m *MsgUpdateAndResetTunnelResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgUpdateAndResetTunnelResponse) ProtoMessage()    {}
-func (*MsgUpdateAndResetTunnelResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d18351d83b4705d0, []int{3}
+func (m *MsgUpdateSignalsAndIntervalResponse) Reset()         { *m = MsgUpdateSignalsAndIntervalResponse{} }
+func (m *MsgUpdateSignalsAndIntervalResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgUpdateSignalsAndIntervalResponse) ProtoMessage()    {}
+func (*MsgUpdateSignalsAndIntervalResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_d18351d83b4705d0, []int{5}
 }
-func (m *MsgUpdateAndResetTunnelResponse) XXX_Unmarshal(b []byte) error {
+func (m *MsgUpdateSignalsAndIntervalResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgUpdateAndResetTunnelResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgUpdateSignalsAndIntervalResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgUpdateAndResetTunnelResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgUpdateSignalsAndIntervalResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -270,17 +360,118 @@ func (m *MsgUpdateAndResetTunnelResponse) XXX_Marshal(b []byte, deterministic bo
 		return b[:n], nil
 	}
 }
-func (m *MsgUpdateAndResetTunnelResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgUpdateAndResetTunnelResponse.Merge(m, src)
+func (m *MsgUpdateSignalsAndIntervalResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgUpdateSignalsAndIntervalResponse.Merge(m, src)
 }
-func (m *MsgUpdateAndResetTunnelResponse) XXX_Size() int {
+func (m *MsgUpdateSignalsAndIntervalResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgUpdateAndResetTunnelResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgUpdateAndResetTunnelResponse.DiscardUnknown(m)
+func (m *MsgUpdateSignalsAndIntervalResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgUpdateSignalsAndIntervalResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgUpdateAndResetTunnelResponse proto.InternalMessageInfo
+var xxx_messageInfo_MsgUpdateSignalsAndIntervalResponse proto.InternalMessageInfo
+
+// MsgWithdrawFeePayerFunds is the transaction message to withdraw fee payer funds to creator.
+type MsgWithdrawFeePayerFunds struct {
+	// tunnel_id is the ID of the tunnel to withdraw fee payer coins.
+	TunnelID uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
+	// amount is the coins to withdraw.
+	Amount github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,2,rep,name=amount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"amount"`
+	// creator is the address of the creator.
+	Creator string `protobuf:"bytes,3,opt,name=creator,proto3" json:"creator,omitempty"`
+}
+
+func (m *MsgWithdrawFeePayerFunds) Reset()         { *m = MsgWithdrawFeePayerFunds{} }
+func (m *MsgWithdrawFeePayerFunds) String() string { return proto.CompactTextString(m) }
+func (*MsgWithdrawFeePayerFunds) ProtoMessage()    {}
+func (*MsgWithdrawFeePayerFunds) Descriptor() ([]byte, []int) {
+	return fileDescriptor_d18351d83b4705d0, []int{6}
+}
+func (m *MsgWithdrawFeePayerFunds) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgWithdrawFeePayerFunds) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgWithdrawFeePayerFunds.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgWithdrawFeePayerFunds) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgWithdrawFeePayerFunds.Merge(m, src)
+}
+func (m *MsgWithdrawFeePayerFunds) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgWithdrawFeePayerFunds) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgWithdrawFeePayerFunds.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgWithdrawFeePayerFunds proto.InternalMessageInfo
+
+func (m *MsgWithdrawFeePayerFunds) GetTunnelID() uint64 {
+	if m != nil {
+		return m.TunnelID
+	}
+	return 0
+}
+
+func (m *MsgWithdrawFeePayerFunds) GetAmount() github_com_cosmos_cosmos_sdk_types.Coins {
+	if m != nil {
+		return m.Amount
+	}
+	return nil
+}
+
+func (m *MsgWithdrawFeePayerFunds) GetCreator() string {
+	if m != nil {
+		return m.Creator
+	}
+	return ""
+}
+
+// MsgWithdrawFeePayerFundsResponse is the response type for the Msg/WithdrawFeePayerFunds RPC method.
+type MsgWithdrawFeePayerFundsResponse struct {
+}
+
+func (m *MsgWithdrawFeePayerFundsResponse) Reset()         { *m = MsgWithdrawFeePayerFundsResponse{} }
+func (m *MsgWithdrawFeePayerFundsResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgWithdrawFeePayerFundsResponse) ProtoMessage()    {}
+func (*MsgWithdrawFeePayerFundsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_d18351d83b4705d0, []int{7}
+}
+func (m *MsgWithdrawFeePayerFundsResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgWithdrawFeePayerFundsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgWithdrawFeePayerFundsResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgWithdrawFeePayerFundsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgWithdrawFeePayerFundsResponse.Merge(m, src)
+}
+func (m *MsgWithdrawFeePayerFundsResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgWithdrawFeePayerFundsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgWithdrawFeePayerFundsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgWithdrawFeePayerFundsResponse proto.InternalMessageInfo
 
 // Activate is the transaction message to activate a tunnel.
 type MsgActivate struct {
@@ -294,7 +485,7 @@ func (m *MsgActivate) Reset()         { *m = MsgActivate{} }
 func (m *MsgActivate) String() string { return proto.CompactTextString(m) }
 func (*MsgActivate) ProtoMessage()    {}
 func (*MsgActivate) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d18351d83b4705d0, []int{4}
+	return fileDescriptor_d18351d83b4705d0, []int{8}
 }
 func (m *MsgActivate) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -345,7 +536,7 @@ func (m *MsgActivateResponse) Reset()         { *m = MsgActivateResponse{} }
 func (m *MsgActivateResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgActivateResponse) ProtoMessage()    {}
 func (*MsgActivateResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d18351d83b4705d0, []int{5}
+	return fileDescriptor_d18351d83b4705d0, []int{9}
 }
 func (m *MsgActivateResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -386,7 +577,7 @@ func (m *MsgDeactivate) Reset()         { *m = MsgDeactivate{} }
 func (m *MsgDeactivate) String() string { return proto.CompactTextString(m) }
 func (*MsgDeactivate) ProtoMessage()    {}
 func (*MsgDeactivate) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d18351d83b4705d0, []int{6}
+	return fileDescriptor_d18351d83b4705d0, []int{10}
 }
 func (m *MsgDeactivate) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -437,7 +628,7 @@ func (m *MsgDeactivateResponse) Reset()         { *m = MsgDeactivateResponse{} }
 func (m *MsgDeactivateResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgDeactivateResponse) ProtoMessage()    {}
 func (*MsgDeactivateResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d18351d83b4705d0, []int{7}
+	return fileDescriptor_d18351d83b4705d0, []int{11}
 }
 func (m *MsgDeactivateResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -478,7 +669,7 @@ func (m *MsgTriggerTunnel) Reset()         { *m = MsgTriggerTunnel{} }
 func (m *MsgTriggerTunnel) String() string { return proto.CompactTextString(m) }
 func (*MsgTriggerTunnel) ProtoMessage()    {}
 func (*MsgTriggerTunnel) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d18351d83b4705d0, []int{8}
+	return fileDescriptor_d18351d83b4705d0, []int{12}
 }
 func (m *MsgTriggerTunnel) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -529,7 +720,7 @@ func (m *MsgTriggerTunnelResponse) Reset()         { *m = MsgTriggerTunnelRespon
 func (m *MsgTriggerTunnelResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgTriggerTunnelResponse) ProtoMessage()    {}
 func (*MsgTriggerTunnelResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d18351d83b4705d0, []int{9}
+	return fileDescriptor_d18351d83b4705d0, []int{13}
 }
 func (m *MsgTriggerTunnelResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -572,7 +763,7 @@ func (m *MsgDepositToTunnel) Reset()         { *m = MsgDepositToTunnel{} }
 func (m *MsgDepositToTunnel) String() string { return proto.CompactTextString(m) }
 func (*MsgDepositToTunnel) ProtoMessage()    {}
 func (*MsgDepositToTunnel) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d18351d83b4705d0, []int{10}
+	return fileDescriptor_d18351d83b4705d0, []int{14}
 }
 func (m *MsgDepositToTunnel) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -630,7 +821,7 @@ func (m *MsgDepositToTunnelResponse) Reset()         { *m = MsgDepositToTunnelRe
 func (m *MsgDepositToTunnelResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgDepositToTunnelResponse) ProtoMessage()    {}
 func (*MsgDepositToTunnelResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d18351d83b4705d0, []int{11}
+	return fileDescriptor_d18351d83b4705d0, []int{15}
 }
 func (m *MsgDepositToTunnelResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -673,7 +864,7 @@ func (m *MsgWithdrawFromTunnel) Reset()         { *m = MsgWithdrawFromTunnel{} }
 func (m *MsgWithdrawFromTunnel) String() string { return proto.CompactTextString(m) }
 func (*MsgWithdrawFromTunnel) ProtoMessage()    {}
 func (*MsgWithdrawFromTunnel) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d18351d83b4705d0, []int{12}
+	return fileDescriptor_d18351d83b4705d0, []int{16}
 }
 func (m *MsgWithdrawFromTunnel) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -731,7 +922,7 @@ func (m *MsgWithdrawFromTunnelResponse) Reset()         { *m = MsgWithdrawFromTu
 func (m *MsgWithdrawFromTunnelResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgWithdrawFromTunnelResponse) ProtoMessage()    {}
 func (*MsgWithdrawFromTunnelResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d18351d83b4705d0, []int{13}
+	return fileDescriptor_d18351d83b4705d0, []int{17}
 }
 func (m *MsgWithdrawFromTunnelResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -772,7 +963,7 @@ func (m *MsgUpdateParams) Reset()         { *m = MsgUpdateParams{} }
 func (m *MsgUpdateParams) String() string { return proto.CompactTextString(m) }
 func (*MsgUpdateParams) ProtoMessage()    {}
 func (*MsgUpdateParams) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d18351d83b4705d0, []int{14}
+	return fileDescriptor_d18351d83b4705d0, []int{18}
 }
 func (m *MsgUpdateParams) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -823,7 +1014,7 @@ func (m *MsgUpdateParamsResponse) Reset()         { *m = MsgUpdateParamsResponse
 func (m *MsgUpdateParamsResponse) String() string { return proto.CompactTextString(m) }
 func (*MsgUpdateParamsResponse) ProtoMessage()    {}
 func (*MsgUpdateParamsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d18351d83b4705d0, []int{15}
+	return fileDescriptor_d18351d83b4705d0, []int{19}
 }
 func (m *MsgUpdateParamsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -855,8 +1046,12 @@ var xxx_messageInfo_MsgUpdateParamsResponse proto.InternalMessageInfo
 func init() {
 	proto.RegisterType((*MsgCreateTunnel)(nil), "band.tunnel.v1beta1.MsgCreateTunnel")
 	proto.RegisterType((*MsgCreateTunnelResponse)(nil), "band.tunnel.v1beta1.MsgCreateTunnelResponse")
-	proto.RegisterType((*MsgUpdateAndResetTunnel)(nil), "band.tunnel.v1beta1.MsgUpdateAndResetTunnel")
-	proto.RegisterType((*MsgUpdateAndResetTunnelResponse)(nil), "band.tunnel.v1beta1.MsgUpdateAndResetTunnelResponse")
+	proto.RegisterType((*MsgUpdateRoute)(nil), "band.tunnel.v1beta1.MsgUpdateRoute")
+	proto.RegisterType((*MsgUpdateRouteResponse)(nil), "band.tunnel.v1beta1.MsgUpdateRouteResponse")
+	proto.RegisterType((*MsgUpdateSignalsAndInterval)(nil), "band.tunnel.v1beta1.MsgUpdateSignalsAndInterval")
+	proto.RegisterType((*MsgUpdateSignalsAndIntervalResponse)(nil), "band.tunnel.v1beta1.MsgUpdateSignalsAndIntervalResponse")
+	proto.RegisterType((*MsgWithdrawFeePayerFunds)(nil), "band.tunnel.v1beta1.MsgWithdrawFeePayerFunds")
+	proto.RegisterType((*MsgWithdrawFeePayerFundsResponse)(nil), "band.tunnel.v1beta1.MsgWithdrawFeePayerFundsResponse")
 	proto.RegisterType((*MsgActivate)(nil), "band.tunnel.v1beta1.MsgActivate")
 	proto.RegisterType((*MsgActivateResponse)(nil), "band.tunnel.v1beta1.MsgActivateResponse")
 	proto.RegisterType((*MsgDeactivate)(nil), "band.tunnel.v1beta1.MsgDeactivate")
@@ -874,73 +1069,77 @@ func init() {
 func init() { proto.RegisterFile("band/tunnel/v1beta1/tx.proto", fileDescriptor_d18351d83b4705d0) }
 
 var fileDescriptor_d18351d83b4705d0 = []byte{
-	// 1043 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x57, 0x41, 0x6f, 0x1b, 0x45,
-	0x14, 0xce, 0x3a, 0x89, 0x9b, 0x4c, 0xd2, 0xa6, 0xdd, 0xba, 0xc4, 0x5e, 0x82, 0x6d, 0x96, 0x56,
-	0x75, 0xa3, 0x64, 0x97, 0xb8, 0x04, 0x41, 0x6e, 0x71, 0x0d, 0x52, 0x0e, 0x96, 0xd0, 0x36, 0x50,
-	0x09, 0x21, 0x45, 0x6b, 0xef, 0x74, 0x3d, 0xaa, 0x3d, 0x63, 0xed, 0x8c, 0xdd, 0x9a, 0x13, 0xe2,
-	0xc8, 0x05, 0x38, 0x20, 0x21, 0x21, 0x71, 0x46, 0x5c, 0xc8, 0xa1, 0x3f, 0xa2, 0x42, 0x1c, 0x22,
-	0x4e, 0x9c, 0x0a, 0x4a, 0x0e, 0xf9, 0x1b, 0x68, 0x67, 0x66, 0xc7, 0xeb, 0xcd, 0x3a, 0x71, 0x50,
-	0x85, 0x7a, 0x89, 0x77, 0xe6, 0x7d, 0xf3, 0xde, 0xf7, 0xbe, 0x37, 0xfb, 0xde, 0x06, 0xac, 0x35,
-	0x5d, 0xec, 0xd9, 0xac, 0x8f, 0x31, 0xec, 0xd8, 0x83, 0xad, 0x26, 0x64, 0xee, 0x96, 0xcd, 0x9e,
-	0x59, 0xbd, 0x80, 0x30, 0xa2, 0xdf, 0x0c, 0xad, 0x96, 0xb0, 0x5a, 0xd2, 0x6a, 0x14, 0x7c, 0x42,
-	0xfc, 0x0e, 0xb4, 0x39, 0xa4, 0xd9, 0x7f, 0x6c, 0xbb, 0x78, 0x28, 0xf0, 0x46, 0xce, 0x27, 0x3e,
-	0xe1, 0x8f, 0x76, 0xf8, 0x24, 0x77, 0x0b, 0x2d, 0x42, 0xbb, 0x84, 0x1e, 0x08, 0x83, 0x58, 0x48,
-	0x53, 0x51, 0xac, 0xec, 0xa6, 0x4b, 0xa1, 0x0a, 0xdf, 0x22, 0x08, 0x4b, 0xfb, 0xaa, 0xb4, 0x77,
-	0xa9, 0x6f, 0x0f, 0xb6, 0xc2, 0x1f, 0x69, 0xb8, 0xe1, 0x76, 0x11, 0x26, 0x36, 0xff, 0x1b, 0xf9,
-	0xe2, 0xa9, 0x3c, 0x86, 0xd0, 0xa3, 0xca, 0x15, 0x5f, 0x49, 0x7b, 0x39, 0x2d, 0xd5, 0x9e, 0x1b,
-	0xb8, 0xdd, 0x73, 0x11, 0x32, 0x7b, 0x8e, 0x30, 0xff, 0x98, 0x05, 0x2b, 0x0d, 0xea, 0x3f, 0x08,
-	0xa0, 0xcb, 0xe0, 0x3e, 0xb7, 0xe8, 0x8f, 0xc0, 0x0d, 0x8a, 0x7c, 0xec, 0x76, 0x0e, 0x3c, 0x38,
-	0x40, 0x2e, 0x43, 0x04, 0xd3, 0xbc, 0x56, 0x9e, 0xad, 0x2c, 0x55, 0x6f, 0x5b, 0x29, 0x02, 0x5a,
-	0x0f, 0x39, 0xba, 0x1e, 0x81, 0x6b, 0x73, 0x2f, 0x5e, 0x96, 0x66, 0x9c, 0xeb, 0x74, 0x7c, 0x9b,
-	0xea, 0x06, 0x58, 0x40, 0x98, 0xc1, 0x60, 0xe0, 0x76, 0xf2, 0x99, 0xb2, 0x56, 0x99, 0x73, 0xd4,
-	0x5a, 0xdf, 0x06, 0xf3, 0x01, 0xe9, 0x33, 0x98, 0x9f, 0x2d, 0x6b, 0x95, 0xa5, 0x6a, 0xce, 0x12,
-	0x45, 0xb1, 0xa2, 0xa2, 0x58, 0xbb, 0x78, 0x58, 0x5b, 0xfc, 0xfd, 0xf9, 0xe6, 0xbc, 0x13, 0xc2,
-	0x1c, 0x81, 0xd6, 0xb7, 0xc1, 0x15, 0x88, 0x5b, 0xc4, 0x83, 0x41, 0x7e, 0xae, 0xac, 0x55, 0xae,
-	0x55, 0xdf, 0x14, 0x0c, 0x85, 0x4e, 0x11, 0xc1, 0x8f, 0x04, 0xc4, 0x89, 0xb0, 0xfa, 0x10, 0xac,
-	0x20, 0x8c, 0x18, 0xe2, 0x39, 0xf6, 0x08, 0x45, 0x2c, 0x3f, 0xcf, 0x13, 0x2c, 0x58, 0xb2, 0x9c,
-	0x61, 0x01, 0xd5, 0xf9, 0x07, 0x04, 0xe1, 0xda, 0x76, 0x98, 0xd5, 0xaf, 0x7f, 0x97, 0x2a, 0x3e,
-	0x62, 0xed, 0x7e, 0xd3, 0x6a, 0x91, 0xae, 0xac, 0xbd, 0xfc, 0xd9, 0xa4, 0xde, 0x13, 0x9b, 0x0d,
-	0x7b, 0x90, 0xf2, 0x03, 0xf4, 0x97, 0xd3, 0xc3, 0x75, 0xcd, 0xb9, 0x26, 0x03, 0xd5, 0x45, 0x1c,
-	0xbd, 0x0a, 0xae, 0xb4, 0x42, 0xb5, 0x49, 0x90, 0xcf, 0x96, 0xb5, 0xca, 0x62, 0x2d, 0xff, 0xe7,
-	0xf3, 0xcd, 0x9c, 0x8c, 0xba, 0xeb, 0x79, 0x01, 0xa4, 0xf4, 0x21, 0x0b, 0x10, 0xf6, 0x9d, 0x08,
-	0xb8, 0x73, 0xf7, 0xeb, 0xd3, 0xc3, 0xf5, 0x68, 0xf5, 0xcd, 0xe9, 0xe1, 0xfa, 0x1b, 0xb2, 0xa6,
-	0x89, 0xd2, 0x99, 0x75, 0xb0, 0x9a, 0xd8, 0x72, 0x20, 0xed, 0x11, 0x4c, 0xa1, 0x7e, 0x0f, 0x2c,
-	0x8a, 0x43, 0x07, 0xc8, 0xcb, 0x6b, 0xa1, 0xfa, 0xb5, 0xe5, 0xe3, 0x97, 0xa5, 0x05, 0x01, 0xdb,
-	0xab, 0x3b, 0x0b, 0xc2, 0xbc, 0xe7, 0x99, 0x3f, 0x67, 0xb8, 0x9b, 0x4f, 0x7b, 0x9e, 0xcb, 0xe0,
-	0x2e, 0xf6, 0x1c, 0x48, 0x21, 0x93, 0x97, 0x63, 0x7a, 0x37, 0xe9, 0xf7, 0x28, 0xf3, 0x8a, 0xef,
-	0xd1, 0x6c, 0xe2, 0x1e, 0xc5, 0xe4, 0x9d, 0x9b, 0x56, 0x5e, 0x3b, 0x29, 0x6f, 0x71, 0x24, 0x6f,
-	0x9a, 0x08, 0xe6, 0xdb, 0xa0, 0x34, 0xc1, 0x14, 0xc9, 0x6d, 0x7e, 0xaf, 0x81, 0xa5, 0x06, 0xf5,
-	0x77, 0x5b, 0x0c, 0x0d, 0x5c, 0x76, 0x19, 0xf9, 0xe3, 0x29, 0x64, 0xa6, 0x4d, 0xe1, 0x9d, 0x64,
-	0x0a, 0xfa, 0x28, 0x85, 0x88, 0x83, 0x79, 0x0b, 0xdc, 0x8c, 0x2d, 0x15, 0xd5, 0x1f, 0x34, 0x70,
-	0xb5, 0x41, 0xfd, 0x3a, 0x74, 0xff, 0x27, 0xb2, 0x77, 0x92, 0x64, 0x73, 0x23, 0xb2, 0x23, 0x16,
-	0xe6, 0x2a, 0xb8, 0x35, 0xb6, 0xa1, 0x08, 0xff, 0xa4, 0x81, 0xeb, 0x0d, 0xea, 0xef, 0x07, 0xc8,
-	0xf7, 0x61, 0x70, 0xf9, 0x8b, 0xf9, 0x5f, 0x38, 0x57, 0x92, 0x9c, 0x57, 0x47, 0x9c, 0xc7, 0x88,
-	0x98, 0x06, 0xc8, 0x27, 0xf7, 0x14, 0xf3, 0x6f, 0x33, 0x40, 0xe7, 0x39, 0xf1, 0x5e, 0xb0, 0x4f,
-	0x2e, 0xcf, 0xbd, 0x0d, 0xb2, 0x6e, 0x97, 0xf4, 0x31, 0x93, 0x6f, 0xd2, 0xab, 0x6f, 0x58, 0xd2,
-	0xbf, 0xfe, 0x3e, 0x58, 0x94, 0xbd, 0x91, 0x04, 0xfc, 0x35, 0x3b, 0x4f, 0xa7, 0x11, 0x74, 0x67,
-	0x23, 0x54, 0x6a, 0xb4, 0x0e, 0xb5, 0x2a, 0xc4, 0xeb, 0x3b, 0x96, 0xba, 0xb9, 0x06, 0x8c, 0xb3,
-	0xbb, 0x4a, 0xaf, 0x1f, 0x33, 0xfc, 0x0e, 0x3c, 0x42, 0xac, 0xed, 0x05, 0xee, 0xd3, 0x8f, 0x03,
-	0xd2, 0x7d, 0x9d, 0x25, 0xfb, 0x00, 0x80, 0xa7, 0x92, 0x2a, 0xbc, 0x58, 0xb3, 0x18, 0x76, 0xe7,
-	0xdd, 0x50, 0xb4, 0xd8, 0x46, 0xa8, 0xda, 0xda, 0x48, 0xb5, 0xb3, 0x02, 0x98, 0x25, 0xf0, 0x56,
-	0xaa, 0x41, 0x69, 0xf7, 0x9b, 0xc6, 0x47, 0xbb, 0xe8, 0x52, 0x9f, 0xf0, 0xcf, 0x82, 0xb0, 0xa6,
-	0x6e, 0x9f, 0xb5, 0x49, 0x80, 0xd8, 0x90, 0xab, 0x76, 0x6e, 0x4d, 0x15, 0x54, 0xff, 0x10, 0x64,
-	0xc5, 0x87, 0x05, 0x7f, 0x61, 0x96, 0xa2, 0x29, 0x9b, 0xe8, 0xdf, 0x22, 0x88, 0x6c, 0xdb, 0xf2,
-	0xc0, 0xce, 0x3d, 0x7e, 0x1d, 0x94, 0xab, 0xc4, 0xf4, 0x8a, 0xb3, 0x33, 0x0b, 0xb1, 0xb1, 0x23,
-	0xb6, 0xa2, 0x64, 0xaa, 0x47, 0x59, 0x30, 0xdb, 0xa0, 0xbe, 0xde, 0x04, 0xcb, 0x63, 0xdf, 0x2a,
-	0xe9, 0x83, 0x24, 0x31, 0x03, 0x8d, 0x8d, 0x69, 0x50, 0x6a, 0x52, 0x7e, 0x09, 0x72, 0xa9, 0xa3,
-	0x6f, 0xa2, 0x97, 0x34, 0xb4, 0xf1, 0xde, 0x65, 0xd0, 0x2a, 0xf6, 0x67, 0x60, 0x41, 0x8d, 0x8c,
-	0xf2, 0x24, 0x0f, 0x11, 0xc2, 0xa8, 0x5c, 0x84, 0x50, 0x7e, 0xbf, 0x00, 0x20, 0xd6, 0xdf, 0xcd,
-	0x49, 0xe7, 0x46, 0x18, 0x63, 0xfd, 0x62, 0x8c, 0xf2, 0x0e, 0xc1, 0xd5, 0xf1, 0x66, 0x7c, 0x67,
-	0xd2, 0xe1, 0x31, 0x98, 0xb1, 0x39, 0x15, 0x4c, 0x85, 0x79, 0x02, 0x56, 0x92, 0x9d, 0xf3, 0xee,
-	0x64, 0x96, 0x63, 0x40, 0xc3, 0x9e, 0x12, 0xa8, 0x82, 0x31, 0xa0, 0xa7, 0xb4, 0x9d, 0x89, 0xaa,
-	0x9c, 0xc5, 0x1a, 0xd5, 0xe9, 0xb1, 0x2a, 0x6a, 0x13, 0x2c, 0x8f, 0xbd, 0xb0, 0xb7, 0xcf, 0xbf,
-	0x45, 0x02, 0x65, 0x6c, 0x4c, 0x83, 0x8a, 0x62, 0x18, 0xf3, 0x5f, 0x85, 0x4d, 0xab, 0xb6, 0xf7,
-	0xe2, 0xb8, 0xa8, 0x1d, 0x1d, 0x17, 0xb5, 0x7f, 0x8e, 0x8b, 0xda, 0x77, 0x27, 0xc5, 0x99, 0xa3,
-	0x93, 0xe2, 0xcc, 0x5f, 0x27, 0xc5, 0x99, 0xcf, 0xed, 0x58, 0xf7, 0x0b, 0x1d, 0xf3, 0x6f, 0xf0,
-	0x16, 0xe9, 0xd8, 0xad, 0xb6, 0x8b, 0xb0, 0x3d, 0xb8, 0x6f, 0x3f, 0x8b, 0xfe, 0xa9, 0xe0, 0xad,
-	0xb0, 0x99, 0xe5, 0x88, 0xfb, 0xff, 0x06, 0x00, 0x00, 0xff, 0xff, 0xf9, 0x50, 0x74, 0xfe, 0x7d,
-	0x0d, 0x00, 0x00,
+	// 1118 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x57, 0xcf, 0x6f, 0x1b, 0x45,
+	0x14, 0xce, 0xda, 0x49, 0x48, 0x5e, 0xd2, 0xa6, 0xdd, 0x26, 0xcd, 0x66, 0x1b, 0x1c, 0x6b, 0xd3,
+	0x50, 0x37, 0x34, 0xbb, 0x4d, 0xa2, 0x56, 0x25, 0xb7, 0xb8, 0x51, 0xa5, 0x1c, 0x2c, 0x55, 0x6e,
+	0xa0, 0x12, 0x42, 0x8a, 0xd6, 0xde, 0x61, 0xbd, 0xaa, 0xbd, 0x63, 0xed, 0x8c, 0xdd, 0xfa, 0x80,
+	0x84, 0x38, 0x70, 0xe0, 0x02, 0x1c, 0x40, 0x48, 0xdc, 0x11, 0xe2, 0x42, 0x0e, 0xbd, 0x72, 0xaf,
+	0xb8, 0x50, 0x71, 0xe2, 0x54, 0x50, 0x72, 0xc8, 0xbf, 0x81, 0x76, 0x76, 0x76, 0xf6, 0x47, 0xd6,
+	0x8e, 0x8d, 0x4a, 0xd5, 0x8b, 0xed, 0x99, 0xf7, 0xcd, 0xcc, 0xf7, 0xbe, 0x37, 0x6f, 0xde, 0x33,
+	0x2c, 0xd7, 0x4c, 0xd7, 0x32, 0x68, 0xc7, 0x75, 0x51, 0xd3, 0xe8, 0x6e, 0xd6, 0x10, 0x35, 0x37,
+	0x0d, 0xfa, 0x4c, 0x6f, 0x7b, 0x98, 0x62, 0xf9, 0x8a, 0x6f, 0xd5, 0x03, 0xab, 0xce, 0xad, 0xea,
+	0x92, 0x8d, 0xb1, 0xdd, 0x44, 0x06, 0x83, 0xd4, 0x3a, 0x9f, 0x1a, 0xa6, 0xdb, 0x0b, 0xf0, 0xea,
+	0xbc, 0x8d, 0x6d, 0xcc, 0x7e, 0x1a, 0xfe, 0x2f, 0x3e, 0xbb, 0x54, 0xc7, 0xa4, 0x85, 0xc9, 0x61,
+	0x60, 0x08, 0x06, 0xdc, 0x54, 0x08, 0x46, 0x46, 0xcd, 0x24, 0x48, 0x1c, 0x5f, 0xc7, 0x8e, 0xcb,
+	0xed, 0x8b, 0xdc, 0xde, 0x22, 0xb6, 0xd1, 0xdd, 0xf4, 0xbf, 0xb8, 0xe1, 0xb2, 0xd9, 0x72, 0x5c,
+	0x6c, 0xb0, 0x4f, 0x3e, 0x55, 0xcc, 0x72, 0xa5, 0x6d, 0x7a, 0x66, 0x8b, 0x0c, 0x42, 0x70, 0xef,
+	0x18, 0x42, 0xfb, 0x3e, 0x0f, 0x73, 0x15, 0x62, 0xdf, 0xf7, 0x90, 0x49, 0xd1, 0x01, 0xb3, 0xc8,
+	0x8f, 0xe1, 0x32, 0x71, 0x6c, 0xd7, 0x6c, 0x1e, 0x5a, 0xa8, 0xeb, 0x98, 0xd4, 0xc1, 0x2e, 0x51,
+	0xa4, 0x62, 0xbe, 0x34, 0xb3, 0x75, 0x5d, 0xcf, 0x10, 0x48, 0x7f, 0xc4, 0xd0, 0x7b, 0x21, 0xb8,
+	0x3c, 0xfe, 0xe2, 0xd5, 0xca, 0x58, 0xf5, 0x12, 0x49, 0x4e, 0x13, 0x59, 0x85, 0x29, 0xc7, 0xa5,
+	0xc8, 0xeb, 0x9a, 0x4d, 0x25, 0x57, 0x94, 0x4a, 0xe3, 0x55, 0x31, 0x96, 0xef, 0xc2, 0x84, 0x87,
+	0x3b, 0x14, 0x29, 0xf9, 0xa2, 0x54, 0x9a, 0xd9, 0x9a, 0xd7, 0x03, 0xd1, 0xf5, 0x50, 0x74, 0x7d,
+	0xd7, 0xed, 0x95, 0xe1, 0xf7, 0xe7, 0x1b, 0x93, 0x55, 0x1f, 0xb6, 0x5f, 0x0d, 0xe0, 0x72, 0x0f,
+	0xe6, 0x1c, 0xd7, 0xa1, 0x0e, 0x63, 0xdb, 0xc6, 0xc4, 0xa1, 0xca, 0x38, 0xa3, 0xba, 0xa4, 0x73,
+	0xe1, 0x7d, 0xa9, 0x05, 0xd5, 0xfb, 0xd8, 0x71, 0xcb, 0x77, 0x7c, 0x7e, 0xbf, 0xfc, 0xbd, 0x52,
+	0xb2, 0x1d, 0xda, 0xe8, 0xd4, 0xf4, 0x3a, 0x6e, 0xf1, 0x28, 0xf1, 0xaf, 0x0d, 0x62, 0x3d, 0x31,
+	0x68, 0xaf, 0x8d, 0x08, 0x5b, 0x40, 0x7e, 0x3e, 0x3d, 0x5a, 0x97, 0xaa, 0x17, 0xf9, 0x41, 0x7b,
+	0xc1, 0x39, 0xf2, 0x16, 0xbc, 0x53, 0xf7, 0x75, 0xc3, 0x9e, 0x32, 0x51, 0x94, 0x4a, 0xd3, 0x65,
+	0xe5, 0xcf, 0xe7, 0x1b, 0xf3, 0xfc, 0xd4, 0x5d, 0xcb, 0xf2, 0x10, 0x21, 0x8f, 0xa8, 0xe7, 0xb8,
+	0x76, 0x35, 0x04, 0xee, 0xdc, 0xf8, 0xe2, 0xf4, 0x68, 0x3d, 0x1c, 0x7d, 0x75, 0x7a, 0xb4, 0x7e,
+	0x95, 0x47, 0x27, 0x15, 0x04, 0x6d, 0x0f, 0x16, 0x53, 0x53, 0x55, 0x44, 0xda, 0xd8, 0x25, 0x48,
+	0xbe, 0x09, 0xd3, 0xc1, 0xa2, 0x43, 0xc7, 0x52, 0x24, 0x5f, 0xc7, 0xf2, 0xec, 0xf1, 0xab, 0x95,
+	0xa9, 0x00, 0xb6, 0xbf, 0x57, 0x9d, 0x0a, 0xcc, 0xfb, 0x96, 0xf6, 0x87, 0x04, 0x17, 0x2b, 0xc4,
+	0xfe, 0xb0, 0x6d, 0x99, 0x14, 0x31, 0xe1, 0x46, 0x58, 0x1d, 0xc5, 0x24, 0x37, 0x5a, 0x4c, 0x62,
+	0xc2, 0xe4, 0x87, 0x15, 0xe6, 0xbd, 0xb4, 0x30, 0x0b, 0x91, 0x30, 0x31, 0xfa, 0x9a, 0x02, 0x57,
+	0x93, 0x33, 0xa1, 0x2c, 0xda, 0x4f, 0x39, 0xb8, 0x26, 0x4c, 0xc1, 0x95, 0x24, 0xbb, 0xae, 0xb5,
+	0x1f, 0xde, 0xb0, 0x11, 0x1c, 0xcf, 0xcc, 0x80, 0xdc, 0x6b, 0xce, 0x80, 0x7c, 0x2a, 0x03, 0x62,
+	0xaa, 0x8d, 0x0f, 0xab, 0xda, 0x76, 0x5a, 0x35, 0x2d, 0xad, 0xda, 0x59, 0x21, 0xb4, 0x35, 0x58,
+	0x1d, 0x60, 0x16, 0x7a, 0x7e, 0x97, 0x03, 0xa5, 0x42, 0xec, 0xc7, 0x0e, 0x6d, 0x58, 0x9e, 0xf9,
+	0xf4, 0x01, 0x42, 0x0f, 0xcd, 0x1e, 0xf2, 0x1e, 0x74, 0x5c, 0x8b, 0x8c, 0x22, 0x66, 0x03, 0x26,
+	0xcd, 0x16, 0xee, 0xb8, 0x94, 0x2b, 0xf8, 0xfa, 0x13, 0x93, 0xef, 0xff, 0x9f, 0xee, 0xdd, 0xed,
+	0xb4, 0x82, 0x2b, 0x91, 0x82, 0x99, 0xae, 0x6b, 0x1a, 0x14, 0xfb, 0xd9, 0x84, 0x76, 0xdf, 0x4a,
+	0x30, 0x53, 0x21, 0xf6, 0x6e, 0x9d, 0x3a, 0x5d, 0x73, 0xb4, 0xa4, 0x8b, 0x39, 0x91, 0x1b, 0xd6,
+	0x89, 0xd5, 0xb4, 0x13, 0x72, 0xe4, 0x44, 0xc8, 0x41, 0x5b, 0x80, 0x2b, 0xb1, 0x61, 0x14, 0x66,
+	0x09, 0x2e, 0x54, 0x88, 0xbd, 0x87, 0xcc, 0x37, 0x44, 0x76, 0x2d, 0x4d, 0x76, 0x3e, 0x22, 0x1b,
+	0xb1, 0xd0, 0x16, 0x61, 0x21, 0x31, 0x21, 0x08, 0xff, 0x28, 0xc1, 0xa5, 0x0a, 0xb1, 0x0f, 0x3c,
+	0xc7, 0xb6, 0x91, 0xc7, 0x6b, 0xd6, 0xff, 0xcc, 0xb9, 0x94, 0xe6, 0xbc, 0x18, 0x71, 0x4e, 0x10,
+	0xd1, 0x54, 0x96, 0x34, 0x89, 0x39, 0xc1, 0xfc, 0xeb, 0x1c, 0xc8, 0xcc, 0x27, 0x56, 0x3f, 0x0e,
+	0xf0, 0xe8, 0xdc, 0xdf, 0x5c, 0x2e, 0xdd, 0x85, 0x69, 0x5e, 0x4f, 0x87, 0xc8, 0xa6, 0x08, 0xba,
+	0x73, 0xcb, 0x57, 0x2a, 0x1a, 0xfb, 0x5a, 0x2d, 0xc5, 0xe3, 0x9b, 0x70, 0x5d, 0x5b, 0x06, 0xf5,
+	0xec, 0xac, 0xd0, 0xeb, 0x87, 0x1c, 0xbb, 0x03, 0x22, 0xd5, 0x3c, 0xdc, 0x7a, 0x9b, 0x25, 0xbb,
+	0x07, 0xf0, 0x94, 0x53, 0x45, 0xe7, 0x6b, 0x16, 0xc3, 0x06, 0x8f, 0x50, 0x6c, 0xc2, 0x57, 0x6d,
+	0x39, 0xe3, 0x1d, 0x12, 0x02, 0x68, 0x2b, 0xf0, 0x6e, 0xa6, 0x41, 0x68, 0xf7, 0xab, 0xc4, 0x1a,
+	0xbb, 0xe0, 0x95, 0x7f, 0xc8, 0x9a, 0x42, 0x3f, 0xa6, 0x66, 0x87, 0x36, 0xb0, 0xe7, 0xd0, 0x1e,
+	0x53, 0x6d, 0x60, 0x4c, 0x05, 0x54, 0xfe, 0x00, 0x26, 0x83, 0xb6, 0x92, 0x37, 0x02, 0xd7, 0x32,
+	0x6b, 0x60, 0x70, 0x08, 0x2f, 0x7d, 0x7c, 0xc1, 0xce, 0x4d, 0x76, 0x1d, 0xc4, 0x56, 0xa9, 0x8e,
+	0x27, 0xce, 0x4e, 0x5b, 0x62, 0x1d, 0x4f, 0x7c, 0x2a, 0x74, 0x66, 0xeb, 0xb7, 0x29, 0xc8, 0x57,
+	0x88, 0x2d, 0xd7, 0x60, 0x36, 0xd1, 0xa9, 0x66, 0x17, 0xe3, 0x54, 0xdf, 0xa4, 0xde, 0x1a, 0x06,
+	0x25, 0xba, 0xab, 0x43, 0x98, 0x89, 0xb7, 0x4b, 0xab, 0xfd, 0x16, 0xc7, 0x40, 0xea, 0xfb, 0x43,
+	0x80, 0xc4, 0x01, 0x5f, 0x4a, 0xa0, 0xf4, 0x6d, 0x52, 0x6e, 0x0f, 0xde, 0xe9, 0xec, 0x0a, 0xf5,
+	0xde, 0xa8, 0x2b, 0x04, 0x91, 0xcf, 0x60, 0x21, 0xbb, 0xb8, 0x6f, 0xf4, 0xdb, 0x32, 0x13, 0xae,
+	0xde, 0x19, 0x09, 0x2e, 0x8e, 0xff, 0x08, 0xa6, 0x44, 0x7d, 0x2c, 0xf6, 0xdb, 0x22, 0x44, 0xa8,
+	0xa5, 0xf3, 0x10, 0x62, 0xdf, 0x4f, 0x00, 0x62, 0xc5, 0x4c, 0xeb, 0xb7, 0x2e, 0xc2, 0xa8, 0xeb,
+	0xe7, 0x63, 0xc4, 0xee, 0x08, 0x2e, 0x24, 0x2b, 0xcf, 0x5a, 0xbf, 0xc5, 0x09, 0x98, 0xba, 0x31,
+	0x14, 0x4c, 0x1c, 0xf3, 0x04, 0xe6, 0xd2, 0x65, 0xe2, 0x46, 0x7f, 0x96, 0x09, 0xa0, 0x6a, 0x0c,
+	0x09, 0x14, 0x87, 0x51, 0x90, 0x33, 0xde, 0xd8, 0xf5, 0x73, 0xc3, 0x2a, 0xb0, 0xea, 0xd6, 0xf0,
+	0x58, 0x71, 0x6a, 0x0d, 0x66, 0x13, 0xaf, 0xd3, 0xf5, 0xc1, 0x17, 0x39, 0x40, 0xf5, 0x4f, 0xe6,
+	0xac, 0x87, 0x43, 0x9d, 0xf8, 0xdc, 0x7f, 0xa1, 0xcb, 0xfb, 0x2f, 0x8e, 0x0b, 0xd2, 0xcb, 0xe3,
+	0x82, 0xf4, 0xcf, 0x71, 0x41, 0xfa, 0xe6, 0xa4, 0x30, 0xf6, 0xf2, 0xa4, 0x30, 0xf6, 0xd7, 0x49,
+	0x61, 0xec, 0x63, 0x23, 0xf6, 0xd4, 0xfb, 0x1b, 0xb3, 0xbf, 0x36, 0x75, 0xdc, 0x34, 0xea, 0x0d,
+	0xd3, 0x71, 0x8d, 0xee, 0xb6, 0xf1, 0x2c, 0xfc, 0xff, 0xcc, 0xde, 0xfd, 0xda, 0x24, 0x43, 0x6c,
+	0xff, 0x1b, 0x00, 0x00, 0xff, 0xff, 0x5f, 0x6b, 0xc5, 0x2f, 0x48, 0x10, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -957,8 +1156,12 @@ const _ = grpc.SupportPackageIsVersion4
 type MsgClient interface {
 	// CreateTunnel is a RPC method to create a new tunnel.
 	CreateTunnel(ctx context.Context, in *MsgCreateTunnel, opts ...grpc.CallOption) (*MsgCreateTunnelResponse, error)
-	// UpdateAndResetTunnel is a RPC method to update a tunnel information and reset the interval.
-	UpdateAndResetTunnel(ctx context.Context, in *MsgUpdateAndResetTunnel, opts ...grpc.CallOption) (*MsgUpdateAndResetTunnelResponse, error)
+	// UpdateRoute is a RPC method to update a route information of the tunnel.
+	UpdateRoute(ctx context.Context, in *MsgUpdateRoute, opts ...grpc.CallOption) (*MsgUpdateRouteResponse, error)
+	// UpdateSignalsAndInterval is a RPC method to update a signals and interval of the tunnel.
+	UpdateSignalsAndInterval(ctx context.Context, in *MsgUpdateSignalsAndInterval, opts ...grpc.CallOption) (*MsgUpdateSignalsAndIntervalResponse, error)
+	// WithdrawFeePayerFunds is a RPC method to withdraw fee payer funds to creator.
+	WithdrawFeePayerFunds(ctx context.Context, in *MsgWithdrawFeePayerFunds, opts ...grpc.CallOption) (*MsgWithdrawFeePayerFundsResponse, error)
 	// Activate is a RPC method to activate a tunnel.
 	Activate(ctx context.Context, in *MsgActivate, opts ...grpc.CallOption) (*MsgActivateResponse, error)
 	// Deactivate is a RPC method to deactivate a tunnel.
@@ -990,9 +1193,27 @@ func (c *msgClient) CreateTunnel(ctx context.Context, in *MsgCreateTunnel, opts 
 	return out, nil
 }
 
-func (c *msgClient) UpdateAndResetTunnel(ctx context.Context, in *MsgUpdateAndResetTunnel, opts ...grpc.CallOption) (*MsgUpdateAndResetTunnelResponse, error) {
-	out := new(MsgUpdateAndResetTunnelResponse)
-	err := c.cc.Invoke(ctx, "/band.tunnel.v1beta1.Msg/UpdateAndResetTunnel", in, out, opts...)
+func (c *msgClient) UpdateRoute(ctx context.Context, in *MsgUpdateRoute, opts ...grpc.CallOption) (*MsgUpdateRouteResponse, error) {
+	out := new(MsgUpdateRouteResponse)
+	err := c.cc.Invoke(ctx, "/band.tunnel.v1beta1.Msg/UpdateRoute", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) UpdateSignalsAndInterval(ctx context.Context, in *MsgUpdateSignalsAndInterval, opts ...grpc.CallOption) (*MsgUpdateSignalsAndIntervalResponse, error) {
+	out := new(MsgUpdateSignalsAndIntervalResponse)
+	err := c.cc.Invoke(ctx, "/band.tunnel.v1beta1.Msg/UpdateSignalsAndInterval", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) WithdrawFeePayerFunds(ctx context.Context, in *MsgWithdrawFeePayerFunds, opts ...grpc.CallOption) (*MsgWithdrawFeePayerFundsResponse, error) {
+	out := new(MsgWithdrawFeePayerFundsResponse)
+	err := c.cc.Invoke(ctx, "/band.tunnel.v1beta1.Msg/WithdrawFeePayerFunds", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1057,8 +1278,12 @@ func (c *msgClient) UpdateParams(ctx context.Context, in *MsgUpdateParams, opts 
 type MsgServer interface {
 	// CreateTunnel is a RPC method to create a new tunnel.
 	CreateTunnel(context.Context, *MsgCreateTunnel) (*MsgCreateTunnelResponse, error)
-	// UpdateAndResetTunnel is a RPC method to update a tunnel information and reset the interval.
-	UpdateAndResetTunnel(context.Context, *MsgUpdateAndResetTunnel) (*MsgUpdateAndResetTunnelResponse, error)
+	// UpdateRoute is a RPC method to update a route information of the tunnel.
+	UpdateRoute(context.Context, *MsgUpdateRoute) (*MsgUpdateRouteResponse, error)
+	// UpdateSignalsAndInterval is a RPC method to update a signals and interval of the tunnel.
+	UpdateSignalsAndInterval(context.Context, *MsgUpdateSignalsAndInterval) (*MsgUpdateSignalsAndIntervalResponse, error)
+	// WithdrawFeePayerFunds is a RPC method to withdraw fee payer funds to creator.
+	WithdrawFeePayerFunds(context.Context, *MsgWithdrawFeePayerFunds) (*MsgWithdrawFeePayerFundsResponse, error)
 	// Activate is a RPC method to activate a tunnel.
 	Activate(context.Context, *MsgActivate) (*MsgActivateResponse, error)
 	// Deactivate is a RPC method to deactivate a tunnel.
@@ -1080,8 +1305,14 @@ type UnimplementedMsgServer struct {
 func (*UnimplementedMsgServer) CreateTunnel(ctx context.Context, req *MsgCreateTunnel) (*MsgCreateTunnelResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTunnel not implemented")
 }
-func (*UnimplementedMsgServer) UpdateAndResetTunnel(ctx context.Context, req *MsgUpdateAndResetTunnel) (*MsgUpdateAndResetTunnelResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateAndResetTunnel not implemented")
+func (*UnimplementedMsgServer) UpdateRoute(ctx context.Context, req *MsgUpdateRoute) (*MsgUpdateRouteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateRoute not implemented")
+}
+func (*UnimplementedMsgServer) UpdateSignalsAndInterval(ctx context.Context, req *MsgUpdateSignalsAndInterval) (*MsgUpdateSignalsAndIntervalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateSignalsAndInterval not implemented")
+}
+func (*UnimplementedMsgServer) WithdrawFeePayerFunds(ctx context.Context, req *MsgWithdrawFeePayerFunds) (*MsgWithdrawFeePayerFundsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WithdrawFeePayerFunds not implemented")
 }
 func (*UnimplementedMsgServer) Activate(ctx context.Context, req *MsgActivate) (*MsgActivateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Activate not implemented")
@@ -1124,20 +1355,56 @@ func _Msg_CreateTunnel_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_UpdateAndResetTunnel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgUpdateAndResetTunnel)
+func _Msg_UpdateRoute_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgUpdateRoute)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).UpdateAndResetTunnel(ctx, in)
+		return srv.(MsgServer).UpdateRoute(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/band.tunnel.v1beta1.Msg/UpdateAndResetTunnel",
+		FullMethod: "/band.tunnel.v1beta1.Msg/UpdateRoute",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).UpdateAndResetTunnel(ctx, req.(*MsgUpdateAndResetTunnel))
+		return srv.(MsgServer).UpdateRoute(ctx, req.(*MsgUpdateRoute))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_UpdateSignalsAndInterval_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgUpdateSignalsAndInterval)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).UpdateSignalsAndInterval(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/band.tunnel.v1beta1.Msg/UpdateSignalsAndInterval",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).UpdateSignalsAndInterval(ctx, req.(*MsgUpdateSignalsAndInterval))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_WithdrawFeePayerFunds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgWithdrawFeePayerFunds)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).WithdrawFeePayerFunds(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/band.tunnel.v1beta1.Msg/WithdrawFeePayerFunds",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).WithdrawFeePayerFunds(ctx, req.(*MsgWithdrawFeePayerFunds))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1259,8 +1526,16 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Msg_CreateTunnel_Handler,
 		},
 		{
-			MethodName: "UpdateAndResetTunnel",
-			Handler:    _Msg_UpdateAndResetTunnel_Handler,
+			MethodName: "UpdateRoute",
+			Handler:    _Msg_UpdateRoute_Handler,
+		},
+		{
+			MethodName: "UpdateSignalsAndInterval",
+			Handler:    _Msg_UpdateSignalsAndInterval_Handler,
+		},
+		{
+			MethodName: "WithdrawFeePayerFunds",
+			Handler:    _Msg_WithdrawFeePayerFunds_Handler,
 		},
 		{
 			MethodName: "Activate",
@@ -1316,7 +1591,7 @@ func (m *MsgCreateTunnel) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		copy(dAtA[i:], m.Creator)
 		i = encodeVarintTx(dAtA, i, uint64(len(m.Creator)))
 		i--
-		dAtA[i] = 0x32
+		dAtA[i] = 0x2a
 	}
 	if len(m.InitialDeposit) > 0 {
 		for iNdEx := len(m.InitialDeposit) - 1; iNdEx >= 0; iNdEx-- {
@@ -1329,13 +1604,8 @@ func (m *MsgCreateTunnel) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 				i = encodeVarintTx(dAtA, i, uint64(size))
 			}
 			i--
-			dAtA[i] = 0x2a
+			dAtA[i] = 0x22
 		}
-	}
-	if m.Encoder != 0 {
-		i = encodeVarintTx(dAtA, i, uint64(m.Encoder))
-		i--
-		dAtA[i] = 0x20
 	}
 	if m.Route != nil {
 		{
@@ -1399,7 +1669,7 @@ func (m *MsgCreateTunnelResponse) MarshalToSizedBuffer(dAtA []byte) (int, error)
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgUpdateAndResetTunnel) Marshal() (dAtA []byte, err error) {
+func (m *MsgUpdateRoute) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1409,12 +1679,82 @@ func (m *MsgUpdateAndResetTunnel) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgUpdateAndResetTunnel) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgUpdateRoute) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgUpdateAndResetTunnel) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgUpdateRoute) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Creator) > 0 {
+		i -= len(m.Creator)
+		copy(dAtA[i:], m.Creator)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Creator)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if m.Route != nil {
+		{
+			size, err := m.Route.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintTx(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.TunnelID != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.TunnelID))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgUpdateRouteResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgUpdateRouteResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgUpdateRouteResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgUpdateSignalsAndInterval) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgUpdateSignalsAndInterval) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgUpdateSignalsAndInterval) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1453,7 +1793,7 @@ func (m *MsgUpdateAndResetTunnel) MarshalToSizedBuffer(dAtA []byte) (int, error)
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgUpdateAndResetTunnelResponse) Marshal() (dAtA []byte, err error) {
+func (m *MsgUpdateSignalsAndIntervalResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1463,12 +1803,84 @@ func (m *MsgUpdateAndResetTunnelResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgUpdateAndResetTunnelResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgUpdateSignalsAndIntervalResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgUpdateAndResetTunnelResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgUpdateSignalsAndIntervalResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgWithdrawFeePayerFunds) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgWithdrawFeePayerFunds) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgWithdrawFeePayerFunds) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Creator) > 0 {
+		i -= len(m.Creator)
+		copy(dAtA[i:], m.Creator)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.Creator)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.Amount) > 0 {
+		for iNdEx := len(m.Amount) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Amount[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTx(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if m.TunnelID != 0 {
+		i = encodeVarintTx(dAtA, i, uint64(m.TunnelID))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgWithdrawFeePayerFundsResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgWithdrawFeePayerFundsResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgWithdrawFeePayerFundsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1887,9 +2299,6 @@ func (m *MsgCreateTunnel) Size() (n int) {
 		l = m.Route.Size()
 		n += 1 + l + sovTx(uint64(l))
 	}
-	if m.Encoder != 0 {
-		n += 1 + sovTx(uint64(m.Encoder))
-	}
 	if len(m.InitialDeposit) > 0 {
 		for _, e := range m.InitialDeposit {
 			l = e.Size()
@@ -1915,7 +2324,36 @@ func (m *MsgCreateTunnelResponse) Size() (n int) {
 	return n
 }
 
-func (m *MsgUpdateAndResetTunnel) Size() (n int) {
+func (m *MsgUpdateRoute) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.TunnelID != 0 {
+		n += 1 + sovTx(uint64(m.TunnelID))
+	}
+	if m.Route != nil {
+		l = m.Route.Size()
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.Creator)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	return n
+}
+
+func (m *MsgUpdateRouteResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *MsgUpdateSignalsAndInterval) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1940,7 +2378,38 @@ func (m *MsgUpdateAndResetTunnel) Size() (n int) {
 	return n
 }
 
-func (m *MsgUpdateAndResetTunnelResponse) Size() (n int) {
+func (m *MsgUpdateSignalsAndIntervalResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *MsgWithdrawFeePayerFunds) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.TunnelID != 0 {
+		n += 1 + sovTx(uint64(m.TunnelID))
+	}
+	if len(m.Amount) > 0 {
+		for _, e := range m.Amount {
+			l = e.Size()
+			n += 1 + l + sovTx(uint64(l))
+		}
+	}
+	l = len(m.Creator)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	return n
+}
+
+func (m *MsgWithdrawFeePayerFundsResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2235,25 +2704,6 @@ func (m *MsgCreateTunnel) Unmarshal(dAtA []byte) error {
 			}
 			iNdEx = postIndex
 		case 4:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Encoder", wireType)
-			}
-			m.Encoder = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTx
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Encoder |= types1.Encoder(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 5:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field InitialDeposit", wireType)
 			}
@@ -2282,12 +2732,12 @@ func (m *MsgCreateTunnel) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.InitialDeposit = append(m.InitialDeposit, types2.Coin{})
+			m.InitialDeposit = append(m.InitialDeposit, types1.Coin{})
 			if err := m.InitialDeposit[len(m.InitialDeposit)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
-		case 6:
+		case 5:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Creator", wireType)
 			}
@@ -2409,7 +2859,7 @@ func (m *MsgCreateTunnelResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgUpdateAndResetTunnel) Unmarshal(dAtA []byte) error {
+func (m *MsgUpdateRoute) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2432,10 +2882,197 @@ func (m *MsgUpdateAndResetTunnel) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgUpdateAndResetTunnel: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgUpdateRoute: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgUpdateAndResetTunnel: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgUpdateRoute: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TunnelID", wireType)
+			}
+			m.TunnelID = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.TunnelID |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Route", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Route == nil {
+				m.Route = &types.Any{}
+			}
+			if err := m.Route.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Creator", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Creator = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgUpdateRouteResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgUpdateRouteResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgUpdateRouteResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgUpdateSignalsAndInterval) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgUpdateSignalsAndInterval: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgUpdateSignalsAndInterval: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -2563,7 +3200,7 @@ func (m *MsgUpdateAndResetTunnel) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgUpdateAndResetTunnelResponse) Unmarshal(dAtA []byte) error {
+func (m *MsgUpdateSignalsAndIntervalResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2586,10 +3223,195 @@ func (m *MsgUpdateAndResetTunnelResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgUpdateAndResetTunnelResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgUpdateSignalsAndIntervalResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgUpdateAndResetTunnelResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgUpdateSignalsAndIntervalResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgWithdrawFeePayerFunds) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgWithdrawFeePayerFunds: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgWithdrawFeePayerFunds: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TunnelID", wireType)
+			}
+			m.TunnelID = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.TunnelID |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Amount = append(m.Amount, types1.Coin{})
+			if err := m.Amount[len(m.Amount)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Creator", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Creator = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgWithdrawFeePayerFundsResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgWithdrawFeePayerFundsResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgWithdrawFeePayerFundsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
@@ -3143,7 +3965,7 @@ func (m *MsgDepositToTunnel) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Amount = append(m.Amount, types2.Coin{})
+			m.Amount = append(m.Amount, types1.Coin{})
 			if err := m.Amount[len(m.Amount)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -3328,7 +4150,7 @@ func (m *MsgWithdrawFromTunnel) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Amount = append(m.Amount, types2.Coin{})
+			m.Amount = append(m.Amount, types1.Coin{})
 			if err := m.Amount[len(m.Amount)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}

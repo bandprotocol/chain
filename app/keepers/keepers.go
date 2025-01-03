@@ -53,8 +53,6 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	"github.com/cosmos/cosmos-sdk/x/group"
-	groupkeeper "github.com/cosmos/cosmos-sdk/x/group/keeper"
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
@@ -113,7 +111,6 @@ type AppKeepers struct {
 	FeeGrantKeeper        feegrantkeeper.Keeper
 	EvidenceKeeper        evidencekeeper.Keeper
 	AuthzKeeper           authzkeeper.Keeper
-	GroupKeeper           groupkeeper.Keeper
 	RollingseedKeeper     rollingseedkeeper.Keeper
 	OracleKeeper          oraclekeeper.Keeper
 	TSSKeeper             *tsskeeper.Keeper
@@ -336,15 +333,6 @@ func NewAppKeeper(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
-	groupConfig := group.DefaultConfig()
-	appKeepers.GroupKeeper = groupkeeper.NewKeeper(
-		appKeepers.keys[group.StoreKey],
-		appCodec,
-		bApp.MsgServiceRouter(),
-		appKeepers.AccountKeeper,
-		groupConfig,
-	)
-
 	govConfig := govtypes.DefaultConfig()
 	// set the MaxMetadataLen for proposals to the same value as it was pre-sdk v0.47.x
 	govConfig.MaxMetadataLen = 10200
@@ -501,6 +489,7 @@ func NewAppKeeper(
 		appKeepers.BankKeeper,
 		appKeepers.FeedsKeeper,
 		appKeepers.BandtssKeeper,
+		appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.IBCFeeKeeper,
 		appKeepers.IBCKeeper.PortKeeper,
 		appKeepers.ScopedTunnelKeeper,
@@ -590,9 +579,9 @@ func initParamsKeeper(
 		WithKeyTable(govv1.ParamKeyTable()) //nolint: staticcheck // SA1019
 	paramsKeeper.Subspace(crisistypes.ModuleName).
 		WithKeyTable(crisistypes.ParamKeyTable()) //nolint: staticcheck // SA1019
-	paramsKeeper.Subspace(ibcexported.ModuleName)
-	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
-	paramsKeeper.Subspace(icahosttypes.SubModuleName)
+	paramsKeeper.Subspace(ibcexported.ModuleName).WithKeyTable(keyTable)
+	paramsKeeper.Subspace(ibctransfertypes.ModuleName).WithKeyTable(ibctransfertypes.ParamKeyTable())
+	paramsKeeper.Subspace(icahosttypes.SubModuleName).WithKeyTable(icahosttypes.ParamKeyTable())
 	paramsKeeper.Subspace(oracletypes.ModuleName)
 
 	return paramsKeeper

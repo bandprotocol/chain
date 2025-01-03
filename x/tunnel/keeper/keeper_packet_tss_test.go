@@ -21,6 +21,7 @@ func (s *KeeperTestSuite) TestSendTSSPacket() {
 	route := types.TSSRoute{
 		DestinationChainID:         "chain-1",
 		DestinationContractAddress: "0x1234567890abcdef",
+		Encoder:                    feedstypes.ENCODER_FIXED_POINT_ABI,
 	}
 	packet := types.NewPacket(
 		1,                    // tunnelID
@@ -47,7 +48,6 @@ func (s *KeeperTestSuite) TestSendTSSPacket() {
 		ctx,
 		&route,
 		packet,
-		feedstypes.ENCODER_FIXED_POINT_ABI,
 		bandtesting.Alice.Address,
 	)
 	s.Require().NoError(err)

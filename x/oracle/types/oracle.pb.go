@@ -39,7 +39,7 @@ const (
 	RESOLVE_STATUS_OPEN ResolveStatus = 0
 	// Success - the request has been resolved successfully with no errors.
 	RESOLVE_STATUS_SUCCESS ResolveStatus = 1
-	// Failure - an error occured during the request's resolve call.
+	// Failure - an error occurred during the request's resolve call.
 	RESOLVE_STATUS_FAILURE ResolveStatus = 2
 	// Expired - the request does not get enough reports from validator within the
 	// timeframe.

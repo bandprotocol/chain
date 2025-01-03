@@ -9,20 +9,20 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-// Event represents the data structure for submit_sign events.
-type Event struct {
+// PubDE represents the data structure for public D,E being retrieved from events.
+type PubDE struct {
 	PubDE types.DE
 }
 
-// ParseSubmitSignEvents parses the submit_sign events from the given events.
+// ParsePubDEFromEvents parses the events into PubDE struct from the given events and event type.
 // It extracts the public D and E from the log and returns the parsed Events or an error if parsing fails.
-func ParseSubmitSignEvents(events sdk.StringEvents) ([]Event, error) {
-	pubDs, err := event.GetEventValuesBytes(events, types.EventTypeSubmitSignature, types.AttributeKeyPubD)
+func ParsePubDEFromEvents(events sdk.StringEvents, eventType string) ([]PubDE, error) {
+	pubDs, err := event.GetEventValuesBytes(events, eventType, types.AttributeKeyPubD)
 	if err != nil {
 		return nil, err
 	}
 
-	pubEs, err := event.GetEventValuesBytes(events, types.EventTypeSubmitSignature, types.AttributeKeyPubE)
+	pubEs, err := event.GetEventValuesBytes(events, eventType, types.AttributeKeyPubE)
 	if err != nil {
 		return nil, err
 	}
@@ -31,9 +31,9 @@ func ParseSubmitSignEvents(events sdk.StringEvents) ([]Event, error) {
 		return nil, errors.New("length of public D and e are not equal")
 	}
 
-	var eves []Event
+	var pubDEs []PubDE
 	for i, pubD := range pubDs {
-		eves = append(eves, Event{
+		pubDEs = append(pubDEs, PubDE{
 			PubDE: types.DE{
 				PubD: pubD,
 				PubE: pubEs[i],
@@ -41,5 +41,5 @@ func ParseSubmitSignEvents(events sdk.StringEvents) ([]Event, error) {
 		})
 	}
 
-	return eves, nil
+	return pubDEs, nil
 }

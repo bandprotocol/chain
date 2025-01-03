@@ -188,9 +188,14 @@ func (s *SignallerTestSuite) TestGetAllSignalIDs() {
 	// Update internal variables
 	s.TestUpdateInternalVariables()
 
+	expectedSignalIDs := []string{"signal1", "signal2"}
+
 	signalIDs = s.Signaller.getAllSignalIDs()
 	s.Require().NotEmpty(signalIDs)
-	s.Require().Equal("signal1", signalIDs[0])
+
+	// sort signalIDs to compare
+	sort.Strings(signalIDs)
+	s.Require().Equal(expectedSignalIDs, signalIDs)
 }
 
 func (s *SignallerTestSuite) TestGetNonPendingSignalIDs() {

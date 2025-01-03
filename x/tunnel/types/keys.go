@@ -23,9 +23,6 @@ const (
 
 	// QuerierRoute is the querier route for the tunnel module
 	QuerierRoute = ModuleName
-
-	// PortID is the default port id that tunnel module binds to.
-	PortID = ModuleName
 )
 
 var (
@@ -42,9 +39,6 @@ var (
 
 	// params store keys
 	ParamsKey = []byte{0x90}
-
-	// PortKey defines the key to store the port ID in store
-	PortKey = []byte{0xf0}
 )
 
 // TunnelStoreKey returns the key to retrieve a specific tunnel from the store.

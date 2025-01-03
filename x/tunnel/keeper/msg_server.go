@@ -52,17 +52,32 @@ func (k msgServer) CreateTunnel(
 		return nil, err
 	}
 
+	// Check channel id in ibc route should be empty
+	ibcRoute, isIBCRoute := route.(*types.IBCRoute)
+	if isIBCRoute {
+		if ibcRoute.ChannelID != "" {
+			return nil, types.ErrInvalidRoute.Wrap("channel id should be set after create tunnel")
+		}
+	}
+
 	// add a new tunnel
 	tunnel, err := k.Keeper.AddTunnel(
 		ctx,
 		route,
-		msg.Encoder,
 		msg.SignalDeviations,
 		msg.Interval,
 		creator,
 	)
 	if err != nil {
 		return nil, err
+	}
+
+	// Bind ibc port for the new tunnel
+	if isIBCRoute {
+		_, err = k.ensureIBCPort(ctx, tunnel.ID)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Deposit the initial deposit to the tunnel
@@ -77,11 +92,53 @@ func (k msgServer) CreateTunnel(
 	}, nil
 }
 
-// UpdateAndResetTunnel edits a tunnel and reset latest price interval.
-func (k msgServer) UpdateAndResetTunnel(
+// UpdateRoute updates the route details based on the route type, allowing certain arguments to be updated.
+func (k msgServer) UpdateRoute(
 	goCtx context.Context,
-	msg *types.MsgUpdateAndResetTunnel,
-) (*types.MsgUpdateAndResetTunnelResponse, error) {
+	msg *types.MsgUpdateRoute,
+) (*types.MsgUpdateRouteResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	tunnel, err := k.Keeper.GetTunnel(ctx, msg.TunnelID)
+	if err != nil {
+		return nil, err
+	}
+
+	if msg.Creator != tunnel.Creator {
+		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", msg.Creator, msg.TunnelID)
+	}
+
+	if tunnel.Route.TypeUrl != msg.Route.TypeUrl {
+		return nil, types.ErrInvalidRoute.Wrap("cannot change route type")
+	}
+
+	route, err := msg.GetRouteValue()
+	if err != nil {
+		return nil, err
+	}
+
+	switch r := route.(type) {
+	case *types.IBCRoute:
+		_, found := k.channelKeeper.GetChannel(ctx, PortIDForTunnel(msg.TunnelID), r.ChannelID)
+		if !found {
+			return nil, types.ErrInvalidChannelID
+		}
+		tunnel.Route = msg.Route
+
+	default:
+		return nil, types.ErrInvalidRoute.Wrap("cannot update route on this route type")
+	}
+
+	k.Keeper.SetTunnel(ctx, tunnel)
+
+	return &types.MsgUpdateRouteResponse{}, nil
+}
+
+// UpdateSignalsAndInterval update signals and interval for a tunnel.
+func (k msgServer) UpdateSignalsAndInterval(
+	goCtx context.Context,
+	msg *types.MsgUpdateSignalsAndInterval,
+) (*types.MsgUpdateSignalsAndIntervalResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	params := k.Keeper.GetParams(ctx)
@@ -105,12 +162,51 @@ func (k msgServer) UpdateAndResetTunnel(
 		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", msg.Creator, msg.TunnelID)
 	}
 
-	err = k.Keeper.UpdateAndResetTunnel(ctx, msg.TunnelID, msg.SignalDeviations, msg.Interval)
+	err = k.Keeper.UpdateSignalsAndInterval(ctx, msg.TunnelID, msg.SignalDeviations, msg.Interval)
 	if err != nil {
 		return nil, err
 	}
 
-	return &types.MsgUpdateAndResetTunnelResponse{}, nil
+	return &types.MsgUpdateSignalsAndIntervalResponse{}, nil
+}
+
+// WithdrawFeePayerFunds withdraws the fee payer's funds from the tunnel to the creator.
+func (k msgServer) WithdrawFeePayerFunds(
+	goCtx context.Context,
+	msg *types.MsgWithdrawFeePayerFunds,
+) (*types.MsgWithdrawFeePayerFundsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	tunnel, err := k.Keeper.GetTunnel(ctx, msg.TunnelID)
+	if err != nil {
+		return nil, err
+	}
+
+	if msg.Creator != tunnel.Creator {
+		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", msg.Creator, msg.TunnelID)
+	}
+
+	feePayer, err := sdk.AccAddressFromBech32(tunnel.FeePayer)
+	if err != nil {
+		return nil, err
+	}
+
+	creator, err := sdk.AccAddressFromBech32(msg.Creator)
+	if err != nil {
+		return nil, err
+	}
+
+	// send coins from the fee payer to the creator
+	if err := k.Keeper.bankKeeper.SendCoins(
+		ctx,
+		feePayer,
+		creator,
+		msg.Amount,
+	); err != nil {
+		return nil, err
+	}
+
+	return &types.MsgWithdrawFeePayerFundsResponse{}, nil
 }
 
 // Activate activates a tunnel.

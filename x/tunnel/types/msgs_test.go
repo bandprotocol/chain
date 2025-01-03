@@ -7,6 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
@@ -26,14 +27,14 @@ func TestMsgCreateTunnel_ValidateBasic(t *testing.T) {
 		{SignalID: "signal1", SoftDeviationBPS: 5000, HardDeviationBPS: 1000},
 	}
 	initialDeposit := sdk.NewCoins(sdk.NewInt64Coin("uband", 100))
-	route := &types.TSSRoute{DestinationChainID: "chain-1", DestinationContractAddress: "contract-1"}
+
+	route := types.NewTSSRoute("chain-1", "contract-1", feedstypes.ENCODER_FIXED_POINT_ABI)
 	msg, err := types.NewMsgCreateTunnel(
 		signalDeviations,
 		10,
-		route,
-		1,
+		&route,
 		initialDeposit,
-		sdk.AccAddress([]byte("creator1")),
+		sdk.AccAddress([]byte("creator1")).String(),
 	)
 	require.NoError(t, err)
 
@@ -48,14 +49,46 @@ func TestMsgCreateTunnel_ValidateBasic(t *testing.T) {
 }
 
 // ====================================
-// MsgUpdateAndResetTunnel
+// MsgUpdateRoute
 // ====================================
 
-func TestMsgUpdateAndResetTunnel_ValidateBasic(t *testing.T) {
+func TestMsgUpdateRoute_ValidateBasic(t *testing.T) {
+	// Valid case - empty channel
+	route := types.NewIBCRoute("")
+	msg, err := types.NewMsgUpdateRoute(1, route, validCreator.String())
+	require.NoError(t, err)
+	err = msg.ValidateBasic()
+	require.NoError(t, err)
+
+	// Valid case - correct channel format
+	route = types.NewIBCRoute("channel-0")
+	msg, err = types.NewMsgUpdateRoute(1, route, validCreator.String())
+	require.NoError(t, err)
+	err = msg.ValidateBasic()
+	require.NoError(t, err)
+
+	// Invalid creator
+	msg.Creator = "invalidCreator"
+	err = msg.ValidateBasic()
+	require.Error(t, err)
+
+	// Invalid route
+	invalidRoute := types.NewIBCRoute("invalid channel")
+	msg, err = types.NewMsgUpdateRoute(1, invalidRoute, validCreator.String())
+	require.NoError(t, err)
+	err = msg.ValidateBasic()
+	require.Error(t, err)
+}
+
+// ====================================
+// MsgUpdateSignalsAndInterval
+// ====================================
+
+func TestMsgUpdateSignalsAndInterval_ValidateBasic(t *testing.T) {
 	signalDeviations := []types.SignalDeviation{
 		{SignalID: "signal1", SoftDeviationBPS: 5000, HardDeviationBPS: 1000},
 	}
-	msg := types.NewMsgUpdateAndResetTunnel(1, signalDeviations, 10, validCreator.String())
+	msg := types.NewMsgUpdateSignalsAndInterval(1, signalDeviations, 10, validCreator.String())
 
 	// Valid case
 	err := msg.ValidateBasic()

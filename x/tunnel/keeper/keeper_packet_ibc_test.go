@@ -28,7 +28,7 @@ func (s *KeeperTestSuite) TestSendIBCPacket() {
 
 	s.scopedKeeper.EXPECT().GetCapability(ctx, gomock.Any()).Return(&capabilitytypes.Capability{}, true)
 	s.icsWrapper.EXPECT().
-		SendPacket(ctx, gomock.Any(), types.PortID, route.ChannelID, clienttypes.NewHeight(0, 0), uint64(ctx.BlockTime().UnixNano())+interval*uint64(time.Second), gomock.Any()).
+		SendPacket(ctx, gomock.Any(), "tunnel.1", route.ChannelID, clienttypes.NewHeight(0, 0), uint64(ctx.BlockTime().UnixNano())+interval*uint64(time.Second)*2, gomock.Any()).
 		Return(uint64(1), nil)
 
 	content, err := k.SendIBCPacket(ctx, route, packet, interval)

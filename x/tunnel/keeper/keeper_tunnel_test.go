@@ -20,8 +20,8 @@ func (s *KeeperTestSuite) TestAddTunnel() {
 	route := &types.TSSRoute{}
 	any, _ := codectypes.NewAnyWithValue(route)
 	signalDeviations := []types.SignalDeviation{
-		{SignalID: "BTC"},
-		{SignalID: "ETH"},
+		{SignalID: "CS:BAND-USD"},
+		{SignalID: "CS:ETH-USD"},
 	}
 	interval := uint64(10)
 	creator := sdk.AccAddress([]byte("creator_address"))
@@ -29,7 +29,6 @@ func (s *KeeperTestSuite) TestAddTunnel() {
 	expectedTunnel := types.Tunnel{
 		ID:               1,
 		Route:            any,
-		Encoder:          feedstypes.ENCODER_FIXED_POINT_ABI,
 		FeePayer:         "band1mdnfc2ehu7vkkg5nttc8tuvwpa9f3dxskf75yxfr7zwhevvcj62q2yggu0",
 		Creator:          creator.String(),
 		Interval:         interval,
@@ -51,7 +50,7 @@ func (s *KeeperTestSuite) TestAddTunnel() {
 	s.accountKeeper.EXPECT().NewAccount(ctx, gomock.Any()).Times(1)
 	s.accountKeeper.EXPECT().SetAccount(ctx, gomock.Any()).Times(1)
 
-	tunnel, err := k.AddTunnel(ctx, route, feedstypes.ENCODER_FIXED_POINT_ABI, signalDeviations, interval, creator)
+	tunnel, err := k.AddTunnel(ctx, route, signalDeviations, interval, creator)
 	s.Require().NoError(err)
 	s.Require().Equal(expectedTunnel, *tunnel)
 
@@ -65,14 +64,13 @@ func (s *KeeperTestSuite) TestAddTunnel() {
 	s.Require().Equal(expectedPrices, latestPrices)
 }
 
-func (s *KeeperTestSuite) TestUpdateAndResetTunnel() {
+func (s *KeeperTestSuite) TestUpdateSignalsAndInterval() {
 	ctx, k := s.ctx, s.keeper
 
 	initialRoute := &types.TSSRoute{}
-	initialEncoder := feedstypes.ENCODER_FIXED_POINT_ABI
 	initialSignalDeviations := []types.SignalDeviation{
-		{SignalID: "BTC", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
-		{SignalID: "ETH", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
+		{SignalID: "CS:BAND-USD", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
+		{SignalID: "CS:ETH-USD", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
 	}
 	initialInterval := uint64(10)
 	creator := sdk.AccAddress([]byte("creator_address"))
@@ -86,7 +84,6 @@ func (s *KeeperTestSuite) TestUpdateAndResetTunnel() {
 	initialTunnel, err := k.AddTunnel(
 		ctx,
 		initialRoute,
-		initialEncoder,
 		initialSignalDeviations,
 		initialInterval,
 		creator,
@@ -95,13 +92,13 @@ func (s *KeeperTestSuite) TestUpdateAndResetTunnel() {
 
 	// define new test data for editing the tunnel
 	newSignalDeviations := []types.SignalDeviation{
-		{SignalID: "BTC", SoftDeviationBPS: 1100, HardDeviationBPS: 1100},
-		{SignalID: "ETH", SoftDeviationBPS: 1100, HardDeviationBPS: 1100},
+		{SignalID: "CS:BAND-USD", SoftDeviationBPS: 1100, HardDeviationBPS: 1100},
+		{SignalID: "CS:ETH-USD", SoftDeviationBPS: 1100, HardDeviationBPS: 1100},
 	}
 	newInterval := uint64(20)
 
-	// call the UpdateAndResetTunnel function
-	err = k.UpdateAndResetTunnel(ctx, initialTunnel.ID, newSignalDeviations, newInterval)
+	// call the UpdateSignalsAndInterval function
+	err = k.UpdateSignalsAndInterval(ctx, initialTunnel.ID, newSignalDeviations, newInterval)
 	s.Require().NoError(err)
 
 	// validate the edited tunnel
@@ -171,10 +168,9 @@ func (s *KeeperTestSuite) TestActivateTunnel() {
 
 	tunnelID := uint64(1)
 	route := &codectypes.Any{}
-	encoder := feedstypes.ENCODER_FIXED_POINT_ABI
 	signalDeviations := []types.SignalDeviation{
-		{SignalID: "BTC"},
-		{SignalID: "ETH"},
+		{SignalID: "CS:BAND-USD"},
+		{SignalID: "CS:ETH-USD"},
 	}
 	interval := uint64(10)
 	creator := sdk.AccAddress([]byte("creator_address")).String()
@@ -182,7 +178,6 @@ func (s *KeeperTestSuite) TestActivateTunnel() {
 	tunnel := types.Tunnel{
 		ID:               tunnelID,
 		Route:            route,
-		Encoder:          encoder,
 		SignalDeviations: signalDeviations,
 		Interval:         interval,
 		TotalDeposit:     k.GetParams(ctx).MinDeposit,
@@ -211,10 +206,9 @@ func (s *KeeperTestSuite) TestDeactivateTunnel() {
 
 	tunnelID := uint64(1)
 	route := &codectypes.Any{}
-	encoder := feedstypes.ENCODER_FIXED_POINT_ABI
 	signalDeviations := []types.SignalDeviation{
-		{SignalID: "BTC"},
-		{SignalID: "ETH"},
+		{SignalID: "CS:BAND-USD"},
+		{SignalID: "CS:ETH-USD"},
 	}
 	interval := uint64(10)
 	creator := sdk.AccAddress([]byte("creator_address")).String()
@@ -223,7 +217,6 @@ func (s *KeeperTestSuite) TestDeactivateTunnel() {
 	tunnel := types.Tunnel{
 		ID:               tunnelID,
 		Route:            route,
-		Encoder:          encoder,
 		SignalDeviations: signalDeviations,
 		Interval:         interval,
 		Creator:          creator,

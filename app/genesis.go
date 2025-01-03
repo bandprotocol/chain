@@ -37,8 +37,6 @@ import (
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	"github.com/cosmos/cosmos-sdk/x/group"
-	groupmodule "github.com/cosmos/cosmos-sdk/x/group/module"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -124,7 +122,6 @@ func NewDefaultGenesisState(cdc codec.Codec) GenesisState {
 		evidencetypes.ModuleName:     evidence.AppModuleBasic{}.DefaultGenesis(cdc),
 		authz.ModuleName:             authzmodule.AppModuleBasic{}.DefaultGenesis(cdc),
 		feegrant.ModuleName:          feegrantmodule.AppModuleBasic{}.DefaultGenesis(cdc),
-		group.ModuleName:             groupmodule.AppModuleBasic{}.DefaultGenesis(cdc),
 		ibctransafertypes.ModuleName: ibctransfer.AppModuleBasic{}.DefaultGenesis(cdc),
 		icatypes.ModuleName:          cdc.MustMarshalJSON(icaGenesis),
 		ibcfeetypes.ModuleName:       ibcfee.AppModuleBasic{}.DefaultGenesis(cdc),

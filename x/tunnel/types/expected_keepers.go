@@ -6,6 +6,7 @@ import (
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -26,9 +27,9 @@ type AccountKeeper interface {
 }
 
 type BankKeeper interface {
+	SendCoins(ctx context.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
 	GetAllBalances(ctx context.Context, addr sdk.AccAddress) sdk.Coins
 	SpendableCoins(ctx context.Context, addr sdk.AccAddress) sdk.Coins
-
 	SendCoinsFromModuleToAccount(
 		ctx context.Context,
 		senderModule string,
@@ -54,6 +55,11 @@ type ICS4Wrapper interface {
 		timeoutTimestamp uint64,
 		data []byte,
 	) (sequence uint64, err error)
+}
+
+// ChannelKeeper defines the expected IBC channel keeper
+type ChannelKeeper interface {
+	GetChannel(ctx sdk.Context, srcPort, srcChan string) (channel channeltypes.Channel, found bool)
 }
 
 type PortKeeper interface {
