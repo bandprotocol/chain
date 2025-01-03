@@ -99,7 +99,7 @@ type Member struct {
 
 When other module call the `x/tss` module to create a group, the `x/tss` module will emit an event and wait for the selected members to submit their information to generate a group public key. The steps required for members to generate a group public keys are the following.
 
-First, members submit a coefficient commit and temporary public key for decrypting a message with their signature on the commit and their public key, which the `x/tss` module will checks against if their input is valid. If every member submits their information (round-1 information), the `x/tss` module will aggregate members' coefficient commit, emit an event, and waiting members to submit other information.
+First, members submit a coefficient commit and temporary public key for decrypting a message with their signature on the commit and their public key, which the `x/tss` module will check against if their input is valid. If every member submits their information (round-1 information), the `x/tss` module will aggregate members' coefficient commit, emit an event, and waiting members to submit other information.
 
 After the members acknowledge that other members submit their coefficient commit, they generate a secret, called encrypted secret share, to each member and submit into a chain as a round-2 information. Once, every member submits round-2 information, the `x/tss` module emits an event to notify members.
 
@@ -127,7 +127,7 @@ type Signing struct {
 
 ### DE
 
-In generating partial signature, the `x/tss` module use DE submitted from members as a nonce for generating group public nonce for forming a group signature. Members must maintain their DEs for being selected as a signer in signing process.
+In generating partial signature, the `x/tss` module uses DE submitted from members as a nonce for generating group public nonce for forming a group signature. Members must maintain their DEs for being selected as a signer in signing process.
 
 ```go
 type DE struct {
@@ -180,7 +180,7 @@ In signing process, the `x/tss` module stores partial signature submitted from a
 
 ### DE
 
-In generating partial signature, the `x/tss` module use DE submitted from members as a nonce for generating group public nonce for forming a group signature. Members must maintain their DEs for being selected as a signer in signing process.
+In generating partial signature, the `x/tss` module uses DE submitted from members as a nonce for generating group public nonce for forming a group signature. Members must maintain their DEs for being selected as a signer in signing process.
 
 - DE `0x1b | address | index -> DE`. Store the DE object
 - DEQueue `0x1c | address -> DEQueue`. Store the DEQueue object to identify an index of valid DE.
