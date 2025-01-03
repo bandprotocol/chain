@@ -155,7 +155,7 @@ func (k Keeper) ProducePacket(
 	return nil
 }
 
-// CreatePacket creates a new packet of the the given tunnel. Creating a packet charges
+// CreatePacket creates a new packet of the given tunnel. Creating a packet charges
 // the base packet fee to the tunnel's fee payer.
 func (k Keeper) CreatePacket(
 	ctx sdk.Context,
