@@ -28,6 +28,7 @@ func GetTxCmd() *cobra.Command {
 		GetTxCmdCreateTunnel(),
 		GetTxCmdUpdateRoute(),
 		GetTxCmdUpdateSignalsAndInterval(),
+		GetTxCmdWithdrawFeePayerFunds(),
 		GetTxCmdActivate(),
 		GetTxCmdDeactivate(),
 		GetTxCmdTriggerTunnel(),
@@ -310,6 +311,37 @@ func GetTxCmdUpdateSignalsAndInterval() *cobra.Command {
 				interval,
 				clientCtx.GetFromAddress().String(),
 			)
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetTxCmdWithdrawFeePayerFunds() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "withdraw-fee-payer-funds [tunnel-id] [amount]",
+		Short: "Withdraw fee payer funds from a tunnel to the creator",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			id, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			amount, err := sdk.ParseCoinsNormalized(args[1])
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgWithdrawFeePayerFunds(id, amount, clientCtx.GetFromAddress().String())
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}

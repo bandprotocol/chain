@@ -27,9 +27,9 @@ type AccountKeeper interface {
 }
 
 type BankKeeper interface {
+	SendCoins(ctx context.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
 	GetAllBalances(ctx context.Context, addr sdk.AccAddress) sdk.Coins
 	SpendableCoins(ctx context.Context, addr sdk.AccAddress) sdk.Coins
-
 	SendCoinsFromModuleToAccount(
 		ctx context.Context,
 		senderModule string,

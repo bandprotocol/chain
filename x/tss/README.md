@@ -410,7 +410,7 @@ This event ( `create_group` ) is emitted when the group is created.
 | ------------- | ----------------- |
 | group_id      | {groupID}         |
 | size          | {groupSize}       |
-| thredhold     | {groupThreshold}  |
+| threshold     | {groupThreshold}  |
 | pub_key       | ""                |
 | status        | {groupStatus}     |
 | dkg_context   | {groupDKGContext} |
