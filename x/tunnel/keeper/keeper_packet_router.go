@@ -40,9 +40,11 @@ func (k Keeper) SendRouterPacket(
 		return nil, err
 	}
 
+	routerIBCChannel := k.GetParams(ctx).RouterIBCChannel
+
 	msg := ibctransfertypes.NewMsgTransfer(
 		ibctransfertypes.PortID,
-		route.ChannelID,
+		routerIBCChannel,
 		route.Fund,
 		feePayer.String(),
 		route.BridgeContractAddress,

@@ -81,7 +81,6 @@ func NewMsgCreateIBCTunnel(
 func NewMsgCreateRouterTunnel(
 	signalDeviations []SignalDeviation,
 	interval uint64,
-	channelID string,
 	fund sdk.Coin,
 	bridgeContractAddress string,
 	destChainID string,
@@ -92,7 +91,6 @@ func NewMsgCreateRouterTunnel(
 	creator string,
 ) (*MsgCreateTunnel, error) {
 	r := &RouterRoute{
-		ChannelID:             channelID,
 		Fund:                  fund,
 		BridgeContractAddress: bridgeContractAddress,
 		DestChainID:           destChainID,

@@ -17,7 +17,6 @@ func (s *KeeperTestSuite) TestSendRouterPacket() {
 	ctx, k := s.ctx, s.keeper
 
 	route := &types.RouterRoute{
-		ChannelID:             "channel-0",
 		Fund:                  sdk.NewInt64Coin("uband", 50000),
 		BridgeContractAddress: "router17c2txg2px6vna8a6v4ql4eh4ruvprerhytxvwt2ugp4qr473pajsyj9pgm",
 		DestChainID:           "17000",

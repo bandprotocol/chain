@@ -159,47 +159,45 @@ func GetTxCmdCreateIBCTunnel() *cobra.Command {
 
 func GetTxCmdCreateRouterTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "router [channel-id] [fund] [bridge-contract-address] [dest-chain-id] [dest-contract-address] [dest-gas-limit] [dest-gas-price] [initial-deposit] [interval] [signalDeviations-json-file]",
+		Use:   "router [fund] [bridge-contract-address] [dest-chain-id] [dest-contract-address] [dest-gas-limit] [dest-gas-price] [initial-deposit] [interval] [signalDeviations-json-file]",
 		Short: "Create a new router tunnel",
-		Args:  cobra.ExactArgs(10),
+		Args:  cobra.ExactArgs(9),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			channelID := args[0]
-
-			fund, err := sdk.ParseCoinNormalized(args[1])
+			fund, err := sdk.ParseCoinNormalized(args[0])
 			if err != nil {
 				return err
 			}
 
-			bridgeContractAddr := args[2]
-			destChainID := args[3]
-			destContractAddr := args[4]
+			bridgeContractAddr := args[1]
+			destChainID := args[2]
+			destContractAddr := args[3]
 
-			destGasLimit, err := strconv.ParseUint(args[5], 10, 64)
+			destGasLimit, err := strconv.ParseUint(args[4], 10, 64)
 			if err != nil {
 				return err
 			}
 
-			destGasPrice, err := strconv.ParseUint(args[6], 10, 64)
+			destGasPrice, err := strconv.ParseUint(args[5], 10, 64)
 			if err != nil {
 				return err
 			}
 
-			initialDeposit, err := sdk.ParseCoinsNormalized(args[7])
+			initialDeposit, err := sdk.ParseCoinsNormalized(args[6])
 			if err != nil {
 				return err
 			}
 
-			interval, err := strconv.ParseUint(args[8], 10, 64)
+			interval, err := strconv.ParseUint(args[7], 10, 64)
 			if err != nil {
 				return err
 			}
 
-			signalDeviations, err := parseSignalDeviations(args[9])
+			signalDeviations, err := parseSignalDeviations(args[8])
 			if err != nil {
 				return err
 			}
@@ -207,7 +205,6 @@ func GetTxCmdCreateRouterTunnel() *cobra.Command {
 			msg, err := types.NewMsgCreateRouterTunnel(
 				signalDeviations.ToSignalDeviations(),
 				interval,
-				channelID,
 				fund,
 				bridgeContractAddr,
 				destChainID,
