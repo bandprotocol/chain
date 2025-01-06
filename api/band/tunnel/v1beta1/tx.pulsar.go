@@ -9748,7 +9748,7 @@ func (*MsgWithdrawFeePayerFundsResponse) Descriptor() ([]byte, []int) {
 	return file_band_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{7}
 }
 
-// ActivateTunnel is the transaction message to activate a tunnel.
+// MsgActivateTunnel is the transaction message to activate a tunnel.
 type MsgActivateTunnel struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

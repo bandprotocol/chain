@@ -473,7 +473,7 @@ func (m *MsgWithdrawFeePayerFundsResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgWithdrawFeePayerFundsResponse proto.InternalMessageInfo
 
-// ActivateTunnel is the transaction message to activate a tunnel.
+// MsgActivateTunnel is the transaction message to activate a tunnel.
 type MsgActivateTunnel struct {
 	// tunnel_id is the ID of the tunnel to activate.
 	TunnelID uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`

@@ -128,7 +128,7 @@ message MsgWithdrawFeePayerFunds {
 // MsgWithdrawFeePayerFundsResponse is the response type for the Msg/WithdrawFeePayerFunds RPC method.
 message MsgWithdrawFeePayerFundsResponse {}
 
-// ActivateTunnel is the transaction message to activate a tunnel.
+// MsgActivateTunnel is the transaction message to activate a tunnel.
 message MsgActivateTunnel {
   option (cosmos.msg.v1.signer) = "creator";
   option (amino.name)           = "tunnel/MsgActivateTunnel";
