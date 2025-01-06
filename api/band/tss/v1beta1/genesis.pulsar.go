@@ -2073,7 +2073,7 @@ type GenesisState struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// params defines all the paramiters of the module.
+	// params defines all the parameters of the module.
 	Params *Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params,omitempty"`
 	// groups is an array containing information about each group.
 	Groups []*Group `protobuf:"bytes,2,rep,name=groups,proto3" json:"groups,omitempty"`
