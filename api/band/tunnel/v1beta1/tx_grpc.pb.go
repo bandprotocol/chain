@@ -23,8 +23,8 @@ const (
 	Msg_UpdateRoute_FullMethodName              = "/band.tunnel.v1beta1.Msg/UpdateRoute"
 	Msg_UpdateSignalsAndInterval_FullMethodName = "/band.tunnel.v1beta1.Msg/UpdateSignalsAndInterval"
 	Msg_WithdrawFeePayerFunds_FullMethodName    = "/band.tunnel.v1beta1.Msg/WithdrawFeePayerFunds"
-	Msg_Activate_FullMethodName                 = "/band.tunnel.v1beta1.Msg/Activate"
-	Msg_Deactivate_FullMethodName               = "/band.tunnel.v1beta1.Msg/Deactivate"
+	Msg_ActivateTunnel_FullMethodName           = "/band.tunnel.v1beta1.Msg/ActivateTunnel"
+	Msg_DeactivateTunnel_FullMethodName         = "/band.tunnel.v1beta1.Msg/DeactivateTunnel"
 	Msg_TriggerTunnel_FullMethodName            = "/band.tunnel.v1beta1.Msg/TriggerTunnel"
 	Msg_DepositToTunnel_FullMethodName          = "/band.tunnel.v1beta1.Msg/DepositToTunnel"
 	Msg_WithdrawFromTunnel_FullMethodName       = "/band.tunnel.v1beta1.Msg/WithdrawFromTunnel"
@@ -43,10 +43,10 @@ type MsgClient interface {
 	UpdateSignalsAndInterval(ctx context.Context, in *MsgUpdateSignalsAndInterval, opts ...grpc.CallOption) (*MsgUpdateSignalsAndIntervalResponse, error)
 	// WithdrawFeePayerFunds is a RPC method to withdraw fee payer funds to creator.
 	WithdrawFeePayerFunds(ctx context.Context, in *MsgWithdrawFeePayerFunds, opts ...grpc.CallOption) (*MsgWithdrawFeePayerFundsResponse, error)
-	// Activate is a RPC method to activate a tunnel.
-	Activate(ctx context.Context, in *MsgActivate, opts ...grpc.CallOption) (*MsgActivateResponse, error)
-	// Deactivate is a RPC method to deactivate a tunnel.
-	Deactivate(ctx context.Context, in *MsgDeactivate, opts ...grpc.CallOption) (*MsgDeactivateResponse, error)
+	// ActivateTunnel is a RPC method to activate a tunnel.
+	ActivateTunnel(ctx context.Context, in *MsgActivateTunnel, opts ...grpc.CallOption) (*MsgActivateTunnelResponse, error)
+	// DeactivateTunnel is a RPC method to deactivate a tunnel.
+	DeactivateTunnel(ctx context.Context, in *MsgDeactivateTunnel, opts ...grpc.CallOption) (*MsgDeactivateTunnelResponse, error)
 	// TriggerTunnel is a RPC method to manually trigger a tunnel.
 	TriggerTunnel(ctx context.Context, in *MsgTriggerTunnel, opts ...grpc.CallOption) (*MsgTriggerTunnelResponse, error)
 	// DepositToTunnel is a RPC method to deposit to an existing tunnel.
@@ -101,18 +101,18 @@ func (c *msgClient) WithdrawFeePayerFunds(ctx context.Context, in *MsgWithdrawFe
 	return out, nil
 }
 
-func (c *msgClient) Activate(ctx context.Context, in *MsgActivate, opts ...grpc.CallOption) (*MsgActivateResponse, error) {
-	out := new(MsgActivateResponse)
-	err := c.cc.Invoke(ctx, Msg_Activate_FullMethodName, in, out, opts...)
+func (c *msgClient) ActivateTunnel(ctx context.Context, in *MsgActivateTunnel, opts ...grpc.CallOption) (*MsgActivateTunnelResponse, error) {
+	out := new(MsgActivateTunnelResponse)
+	err := c.cc.Invoke(ctx, Msg_ActivateTunnel_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *msgClient) Deactivate(ctx context.Context, in *MsgDeactivate, opts ...grpc.CallOption) (*MsgDeactivateResponse, error) {
-	out := new(MsgDeactivateResponse)
-	err := c.cc.Invoke(ctx, Msg_Deactivate_FullMethodName, in, out, opts...)
+func (c *msgClient) DeactivateTunnel(ctx context.Context, in *MsgDeactivateTunnel, opts ...grpc.CallOption) (*MsgDeactivateTunnelResponse, error) {
+	out := new(MsgDeactivateTunnelResponse)
+	err := c.cc.Invoke(ctx, Msg_DeactivateTunnel_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -167,10 +167,10 @@ type MsgServer interface {
 	UpdateSignalsAndInterval(context.Context, *MsgUpdateSignalsAndInterval) (*MsgUpdateSignalsAndIntervalResponse, error)
 	// WithdrawFeePayerFunds is a RPC method to withdraw fee payer funds to creator.
 	WithdrawFeePayerFunds(context.Context, *MsgWithdrawFeePayerFunds) (*MsgWithdrawFeePayerFundsResponse, error)
-	// Activate is a RPC method to activate a tunnel.
-	Activate(context.Context, *MsgActivate) (*MsgActivateResponse, error)
-	// Deactivate is a RPC method to deactivate a tunnel.
-	Deactivate(context.Context, *MsgDeactivate) (*MsgDeactivateResponse, error)
+	// ActivateTunnel is a RPC method to activate a tunnel.
+	ActivateTunnel(context.Context, *MsgActivateTunnel) (*MsgActivateTunnelResponse, error)
+	// DeactivateTunnel is a RPC method to deactivate a tunnel.
+	DeactivateTunnel(context.Context, *MsgDeactivateTunnel) (*MsgDeactivateTunnelResponse, error)
 	// TriggerTunnel is a RPC method to manually trigger a tunnel.
 	TriggerTunnel(context.Context, *MsgTriggerTunnel) (*MsgTriggerTunnelResponse, error)
 	// DepositToTunnel is a RPC method to deposit to an existing tunnel.
@@ -198,11 +198,11 @@ func (UnimplementedMsgServer) UpdateSignalsAndInterval(context.Context, *MsgUpda
 func (UnimplementedMsgServer) WithdrawFeePayerFunds(context.Context, *MsgWithdrawFeePayerFunds) (*MsgWithdrawFeePayerFundsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method WithdrawFeePayerFunds not implemented")
 }
-func (UnimplementedMsgServer) Activate(context.Context, *MsgActivate) (*MsgActivateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Activate not implemented")
+func (UnimplementedMsgServer) ActivateTunnel(context.Context, *MsgActivateTunnel) (*MsgActivateTunnelResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ActivateTunnel not implemented")
 }
-func (UnimplementedMsgServer) Deactivate(context.Context, *MsgDeactivate) (*MsgDeactivateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Deactivate not implemented")
+func (UnimplementedMsgServer) DeactivateTunnel(context.Context, *MsgDeactivateTunnel) (*MsgDeactivateTunnelResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeactivateTunnel not implemented")
 }
 func (UnimplementedMsgServer) TriggerTunnel(context.Context, *MsgTriggerTunnel) (*MsgTriggerTunnelResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TriggerTunnel not implemented")
@@ -301,38 +301,38 @@ func _Msg_WithdrawFeePayerFunds_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_Activate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgActivate)
+func _Msg_ActivateTunnel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgActivateTunnel)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).Activate(ctx, in)
+		return srv.(MsgServer).ActivateTunnel(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Msg_Activate_FullMethodName,
+		FullMethod: Msg_ActivateTunnel_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).Activate(ctx, req.(*MsgActivate))
+		return srv.(MsgServer).ActivateTunnel(ctx, req.(*MsgActivateTunnel))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_Deactivate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgDeactivate)
+func _Msg_DeactivateTunnel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgDeactivateTunnel)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).Deactivate(ctx, in)
+		return srv.(MsgServer).DeactivateTunnel(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Msg_Deactivate_FullMethodName,
+		FullMethod: Msg_DeactivateTunnel_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).Deactivate(ctx, req.(*MsgDeactivate))
+		return srv.(MsgServer).DeactivateTunnel(ctx, req.(*MsgDeactivateTunnel))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -433,12 +433,12 @@ var Msg_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Msg_WithdrawFeePayerFunds_Handler,
 		},
 		{
-			MethodName: "Activate",
-			Handler:    _Msg_Activate_Handler,
+			MethodName: "ActivateTunnel",
+			Handler:    _Msg_ActivateTunnel_Handler,
 		},
 		{
-			MethodName: "Deactivate",
-			Handler:    _Msg_Deactivate_Handler,
+			MethodName: "DeactivateTunnel",
+			Handler:    _Msg_DeactivateTunnel_Handler,
 		},
 		{
 			MethodName: "TriggerTunnel",
