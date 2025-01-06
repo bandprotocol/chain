@@ -169,6 +169,7 @@ func (s *KeeperTestSuite) TestGetActiveTunnelIDs() {
 func (s *KeeperTestSuite) TestActivateTunnel() {
 	ctx, k := s.ctx, s.keeper
 
+	// setup a tunnel with an inactive route
 	tunnelID := uint64(1)
 	route, err := codectypes.NewAnyWithValue(&types.IBCRoute{ChannelID: "test"})
 	s.Require().NoError(err)
@@ -190,61 +191,63 @@ func (s *KeeperTestSuite) TestActivateTunnel() {
 		IsActive:         false,
 		CreatedAt:        ctx.BlockTime().Unix(),
 	}
-
 	k.SetTunnel(ctx, tunnel)
 
-	// mock the GetCapability function to return true
-	portID := keeper.PortIDForTunnel(tunnelID)
-	name := host.ChannelCapabilityPath(portID, "test")
-	s.scopedKeeper.EXPECT().GetCapability(gomock.Any(), name).Return(nil, true)
+	testcases := []struct {
+		name       string
+		preprocess func(ctx sdk.Context)
+		expectErr  error
+		postCheck  func(ctx sdk.Context)
+	}{
+		{
+			name: "success",
+			preprocess: func(ctx sdk.Context) {
+				// mock the GetCapability function to return true
+				portID := keeper.PortIDForTunnel(tunnelID)
+				name := host.ChannelCapabilityPath(portID, "test")
+				s.scopedKeeper.EXPECT().GetCapability(gomock.Any(), name).Return(nil, true)
+			},
+			postCheck: func(ctx sdk.Context) {
+				// validate the tunnel is activated
+				activatedTunnel, err := k.GetTunnel(ctx, tunnelID)
+				s.Require().NoError(err)
+				s.Require().True(activatedTunnel.IsActive)
 
-	err = k.ActivateTunnel(ctx, tunnelID)
-	s.Require().NoError(err)
-
-	// validate the tunnel is activated
-	activatedTunnel, err := k.GetTunnel(ctx, tunnelID)
-	s.Require().NoError(err)
-	s.Require().True(activatedTunnel.IsActive)
-
-	// validate the active tunnel ID is stored
-	activeTunnelIDs := k.GetActiveTunnelIDs(ctx)
-	s.Require().Contains(activeTunnelIDs, tunnelID)
-}
-
-func (s *KeeperTestSuite) TestActivateTunnelInactiveRoute() {
-	ctx, k := s.ctx, s.keeper
-
-	tunnelID := uint64(1)
-	route, err := codectypes.NewAnyWithValue(&types.IBCRoute{ChannelID: "test"})
-	s.Require().NoError(err)
-
-	signalDeviations := []types.SignalDeviation{
-		{SignalID: "CS:BAND-USD"},
-		{SignalID: "CS:ETH-USD"},
-	}
-	interval := uint64(10)
-	creator := sdk.AccAddress([]byte("creator_address")).String()
-
-	tunnel := types.Tunnel{
-		ID:               tunnelID,
-		Route:            route,
-		SignalDeviations: signalDeviations,
-		Interval:         interval,
-		TotalDeposit:     k.GetParams(ctx).MinDeposit,
-		Creator:          creator,
-		IsActive:         false,
-		CreatedAt:        ctx.BlockTime().Unix(),
+				// validate the active tunnel ID is stored
+				activeTunnelIDs := k.GetActiveTunnelIDs(ctx)
+				s.Require().Contains(activeTunnelIDs, tunnelID)
+			},
+		},
+		{
+			name: "route not ready",
+			preprocess: func(ctx sdk.Context) {
+				// mock the GetCapability function to return false
+				portID := keeper.PortIDForTunnel(tunnelID)
+				name := host.ChannelCapabilityPath(portID, "test")
+				s.scopedKeeper.EXPECT().GetCapability(gomock.Any(), name).Return(nil, false)
+			},
+			expectErr: types.ErrRouteNotReady,
+		},
 	}
 
-	k.SetTunnel(ctx, tunnel)
+	for _, tc := range testcases {
+		s.Run(tc.name, func() {
+			if tc.preprocess != nil {
+				tc.preprocess(ctx)
+			}
 
-	// mock the GetCapability function to return false
-	portID := keeper.PortIDForTunnel(tunnelID)
-	name := host.ChannelCapabilityPath(portID, "test")
-	s.scopedKeeper.EXPECT().GetCapability(gomock.Any(), name).Return(nil, false)
+			err := k.ActivateTunnel(ctx, tunnelID)
+			if tc.expectErr == nil {
+				s.Require().NoError(err)
+			} else {
+				s.Require().ErrorIs(err, tc.expectErr)
+			}
 
-	err = k.ActivateTunnel(ctx, tunnelID)
-	s.Require().ErrorIs(err, types.ErrRouteNotReady)
+			if tc.postCheck != nil {
+				tc.postCheck(ctx)
+			}
+		})
+	}
 }
 
 func (s *KeeperTestSuite) TestDeactivateTunnel() {
