@@ -325,6 +325,8 @@ func (k Keeper) GetRouteFee(ctx sdk.Context, route types.RouteI) (sdk.Coins, err
 		return k.bandtssKeeper.GetSigningFee(ctx)
 	case *types.IBCRoute:
 		return sdk.Coins{}, nil
+	case *types.RouterRoute:
+		return sdk.Coins{}, nil
 	default:
 		return sdk.Coins{}, types.ErrInvalidRoute
 	}

@@ -1,7 +1,9 @@
 syntax = "proto3";
 package band.tunnel.v1beta1;
 
+import "amino/amino.proto";
 import "cosmos_proto/cosmos.proto";
+import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 
 import "band/feeds/v1beta1/encoder.proto";
@@ -43,6 +45,36 @@ message IBCRoute {
 
 // IBCPacketReceipt represents a receipt for a IBC packet and implements the PacketReceiptI interface.
 message IBCPacketReceipt {
+  option (cosmos_proto.implements_interface) = "PacketReceiptI";
+
+  // sequence is representing the sequence of the IBC packet.
+  uint64 sequence = 1;
+}
+
+// RouterRoute is the type for a router route
+message RouterRoute {
+  option (cosmos_proto.implements_interface) = "RouteI";
+
+  // fund is the fund allocated for the Router fee.
+  cosmos.base.v1beta1.Coin fund = 1 [
+    (gogoproto.nullable)     = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin",
+    (amino.dont_omitempty)   = true
+  ];
+  // bridge_contract_address is the bridge contract address on router chain
+  string bridge_contract_address = 2;
+  // dest_chain_id is the destination chain ID
+  string dest_chain_id = 3 [(gogoproto.customname) = "DestChainID"];
+  // dest_contract_address is the destination contract address
+  string dest_contract_address = 4;
+  // dest_gas_limit is the destination gas limit
+  uint64 dest_gas_limit = 5;
+  // dest_gas_price is the destination gas price
+  uint64 dest_gas_price = 6;
+}
+
+// RouterPacketReceipt represents a receipt for a Router packet and implements the PacketReceiptI interface.
+message RouterPacketReceipt {
   option (cosmos_proto.implements_interface) = "PacketReceiptI";
 
   // sequence is representing the sequence of the IBC packet.

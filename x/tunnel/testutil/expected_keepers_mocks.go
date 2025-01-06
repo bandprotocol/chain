@@ -18,8 +18,9 @@ import (
 	types1 "github.com/bandprotocol/chain/v3/x/tss/types"
 	types2 "github.com/cosmos/cosmos-sdk/types"
 	types3 "github.com/cosmos/ibc-go/modules/capability/types"
-	types4 "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
-	types5 "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	types4 "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	types5 "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	types6 "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -243,7 +244,7 @@ func (m *MockICS4Wrapper) EXPECT() *MockICS4WrapperMockRecorder {
 }
 
 // SendPacket mocks base method.
-func (m *MockICS4Wrapper) SendPacket(ctx types2.Context, chanCap *types3.Capability, sourcePort, sourceChannel string, timeoutHeight types4.Height, timeoutTimestamp uint64, data []byte) (uint64, error) {
+func (m *MockICS4Wrapper) SendPacket(ctx types2.Context, chanCap *types3.Capability, sourcePort, sourceChannel string, timeoutHeight types5.Height, timeoutTimestamp uint64, data []byte) (uint64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SendPacket", ctx, chanCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, data)
 	ret0, _ := ret[0].(uint64)
@@ -281,10 +282,10 @@ func (m *MockChannelKeeper) EXPECT() *MockChannelKeeperMockRecorder {
 }
 
 // GetChannel mocks base method.
-func (m *MockChannelKeeper) GetChannel(ctx types2.Context, srcPort, srcChan string) (types5.Channel, bool) {
+func (m *MockChannelKeeper) GetChannel(ctx types2.Context, srcPort, srcChan string) (types6.Channel, bool) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetChannel", ctx, srcPort, srcChan)
-	ret0, _ := ret[0].(types5.Channel)
+	ret0, _ := ret[0].(types6.Channel)
 	ret1, _ := ret[1].(bool)
 	return ret0, ret1
 }
@@ -396,6 +397,44 @@ func (m *MockScopedKeeper) GetCapability(ctx types2.Context, name string) (*type
 func (mr *MockScopedKeeperMockRecorder) GetCapability(ctx, name any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCapability", reflect.TypeOf((*MockScopedKeeper)(nil).GetCapability), ctx, name)
+}
+
+// MockTransferKeeper is a mock of TransferKeeper interface.
+type MockTransferKeeper struct {
+	ctrl     *gomock.Controller
+	recorder *MockTransferKeeperMockRecorder
+}
+
+// MockTransferKeeperMockRecorder is the mock recorder for MockTransferKeeper.
+type MockTransferKeeperMockRecorder struct {
+	mock *MockTransferKeeper
+}
+
+// NewMockTransferKeeper creates a new mock instance.
+func NewMockTransferKeeper(ctrl *gomock.Controller) *MockTransferKeeper {
+	mock := &MockTransferKeeper{ctrl: ctrl}
+	mock.recorder = &MockTransferKeeperMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockTransferKeeper) EXPECT() *MockTransferKeeperMockRecorder {
+	return m.recorder
+}
+
+// Transfer mocks base method.
+func (m *MockTransferKeeper) Transfer(goCtx context.Context, msg *types4.MsgTransfer) (*types4.MsgTransferResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Transfer", goCtx, msg)
+	ret0, _ := ret[0].(*types4.MsgTransferResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Transfer indicates an expected call of Transfer.
+func (mr *MockTransferKeeperMockRecorder) Transfer(goCtx, msg any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Transfer", reflect.TypeOf((*MockTransferKeeper)(nil).Transfer), goCtx, msg)
 }
 
 // MockFeedsKeeper is a mock of FeedsKeeper interface.

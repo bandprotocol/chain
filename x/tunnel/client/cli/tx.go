@@ -51,6 +51,7 @@ func GetTxCmdCreateTunnel() *cobra.Command {
 	txCmd.AddCommand(
 		GetTxCmdCreateTSSTunnel(),
 		GetTxCmdCreateIBCTunnel(),
+		GetTxCmdCreateRouterTunnel(),
 	)
 
 	return txCmd
@@ -141,6 +142,75 @@ func GetTxCmdCreateIBCTunnel() *cobra.Command {
 			msg, err := types.NewMsgCreateIBCTunnel(
 				signalInfos.ToSignalDeviations(),
 				interval,
+				initialDeposit,
+				clientCtx.GetFromAddress().String(),
+			)
+			if err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+func GetTxCmdCreateRouterTunnel() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "router [fund] [bridge-contract-address] [dest-chain-id] [dest-contract-address] [dest-gas-limit] [dest-gas-price] [initial-deposit] [interval] [signalDeviations-json-file]",
+		Short: "Create a new router tunnel",
+		Args:  cobra.ExactArgs(9),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			fund, err := sdk.ParseCoinNormalized(args[0])
+			if err != nil {
+				return err
+			}
+
+			bridgeContractAddr := args[1]
+			destChainID := args[2]
+			destContractAddr := args[3]
+
+			destGasLimit, err := strconv.ParseUint(args[4], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			destGasPrice, err := strconv.ParseUint(args[5], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			initialDeposit, err := sdk.ParseCoinsNormalized(args[6])
+			if err != nil {
+				return err
+			}
+
+			interval, err := strconv.ParseUint(args[7], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			signalDeviations, err := parseSignalDeviations(args[8])
+			if err != nil {
+				return err
+			}
+
+			msg, err := types.NewMsgCreateRouterTunnel(
+				signalDeviations.ToSignalDeviations(),
+				interval,
+				fund,
+				bridgeContractAddr,
+				destChainID,
+				destContractAddr,
+				destGasLimit,
+				destGasPrice,
 				initialDeposit,
 				clientCtx.GetFromAddress().String(),
 			)

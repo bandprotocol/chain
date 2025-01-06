@@ -26,4 +26,6 @@ message Params {
   // base_packet_fee is the base fee for each packet.
   repeated cosmos.base.v1beta1.Coin base_packet_fee = 7
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  // router_ibc_channel specifies the IBC channel used by the router to communicate with the tunnel module.
+  string router_ibc_channel = 8 [(gogoproto.customname) = "RouterIBCChannel"];
 }

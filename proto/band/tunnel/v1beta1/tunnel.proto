@@ -13,6 +13,34 @@ import "band/feeds/v1beta1/feeds.proto";
 option go_package            = "github.com/bandprotocol/chain/v3/x/tunnel/types";
 option (gogoproto.equal_all) = true;
 
+// SignalDeviation is the type for a signal with soft and hard deviation
+message SignalDeviation {
+  option (gogoproto.equal) = true;
+
+  // signal_id is the signal ID
+  string signal_id = 1 [(gogoproto.customname) = "SignalID"];
+  // soft_deviation_bps is the soft deviation in basis points
+  uint64 soft_deviation_bps = 2 [(gogoproto.customname) = "SoftDeviationBPS"];
+  // hard_deviation_bps is the hard deviation in basis points
+  uint64 hard_deviation_bps = 3 [(gogoproto.customname) = "HardDeviationBPS"];
+}
+
+// Deposit defines an amount deposited by an account address to the tunnel.
+message Deposit {
+  option (gogoproto.equal) = true;
+
+  // tunnel_id defines the unique id of the tunnel.
+  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
+  // depositor defines the deposit addresses from the proposals.
+  string depositor = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // amount to be deposited by depositor.
+  repeated cosmos.base.v1beta1.Coin amount = 3 [
+    (gogoproto.nullable)     = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (amino.dont_omitempty)   = true
+  ];
+}
+
 // Tunnel contains the information of the tunnel that is created by the user
 message Tunnel {
   option (gogoproto.equal) = true;
@@ -82,34 +110,6 @@ message Packet {
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
   // created_at is the timestamp when the packet is created
   int64 created_at = 7;
-}
-
-// Deposit defines an amount deposited by an account address to the tunnel.
-message Deposit {
-  option (gogoproto.equal) = true;
-
-  // tunnel_id defines the unique id of the tunnel.
-  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
-  // depositor defines the deposit addresses from the proposals.
-  string depositor = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  // amount to be deposited by depositor.
-  repeated cosmos.base.v1beta1.Coin amount = 3 [
-    (gogoproto.nullable)     = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
-    (amino.dont_omitempty)   = true
-  ];
-}
-
-// SignalDeviation is the type for a signal with soft and hard deviation
-message SignalDeviation {
-  option (gogoproto.equal) = true;
-
-  // signal_id is the signal ID
-  string signal_id = 1 [(gogoproto.customname) = "SignalID"];
-  // soft_deviation_bps is the soft deviation in basis points
-  uint64 soft_deviation_bps = 2 [(gogoproto.customname) = "SoftDeviationBPS"];
-  // hard_deviation_bps is the hard deviation in basis points
-  uint64 hard_deviation_bps = 3 [(gogoproto.customname) = "HardDeviationBPS"];
 }
 
 // TunnelSignatureOrder defines a general signature order for sending signature to tss group.

@@ -77,6 +77,35 @@ func NewMsgCreateIBCTunnel(
 	return m, nil
 }
 
+// NewMsgCreateRouterTunnel creates a new MsgCreateTunnel instance for Router tunnel.
+func NewMsgCreateRouterTunnel(
+	signalDeviations []SignalDeviation,
+	interval uint64,
+	fund sdk.Coin,
+	bridgeContractAddress string,
+	destChainID string,
+	destContractAddress string,
+	destGasLimit uint64,
+	destGasPrice uint64,
+	initialDeposit sdk.Coins,
+	creator string,
+) (*MsgCreateTunnel, error) {
+	r := &RouterRoute{
+		Fund:                  fund,
+		BridgeContractAddress: bridgeContractAddress,
+		DestChainID:           destChainID,
+		DestContractAddress:   destContractAddress,
+		DestGasLimit:          destGasLimit,
+		DestGasPrice:          destGasPrice,
+	}
+	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, initialDeposit, creator)
+	if err != nil {
+		return nil, err
+	}
+
+	return m, nil
+}
+
 // GetRouteValue returns the route of the tunnel.
 func (m MsgCreateTunnel) GetRouteValue() (RouteI, error) {
 	r, ok := m.Route.GetCachedValue().(RouteI)
