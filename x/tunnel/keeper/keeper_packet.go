@@ -53,41 +53,25 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) error {
 
 	// create new packet. If failed to produce packet, emit an event.
 	for _, id := range ids {
-		if err := k.ProduceActiveTunnelPacket(ctx, id, pricesMap); err != nil {
-			ctx.EventManager().EmitEvent(sdk.NewEvent(
-				types.EventTypeProducePacketFail,
-				sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", id)),
-				sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
-			))
+		// Produce a packet. If produce packet successfully, update the context state.
+		cacheCtx, writeFn := ctx.CacheContext()
+		err := k.ProducePacket(cacheCtx, id, pricesMap)
+		if err == nil {
+			writeFn()
+			continue
+		}
+
+		// emit an event if failed to produce packet and deactivate the tunnel
+		ctx.EventManager().EmitEvent(sdk.NewEvent(
+			types.EventTypeProducePacketFail,
+			sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", id)),
+			sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
+		))
+
+		if err := k.DeactivateTunnel(ctx, id); err != nil {
+			return err
 		}
 	}
-
-	return nil
-}
-
-// ProduceActiveTunnelPacket generates a packet and sends it to the destination route for the given tunnel ID.
-// If not enough fund, deactivate the tunnel.
-func (k Keeper) ProduceActiveTunnelPacket(
-	ctx sdk.Context,
-	tunnelID uint64,
-	pricesMap map[string]feedstypes.Price,
-) (err error) {
-	// Check if the tunnel has enough fund to create a packet and deactivate the tunnel if not
-	// enough fund. Error should not happen here since the tunnel is already validated.
-	ok, err := k.HasEnoughFundToCreatePacket(ctx, tunnelID)
-	if err != nil {
-		return err
-	}
-	if !ok {
-		return k.DeactivateTunnel(ctx, tunnelID)
-	}
-
-	// Produce a packet. If produce packet successfully, update the context state.
-	cacheCtx, writeFn := ctx.CacheContext()
-	if err := k.ProducePacket(cacheCtx, tunnelID, pricesMap); err != nil {
-		return err
-	}
-	writeFn()
 
 	return nil
 }

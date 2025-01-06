@@ -6,6 +6,7 @@ import (
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
@@ -191,14 +192,12 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPackets() {
 
 	s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
 		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
-	).Times(2)
+	)
 
 	s.feedsKeeper.EXPECT().GetAllPrices(gomock.Any()).Return([]feedstypes.Price{
 		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "CS:BAND-USD", Price: 50000, Timestamp: 1733000000},
 	})
 
-	spendableCoins := types.DefaultBasePacketFee.Add(sdk.NewCoin("uband", sdkmath.NewInt(20)))
-	s.bankKeeper.EXPECT().SpendableCoins(gomock.Any(), feePayer).Return(spendableCoins)
 	s.bankKeeper.EXPECT().
 		SendCoinsFromAccountToModule(gomock.Any(), feePayer, types.ModuleName, types.DefaultBasePacketFee).
 		Return(nil)
@@ -259,15 +258,13 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPacketsNotEnoughMoney() {
 		DestinationContractAddress: "0x",
 	}
 
-	s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
-		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
-	)
-
 	s.feedsKeeper.EXPECT().GetAllPrices(gomock.Any()).Return([]feedstypes.Price{
 		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "CS:BAND-USD", Price: 50000, Timestamp: 1733000000},
 	})
-	s.bankKeeper.EXPECT().SpendableCoins(gomock.Any(), feePayer).
-		Return(sdk.Coins{sdk.NewInt64Coin("uband", 1)})
+
+	s.bankKeeper.EXPECT().
+		SendCoinsFromAccountToModule(gomock.Any(), feePayer, types.ModuleName, types.DefaultBasePacketFee).
+		Return(sdkerrors.ErrInsufficientFunds)
 
 	err := tunnel.SetRoute(route)
 	s.Require().NoError(err)
