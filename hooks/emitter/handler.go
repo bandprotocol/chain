@@ -146,6 +146,10 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 		h.handleTunnelMsgCreateTunnel(ctx, txHash, msg, evMap)
 	case *tunneltypes.MsgUpdateSignalsAndInterval:
 		h.handleTunnelMsgUpdateSignalsAndInterval(ctx, evMap)
+	case *tunneltypes.MsgActivateTunnel:
+		h.handleTunnelMsgActivateTunnel(ctx, evMap)
+	case *tunneltypes.MsgDeactivateTunnel:
+		h.handleTunnelMsgDeactivateTunnel(ctx, evMap)
 	case *tunneltypes.MsgDepositToTunnel:
 		h.handleTunnelMsgDepositToTunnel(ctx, txHash, msg)
 	case *tunneltypes.MsgWithdrawFromTunnel:

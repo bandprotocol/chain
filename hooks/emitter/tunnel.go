@@ -126,6 +126,18 @@ func (h *Hook) handleTunnelMsgUpdateSignalsAndInterval(ctx sdk.Context, evMap co
 	h.emitSetTunnelHistoricalSignalDeviations(ctx, tunnelID)
 }
 
+// handleTunnelMsgActivateTunnel implements emitter handler for MsgActivateTunnel.
+func (h *Hook) handleTunnelMsgActivateTunnel(ctx sdk.Context, evMap common.EvMap) {
+	tunnelID := common.Atoui(evMap[types.EventTypeActivateTunnel+"."+types.AttributeKeyTunnelID][0])
+	h.emitUpdateTunnelStatus(ctx, tunnelID)
+}
+
+// handleTunnelMsgDeactivateTunnel implements emitter handler for MsgDeactivateTunnel.
+func (h *Hook) handleTunnelMsgDeactivateTunnel(ctx sdk.Context, evMap common.EvMap) {
+	tunnelID := common.Atoui(evMap[types.EventTypeDeactivateTunnel+"."+types.AttributeKeyTunnelID][0])
+	h.emitUpdateTunnelStatus(ctx, tunnelID)
+}
+
 // handleTunnelMsgDepositToTunnel implements emitter handler for MsgDepositToTunnel.
 func (h *Hook) handleTunnelMsgDepositToTunnel(ctx sdk.Context, txHash []byte, msg *types.MsgDepositToTunnel) {
 	h.emitSetTunnel(ctx, msg.TunnelID)
