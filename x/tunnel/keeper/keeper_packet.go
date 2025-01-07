@@ -53,23 +53,22 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) error {
 
 	// create new packet. If failed to produce packet, emit an event.
 	for _, id := range ids {
-		// Produce a packet. If produce packet successfully, update the context state.
 		cacheCtx, writeFn := ctx.CacheContext()
-		err := k.ProducePacket(cacheCtx, id, pricesMap)
-		if err == nil {
+
+		// Produce a packet. If produce packet successfully, update the context state.
+		// if not, emit an event and deactivate the tunnel.
+		if err := k.ProducePacket(cacheCtx, id, pricesMap); err != nil {
+			ctx.EventManager().EmitEvent(sdk.NewEvent(
+				types.EventTypeProducePacketFail,
+				sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", id)),
+				sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
+			))
+
+			if err := k.DeactivateTunnel(ctx, id); err != nil {
+				return err
+			}
+		} else {
 			writeFn()
-			continue
-		}
-
-		// emit an event if failed to produce packet and deactivate the tunnel
-		ctx.EventManager().EmitEvent(sdk.NewEvent(
-			types.EventTypeProducePacketFail,
-			sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", id)),
-			sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
-		))
-
-		if err := k.DeactivateTunnel(ctx, id); err != nil {
-			return err
 		}
 	}
 
