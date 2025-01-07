@@ -145,9 +145,6 @@ func (k Keeper) CreatePacket(
 	tunnelID uint64,
 	prices []feedstypes.Price,
 ) (types.Packet, error) {
-	// get tunnel and prices info
-	params := k.GetParams(ctx)
-
 	tunnel, err := k.GetTunnel(ctx, tunnelID)
 	if err != nil {
 		return types.Packet{}, err
@@ -159,25 +156,11 @@ func (k Keeper) CreatePacket(
 		return types.Packet{}, sdkerrors.Wrapf(err, "failed to deduct base packet fee for tunnel %d", tunnel.ID)
 	}
 
-	// get the route
-	route, err := tunnel.GetRouteValue()
-	if err != nil {
-		return types.Packet{}, err
-	}
-
-	// get the route fee
-	routeFee, err := k.GetRouteFee(ctx, route)
-	if err != nil {
-		return types.Packet{}, err
-	}
-
 	tunnel.Sequence++
 	packet := types.NewPacket(
 		tunnelID,
 		tunnel.Sequence,
 		prices,
-		params.BasePacketFee,
-		routeFee,
 		ctx.BlockTime().Unix(),
 	)
 

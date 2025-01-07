@@ -55,8 +55,6 @@ func (s *KeeperTestSuite) TestGetSetPacket() {
 func (s *KeeperTestSuite) TestCreatePacket() {
 	ctx, k := s.ctx, s.keeper
 
-	params := k.GetParams(ctx)
-
 	feePayer := sdk.AccAddress([]byte("fee_payer_address"))
 	tunnel := types.Tunnel{
 		ID:       1,
@@ -75,10 +73,6 @@ func (s *KeeperTestSuite) TestCreatePacket() {
 		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "CS:BAND-USD", Price: 5000000, Timestamp: 1733000000},
 	}
 
-	s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
-		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
-	)
-
 	s.bankKeeper.EXPECT().
 		SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, k.GetParams(ctx).BasePacketFee).
 		Return(nil)
@@ -93,8 +87,6 @@ func (s *KeeperTestSuite) TestCreatePacket() {
 		TunnelID:  1,
 		Sequence:  1,
 		Prices:    prices,
-		BaseFee:   params.BasePacketFee,
-		RouteFee:  sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))),
 		CreatedAt: ctx.BlockTime().Unix(),
 	}
 
