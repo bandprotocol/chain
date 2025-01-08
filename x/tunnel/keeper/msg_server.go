@@ -209,7 +209,7 @@ func (k msgServer) WithdrawFeePayerFunds(
 	return &types.MsgWithdrawFeePayerFundsResponse{}, nil
 }
 
-// ActivateTunnel activates a tunnel.
+// ActivateTunnel activates a tunnel, allowing it to start producing packets.
 func (k msgServer) ActivateTunnel(
 	goCtx context.Context,
 	msg *types.MsgActivateTunnel,
@@ -238,7 +238,7 @@ func (k msgServer) ActivateTunnel(
 	return &types.MsgActivateTunnelResponse{}, nil
 }
 
-// DeactivateTunnel deactivates a tunnel.
+// DeactivateTunnel deactivates a tunnel to stop producing packets.
 func (k msgServer) DeactivateTunnel(
 	goCtx context.Context,
 	msg *types.MsgDeactivateTunnel,
