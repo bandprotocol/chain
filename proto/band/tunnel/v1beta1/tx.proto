@@ -29,11 +29,11 @@ service Msg {
   // WithdrawFeePayerFunds is a RPC method to withdraw fee payer funds to creator.
   rpc WithdrawFeePayerFunds(MsgWithdrawFeePayerFunds) returns (MsgWithdrawFeePayerFundsResponse);
 
-  // Activate is a RPC method to activate a tunnel.
-  rpc Activate(MsgActivate) returns (MsgActivateResponse);
+  // ActivateTunnel is a RPC method to activate a tunnel.
+  rpc ActivateTunnel(MsgActivateTunnel) returns (MsgActivateTunnelResponse);
 
-  // Deactivate is a RPC method to deactivate a tunnel.
-  rpc Deactivate(MsgDeactivate) returns (MsgDeactivateResponse);
+  // DeactivateTunnel is a RPC method to deactivate a tunnel.
+  rpc DeactivateTunnel(MsgDeactivateTunnel) returns (MsgDeactivateTunnelResponse);
 
   // TriggerTunnel is a RPC method to manually trigger a tunnel.
   rpc TriggerTunnel(MsgTriggerTunnel) returns (MsgTriggerTunnelResponse);
@@ -128,10 +128,10 @@ message MsgWithdrawFeePayerFunds {
 // MsgWithdrawFeePayerFundsResponse is the response type for the Msg/WithdrawFeePayerFunds RPC method.
 message MsgWithdrawFeePayerFundsResponse {}
 
-// Activate is the transaction message to activate a tunnel.
-message MsgActivate {
+// MsgActivateTunnel is the transaction message to activate a tunnel.
+message MsgActivateTunnel {
   option (cosmos.msg.v1.signer) = "creator";
-  option (amino.name)           = "tunnel/MsgActivate";
+  option (amino.name)           = "tunnel/MsgActivateTunnel";
 
   // tunnel_id is the ID of the tunnel to activate.
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
@@ -139,13 +139,13 @@ message MsgActivate {
   string creator = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
-// MsgActivateResponse is the response type for the Msg/Activate RPC method.
-message MsgActivateResponse {}
+// MsgActivateTunnelResponse is the response type for the Msg/Activate RPC method.
+message MsgActivateTunnelResponse {}
 
-// MsgDeactivate is the transaction message to deactivate a tunnel.
-message MsgDeactivate {
+// MsgDeactivateTunnel is the transaction message to deactivate a tunnel.
+message MsgDeactivateTunnel {
   option (cosmos.msg.v1.signer) = "creator";
-  option (amino.name)           = "tunnel/MsgDeactivate";
+  option (amino.name)           = "tunnel/MsgDeactivateTunnel";
 
   // tunnel_id is the ID of the tunnel to deactivate.
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
@@ -154,7 +154,7 @@ message MsgDeactivate {
 }
 
 // MsgDeactivateTunnelResponse is the response type for the Msg/Deactivate RPC method.
-message MsgDeactivateResponse {}
+message MsgDeactivateTunnelResponse {}
 
 // MsgTriggerTunnel is the transaction message to manually trigger a tunnel.
 message MsgTriggerTunnel {
