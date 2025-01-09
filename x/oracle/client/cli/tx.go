@@ -638,7 +638,7 @@ $ %s tx oracle add-reporters band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5
 	return cmd
 }
 
-// GetCmdRemoveReporter implements the remove reporter command handler.
+// GetCmdRemoveReporters implements the remove reporter command handler.
 func GetCmdRemoveReporters() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "remove-reporters [reporter1] [reporter2] ...",
