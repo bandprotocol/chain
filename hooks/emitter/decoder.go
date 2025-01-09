@@ -171,10 +171,10 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 		DecodeTunnelMsgCreateTunnel(msg, detail)
 	case *tunneltypes.MsgUpdateSignalsAndInterval:
 		DecodeTunnelMsgUpdateSignalsAndInterval(msg, detail)
-	case *tunneltypes.MsgActivate:
-		DecodeTunnelMsgActivate(msg, detail)
-	case *tunneltypes.MsgDeactivate:
-		DecodeTunnelMsgDeactivate(msg, detail)
+	case *tunneltypes.MsgActivateTunnel:
+		DecodeTunnelMsgActivateTunnel(msg, detail)
+	case *tunneltypes.MsgDeactivateTunnel:
+		DecodeTunnelMsgDeactivateTunnel(msg, detail)
 	case *tunneltypes.MsgTriggerTunnel:
 		DecodeTunnelMsgTriggerTunnel(msg, detail)
 	case *tunneltypes.MsgDepositToTunnel:
@@ -810,12 +810,12 @@ func DecodeTunnelMsgUpdateSignalsAndInterval(msg *tunneltypes.MsgUpdateSignalsAn
 	detail["creator"] = msg.Creator
 }
 
-func DecodeTunnelMsgActivate(msg *tunneltypes.MsgActivate, detail common.JsDict) {
+func DecodeTunnelMsgActivateTunnel(msg *tunneltypes.MsgActivateTunnel, detail common.JsDict) {
 	detail["tunnel_id"] = msg.TunnelID
 	detail["creator"] = msg.Creator
 }
 
-func DecodeTunnelMsgDeactivate(msg *tunneltypes.MsgDeactivate, detail common.JsDict) {
+func DecodeTunnelMsgDeactivateTunnel(msg *tunneltypes.MsgDeactivateTunnel, detail common.JsDict) {
 	detail["tunnel_id"] = msg.TunnelID
 	detail["creator"] = msg.Creator
 }

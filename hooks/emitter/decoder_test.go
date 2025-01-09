@@ -1290,12 +1290,12 @@ func (suite *DecoderTestSuite) TestDecodeTunnelMsgUpdateSignalsAndInterval() {
 
 func (suite *DecoderTestSuite) TestDecodeTunnelMsgActivate() {
 	detail := make(common.JsDict)
-	msg := tunneltypes.NewMsgActivate(
+	msg := tunneltypes.NewMsgActivateTunnel(
 		1,
 		CreatorAddress.String(),
 	)
 
-	emitter.DecodeTunnelMsgActivate(msg, detail)
+	emitter.DecodeTunnelMsgActivateTunnel(msg, detail)
 	suite.testCompareJson(
 		detail,
 		"{\"creator\":\"band1gdex2ct5daeqqqqqqqqqqqqqqqqqqqqq8vcand\",\"tunnel_id\":1}",
@@ -1304,12 +1304,12 @@ func (suite *DecoderTestSuite) TestDecodeTunnelMsgActivate() {
 
 func (suite *DecoderTestSuite) TestDecodeTunnelMsgDeactivate() {
 	detail := make(common.JsDict)
-	msg := tunneltypes.NewMsgDeactivate(
+	msg := tunneltypes.NewMsgDeactivateTunnel(
 		1,
 		CreatorAddress.String(),
 	)
 
-	emitter.DecodeTunnelMsgDeactivate(msg, detail)
+	emitter.DecodeTunnelMsgDeactivateTunnel(msg, detail)
 	suite.testCompareJson(
 		detail,
 		"{\"creator\":\"band1gdex2ct5daeqqqqqqqqqqqqqqqqqqqqq8vcand\",\"tunnel_id\":1}",
