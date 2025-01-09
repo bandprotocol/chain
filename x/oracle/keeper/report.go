@@ -22,7 +22,7 @@ func (k Keeper) SetReport(ctx sdk.Context, rid types.RequestID, rep types.Report
 	ctx.KVStore(k.storeKey).Set(key, k.cdc.MustMarshal(&rep))
 }
 
-// AddReports performs sanity checks and adds a new batch from one validator to one request
+// AddReport performs sanity checks and adds a new batch from one validator to one request
 // to the store. Note that we expect each validator to report to all raw data requests at once.
 func (k Keeper) AddReport(
 	ctx sdk.Context,
