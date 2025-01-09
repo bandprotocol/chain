@@ -6,7 +6,6 @@ import (
 	proto "github.com/cosmos/gogoproto/proto"
 
 	"github.com/cosmos/cosmos-sdk/codec/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
@@ -18,8 +17,6 @@ func NewPacket(
 	tunnelID uint64,
 	sequence uint64,
 	prices []feedstypes.Price,
-	baseFee sdk.Coins,
-	routeFee sdk.Coins,
 	createdAt int64,
 ) Packet {
 	return Packet{
@@ -27,8 +24,6 @@ func NewPacket(
 		Sequence:  sequence,
 		Prices:    prices,
 		Receipt:   nil,
-		BaseFee:   baseFee,
-		RouteFee:  routeFee,
 		CreatedAt: createdAt,
 	}
 }

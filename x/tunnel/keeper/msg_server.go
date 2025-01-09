@@ -289,15 +289,6 @@ func (k msgServer) TriggerTunnel(
 		return nil, types.ErrInactiveTunnel.Wrapf("tunnelID %d", msg.TunnelID)
 	}
 
-	ok, err := k.Keeper.HasEnoughFundToCreatePacket(ctx, tunnel.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	if !ok {
-		return nil, types.ErrInsufficientFund.Wrapf("tunnelID %d", msg.TunnelID)
-	}
-
 	signalIDs := tunnel.GetSignalIDs()
 	prices := k.Keeper.feedsKeeper.GetPrices(ctx, signalIDs)
 

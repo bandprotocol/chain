@@ -20,6 +20,11 @@ func (k Keeper) SendTSSPacket(
 		route.Encoder,
 	)
 
+	tssFee, err := k.bandtssKeeper.GetSigningFee(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	// try signing TSS packet, if success, write the context.
 	signingID, err := k.bandtssKeeper.CreateTunnelSigningRequest(
 		ctx,
@@ -28,7 +33,7 @@ func (k Keeper) SendTSSPacket(
 		route.DestinationContractAddress,
 		content,
 		feePayer,
-		packet.RouteFee,
+		tssFee,
 	)
 	if err != nil {
 		return nil, err
