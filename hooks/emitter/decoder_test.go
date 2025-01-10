@@ -1288,7 +1288,7 @@ func (suite *DecoderTestSuite) TestDecodeTunnelMsgUpdateSignalsAndInterval() {
 	)
 }
 
-func (suite *DecoderTestSuite) TestDecodeTunnelMsgActivate() {
+func (suite *DecoderTestSuite) TestDecodeTunnelMsgActivateTunnel() {
 	detail := make(common.JsDict)
 	msg := tunneltypes.NewMsgActivateTunnel(
 		1,
@@ -1302,7 +1302,7 @@ func (suite *DecoderTestSuite) TestDecodeTunnelMsgActivate() {
 	)
 }
 
-func (suite *DecoderTestSuite) TestDecodeTunnelMsgDeactivate() {
+func (suite *DecoderTestSuite) TestDecodeTunnelMsgDeactivateTunnel() {
 	detail := make(common.JsDict)
 	msg := tunneltypes.NewMsgDeactivateTunnel(
 		1,
