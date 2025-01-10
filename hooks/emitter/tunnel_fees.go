@@ -65,8 +65,9 @@ func (tf *TunnelFees) Execute() {
 	}
 }
 
-// GetFees returns the fees for the given fee payer. This function must be called after Execute
-// to ensure that the fees have been calculated and stored in the SenderFeesMap.
+// GetFees returns the fees for the given fee payer.
+// NOTE: This function must be called after Execute to ensure that the fees have been
+// calculated and stored in the SenderFeesMap.
 func (tf *TunnelFees) GetFees(feePayer string) (Fees, bool) {
 	fees, found := tf.SenderFeesMap[feePayer]
 	return fees, found
