@@ -4,6 +4,7 @@ import (
 	"math"
 
 	sdkmath "cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
 
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
@@ -71,4 +72,16 @@ func calculateDeviationBPS(oldPrice, newPrice sdkmath.Int) sdkmath.Int {
 	}
 
 	return newPrice.Sub(oldPrice).Abs().MulRaw(10000).Quo(oldPrice)
+}
+
+// IsOutOfGasError checks if the error object is an out of gas or gas overflow error type
+func IsOutOfGasError(err any) (bool, string) {
+	switch e := err.(type) {
+	case storetypes.ErrorOutOfGas:
+		return true, e.Descriptor
+	case storetypes.ErrorGasOverflow:
+		return true, e.Descriptor
+	default:
+		return false, ""
+	}
 }

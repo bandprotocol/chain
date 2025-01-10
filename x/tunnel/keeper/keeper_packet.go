@@ -175,9 +175,13 @@ func (k Keeper) CreatePacket(
 func (k Keeper) SendPacket(ctx sdk.Context, packet types.Packet) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			ctx.Logger().Error(fmt.Sprintf("Panic recovered: %v", r))
-			err = types.ErrSendPacketPanic
-			return
+			if isErr, _ := IsOutOfGasError(r); isErr {
+				// We panic with the same error, to replicate the normal tx execution flow.
+				panic(r)
+			} else {
+				ctx.Logger().Error(fmt.Sprintf("Panic recovered: %v", r))
+				err = types.ErrSendPacketPanic
+			}
 		}
 	}()
 
