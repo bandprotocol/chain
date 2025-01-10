@@ -15,28 +15,10 @@ type Fees struct {
 	RouteFee sdk.Coins
 }
 
-// TunnelFees stores the fees for each sender in event transfers.
-type TunnelFees struct {
-	Ctx           sdk.Context
-	Hook          Hook
-	Events        []abci.Event
-	SenderFeesMap map[string]Fees
-}
-
-// NewTunnelFees creates a new TunnelFees instance
-func NewTunnelFees(ctx sdk.Context, hook Hook, events []abci.Event) *TunnelFees {
-	return &TunnelFees{
-		Ctx:           ctx,
-		Hook:          hook,
-		Events:        events,
-		SenderFeesMap: make(map[string]Fees),
-	}
-}
-
-// Execute calculates the base fee and route fee for each sender from event transfers.
-// This function is called at the end of the block, specifically for use in the tunnel module.
-func (tf *TunnelFees) Execute() {
-	for _, event := range tf.Events {
+// getTunnelSenderFeesMap returns the fees for each sender in event transfers.
+func getTunnelSenderFeesMap(ctx sdk.Context, hook Hook, events []abci.Event) map[string]Fees {
+	senderFeesMap := make(map[string]Fees)
+	for _, event := range events {
 		if event.Type == banktypes.EventTypeTransfer {
 			evMap := parseEvents([]abci.Event{event})
 
@@ -50,9 +32,9 @@ func (tf *TunnelFees) Execute() {
 				continue
 			}
 
-			tunnelModuleAcc := tf.Hook.accountKeeper.GetModuleAccount(tf.Ctx, tunneltypes.ModuleName)
+			tunnelModuleAcc := hook.accountKeeper.GetModuleAccount(ctx, tunneltypes.ModuleName)
 
-			fees := tf.SenderFeesMap[sender]
+			fees := senderFeesMap[sender]
 
 			if recipient == tunnelModuleAcc.GetAddress().String() {
 				fees.BaseFee = fees.BaseFee.Add(amount...)
@@ -60,15 +42,9 @@ func (tf *TunnelFees) Execute() {
 				fees.RouteFee = fees.RouteFee.Add(amount...)
 			}
 
-			tf.SenderFeesMap[sender] = fees
+			senderFeesMap[sender] = fees
 		}
 	}
-}
 
-// GetFees returns the fees for the given fee payer.
-// NOTE: This function must be called after Execute to ensure that the fees have been
-// calculated and stored in the SenderFeesMap.
-func (tf *TunnelFees) GetFees(feePayer string) (Fees, bool) {
-	fees, found := tf.SenderFeesMap[feePayer]
-	return fees, found
+	return senderFeesMap
 }

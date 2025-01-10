@@ -150,23 +150,21 @@ func (h *Hook) handleTunnelMsgTriggerTunnel(
 	ctx sdk.Context,
 	msg *types.MsgTriggerTunnel,
 	evMap common.EvMap,
-	tunnelFees *TunnelFees,
+	senderFeesMap map[string]Fees,
 ) {
 	sequence := common.Atoui(evMap[types.EventTypeTriggerTunnel+"."+types.AttributeKeySequence][0])
 
 	tunnel, _ := h.tunnelKeeper.GetTunnel(ctx, msg.TunnelID)
 
-	fees, _ := tunnelFees.GetFees(tunnel.FeePayer)
-
 	h.emitSetTunnel(ctx, msg.TunnelID)
-	h.emitSetTunnelPacket(ctx, msg.TunnelID, sequence, fees)
+	h.emitSetTunnelPacket(ctx, msg.TunnelID, sequence, senderFeesMap[tunnel.FeePayer])
 }
 
 // handleTunnelEventTypeProducePacketSuccess implements emitter handler for EventTypeProducePacketSuccess.
 func (h *Hook) handleTunnelEventTypeProducePacketSuccess(
 	ctx sdk.Context,
 	evMap common.EvMap,
-	tunnelFees *TunnelFees,
+	senderFeesMap map[string]Fees,
 ) {
 	tunnelIDs := evMap[types.EventTypeProducePacketSuccess+"."+types.AttributeKeyTunnelID]
 	sequences := evMap[types.EventTypeProducePacketSuccess+"."+types.AttributeKeySequence]
@@ -177,10 +175,8 @@ func (h *Hook) handleTunnelEventTypeProducePacketSuccess(
 
 		tunnel := h.tunnelKeeper.MustGetTunnel(ctx, id)
 
-		fees, _ := tunnelFees.GetFees(tunnel.FeePayer)
-
 		h.emitSetTunnel(ctx, id)
-		h.emitSetTunnelPacket(ctx, id, sequence, fees)
+		h.emitSetTunnelPacket(ctx, id, sequence, senderFeesMap[tunnel.FeePayer])
 	}
 }
 
