@@ -52,10 +52,7 @@ func (tf *TunnelFees) CalculateFee() {
 
 			tunnelModuleAcc := tf.Hook.accountKeeper.GetModuleAccount(tf.Ctx, tunneltypes.ModuleName)
 
-			fees, found := tf.SenderFeesMap[sender]
-			if !found {
-				fees = Fees{}
-			}
+			fees := tf.SenderFeesMap[sender]
 
 			if recipient == tunnelModuleAcc.GetAddress().String() {
 				fees.BaseFee = fees.BaseFee.Add(amount...)
