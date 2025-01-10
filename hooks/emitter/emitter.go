@@ -392,10 +392,6 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req *abci.RequestInitChain, res *
 
 // AfterBeginBlock specify actions need to do after begin block period (app.Hook interface).
 func (h *Hook) AfterBeginBlock(ctx sdk.Context, req *abci.RequestFinalizeBlock, events []abci.Event) {
-	// NOTE: No need to execute tunnel fees here, as we will execute them in AfterEndBlock.
-	tf := NewTunnelFees(ctx, *h, events)
-	// tf.Execute()
-
 	h.accsInBlock = make(map[string]bool)
 	h.accsInTx = make(map[string]bool)
 	h.msgs = []common.Message{}
@@ -431,6 +427,9 @@ func (h *Hook) AfterBeginBlock(ctx sdk.Context, req *abci.RequestFinalizeBlock, 
 		"inflation": minter.Inflation.String(),
 		"supply":    totalSupply,
 	})
+
+	// NOTE: No need to execute tunnel fees here, as we will execute them in AfterEndBlock.
+	tf := NewTunnelFees(ctx, *h, events)
 
 	eventQuerier := NewEventQuerier(events)
 	for i, event := range events {
