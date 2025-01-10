@@ -392,6 +392,10 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req *abci.RequestInitChain, res *
 
 // AfterBeginBlock specify actions need to do after begin block period (app.Hook interface).
 func (h *Hook) AfterBeginBlock(ctx sdk.Context, req *abci.RequestFinalizeBlock, events []abci.Event) {
+	// NOTE: No need to calculate tunnel fees here, as we will calculate them in AfterEndBlock.
+	tf := NewTunnelFees(ctx, *h, events)
+	// tf.CalculateFee()
+
 	h.accsInBlock = make(map[string]bool)
 	h.accsInTx = make(map[string]bool)
 	h.msgs = []common.Message{}
@@ -430,7 +434,7 @@ func (h *Hook) AfterBeginBlock(ctx sdk.Context, req *abci.RequestFinalizeBlock, 
 
 	eventQuerier := NewEventQuerier(events)
 	for i, event := range events {
-		h.handleBeginBlockEndBlockEvent(ctx, event, i, eventQuerier)
+		h.handleBeginBlockEndBlockEvent(ctx, event, i, eventQuerier, tf)
 	}
 }
 
@@ -512,9 +516,13 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, tx sdk.Tx, res *abci.ExecTxResult
 
 // AfterEndBlock specify actions need to do after end block period (app.Hook interface).
 func (h *Hook) AfterEndBlock(ctx sdk.Context, events []abci.Event) {
+	// Calculate tunnel fees for all events in the transaction.
+	tf := NewTunnelFees(ctx, *h, events)
+	tf.CalculateFee()
+
 	eventQuerier := NewEventQuerier(events)
 	for i, event := range events {
-		h.handleBeginBlockEndBlockEvent(ctx, event, i, eventQuerier)
+		h.handleBeginBlockEndBlockEvent(ctx, event, i, eventQuerier, tf)
 	}
 
 	// Emit all new current prices at every endblock.

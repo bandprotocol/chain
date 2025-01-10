@@ -151,7 +151,11 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 	case *tunneltypes.MsgWithdrawFromTunnel:
 		h.handleTunnelMsgWithdrawFromTunnel(ctx, txHash, msg)
 	case *tunneltypes.MsgTriggerTunnel:
-		h.handleTunnelMsgTriggerTunnel(ctx, msg, evMap)
+		// Calculate tunnel fees for all events in the transaction.
+		tf := NewTunnelFees(ctx, *h, events)
+		tf.CalculateFee()
+
+		h.handleTunnelMsgTriggerTunnel(ctx, msg, evMap, tf)
 	default:
 		break
 	}
@@ -190,6 +194,7 @@ func (h *Hook) handleBeginBlockEndBlockEvent(
 	event abci.Event,
 	eventIdx int,
 	eventQuerier *EventQuerier,
+	tunnelFees *TunnelFees,
 ) {
 	evMap := parseEvents([]abci.Event{event})
 	switch event.Type {
@@ -244,7 +249,7 @@ func (h *Hook) handleBeginBlockEndBlockEvent(
 	case tsstypes.EventTypeSetMemberIsActive:
 		h.handleTSSSetMember(ctx, evMap)
 	case tunneltypes.EventTypeProducePacketSuccess:
-		h.handleTunnelEventTypeProducePacketSuccess(ctx, evMap)
+		h.handleTunnelEventTypeProducePacketSuccess(ctx, evMap, tunnelFees)
 	case tunneltypes.EventTypeActivateTunnel:
 		h.handleTunnelEventTypeActivateTunnel(ctx, evMap)
 	case tunneltypes.EventTypeDeactivateTunnel:
