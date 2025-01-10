@@ -80,7 +80,12 @@ func (h *Hook) emitSetTunnelHistoricalSignalDeviations(ctx sdk.Context, tunnelID
 	})
 }
 
-func (h *Hook) emitSetTunnelPacket(ctx sdk.Context, tunnelID uint64, sequence uint64) {
+func (h *Hook) emitSetTunnelPacket(
+	ctx sdk.Context,
+	tunnelID uint64,
+	sequence uint64,
+	fees Fees,
+) {
 	packet, _ := h.tunnelKeeper.GetPacket(ctx, tunnelID, sequence)
 
 	h.Write("SET_TUNNEL_PACKET", common.JsDict{
@@ -88,8 +93,8 @@ func (h *Hook) emitSetTunnelPacket(ctx sdk.Context, tunnelID uint64, sequence ui
 		"sequence":     sequence,
 		"receipt_type": packet.Receipt.TypeUrl,
 		"receipt":      packet.Receipt.GetCachedValue(),
-		"base_fee":     "",
-		"route_fee":    "",
+		"base_fee":     fees.BaseFee.String(),
+		"route_fee":    fees.RouteFee.String(),
 		"created_at":   packet.CreatedAt * int64(time.Second),
 	})
 
@@ -141,21 +146,37 @@ func (h *Hook) handleTunnelMsgWithdrawFromTunnel(ctx sdk.Context, txHash []byte,
 }
 
 // handleTunnelMsgTriggerTunnel implements emitter handler for MsgTriggerTunnel.
-func (h *Hook) handleTunnelMsgTriggerTunnel(ctx sdk.Context, msg *types.MsgTriggerTunnel, evMap common.EvMap) {
+func (h *Hook) handleTunnelMsgTriggerTunnel(
+	ctx sdk.Context,
+	msg *types.MsgTriggerTunnel,
+	evMap common.EvMap,
+	senderFeesMap map[string]Fees,
+) {
 	sequence := common.Atoui(evMap[types.EventTypeTriggerTunnel+"."+types.AttributeKeySequence][0])
+
+	tunnel, _ := h.tunnelKeeper.GetTunnel(ctx, msg.TunnelID)
+
 	h.emitSetTunnel(ctx, msg.TunnelID)
-	h.emitSetTunnelPacket(ctx, msg.TunnelID, sequence)
+	h.emitSetTunnelPacket(ctx, msg.TunnelID, sequence, senderFeesMap[tunnel.FeePayer])
 }
 
 // handleTunnelEventTypeProducePacketSuccess implements emitter handler for EventTypeProducePacketSuccess.
-func (h *Hook) handleTunnelEventTypeProducePacketSuccess(ctx sdk.Context, evMap common.EvMap) {
+func (h *Hook) handleTunnelEventTypeProducePacketSuccess(
+	ctx sdk.Context,
+	evMap common.EvMap,
+	senderFeesMap map[string]Fees,
+) {
 	tunnelIDs := evMap[types.EventTypeProducePacketSuccess+"."+types.AttributeKeyTunnelID]
 	sequences := evMap[types.EventTypeProducePacketSuccess+"."+types.AttributeKeySequence]
+
 	for idx, tunnelID := range tunnelIDs {
 		sequence := common.Atoui(sequences[idx])
 		id := common.Atoui(tunnelID)
+
+		tunnel := h.tunnelKeeper.MustGetTunnel(ctx, id)
+
 		h.emitSetTunnel(ctx, id)
-		h.emitSetTunnelPacket(ctx, id, sequence)
+		h.emitSetTunnelPacket(ctx, id, sequence, senderFeesMap[tunnel.FeePayer])
 	}
 }
 
