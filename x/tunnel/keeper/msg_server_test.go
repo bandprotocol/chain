@@ -694,7 +694,7 @@ func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
 
 				s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
 					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
-				).Times(2)
+				)
 
 				s.bandtssKeeper.EXPECT().CreateTunnelSigningRequest(
 					gomock.Any(),
@@ -719,9 +719,6 @@ func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
 				s.bankKeeper.EXPECT().
 					SendCoinsFromAccountToModule(gomock.Any(), feePayer, types.ModuleName, types.DefaultBasePacketFee).
 					Return(nil)
-
-				spendableCoins := types.DefaultBasePacketFee.Add(sdk.NewCoin("uband", sdkmath.NewInt(20)))
-				s.bankKeeper.EXPECT().SpendableCoins(gomock.Any(), feePayer).Return(spendableCoins)
 
 				return types.NewMsgTriggerTunnel(1, sdk.AccAddress([]byte("creator_address")).String())
 			},
