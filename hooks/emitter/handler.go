@@ -153,7 +153,7 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 	case *tunneltypes.MsgTriggerTunnel:
 		// Calculate tunnel fees for all events in the transaction.
 		tf := NewTunnelFees(ctx, *h, events)
-		tf.CalculateFee()
+		tf.Execute()
 
 		h.handleTunnelMsgTriggerTunnel(ctx, msg, evMap, tf)
 	default:

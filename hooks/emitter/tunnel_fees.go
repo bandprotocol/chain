@@ -33,9 +33,9 @@ func NewTunnelFees(ctx sdk.Context, hook Hook, events []abci.Event) *TunnelFees 
 	}
 }
 
-// CalculateFee calculates the base fee and route fee for each sender from event transfers.
+// Execute calculates the base fee and route fee for each sender from event transfers.
 // This function is called at the end of the block, specifically for use in the tunnel module.
-func (tf *TunnelFees) CalculateFee() {
+func (tf *TunnelFees) Execute() {
 	for _, event := range tf.Events {
 		if event.Type == banktypes.EventTypeTransfer {
 			evMap := parseEvents([]abci.Event{event})
