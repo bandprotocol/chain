@@ -61,9 +61,9 @@ This module is used in the BandChain.
 
 A Vote is a decision made by a voter, directing the network to deliver feed service for specified signal IDs.
 
-A vote can contain multiple signal for each distinct signal ID.
+A vote can contain multiple signals for each distinct signal ID.
 
-A signal consists of an signal ID and the power associated with that signal. The feeding interval and deviation are reduced by the sum of the power of the signal. The total power of all signals of voter cannot exceed their total bonded delegation and staked tokens.
+A signal consists of a signal ID and the power associated with that signal. The feeding interval and deviation are reduced by the sum of the power of the signal. The total power of all signals of voter cannot exceed their total bonded delegation and staked tokens.
 
 ### Feed
 
@@ -100,7 +100,7 @@ The module only contains the latest price of each validator and signal ID.
 
 #### Status
 
-Validator Price can reports three valid price status:
+Validator Price can report three valid price status:
 
 1. `SIGNAL_PRICE_STATUS_UNSUPPORTED`: Indicates that the requested signal ID is not supported by this validator and will not be available in the foreseeable future unless an upgrade occurs.
 
@@ -120,7 +120,7 @@ The module only contains the latest price of each signal ID of Current feeds.
 
 The price status includes the following valid states:
 
-1. `PRICE_STATUS_UNKNOWN_SIGNAL_ID`: Indicates that the price for this signal ID is not supported by the majority of price feeder and will not be available in the foreseeable future unless the feeders undergoes an upgrade of their price service registry.
+1. `PRICE_STATUS_UNKNOWN_SIGNAL_ID`: Indicates that the price for this signal ID is not supported by the majority of price feeder and will not be available in the foreseeable future unless the feeders undergo an upgrade of their price service registry.
 
 2. `PRICE_STATUS_NOT_READY`: Indicates that the price for this signal ID is currently not ready but is expected to become available in the near future.
 
@@ -172,7 +172,7 @@ The SignalTotalPower is a space for holding the total power of signals.
 
 #### SignalTotalPowerByPowerIndex
 
-`SignalTotalPowerByPowerIndex` allow to retrieve SignalTotalPower by power:
+`SignalTotalPowerByPowerIndex` allows to retrieve SignalTotalPower by power:
  `0x80| BigEndian(Power) | SignalIDLen (1 byte) | SignalID -> SignalID`
 
 ### Params
