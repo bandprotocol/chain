@@ -3,7 +3,7 @@
 ## [v3.0.0](https://github.com/bandprotocol/chain/releases/tag/v3.0.0)
 
 * (bump) Use go 1.22.3
-* (bump) Use cosmos-sdk package v0.50.10 / ibc-go v8.5.2
+* (bump) Use cosmos-sdk package v0.50.11 / ibc-go v8.5.2
 * (bump) replace github.com/tendermint/tendermint by github.com/cometbft/cometbft v0.38.12
 * (bump) migrated from gogo/protobuf to cosmos/gogoproto
 * (bump) Use go-owasm v0.3.1
