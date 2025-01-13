@@ -284,11 +284,11 @@ func CheckMissReport(
 	blockHeight int64,
 	gracePeriod int64,
 ) bool {
-	// During the grace period, if the block time exceeds MaxGuaranteeBlockTime, it will be capped at MaxGuaranteeBlockTime.
-	// This means that in cases of slow block time, the validator will not be deactivated
-	// as long as the block height does not exceed the equivalent of assumed MaxGuaranteeBlockTime of block time.
+	// During the grace period, if the block time exceeds GuaranteeBlockTime, it will be capped at GuaranteeBlockTime.
+	// If block times are slower, they will be capped at this value to prevent validator deactivation,
+	// as long as the block height remains within the calculated threshold for GuaranteeBlockTime.
 	lastTime := lastUpdateTimestamp + gracePeriod
-	lastBlock := lastUpdateBlock + gracePeriod/types.MaxGuaranteeBlockTime
+	lastBlock := lastUpdateBlock + gracePeriod/types.GuaranteeBlockTime
 
 	if valInfo.Status.Since.Unix()+gracePeriod > lastTime {
 		lastTime = valInfo.Status.Since.Unix() + gracePeriod
@@ -299,8 +299,8 @@ func CheckMissReport(
 			lastTime = valPrice.Timestamp + feed.Interval
 		}
 
-		if valPrice.BlockHeight+feed.Interval/types.MaxGuaranteeBlockTime > lastBlock {
-			lastBlock = valPrice.BlockHeight + feed.Interval/types.MaxGuaranteeBlockTime
+		if valPrice.BlockHeight+feed.Interval/types.GuaranteeBlockTime > lastBlock {
+			lastBlock = valPrice.BlockHeight + feed.Interval/types.GuaranteeBlockTime
 		}
 	}
 
