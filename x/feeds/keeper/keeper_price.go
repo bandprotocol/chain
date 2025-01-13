@@ -284,28 +284,32 @@ func CheckMissReport(
 	blockHeight int64,
 	gracePeriod int64,
 ) bool {
-	// During the grace period, if the block time exceeds MaxGuaranteeBlockTime, it will be capped at MaxGuaranteeBlockTime.
-	// This means that in cases of slow block time, the validator will not be deactivated
-	// as long as the block height does not exceed the equivalent of assumed MaxGuaranteeBlockTime of block time.
-	lastTime := lastUpdateTimestamp + gracePeriod
-	lastBlock := lastUpdateBlock + gracePeriod/types.MaxGuaranteeBlockTime
+	// Calculate the deadline time and block height for the validator to report.
+	// During the grace period, if the block time exceeds ExpectedBlockTime, it will be capped at ExpectedBlockTime.
+	// This prevents validator deactivation due to slower block times, as long as the block height remains within the threshold.
+	deadlineTime := lastUpdateTimestamp + gracePeriod
+	deadlineBlock := lastUpdateBlock + gracePeriod/types.ExpectedBlockTime
 
-	if valInfo.Status.Since.Unix()+gracePeriod > lastTime {
-		lastTime = valInfo.Status.Since.Unix() + gracePeriod
+	// Extend deadline if the validator just became active.
+	if valInfo.Status.Since.Unix()+gracePeriod > deadlineTime {
+		deadlineTime = valInfo.Status.Since.Unix() + gracePeriod
 	}
 
+	// Extend deadline if the validator has a valid price within the feed interval.
 	if valPrice.SignalPriceStatus != types.SIGNAL_PRICE_STATUS_UNSPECIFIED {
-		if valPrice.Timestamp+feed.Interval > lastTime {
-			lastTime = valPrice.Timestamp + feed.Interval
+		// Extend deadline time based on the price timestamp.
+		if valPrice.Timestamp+feed.Interval > deadlineTime {
+			deadlineTime = valPrice.Timestamp + feed.Interval
 		}
 
-		if valPrice.BlockHeight+feed.Interval/types.MaxGuaranteeBlockTime > lastBlock {
-			lastBlock = valPrice.BlockHeight + feed.Interval/types.MaxGuaranteeBlockTime
+		// Extend deadline block based on the price block height.
+		if valPrice.BlockHeight+feed.Interval/types.ExpectedBlockTime > deadlineBlock {
+			deadlineBlock = valPrice.BlockHeight + feed.Interval/types.ExpectedBlockTime
 		}
 	}
 
-	// Determine if the last action is too old, indicating a missed report
-	return lastTime < blockTime.Unix() && lastBlock < blockHeight
+	// Determine if the validator has missed the report based on the deadline time and block height.
+	return deadlineTime < blockTime.Unix() && deadlineBlock < blockHeight
 }
 
 // checkHavePrice checks if a validator has a price feed within interval range.
