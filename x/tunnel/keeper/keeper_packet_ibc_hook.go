@@ -45,7 +45,7 @@ func (k Keeper) SendIBCHookPacket(
 		feePayer.String(),
 		route.DestinationContractAddress,
 		clienttypes.ZeroHeight(),
-		uint64(ctx.BlockTime().UnixNano())+interval*uint64(time.Second),
+		uint64(ctx.BlockTime().UnixNano())+interval*uint64(time.Second)*2,
 		memoStr,
 	)
 

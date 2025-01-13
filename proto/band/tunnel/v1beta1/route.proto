@@ -63,7 +63,7 @@ message TunnelPricesPacketData {
 
 // IBCHookRoute is the type for an IBC hook route
 message IBCHookRoute {
-  option (cosmos_proto.implements_interface) = "Route";
+  option (cosmos_proto.implements_interface) = "RouteI";
 
   // channel_id is the IBC channel ID
   string channel_id = 1 [(gogoproto.customname) = "ChannelID"];
