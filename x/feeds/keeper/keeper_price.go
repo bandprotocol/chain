@@ -290,15 +290,19 @@ func CheckMissReport(
 	deadlineTime := lastUpdateTimestamp + gracePeriod
 	deadlineBlock := lastUpdateBlock + gracePeriod/types.ExpectedBlockTime
 
+	// Extend deadline if the validator just became active.
 	if valInfo.Status.Since.Unix()+gracePeriod > deadlineTime {
 		deadlineTime = valInfo.Status.Since.Unix() + gracePeriod
 	}
 
+	// Extend deadline if the validator has a valid price within the feed interval.
 	if valPrice.SignalPriceStatus != types.SIGNAL_PRICE_STATUS_UNSPECIFIED {
+		// Extend deadline time based on the price timestamp.
 		if valPrice.Timestamp+feed.Interval > deadlineTime {
 			deadlineTime = valPrice.Timestamp + feed.Interval
 		}
 
+		// Extend deadline block based on the price block height.
 		if valPrice.BlockHeight+feed.Interval/types.ExpectedBlockTime > deadlineBlock {
 			deadlineBlock = valPrice.BlockHeight + feed.Interval/types.ExpectedBlockTime
 		}
