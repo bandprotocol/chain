@@ -208,8 +208,8 @@ func GetTxCmdUpdateIBCRoute() *cobra.Command {
 
 func GetTxCmdUpdateSignalsAndInterval() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update-and-reset-tunnel [tunnel-id] [interval] [signalDeviations-json-file] ",
-		Short: "Update an existing tunnel and reset the latest price interval of the tunnel",
+		Use:   "update-signals-and-interval [tunnel-id] [interval] [signalDeviations-json-file] ",
+		Short: "Update signals and interval of the existing tunnel",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)

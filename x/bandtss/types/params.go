@@ -17,8 +17,8 @@ const (
 	DefaultRewardPercentage = uint64(10)
 )
 
-// DefaultFeePerSigner is the default value for the signing request fee. The value is ["10uband"]
-var DefaultFeePerSigner = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
+// DefaultFeePerSigner is the default value for the signing request fee per signer.
+var DefaultFeePerSigner = sdk.NewCoins(sdk.NewInt64Coin("uband", 50))
 
 // NewParams creates a new Params instance
 func NewParams(
