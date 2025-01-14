@@ -4,15 +4,13 @@ import (
 	"fmt"
 
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 var (
-	// hookCoinDenom defines the coin denomination to be used for minting and transferring coins in the IBC hook route.
-	hookCoinDenom = "uhook"
-	// TransferAmount defines the amount of coins to be transferred in the IBC hook route.
-	TransferAmount = sdk.NewInt64Coin(hookCoinDenom, 1)
+	// HookDenomPrefix defines the prefix for the IBC hook denom
+	HookDenomPrefix = "tunnel-"
+	// HookTransferAmount defines the amount to transfer for the IBC hook
+	HookTransferAmount = int64(1)
 )
 
 // IBCRoute defines the IBC route for the tunnel module
@@ -40,4 +38,9 @@ func NewIBCHookPacketReceipt(sequence uint64) *IBCHookPacketReceipt {
 	return &IBCHookPacketReceipt{
 		Sequence: sequence,
 	}
+}
+
+// FormatHookDenomIdentifier returns the hook denom identifier based on the tunnel ID
+func FormatHookDenomIdentifier(tunnelID uint64) string {
+	return fmt.Sprintf("%s%d", HookDenomPrefix, tunnelID)
 }

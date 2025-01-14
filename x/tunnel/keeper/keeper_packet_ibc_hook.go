@@ -31,17 +31,17 @@ func (k Keeper) SendIBCHookPacket(
 		return nil, err
 	}
 
-	// mint coins to the fee payer
-	err = k.MintCoinsToAccount(ctx, feePayer)
+	// mint coin to the fee payer
+	err = k.MintIBCHookCoinToAccount(ctx, packet.TunnelID, feePayer)
 	if err != nil {
 		return nil, err
 	}
 
-	// create ibc transfer message
+	// create ibc transfer message with the memo string
 	msg := ibctransfertypes.NewMsgTransfer(
 		ibctransfertypes.PortID,
 		route.ChannelID,
-		types.TransferAmount,
+		sdk.NewInt64Coin(types.FormatHookDenomIdentifier(packet.TunnelID), types.HookTransferAmount),
 		feePayer.String(),
 		route.DestinationContractAddress,
 		clienttypes.ZeroHeight(),
@@ -58,10 +58,15 @@ func (k Keeper) SendIBCHookPacket(
 	return types.NewIBCHookPacketReceipt(res.Sequence), nil
 }
 
-// MintCoinsToAccount mints uhook coins to the account
-func (k Keeper) MintCoinsToAccount(ctx sdk.Context, account sdk.AccAddress) error {
-	// mint coins to the account
-	err := k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.NewCoins(types.TransferAmount))
+// MintIBCHookCoinToAccount mints hook coin to the account
+func (k Keeper) MintIBCHookCoinToAccount(ctx sdk.Context, tunnelID uint64, account sdk.AccAddress) error {
+	// create hook coins
+	hookCoins := sdk.NewCoins(
+		sdk.NewInt64Coin(types.FormatHookDenomIdentifier(tunnelID), types.HookTransferAmount),
+	)
+
+	// mint coins to the module account
+	err := k.bankKeeper.MintCoins(ctx, types.ModuleName, hookCoins)
 	if err != nil {
 		return err
 	}
@@ -71,6 +76,6 @@ func (k Keeper) MintCoinsToAccount(ctx sdk.Context, account sdk.AccAddress) erro
 		ctx,
 		types.ModuleName,
 		account,
-		sdk.NewCoins(types.TransferAmount),
+		hookCoins,
 	)
 }

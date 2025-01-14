@@ -16,18 +16,22 @@ import (
 func (s *KeeperTestSuite) TestSendRouterPacket() {
 	ctx, k := s.ctx, s.keeper
 
+	tunnelID := uint64(1)
 	route := &types.IBCHookRoute{
 		ChannelID:                  "channel-0",
 		DestinationContractAddress: "wasm1vjq0k3fj47s8wns4a7zw5c4lsjd8l6r2kzzlpk",
 	}
 	packet := types.Packet{
-		TunnelID:  1,
+		TunnelID:  tunnelID,
 		Sequence:  1,
 		Prices:    []feedstypes.Price{},
 		CreatedAt: time.Now().Unix(),
 	}
 	interval := uint64(60)
 	feePayer := sdk.AccAddress([]byte("feePayer"))
+	hookCoins := sdk.NewCoins(
+		sdk.NewInt64Coin(types.FormatHookDenomIdentifier(tunnelID), types.HookTransferAmount),
+	)
 
 	expectedPacketReceipt := types.IBCHookPacketReceipt{
 		Sequence: 1,
@@ -36,9 +40,9 @@ func (s *KeeperTestSuite) TestSendRouterPacket() {
 	s.transferKeeper.EXPECT().Transfer(ctx, gomock.Any()).Return(&ibctransfertypes.MsgTransferResponse{
 		Sequence: 1,
 	}, nil)
-	s.bankKeeper.EXPECT().MintCoins(ctx, types.ModuleName, sdk.NewCoins(types.TransferAmount)).Return(nil)
+	s.bankKeeper.EXPECT().MintCoins(ctx, types.ModuleName, hookCoins).Return(nil)
 	s.bankKeeper.EXPECT().
-		SendCoinsFromModuleToAccount(ctx, types.ModuleName, feePayer, sdk.NewCoins(types.TransferAmount)).
+		SendCoinsFromModuleToAccount(ctx, types.ModuleName, feePayer, hookCoins).
 		Return(nil)
 
 	content, err := k.SendIBCHookPacket(
@@ -55,17 +59,21 @@ func (s *KeeperTestSuite) TestSendRouterPacket() {
 	s.Require().Equal(expectedPacketReceipt, *receipt)
 }
 
-func (s *KeeperTestSuite) TestMintCoinsToAccount() {
+func (s *KeeperTestSuite) TestMintIBCHookCoinToAccount() {
 	ctx, k := s.ctx, s.keeper
 
+	tunnelID := uint64(1)
 	account := sdk.AccAddress([]byte("test_account"))
+	hookCoins := sdk.NewCoins(
+		sdk.NewInt64Coin(types.FormatHookDenomIdentifier(tunnelID), types.HookTransferAmount),
+	)
 
-	s.bankKeeper.EXPECT().MintCoins(ctx, types.ModuleName, sdk.NewCoins(types.TransferAmount)).Return(nil)
+	s.bankKeeper.EXPECT().MintCoins(ctx, types.ModuleName, hookCoins).Return(nil)
 	s.bankKeeper.EXPECT().
-		SendCoinsFromModuleToAccount(ctx, types.ModuleName, account, sdk.NewCoins(types.TransferAmount)).
+		SendCoinsFromModuleToAccount(ctx, types.ModuleName, account, hookCoins).
 		Return(nil)
 
 	// Mint coins to the account
-	err := k.MintCoinsToAccount(ctx, account)
+	err := k.MintIBCHookCoinToAccount(ctx, tunnelID, account)
 	s.Require().NoError(err)
 }
