@@ -177,6 +177,16 @@ func NewMsgUpdateIBCRoute(
 	return NewMsgUpdateRoute(tunnelID, NewIBCRoute(channelID), creator)
 }
 
+// NewMsgUpdateIBCHookRoute creates a new MsgUpdateRoute instance.
+func NewMsgUpdateIBCHookRoute(
+	tunnelID uint64,
+	channelID string,
+	destinationContractAddress string,
+	creator string,
+) (*MsgUpdateRoute, error) {
+	return NewMsgUpdateRoute(tunnelID, NewIBCHookRoute(channelID, destinationContractAddress), creator)
+}
+
 // GetRouteValue returns the route of the message.
 func (m MsgUpdateRoute) GetRouteValue() (RouteI, error) {
 	r, ok := m.Route.GetCachedValue().(RouteI)
