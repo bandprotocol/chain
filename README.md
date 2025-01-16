@@ -96,7 +96,7 @@ sudo ln -s /opt/homebrew/lib/libgmp.10.dylib /usr/local/lib/
 - Block Explorers:
   - Mainnet:
     - [Cosmoscan Mainnet](https://cosmoscan.io)
-    - [Big Dipper](https://band.bigdipper.live/)
+    - [Big Dipper](https://bigdipper.live)
   - Testnet:
     - [CosmoScan Testnet](https://laozi-testnet6.cosmoscan.io)
 
