@@ -537,7 +537,7 @@ func (suite *KeeperTestSuite) TestCheckMissReport() {
 				},
 			},
 			blockTime:      time.Unix(1300, 0),
-			blockHeight:    350,
+			blockHeight:    389,
 			gracePeriod:    120,
 			expectedResult: true, // Should get miss report
 		},

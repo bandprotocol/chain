@@ -40,7 +40,7 @@ sleep 2
 # add reporter to bandchain
 echo "y" | bandd tx oracle add-reporters $(yoda keys list -a) --from validator --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain
 
-# wait for addding reporter transaction success
+# wait for adding reporter transaction success
 sleep 2
 
 # run yoda

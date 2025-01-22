@@ -17,7 +17,7 @@ var (
 	DefaultMaxDeviationBPS  = uint64(3000)
 	DefaultMinDeposit       = sdk.NewCoins(sdk.NewInt64Coin("uband", 1_000_000_000))
 	DefaultMaxSignals       = uint64(25)
-	DefaultBasePacketFee    = sdk.NewCoins(sdk.NewInt64Coin("uband", 10_000))
+	DefaultBasePacketFee    = sdk.NewCoins(sdk.NewInt64Coin("uband", 500))
 	DefaultRouterIBCChannel = "channel-0"
 )
 

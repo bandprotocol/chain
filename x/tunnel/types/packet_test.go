@@ -11,7 +11,7 @@ import (
 )
 
 func TestGetSetPacketReceipt(t *testing.T) {
-	packet := types.NewPacket(1, 1, nil, nil, nil, 0)
+	packet := types.NewPacket(1, 1, nil, 0)
 	receipt := &types.TSSPacketReceipt{SigningID: 1}
 
 	err := packet.SetReceipt(receipt)
@@ -23,7 +23,7 @@ func TestGetSetPacketReceipt(t *testing.T) {
 }
 
 func TestPacketUnpackInterfaces(t *testing.T) {
-	packet := types.NewPacket(1, 1, nil, nil, nil, 0)
+	packet := types.NewPacket(1, 1, nil, 0)
 	packetResult := &types.TSSPacketReceipt{SigningID: 1}
 
 	err := packet.SetReceipt(packetResult)

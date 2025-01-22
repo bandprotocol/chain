@@ -209,11 +209,11 @@ func (k msgServer) WithdrawFeePayerFunds(
 	return &types.MsgWithdrawFeePayerFundsResponse{}, nil
 }
 
-// Activate activates a tunnel.
-func (k msgServer) Activate(
+// ActivateTunnel activates a tunnel, allowing it to start producing packets.
+func (k msgServer) ActivateTunnel(
 	goCtx context.Context,
-	msg *types.MsgActivate,
-) (*types.MsgActivateResponse, error) {
+	msg *types.MsgActivateTunnel,
+) (*types.MsgActivateTunnelResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	tunnel, err := k.Keeper.GetTunnel(ctx, msg.TunnelID)
@@ -235,14 +235,14 @@ func (k msgServer) Activate(
 		return nil, err
 	}
 
-	return &types.MsgActivateResponse{}, nil
+	return &types.MsgActivateTunnelResponse{}, nil
 }
 
-// Deactivate deactivates a tunnel.
-func (k msgServer) Deactivate(
+// DeactivateTunnel deactivates a tunnel to stop producing packets.
+func (k msgServer) DeactivateTunnel(
 	goCtx context.Context,
-	msg *types.MsgDeactivate,
-) (*types.MsgDeactivateResponse, error) {
+	msg *types.MsgDeactivateTunnel,
+) (*types.MsgDeactivateTunnelResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	tunnel, err := k.Keeper.GetTunnel(ctx, msg.TunnelID)
@@ -262,7 +262,7 @@ func (k msgServer) Deactivate(
 		return nil, err
 	}
 
-	return &types.MsgDeactivateResponse{}, nil
+	return &types.MsgDeactivateTunnelResponse{}, nil
 }
 
 // TriggerTunnel manually triggers a tunnel.
@@ -287,15 +287,6 @@ func (k msgServer) TriggerTunnel(
 
 	if !tunnel.IsActive {
 		return nil, types.ErrInactiveTunnel.Wrapf("tunnelID %d", msg.TunnelID)
-	}
-
-	ok, err := k.Keeper.HasEnoughFundToCreatePacket(ctx, tunnel.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	if !ok {
-		return nil, types.ErrInsufficientFund.Wrapf("tunnelID %d", msg.TunnelID)
 	}
 
 	signalIDs := tunnel.GetSignalIDs()

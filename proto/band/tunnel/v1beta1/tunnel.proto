@@ -102,14 +102,8 @@ message Packet {
   repeated band.feeds.v1beta1.Price prices = 3 [(gogoproto.nullable) = false];
   // receipt represents the confirmation of the packet delivery to the destination via the specified route.
   google.protobuf.Any receipt = 4 [(cosmos_proto.accepts_interface) = "PacketReceiptI"];
-  // base_fee is the base fee of the packet
-  repeated cosmos.base.v1beta1.Coin base_fee = 5
-      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
-  // route_fee is the route fee of the packet
-  repeated cosmos.base.v1beta1.Coin route_fee = 6
-      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
   // created_at is the timestamp when the packet is created
-  int64 created_at = 7;
+  int64 created_at = 5;
 }
 
 // TunnelSignatureOrder defines a general signature order for sending signature to tss group.

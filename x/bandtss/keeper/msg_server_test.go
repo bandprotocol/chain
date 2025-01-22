@@ -413,7 +413,7 @@ func (s *AppTestSuite) TestSuccessRequestSignatureOnCurrentGroup() {
 
 	msg, err := types.NewMsgRequestSignature(
 		tsstypes.NewTextSignatureOrder([]byte("msg")),
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
+		sdk.NewCoins(sdk.NewInt64Coin("uband", 1000)),
 		bandtesting.FeePayer.Address.String(),
 	)
 	s.Require().NoError(err)
@@ -540,7 +540,7 @@ func (s *AppTestSuite) TestSuccessRequestSignatureOnBothGroups() {
 
 	msg, err := types.NewMsgRequestSignature(
 		tsstypes.NewTextSignatureOrder([]byte("msg")),
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
+		sdk.NewCoins(sdk.NewInt64Coin("uband", 1000)),
 		bandtesting.FeePayer.Address.String(),
 	)
 	s.Require().NoError(err)
