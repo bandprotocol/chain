@@ -19,6 +19,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 
 	band "github.com/bandprotocol/chain/v3/app"
+	"github.com/bandprotocol/chain/v3/app/params"
 )
 
 const (
@@ -97,8 +98,8 @@ func Main() {
 			return err
 		}
 
-		initAppOptions := viper.New()
 		tempDir := tempDir()
+		initAppOptions := viper.New()
 		initAppOptions.Set(flags.FlagHome, tempDir)
 		tempApplication := band.NewBandApp(
 			log.NewNopLogger(),
@@ -110,7 +111,21 @@ func Main() {
 			initAppOptions,
 			100,
 		)
-		ctx.bandApp = tempApplication
+		defer func() {
+			if err := tempApplication.Close(); err != nil {
+				panic(err)
+			}
+			if tempDir != band.DefaultNodeHome {
+				os.RemoveAll(tempDir)
+			}
+		}()
+
+		ctx.encodingConfig = params.EncodingConfig{
+			InterfaceRegistry: tempApplication.InterfaceRegistry(),
+			Codec:             tempApplication.AppCodec(),
+			TxConfig:          tempApplication.GetTxConfig(),
+			Amino:             tempApplication.LegacyAmino(),
+		}
 
 		kb, err = keyring.New("band", keyring.BackendTest, home, nil, tempApplication.AppCodec())
 		if err != nil {

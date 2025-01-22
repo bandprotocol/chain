@@ -33,7 +33,7 @@ func MakeEncodingConfig() EncodingConfig {
 	txCfg := tx.NewTxConfig(cdc, tx.DefaultSignModes)
 	return EncodingConfig{
 		InterfaceRegistry: interfaceRegistry,
-		Marshaler:         cdc,
+		Codec:             cdc,
 		TxConfig:          txCfg,
 		Amino:             amino,
 	}
