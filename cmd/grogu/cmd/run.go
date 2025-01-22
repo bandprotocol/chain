@@ -98,9 +98,9 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 		}
 		clientCtx = clientCtx.WithKeyring(ctx.Keyring).
 			WithChainID(viper.GetString(flags.FlagChainID)).
-			WithCodec(ctx.BandApp.AppCodec()).
-			WithInterfaceRegistry(ctx.BandApp.InterfaceRegistry()).
-			WithTxConfig(ctx.BandApp.GetTxConfig()).
+			WithCodec(ctx.EncodingConfig.Codec).
+			WithInterfaceRegistry(ctx.EncodingConfig.InterfaceRegistry).
+			WithTxConfig(ctx.EncodingConfig.TxConfig).
 			WithBroadcastMode(flags.BroadcastSync)
 
 		nodeURIs := strings.Split(viper.GetString(flagNodes), ",")

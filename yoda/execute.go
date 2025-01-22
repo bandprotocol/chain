@@ -26,10 +26,10 @@ func signAndBroadcast(
 ) (string, error) {
 	clientCtx := client.Context{
 		Client:            c.client,
-		Codec:             c.bandApp.AppCodec(),
-		TxConfig:          c.bandApp.GetTxConfig(),
+		Codec:             c.encodingConfig.Codec,
+		TxConfig:          c.encodingConfig.TxConfig,
 		BroadcastMode:     "sync",
-		InterfaceRegistry: c.bandApp.InterfaceRegistry(),
+		InterfaceRegistry: c.encodingConfig.InterfaceRegistry,
 	}
 	acc, err := queryAccount(clientCtx, key)
 	if err != nil {
@@ -133,8 +133,8 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 
 	clientCtx := client.Context{
 		Client:            c.client,
-		TxConfig:          c.bandApp.GetTxConfig(),
-		InterfaceRegistry: c.bandApp.InterfaceRegistry(),
+		TxConfig:          c.encodingConfig.TxConfig,
+		InterfaceRegistry: c.encodingConfig.InterfaceRegistry,
 	}
 
 	gasLimit := estimateGas(c, l, msgs, feeEstimations)
@@ -203,7 +203,7 @@ func GetExecutable(c *Context, l *Logger, hash string) ([]byte, error) {
 	resValue, err := c.fileCache.GetFile(hash)
 	if err != nil {
 		l.Debug(":magnifying_glass_tilted_left: Fetching data source hash: %s from bandchain querier", hash)
-		bz := c.bandApp.AppCodec().MustMarshal(&types.QueryDataRequest{
+		bz := c.encodingConfig.Codec.MustMarshal(&types.QueryDataRequest{
 			DataHash: hash,
 		})
 		res, err := abciQuery(c, l, "/band.oracle.v1.Query/Data", bz)
@@ -212,7 +212,7 @@ func GetExecutable(c *Context, l *Logger, hash string) ([]byte, error) {
 			return nil, err
 		}
 		var dr types.QueryDataResponse
-		err = c.bandApp.AppCodec().Unmarshal(res.Response.GetValue(), &dr)
+		err = c.encodingConfig.Codec.Unmarshal(res.Response.GetValue(), &dr)
 		if err != nil {
 			l.Error(":exploding_head: Failed to unmarshal data source with error: %s", c, err.Error())
 			return nil, err
@@ -236,7 +236,7 @@ func GetDataSourceHash(c *Context, l *Logger, id types.DataSourceID) (string, er
 	}
 
 	var d types.DataSource
-	c.bandApp.AppCodec().MustUnmarshal(res.Response.Value, &d)
+	c.encodingConfig.Codec.MustUnmarshal(res.Response.Value, &d)
 
 	return d.Filename, nil
 }
@@ -250,7 +250,7 @@ func GetRequest(c *Context, l *Logger, id types.RequestID) (types.Request, error
 	}
 
 	var r types.Request
-	c.bandApp.AppCodec().MustUnmarshal(res.Response.Value, &r)
+	c.encodingConfig.Codec.MustUnmarshal(res.Response.Value, &r)
 
 	return r, nil
 }
