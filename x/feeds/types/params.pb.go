@@ -26,7 +26,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Params is the data structure that keeps the parameters of the feeds module.
 type Params struct {
-	// admin is the address of the admin that is allowed to perform operations on modules.
+	// admin is the address of the admin that is allowed to update reference source config on modules.
 	Admin string `protobuf:"bytes,1,opt,name=admin,proto3" json:"admin,omitempty"`
 	// allowable_block_time_discrepancy is the allowed discrepancy (in seconds) between validator price timestamp and
 	// block_time.

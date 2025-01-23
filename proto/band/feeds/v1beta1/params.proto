@@ -10,7 +10,7 @@ import "cosmos_proto/cosmos.proto";
 message Params {
   option (gogoproto.equal) = true; // Use gogoproto.equal for proto3 message equality checks
 
-  // admin is the address of the admin that is allowed to perform operations on modules.
+  // admin is the address of the admin that is allowed to update reference source config on modules.
   string admin = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
   // allowable_block_time_discrepancy is the allowed discrepancy (in seconds) between validator price timestamp and
