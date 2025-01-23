@@ -53,7 +53,7 @@ type Params struct {
 	CurrentFeedsUpdateInterval int64 `protobuf:"varint,11,opt,name=current_feeds_update_interval,json=currentFeedsUpdateInterval,proto3" json:"current_feeds_update_interval,omitempty"`
 	// price_quorum is the minimum percentage of power that needs to be reached for a price to be processed.
 	PriceQuorum string `protobuf:"bytes,12,opt,name=price_quorum,json=priceQuorum,proto3" json:"price_quorum,omitempty"`
-	// MaxSignalIDsPerSigning is the maximum number of signals allowed in a single tss signing request.
+	// max_signal_ids_per_signing is the maximum number of signals allowed in a single tss signing request.
 	MaxSignalIDsPerSigning uint64 `protobuf:"varint,13,opt,name=max_signal_ids_per_signing,json=maxSignalIdsPerSigning,proto3" json:"max_signal_ids_per_signing,omitempty"`
 }
 
