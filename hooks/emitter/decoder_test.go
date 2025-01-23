@@ -1370,7 +1370,7 @@ func (suite *DecoderTestSuite) TestDecodeTunnelMsgUpdateParams() {
 	emitter.DecodeTunnelMsgUpdateParams(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"authority\":\"band1g96hg6r0wf5hg7gqqqqqqqqqqqqqqqqq4rjgsx\",\"params\":{\"min_deposit\":[{\"denom\":\"uband\",\"amount\":\"1000000000\"}],\"min_interval\":60,\"max_interval\":3600,\"min_deviation_bps\":50,\"max_deviation_bps\":3000,\"max_signals\":25,\"base_packet_fee\":[{\"denom\":\"uband\",\"amount\":\"10000\"}]}}",
+		"{\"authority\":\"band1g96hg6r0wf5hg7gqqqqqqqqqqqqqqqqq4rjgsx\",\"params\":{\"min_deposit\":[{\"denom\":\"uband\",\"amount\":\"1000000000\"}],\"min_interval\":60,\"max_interval\":3600,\"min_deviation_bps\":50,\"max_deviation_bps\":3000,\"max_signals\":25,\"base_packet_fee\":[{\"denom\":\"uband\",\"amount\":\"500\"}]}}",
 	)
 }
 

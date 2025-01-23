@@ -50,10 +50,10 @@ func handleRequest(gc *gin.Context, c *Context) {
 
 	clientCtx := client.Context{
 		Client:            c.client,
-		Codec:             c.bandApp.AppCodec(),
-		TxConfig:          c.bandApp.GetTxConfig(),
+		Codec:             c.encodingConfig.Codec,
+		TxConfig:          c.encodingConfig.TxConfig,
 		BroadcastMode:     "async",
-		InterfaceRegistry: c.bandApp.InterfaceRegistry(),
+		InterfaceRegistry: c.encodingConfig.InterfaceRegistry,
 	}
 	accountRetriever := authtypes.AccountRetriever{}
 	acc, err := accountRetriever.GetAccount(clientCtx, address)
@@ -65,7 +65,7 @@ func handleRequest(gc *gin.Context, c *Context) {
 	txf := tx.Factory{}.
 		WithAccountNumber(acc.GetAccountNumber()).
 		WithSequence(acc.GetSequence()).
-		WithTxConfig(c.bandApp.GetTxConfig()).
+		WithTxConfig(c.encodingConfig.TxConfig).
 		WithGas(200000).WithGasAdjustment(1).
 		WithChainID(cfg.ChainID).
 		WithMemo("").
