@@ -133,7 +133,6 @@ var tempDir = func() string {
 	if err != nil {
 		dir = band.DefaultNodeHome
 	}
-	defer os.RemoveAll(dir)
 
 	return dir
 }
