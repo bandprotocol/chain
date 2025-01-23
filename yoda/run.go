@@ -57,7 +57,7 @@ func runImpl(c *Context, l *Logger) error {
 		waitingMsgs[i] = []ReportMsgWithKey{}
 	}
 
-	bz := c.bandApp.AppCodec().MustMarshal(&types.QueryPendingRequestsRequest{
+	bz := c.encodingConfig.Codec.MustMarshal(&types.QueryPendingRequestsRequest{
 		ValidatorAddress: c.validator.String(),
 	})
 	resBz, err := c.client.ABCIQuery(context.Background(), "/band.oracle.v1.Query/PendingRequests", bz)
@@ -65,7 +65,7 @@ func runImpl(c *Context, l *Logger) error {
 		l.Error(":exploding_head: Failed to get pending requests with error: %s", c, err.Error())
 	}
 	pendingRequests := types.QueryPendingRequestsResponse{}
-	c.bandApp.AppCodec().MustUnmarshal(resBz.Response.Value, &pendingRequests)
+	c.encodingConfig.Codec.MustUnmarshal(resBz.Response.Value, &pendingRequests)
 
 	l.Info(":mag: Found %d pending requests", len(pendingRequests.RequestIDs))
 	for _, id := range pendingRequests.RequestIDs {

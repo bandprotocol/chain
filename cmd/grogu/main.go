@@ -19,6 +19,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 
 	band "github.com/bandprotocol/chain/v3/app"
+	"github.com/bandprotocol/chain/v3/app/params"
 	"github.com/bandprotocol/chain/v3/cmd/grogu/cmd"
 	"github.com/bandprotocol/chain/v3/grogu/context"
 )
@@ -69,8 +70,8 @@ func createPersistentPreRunE(rootCmd *cobra.Command, ctx *context.Context) func(
 			return err
 		}
 
-		initAppOptions := viper.New()
 		tempDir := tempDir()
+		initAppOptions := viper.New()
 		initAppOptions.Set(flags.FlagHome, tempDir)
 		tempApplication := band.NewBandApp(
 			log.NewNopLogger(),
@@ -82,7 +83,21 @@ func createPersistentPreRunE(rootCmd *cobra.Command, ctx *context.Context) func(
 			initAppOptions,
 			100,
 		)
-		ctx.BandApp = tempApplication
+		defer func() {
+			if err := tempApplication.Close(); err != nil {
+				panic(err)
+			}
+			if tempDir != band.DefaultNodeHome {
+				os.RemoveAll(tempDir)
+			}
+		}()
+
+		ctx.EncodingConfig = params.EncodingConfig{
+			InterfaceRegistry: tempApplication.InterfaceRegistry(),
+			Codec:             tempApplication.AppCodec(),
+			TxConfig:          tempApplication.GetTxConfig(),
+			Amino:             tempApplication.LegacyAmino(),
+		}
 
 		ctx.Keyring, err = keyring.New("band", keyring.BackendTest, home, nil, tempApplication.AppCodec())
 		if err != nil {
@@ -118,7 +133,6 @@ var tempDir = func() string {
 	if err != nil {
 		dir = band.DefaultNodeHome
 	}
-	defer os.RemoveAll(dir)
 
 	return dir
 }
