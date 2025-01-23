@@ -57,8 +57,8 @@ import (
 // main function.
 func NewRootCmd() *cobra.Command {
 	// we "pre"-instantiate the application for getting the injected/configured encoding configuration
-	initAppOptions := viper.New()
 	tempDir := tempDir()
+	initAppOptions := viper.New()
 	initAppOptions.Set(flags.FlagHome, tempDir)
 	tempApplication := band.NewBandApp(
 		log.NewNopLogger(),
@@ -73,6 +73,9 @@ func NewRootCmd() *cobra.Command {
 	defer func() {
 		if err := tempApplication.Close(); err != nil {
 			panic(err)
+		}
+		if tempDir != band.DefaultNodeHome {
+			os.RemoveAll(tempDir)
 		}
 	}()
 
@@ -429,7 +432,6 @@ var tempDir = func() string {
 	if err != nil {
 		dir = band.DefaultNodeHome
 	}
-	defer os.RemoveAll(dir)
 
 	return dir
 }

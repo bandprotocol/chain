@@ -99,8 +99,8 @@ func createPersistentPreRunE(rootCmd *cobra.Command, ctx *context.Context) func(
 		}
 
 		// init temporary application
-		initAppOptions := viper.New()
 		tempDir := tempDir()
+		initAppOptions := viper.New()
 		initAppOptions.Set(flags.FlagHome, tempDir)
 		tempApplication := band.NewBandApp(
 			log.NewNopLogger(),
@@ -112,6 +112,14 @@ func createPersistentPreRunE(rootCmd *cobra.Command, ctx *context.Context) func(
 			initAppOptions,
 			100,
 		)
+		defer func() {
+			if err := tempApplication.Close(); err != nil {
+				panic(err)
+			}
+			if tempDir != band.DefaultNodeHome {
+				os.RemoveAll(tempDir)
+			}
+		}()
 
 		// set keyring
 		keyring, err := keyring.New("band", keyring.BackendTest, home, nil, tempApplication.AppCodec())
@@ -150,7 +158,6 @@ var tempDir = func() string {
 	if err != nil {
 		dir = band.DefaultNodeHome
 	}
-	defer os.RemoveAll(dir)
 
 	return dir
 }
