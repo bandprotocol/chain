@@ -65,9 +65,6 @@ func NewContext(
 	txConfig client.TxConfig,
 	interfaceRegistry types.InterfaceRegistry,
 ) (*Context, error) {
-	// Create the store
-	dataDir := filepath.Join(home, "data")
-
 	// Initialize the context
 	return &Context{
 		Config:            cfg,
@@ -78,7 +75,7 @@ func NewContext(
 		InterfaceRegistry: interfaceRegistry,
 		ErrCh:             make(chan error, 1),
 		MsgCh:             make(chan sdk.Msg, 1000),
-		DataDir:           dataDir,
+		DataDir:           filepath.Join(home, "data"),
 	}, nil
 }
 
@@ -96,7 +93,7 @@ func (ctx *Context) InitLog() error {
 func (ctx *Context) WithGoLevelDb() (*Context, error) {
 	db, err := dbm.NewDB("cylinder", dbm.GoLevelDBBackend, ctx.DataDir)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w; possibly due to being run in another process", err)
 	}
 
 	return ctx.WithDB(db)
