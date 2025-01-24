@@ -17,12 +17,11 @@ func (s *KeeperTestSuite) TestSendRouterPacket() {
 	ctx, k := s.ctx, s.keeper
 
 	route := &types.RouterRoute{
-		Fund:                  sdk.NewInt64Coin("uband", 50000),
-		BridgeContractAddress: "router17c2txg2px6vna8a6v4ql4eh4ruvprerhytxvwt2ugp4qr473pajsyj9pgm",
-		DestChainID:           "17000",
-		DestContractAddress:   "0xDFCfEbF22e85193eDc37b8b136d4F3394987d1AE",
-		DestGasLimit:          300000,
-		DestGasPrice:          10000000,
+		Fund:                sdk.NewInt64Coin("uband", 50000),
+		DestChainID:         "17000",
+		DestContractAddress: "0xDFCfEbF22e85193eDc37b8b136d4F3394987d1AE",
+		DestGasLimit:        300000,
+		DestGasPrice:        10000000,
 	}
 
 	packet := types.Packet{

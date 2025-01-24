@@ -82,7 +82,6 @@ func NewMsgCreateRouterTunnel(
 	signalDeviations []SignalDeviation,
 	interval uint64,
 	fund sdk.Coin,
-	bridgeContractAddress string,
 	destChainID string,
 	destContractAddress string,
 	destGasLimit uint64,
@@ -91,12 +90,11 @@ func NewMsgCreateRouterTunnel(
 	creator string,
 ) (*MsgCreateTunnel, error) {
 	r := &RouterRoute{
-		Fund:                  fund,
-		BridgeContractAddress: bridgeContractAddress,
-		DestChainID:           destChainID,
-		DestContractAddress:   destContractAddress,
-		DestGasLimit:          destGasLimit,
-		DestGasPrice:          destGasPrice,
+		Fund:                fund,
+		DestChainID:         destChainID,
+		DestContractAddress: destContractAddress,
+		DestGasLimit:        destGasLimit,
+		DestGasPrice:        destGasPrice,
 	}
 	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, initialDeposit, creator)
 	if err != nil {
@@ -186,6 +184,23 @@ func NewMsgUpdateIBCRoute(
 	creator string,
 ) (*MsgUpdateRoute, error) {
 	return NewMsgUpdateRoute(tunnelID, NewIBCRoute(channelID), creator)
+}
+
+// NewMsgUpdateRouterRoute creates a new MsgUpdateRoute instance.
+func NewMsgUpdateRouterRoute(
+	tunnelID uint64,
+	fund sdk.Coin,
+	destChainID string,
+	destContractAddress string,
+	destGasLimit uint64,
+	destGasPrice uint64,
+	creator string,
+) (*MsgUpdateRoute, error) {
+	return NewMsgUpdateRoute(
+		tunnelID,
+		NewRouterRoute(fund, destChainID, destContractAddress, destGasLimit, destGasPrice),
+		creator,
+	)
 }
 
 // GetRouteValue returns the route of the message.

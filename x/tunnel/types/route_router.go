@@ -8,19 +8,17 @@ var _ RouteI = &RouterRoute{}
 // NewRouterRoute creates a new RouterRoute instance.
 func NewRouterRoute(
 	fund sdk.Coin,
-	bridgeContractAddress string,
 	destChinID string,
 	destContractAddress string,
 	destGasLimit uint64,
 	destGasPrice uint64,
 ) *RouterRoute {
 	return &RouterRoute{
-		Fund:                  fund,
-		BridgeContractAddress: bridgeContractAddress,
-		DestChainID:           destChinID,
-		DestContractAddress:   destContractAddress,
-		DestGasLimit:          destGasLimit,
-		DestGasPrice:          destGasPrice,
+		Fund:                fund,
+		DestChainID:         destChinID,
+		DestContractAddress: destContractAddress,
+		DestGasLimit:        destGasLimit,
+		DestGasPrice:        destGasPrice,
 	}
 }
 

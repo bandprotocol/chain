@@ -9,8 +9,6 @@ type ReceiveBandData struct {
 	GasLimit            uint64 `json:"gas_limit"`
 	GasPrice            uint64 `json:"gas_price"`
 	Payload             string `json:"payload"`
-	Nonce               uint64 `json:"nonce"`
-	Signature           string `json:"signature"`
 }
 
 // RouterMsg represents the wasm contract call message.
@@ -37,8 +35,6 @@ func NewRouterMemo(
 	gasLimit uint64,
 	gasPrice uint64,
 	payload string,
-	nonce uint64,
-	signature string,
 ) RouterMemo {
 	return RouterMemo{
 		Wasm: RouterWasm{
@@ -50,8 +46,6 @@ func NewRouterMemo(
 					GasLimit:            gasLimit,
 					GasPrice:            gasPrice,
 					Payload:             payload,
-					Nonce:               nonce,
-					Signature:           signature,
 				},
 			},
 		},

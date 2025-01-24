@@ -28,4 +28,7 @@ message Params {
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
   // router_ibc_channel specifies the IBC channel used by the router to communicate with the tunnel module.
   string router_ibc_channel = 8 [(gogoproto.customname) = "RouterIBCChannel"];
+  // router_integration_contract specifies the address of the router integration contract on the router chain
+  // that the tunnel module will interact with.
+  string router_integration_contract = 9 [(gogoproto.customname) = "RouterIntegrationContract"];
 }

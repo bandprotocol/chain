@@ -25,29 +25,28 @@ func (k Keeper) SendRouterPacket(
 		return nil, err
 	}
 
+	routerIBCChannel := k.GetParams(ctx).RouterIBCChannel
+	routerIntegrationContract := k.GetParams(ctx).RouterIntegrationContract
+
 	// create memo string for ibc transfer
 	memoStr, err := types.NewRouterMemo(
-		route.BridgeContractAddress,
+		routerIntegrationContract,
 		route.DestChainID,
 		route.DestContractAddress,
 		route.DestGasLimit,
 		route.DestGasPrice,
 		base64.StdEncoding.EncodeToString(relayPacket),
-		0,
-		"",
 	).String()
 	if err != nil {
 		return nil, err
 	}
-
-	routerIBCChannel := k.GetParams(ctx).RouterIBCChannel
 
 	msg := ibctransfertypes.NewMsgTransfer(
 		ibctransfertypes.PortID,
 		routerIBCChannel,
 		route.Fund,
 		feePayer.String(),
-		route.BridgeContractAddress,
+		routerIntegrationContract,
 		clienttypes.ZeroHeight(),
 		uint64(ctx.BlockTime().UnixNano())+interval*uint64(time.Second)*2,
 		memoStr,

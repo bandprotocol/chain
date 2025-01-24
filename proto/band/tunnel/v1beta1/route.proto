@@ -61,8 +61,6 @@ message RouterRoute {
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin",
     (amino.dont_omitempty)   = true
   ];
-  // bridge_contract_address is the bridge contract address on router chain
-  string bridge_contract_address = 2;
   // dest_chain_id is the destination chain ID
   string dest_chain_id = 3 [(gogoproto.customname) = "DestChainID"];
   // dest_contract_address is the destination contract address
