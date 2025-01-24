@@ -33,7 +33,12 @@ func importGroupsCmd(ctx *context.Context) *cobra.Command {
 		Use:   "groups [path_to_json_file]",
 		Short: "Import groups data",
 		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			ctx, err = ctx.WithGoLevelDb()
+			if err != nil {
+				return err
+			}
+
 			// open the file
 			jsonFile, err := os.Open(args[0])
 			if err != nil {
@@ -74,7 +79,12 @@ func importDKGsCmd(ctx *context.Context) *cobra.Command {
 		Use:   "dkgs [path_to_json_file]",
 		Short: "Import DKGs data",
 		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			ctx, err = ctx.WithGoLevelDb()
+			if err != nil {
+				return err
+			}
+
 			// open the file
 			jsonFile, err := os.Open(args[0])
 			if err != nil {
@@ -116,7 +126,12 @@ func importDEsCmd(ctx *context.Context) *cobra.Command {
 		Use:   "des [path_to_json_file]",
 		Short: "Import DEs data",
 		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			ctx, err = ctx.WithGoLevelDb()
+			if err != nil {
+				return err
+			}
+
 			// open the file
 			jsonFile, err := os.Open(args[0])
 			if err != nil {

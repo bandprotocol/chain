@@ -40,7 +40,12 @@ func exportGroupsCmd(ctx *context.Context) *cobra.Command {
 		Use:   "groups [public-key-1] [public-key-2] [public-key-3] [...]",
 		Short: "Export groups data",
 		Args:  cobra.MinimumNArgs(0),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			ctx, err = ctx.WithGoLevelDb()
+			if err != nil {
+				return err
+			}
+
 			// get 'all' flag
 			all, err := cmd.Flags().GetBool(flagAll)
 			if err != nil {
@@ -113,7 +118,12 @@ func exportDKGsCmd(ctx *context.Context) *cobra.Command {
 		Use:   "dkgs [group-id-1] [group-id-2] [group-id-3] [...]",
 		Short: "Export DKGs data",
 		Args:  cobra.MinimumNArgs(0),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			ctx, err = ctx.WithGoLevelDb()
+			if err != nil {
+				return err
+			}
+
 			// get 'all' flag
 			all, err := cmd.Flags().GetBool(flagAll)
 			if err != nil {
@@ -186,7 +196,12 @@ func exportDEsCmd(ctx *context.Context) *cobra.Command {
 		Use:   "des",
 		Short: "Export DEs data",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			ctx, err = ctx.WithGoLevelDb()
+			if err != nil {
+				return err
+			}
+
 			// get 'output' flag
 			output, err := cmd.Flags().GetString(flagOutput)
 			if err != nil {
