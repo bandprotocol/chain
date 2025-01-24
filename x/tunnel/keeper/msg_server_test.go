@@ -519,59 +519,59 @@ func (s *KeeperTestSuite) TestWithdrawFeePayerFunds() {
 	}
 }
 
-func (s *KeeperTestSuite) TestMsgActivate() {
+func (s *KeeperTestSuite) TestMsgActivateTunnel() {
 	cases := map[string]struct {
-		preRun    func() *types.MsgActivate
+		preRun    func() *types.MsgActivateTunnel
 		expErr    bool
 		expErrMsg string
 	}{
 		"tunnel not found": {
-			preRun: func() *types.MsgActivate {
-				return types.NewMsgActivate(1, sdk.AccAddress([]byte("creator_address")).String())
+			preRun: func() *types.MsgActivateTunnel {
+				return types.NewMsgActivateTunnel(1, sdk.AccAddress([]byte("creator_address")).String())
 			},
 			expErr:    true,
 			expErrMsg: "tunnel not found",
 		},
 		"invalid creator of the tunnel": {
-			preRun: func() *types.MsgActivate {
+			preRun: func() *types.MsgActivateTunnel {
 				s.AddSampleTunnel(false)
 
-				return types.NewMsgActivate(1, sdk.AccAddress([]byte("wrong_creator_address")).String())
+				return types.NewMsgActivateTunnel(1, sdk.AccAddress([]byte("wrong_creator_address")).String())
 			},
 			expErr:    true,
 			expErrMsg: "invalid creator of the tunnel",
 		},
 		"already active": {
-			preRun: func() *types.MsgActivate {
+			preRun: func() *types.MsgActivateTunnel {
 				s.AddSampleTunnel(true)
 
-				return types.NewMsgActivate(1, sdk.AccAddress([]byte("creator_address")).String())
+				return types.NewMsgActivateTunnel(1, sdk.AccAddress([]byte("creator_address")).String())
 			},
 			expErr:    true,
 			expErrMsg: "already active",
 		},
 		"insufficient deposit": {
-			preRun: func() *types.MsgActivate {
+			preRun: func() *types.MsgActivateTunnel {
 				params := types.DefaultParams()
 				params.MinDeposit = sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(1000)))
 				s.Require().NoError(s.keeper.SetParams(s.ctx, params))
 
 				s.AddSampleTunnel(false)
 
-				return types.NewMsgActivate(1, sdk.AccAddress([]byte("creator_address")).String())
+				return types.NewMsgActivateTunnel(1, sdk.AccAddress([]byte("creator_address")).String())
 			},
 			expErr:    true,
 			expErrMsg: "insufficient deposit",
 		},
 		"all good": {
-			preRun: func() *types.MsgActivate {
+			preRun: func() *types.MsgActivateTunnel {
 				params := types.DefaultParams()
 				params.MinDeposit = sdk.NewCoins()
 				s.Require().NoError(s.keeper.SetParams(s.ctx, params))
 
 				s.AddSampleTunnel(false)
 
-				return types.NewMsgActivate(1, sdk.AccAddress([]byte("creator_address")).String())
+				return types.NewMsgActivateTunnel(1, sdk.AccAddress([]byte("creator_address")).String())
 			},
 			expErr:    false,
 			expErrMsg: "",
@@ -583,7 +583,7 @@ func (s *KeeperTestSuite) TestMsgActivate() {
 			s.reset()
 			msg := tc.preRun()
 
-			_, err := s.msgServer.Activate(s.ctx, msg)
+			_, err := s.msgServer.ActivateTunnel(s.ctx, msg)
 			if tc.expErr {
 				s.Require().Error(err)
 				s.Require().Contains(err.Error(), tc.expErrMsg)
@@ -594,42 +594,42 @@ func (s *KeeperTestSuite) TestMsgActivate() {
 	}
 }
 
-func (s *KeeperTestSuite) TestMsgDeactivate() {
+func (s *KeeperTestSuite) TestMsgDeactivateTunnel() {
 	cases := map[string]struct {
-		preRun    func() *types.MsgDeactivate
+		preRun    func() *types.MsgDeactivateTunnel
 		expErr    bool
 		expErrMsg string
 	}{
 		"tunnel not found": {
-			preRun: func() *types.MsgDeactivate {
-				return types.NewMsgDeactivate(1, sdk.AccAddress([]byte("creator_address")).String())
+			preRun: func() *types.MsgDeactivateTunnel {
+				return types.NewMsgDeactivateTunnel(1, sdk.AccAddress([]byte("creator_address")).String())
 			},
 			expErr:    true,
 			expErrMsg: "tunnel not found",
 		},
 		"invalid creator of the tunnel": {
-			preRun: func() *types.MsgDeactivate {
+			preRun: func() *types.MsgDeactivateTunnel {
 				s.AddSampleTunnel(true)
 
-				return types.NewMsgDeactivate(1, sdk.AccAddress([]byte("wrong_creator_address")).String())
+				return types.NewMsgDeactivateTunnel(1, sdk.AccAddress([]byte("wrong_creator_address")).String())
 			},
 			expErr:    true,
 			expErrMsg: "invalid creator of the tunnel",
 		},
 		"already inactive": {
-			preRun: func() *types.MsgDeactivate {
+			preRun: func() *types.MsgDeactivateTunnel {
 				s.AddSampleTunnel(false)
 
-				return types.NewMsgDeactivate(1, sdk.AccAddress([]byte("creator_address")).String())
+				return types.NewMsgDeactivateTunnel(1, sdk.AccAddress([]byte("creator_address")).String())
 			},
 			expErr:    true,
 			expErrMsg: "already inactive",
 		},
 		"all good": {
-			preRun: func() *types.MsgDeactivate {
+			preRun: func() *types.MsgDeactivateTunnel {
 				s.AddSampleTunnel(true)
 
-				return types.NewMsgDeactivate(1, sdk.AccAddress([]byte("creator_address")).String())
+				return types.NewMsgDeactivateTunnel(1, sdk.AccAddress([]byte("creator_address")).String())
 			},
 			expErr:    false,
 			expErrMsg: "",
@@ -641,7 +641,7 @@ func (s *KeeperTestSuite) TestMsgDeactivate() {
 			s.reset()
 			msg := tc.preRun()
 
-			_, err := s.msgServer.Deactivate(s.ctx, msg)
+			_, err := s.msgServer.DeactivateTunnel(s.ctx, msg)
 			if tc.expErr {
 				s.Require().Error(err)
 				s.Require().Contains(err.Error(), tc.expErrMsg)
@@ -694,7 +694,7 @@ func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
 
 				s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
 					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
-				).Times(2)
+				)
 
 				s.bandtssKeeper.EXPECT().CreateTunnelSigningRequest(
 					gomock.Any(),
@@ -719,9 +719,6 @@ func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
 				s.bankKeeper.EXPECT().
 					SendCoinsFromAccountToModule(gomock.Any(), feePayer, types.ModuleName, types.DefaultBasePacketFee).
 					Return(nil)
-
-				spendableCoins := types.DefaultBasePacketFee.Add(sdk.NewCoin("uband", sdkmath.NewInt(20)))
-				s.bankKeeper.EXPECT().SpendableCoins(gomock.Any(), feePayer).Return(spendableCoins)
 
 				return types.NewMsgTriggerTunnel(1, sdk.AccAddress([]byte("creator_address")).String())
 			},
