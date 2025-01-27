@@ -71,6 +71,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		(*PacketReceiptI)(nil),
 		&TSSPacketReceipt{},
 		&IBCPacketReceipt{},
+		&IBCHookPacketReceipt{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
