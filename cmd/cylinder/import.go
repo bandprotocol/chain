@@ -34,7 +34,7 @@ func importGroupsCmd(ctx *context.Context) *cobra.Command {
 		Short: "Import groups data",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			ctx, err = ctx.WithGoLevelDb()
+			ctx, err = ctx.WithGoLevelDB()
 			if err != nil {
 				return err
 			}
@@ -80,7 +80,7 @@ func importDKGsCmd(ctx *context.Context) *cobra.Command {
 		Short: "Import DKGs data",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			ctx, err = ctx.WithGoLevelDb()
+			ctx, err = ctx.WithGoLevelDB()
 			if err != nil {
 				return err
 			}
@@ -127,7 +127,7 @@ func importDEsCmd(ctx *context.Context) *cobra.Command {
 		Short: "Import DEs data",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			ctx, err = ctx.WithGoLevelDb()
+			ctx, err = ctx.WithGoLevelDB()
 			if err != nil {
 				return err
 			}

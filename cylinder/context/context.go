@@ -89,8 +89,8 @@ func (ctx *Context) InitLog() error {
 	return nil
 }
 
-// WithGoLevelDb initializes the database of the context with GoLevelDB.
-func (ctx *Context) WithGoLevelDb() (*Context, error) {
+// WithGoLevelDB initializes the database of the context with GoLevelDB.
+func (ctx *Context) WithGoLevelDB() (*Context, error) {
 	db, err := dbm.NewDB("cylinder", dbm.GoLevelDBBackend, ctx.DataDir)
 	if err != nil {
 		return nil, fmt.Errorf("%w; possibly due to being run in another process", err)

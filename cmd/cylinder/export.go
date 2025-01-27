@@ -41,7 +41,7 @@ func exportGroupsCmd(ctx *context.Context) *cobra.Command {
 		Short: "Export groups data",
 		Args:  cobra.MinimumNArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			ctx, err = ctx.WithGoLevelDb()
+			ctx, err = ctx.WithGoLevelDB()
 			if err != nil {
 				return err
 			}
@@ -119,7 +119,7 @@ func exportDKGsCmd(ctx *context.Context) *cobra.Command {
 		Short: "Export DKGs data",
 		Args:  cobra.MinimumNArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			ctx, err = ctx.WithGoLevelDb()
+			ctx, err = ctx.WithGoLevelDB()
 			if err != nil {
 				return err
 			}
@@ -197,7 +197,7 @@ func exportDEsCmd(ctx *context.Context) *cobra.Command {
 		Short: "Export DEs data",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			ctx, err = ctx.WithGoLevelDb()
+			ctx, err = ctx.WithGoLevelDB()
 			if err != nil {
 				return err
 			}

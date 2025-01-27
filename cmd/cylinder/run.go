@@ -38,7 +38,7 @@ func runCmd(ctx *context.Context) *cobra.Command {
 		Short:   "Run the cylinder process",
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-			ctx, err = ctx.WithGoLevelDb()
+			ctx, err = ctx.WithGoLevelDB()
 			if err != nil {
 				return err
 			}
