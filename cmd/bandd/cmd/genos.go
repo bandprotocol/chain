@@ -36,7 +36,8 @@ func AddGenesisOracleScriptCmd(defaultNodeHome string) *cobra.Command {
 			config := serverCtx.Config
 			config.SetRoot(clientCtx.HomeDir)
 
-			f := filecache.New(filepath.Join(defaultNodeHome, "files"))
+			dataDir := filepath.Join(defaultNodeHome, "files")
+			fileCache := filecache.New(dataDir, 0)
 			data, err := os.ReadFile(args[5])
 			if err != nil {
 				return err
@@ -49,7 +50,7 @@ func AddGenesisOracleScriptCmd(defaultNodeHome string) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			filename := f.AddFile(compiledData)
+			filename := fileCache.AddFile(compiledData)
 			owner, err := sdk.AccAddressFromBech32(args[4])
 			if err != nil {
 				return err
