@@ -3500,7 +3500,7 @@ func (x *IBCHookRoute) ProtoReflect() protoreflect.Message {
 }
 
 func (x *IBCHookRoute) slowProtoReflect() protoreflect.Message {
-	mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[5]
+	mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3982,7 +3982,7 @@ func (x *IBCHookPacketReceipt) ProtoReflect() protoreflect.Message {
 }
 
 func (x *IBCHookPacketReceipt) slowProtoReflect() protoreflect.Message {
-	mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[6]
+	mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4734,7 +4734,7 @@ type IBCHookRoute struct {
 func (x *IBCHookRoute) Reset() {
 	*x = IBCHookRoute{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[5]
+		mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4748,7 +4748,7 @@ func (*IBCHookRoute) ProtoMessage() {}
 
 // Deprecated: Use IBCHookRoute.ProtoReflect.Descriptor instead.
 func (*IBCHookRoute) Descriptor() ([]byte, []int) {
-	return file_band_tunnel_v1beta1_route_proto_rawDescGZIP(), []int{5}
+	return file_band_tunnel_v1beta1_route_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *IBCHookRoute) GetChannelId() string {
@@ -4778,7 +4778,7 @@ type IBCHookPacketReceipt struct {
 func (x *IBCHookPacketReceipt) Reset() {
 	*x = IBCHookPacketReceipt{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[6]
+		mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4792,7 +4792,7 @@ func (*IBCHookPacketReceipt) ProtoMessage() {}
 
 // Deprecated: Use IBCHookPacketReceipt.ProtoReflect.Descriptor instead.
 func (*IBCHookPacketReceipt) Descriptor() ([]byte, []int) {
-	return file_band_tunnel_v1beta1_route_proto_rawDescGZIP(), []int{6}
+	return file_band_tunnel_v1beta1_route_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *IBCHookPacketReceipt) GetSequence() uint64 {
@@ -4928,7 +4928,7 @@ func file_band_tunnel_v1beta1_route_proto_rawDescGZIP() []byte {
 	return file_band_tunnel_v1beta1_route_proto_rawDescData
 }
 
-var file_band_tunnel_v1beta1_route_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_band_tunnel_v1beta1_route_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_band_tunnel_v1beta1_route_proto_goTypes = []interface{}{
 	(*TSSRoute)(nil),               // 0: band.tunnel.v1beta1.TSSRoute
 	(*TSSPacketReceipt)(nil),       // 1: band.tunnel.v1beta1.TSSPacketReceipt
@@ -4937,19 +4937,21 @@ var file_band_tunnel_v1beta1_route_proto_goTypes = []interface{}{
 	(*RouterRoute)(nil),            // 4: band.tunnel.v1beta1.RouterRoute
 	(*RouterPacketReceipt)(nil),    // 5: band.tunnel.v1beta1.RouterPacketReceipt
 	(*TunnelPricesPacketData)(nil), // 6: band.tunnel.v1beta1.TunnelPricesPacketData
-	(v1beta1.Encoder)(0),           // 7: band.feeds.v1beta1.Encoder
-	(*v1beta11.Coin)(nil),          // 8: cosmos.base.v1beta1.Coin
-	(*v1beta1.Price)(nil),          // 9: band.feeds.v1beta1.Price
+	(*IBCHookRoute)(nil),           // 7: band.tunnel.v1beta1.IBCHookRoute
+	(*IBCHookPacketReceipt)(nil),   // 8: band.tunnel.v1beta1.IBCHookPacketReceipt
+	(v1beta1.Encoder)(0),           // 9: band.feeds.v1beta1.Encoder
+	(*v1beta11.Coin)(nil),          // 10: cosmos.base.v1beta1.Coin
+	(*v1beta1.Price)(nil),          // 11: band.feeds.v1beta1.Price
 }
 var file_band_tunnel_v1beta1_route_proto_depIdxs = []int32{
-	7, // 0: band.tunnel.v1beta1.TSSRoute.encoder:type_name -> band.feeds.v1beta1.Encoder
-	8, // 1: band.tunnel.v1beta1.RouterRoute.fund:type_name -> cosmos.base.v1beta1.Coin
-	9, // 2: band.tunnel.v1beta1.TunnelPricesPacketData.prices:type_name -> band.feeds.v1beta1.Price
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	9,  // 0: band.tunnel.v1beta1.TSSRoute.encoder:type_name -> band.feeds.v1beta1.Encoder
+	10, // 1: band.tunnel.v1beta1.RouterRoute.fund:type_name -> cosmos.base.v1beta1.Coin
+	11, // 2: band.tunnel.v1beta1.TunnelPricesPacketData.prices:type_name -> band.feeds.v1beta1.Price
+	3,  // [3:3] is the sub-list for method output_type
+	3,  // [3:3] is the sub-list for method input_type
+	3,  // [3:3] is the sub-list for extension type_name
+	3,  // [3:3] is the sub-list for extension extendee
+	0,  // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_band_tunnel_v1beta1_route_proto_init() }
@@ -5042,7 +5044,7 @@ func file_band_tunnel_v1beta1_route_proto_init() {
 				return nil
 			}
 		}
-		file_band_tunnel_v1beta1_route_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_route_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*IBCHookRoute); i {
 			case 0:
 				return &v.state
@@ -5054,7 +5056,7 @@ func file_band_tunnel_v1beta1_route_proto_init() {
 				return nil
 			}
 		}
-		file_band_tunnel_v1beta1_route_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_route_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*IBCHookPacketReceipt); i {
 			case 0:
 				return &v.state
@@ -5073,7 +5075,7 @@ func file_band_tunnel_v1beta1_route_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_band_tunnel_v1beta1_route_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

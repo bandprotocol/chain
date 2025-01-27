@@ -13,7 +13,7 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
-func (s *KeeperTestSuite) TestSendRouterPacket() {
+func (s *KeeperTestSuite) TestSendIBCHookPacket() {
 	ctx, k := s.ctx, s.keeper
 
 	tunnelID := uint64(1)
