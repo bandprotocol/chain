@@ -51,8 +51,8 @@ func GetTxCmdCreateTunnel() *cobra.Command {
 	txCmd.AddCommand(
 		GetTxCmdCreateTSSTunnel(),
 		GetTxCmdCreateIBCTunnel(),
-		GetTxCmdCreateRouterTunnel(),
 		GetTxCmdCreateIBCHookTunnel(),
+		GetTxCmdCreateRouterTunnel(),
 	)
 
 	return txCmd
@@ -279,8 +279,8 @@ func GetTxCmdUpdateRoute() *cobra.Command {
 	// add create tunnel subcommands
 	txCmd.AddCommand(
 		GetTxCmdUpdateIBCRoute(),
-		GetTxCmdUpdateRouterRoute(),
 		GetTxCmdUpdateIBCHookRoute(),
+		GetTxCmdUpdateRouterRoute(),
 	)
 
 	return txCmd
