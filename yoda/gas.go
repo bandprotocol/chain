@@ -110,7 +110,7 @@ func estimateReportHandlerGas(cdc codec.Codec, msg *types.MsgReportData, f FeeEs
 func estimateAuthAnteHandlerGas(c *Context, msgs []sdk.Msg) uint64 {
 	gas := baseAuthAnteGas
 
-	txByteLength := getTxByteLength(c.bandApp.AppCodec(), msgs)
+	txByteLength := getTxByteLength(c.encodingConfig.Codec, msgs)
 	gas += txCostPerByte * txByteLength
 
 	if len(c.gasPrices) > 0 {
@@ -128,7 +128,7 @@ func estimateGas(c *Context, l *Logger, msgs []sdk.Msg, feeEstimations []FeeEsti
 		if !ok {
 			panic("Don't support non-report data message")
 		}
-		gas += estimateReportHandlerGas(c.bandApp.AppCodec(), msg, feeEstimations[i])
+		gas += estimateReportHandlerGas(c.encodingConfig.Codec, msg, feeEstimations[i])
 	}
 
 	l.Debug(":fuel_pump: Estimated gas is %d", gas)

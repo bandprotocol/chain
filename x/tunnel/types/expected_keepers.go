@@ -41,6 +41,7 @@ type BankKeeper interface {
 		recipientModule string,
 		amt sdk.Coins,
 	) error
+	MintCoins(ctx context.Context, moduleName string, amounts sdk.Coins) error
 }
 
 type ICS4Wrapper interface {

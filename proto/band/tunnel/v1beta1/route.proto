@@ -90,3 +90,21 @@ message TunnelPricesPacketData {
   // created_at is the timestamp when the packet is created
   int64 created_at = 4;
 }
+
+// IBCHookRoute is the type for an IBC hook route
+message IBCHookRoute {
+  option (cosmos_proto.implements_interface) = "RouteI";
+
+  // channel_id is the IBC channel ID
+  string channel_id = 1 [(gogoproto.customname) = "ChannelID"];
+  // destination_contract_address is the destination contract address
+  string destination_contract_address = 2;
+}
+
+// IBCHookPacketReceipt represents a receipt for a IBC hook packet and implements the PacketReceiptI interface.
+message IBCHookPacketReceipt {
+  option (cosmos_proto.implements_interface) = "PacketContentI";
+
+  // sequence is representing the sequence of the IBC packet.
+  uint64 sequence = 1;
+}

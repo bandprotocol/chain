@@ -77,6 +77,24 @@ func NewMsgCreateIBCTunnel(
 	return m, nil
 }
 
+// NewMsgCreateIBCHookTunnel creates a new MsgCreateTunnel instance for IBC hook tunnel.
+func NewMsgCreateIBCHookTunnel(
+	signalDeviations []SignalDeviation,
+	interval uint64,
+	channelID string,
+	destinationContractAddress string,
+	initialDeposit sdk.Coins,
+	creator string,
+) (*MsgCreateTunnel, error) {
+	r := NewIBCHookRoute(channelID, destinationContractAddress)
+	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, initialDeposit, creator)
+	if err != nil {
+		return nil, err
+	}
+
+	return m, nil
+}
+
 // NewMsgCreateRouterTunnel creates a new MsgCreateTunnel instance for Router tunnel.
 func NewMsgCreateRouterTunnel(
 	signalDeviations []SignalDeviation,
@@ -184,6 +202,16 @@ func NewMsgUpdateIBCRoute(
 	creator string,
 ) (*MsgUpdateRoute, error) {
 	return NewMsgUpdateRoute(tunnelID, NewIBCRoute(channelID), creator)
+}
+
+// NewMsgUpdateIBCHookRoute creates a new MsgUpdateRoute instance.
+func NewMsgUpdateIBCHookRoute(
+	tunnelID uint64,
+	channelID string,
+	destinationContractAddress string,
+	creator string,
+) (*MsgUpdateRoute, error) {
+	return NewMsgUpdateRoute(tunnelID, NewIBCHookRoute(channelID, destinationContractAddress), creator)
 }
 
 // NewMsgUpdateRouterRoute creates a new MsgUpdateRoute instance.

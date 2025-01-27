@@ -16,7 +16,7 @@ func MakeTestEncodingConfig() EncodingConfig {
 
 	return EncodingConfig{
 		InterfaceRegistry: interfaceRegistry,
-		Marshaler:         codec,
+		Codec:             codec,
 		TxConfig:          legacytx.StdTxConfig{Cdc: cdc},
 		Amino:             cdc,
 	}
