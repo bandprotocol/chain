@@ -30,8 +30,8 @@ type RouterMemo struct {
 // NewRouterMemo creates a new RouterMemo object.
 func NewRouterMemo(
 	contract string,
-	destChainID string,
-	destContractAddress string,
+	destinationChainID string,
+	destinationContractAddress string,
 	gasLimit uint64,
 	gasPrice uint64,
 	payload string,
@@ -41,8 +41,8 @@ func NewRouterMemo(
 			Contract: contract,
 			Msg: RouterMsg{
 				ReceiveBandData: RouterReceiveBandData{
-					DestChainID:         destChainID,
-					DestContractAddress: destContractAddress,
+					DestChainID:         destinationChainID,
+					DestContractAddress: destinationContractAddress,
 					GasLimit:            gasLimit,
 					GasPrice:            gasPrice,
 					Payload:             payload,

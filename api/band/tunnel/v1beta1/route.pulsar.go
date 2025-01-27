@@ -2,8 +2,6 @@
 package tunnelv1beta1
 
 import (
-	_ "cosmossdk.io/api/amino"
-	v1beta11 "cosmossdk.io/api/cosmos/base/v1beta1"
 	fmt "fmt"
 	v1beta1 "github.com/bandprotocol/chain/v3/api/band/feeds/v1beta1"
 	_ "github.com/cosmos/cosmos-proto"
@@ -1777,1069 +1775,6 @@ func (x *fastReflection_IBCPacketReceipt) ProtoMethods() *protoiface.Methods {
 	}
 }
 
-var (
-	md_RouterRoute                       protoreflect.MessageDescriptor
-	fd_RouterRoute_fund                  protoreflect.FieldDescriptor
-	fd_RouterRoute_dest_chain_id         protoreflect.FieldDescriptor
-	fd_RouterRoute_dest_contract_address protoreflect.FieldDescriptor
-	fd_RouterRoute_dest_gas_limit        protoreflect.FieldDescriptor
-	fd_RouterRoute_dest_gas_price        protoreflect.FieldDescriptor
-)
-
-func init() {
-	file_band_tunnel_v1beta1_route_proto_init()
-	md_RouterRoute = File_band_tunnel_v1beta1_route_proto.Messages().ByName("RouterRoute")
-	fd_RouterRoute_fund = md_RouterRoute.Fields().ByName("fund")
-	fd_RouterRoute_dest_chain_id = md_RouterRoute.Fields().ByName("dest_chain_id")
-	fd_RouterRoute_dest_contract_address = md_RouterRoute.Fields().ByName("dest_contract_address")
-	fd_RouterRoute_dest_gas_limit = md_RouterRoute.Fields().ByName("dest_gas_limit")
-	fd_RouterRoute_dest_gas_price = md_RouterRoute.Fields().ByName("dest_gas_price")
-}
-
-var _ protoreflect.Message = (*fastReflection_RouterRoute)(nil)
-
-type fastReflection_RouterRoute RouterRoute
-
-func (x *RouterRoute) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_RouterRoute)(x)
-}
-
-func (x *RouterRoute) slowProtoReflect() protoreflect.Message {
-	mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[4]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-var _fastReflection_RouterRoute_messageType fastReflection_RouterRoute_messageType
-var _ protoreflect.MessageType = fastReflection_RouterRoute_messageType{}
-
-type fastReflection_RouterRoute_messageType struct{}
-
-func (x fastReflection_RouterRoute_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_RouterRoute)(nil)
-}
-func (x fastReflection_RouterRoute_messageType) New() protoreflect.Message {
-	return new(fastReflection_RouterRoute)
-}
-func (x fastReflection_RouterRoute_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_RouterRoute
-}
-
-// Descriptor returns message descriptor, which contains only the protobuf
-// type information for the message.
-func (x *fastReflection_RouterRoute) Descriptor() protoreflect.MessageDescriptor {
-	return md_RouterRoute
-}
-
-// Type returns the message type, which encapsulates both Go and protobuf
-// type information. If the Go type information is not needed,
-// it is recommended that the message descriptor be used instead.
-func (x *fastReflection_RouterRoute) Type() protoreflect.MessageType {
-	return _fastReflection_RouterRoute_messageType
-}
-
-// New returns a newly allocated and mutable empty message.
-func (x *fastReflection_RouterRoute) New() protoreflect.Message {
-	return new(fastReflection_RouterRoute)
-}
-
-// Interface unwraps the message reflection interface and
-// returns the underlying ProtoMessage interface.
-func (x *fastReflection_RouterRoute) Interface() protoreflect.ProtoMessage {
-	return (*RouterRoute)(x)
-}
-
-// Range iterates over every populated field in an undefined order,
-// calling f for each field descriptor and value encountered.
-// Range returns immediately if f returns false.
-// While iterating, mutating operations may only be performed
-// on the current field descriptor.
-func (x *fastReflection_RouterRoute) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
-	if x.Fund != nil {
-		value := protoreflect.ValueOfMessage(x.Fund.ProtoReflect())
-		if !f(fd_RouterRoute_fund, value) {
-			return
-		}
-	}
-	if x.DestChainId != "" {
-		value := protoreflect.ValueOfString(x.DestChainId)
-		if !f(fd_RouterRoute_dest_chain_id, value) {
-			return
-		}
-	}
-	if x.DestContractAddress != "" {
-		value := protoreflect.ValueOfString(x.DestContractAddress)
-		if !f(fd_RouterRoute_dest_contract_address, value) {
-			return
-		}
-	}
-	if x.DestGasLimit != uint64(0) {
-		value := protoreflect.ValueOfUint64(x.DestGasLimit)
-		if !f(fd_RouterRoute_dest_gas_limit, value) {
-			return
-		}
-	}
-	if x.DestGasPrice != uint64(0) {
-		value := protoreflect.ValueOfUint64(x.DestGasPrice)
-		if !f(fd_RouterRoute_dest_gas_price, value) {
-			return
-		}
-	}
-}
-
-// Has reports whether a field is populated.
-//
-// Some fields have the property of nullability where it is possible to
-// distinguish between the default value of a field and whether the field
-// was explicitly populated with the default value. Singular message fields,
-// member fields of a oneof, and proto2 scalar fields are nullable. Such
-// fields are populated only if explicitly set.
-//
-// In other cases (aside from the nullable cases above),
-// a proto3 scalar field is populated if it contains a non-zero value, and
-// a repeated field is populated if it is non-empty.
-func (x *fastReflection_RouterRoute) Has(fd protoreflect.FieldDescriptor) bool {
-	switch fd.FullName() {
-	case "band.tunnel.v1beta1.RouterRoute.fund":
-		return x.Fund != nil
-	case "band.tunnel.v1beta1.RouterRoute.dest_chain_id":
-		return x.DestChainId != ""
-	case "band.tunnel.v1beta1.RouterRoute.dest_contract_address":
-		return x.DestContractAddress != ""
-	case "band.tunnel.v1beta1.RouterRoute.dest_gas_limit":
-		return x.DestGasLimit != uint64(0)
-	case "band.tunnel.v1beta1.RouterRoute.dest_gas_price":
-		return x.DestGasPrice != uint64(0)
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.RouterRoute"))
-		}
-		panic(fmt.Errorf("message band.tunnel.v1beta1.RouterRoute does not contain field %s", fd.FullName()))
-	}
-}
-
-// Clear clears the field such that a subsequent Has call reports false.
-//
-// Clearing an extension field clears both the extension type and value
-// associated with the given field number.
-//
-// Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_RouterRoute) Clear(fd protoreflect.FieldDescriptor) {
-	switch fd.FullName() {
-	case "band.tunnel.v1beta1.RouterRoute.fund":
-		x.Fund = nil
-	case "band.tunnel.v1beta1.RouterRoute.dest_chain_id":
-		x.DestChainId = ""
-	case "band.tunnel.v1beta1.RouterRoute.dest_contract_address":
-		x.DestContractAddress = ""
-	case "band.tunnel.v1beta1.RouterRoute.dest_gas_limit":
-		x.DestGasLimit = uint64(0)
-	case "band.tunnel.v1beta1.RouterRoute.dest_gas_price":
-		x.DestGasPrice = uint64(0)
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.RouterRoute"))
-		}
-		panic(fmt.Errorf("message band.tunnel.v1beta1.RouterRoute does not contain field %s", fd.FullName()))
-	}
-}
-
-// Get retrieves the value for a field.
-//
-// For unpopulated scalars, it returns the default value, where
-// the default value of a bytes scalar is guaranteed to be a copy.
-// For unpopulated composite types, it returns an empty, read-only view
-// of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_RouterRoute) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
-	switch descriptor.FullName() {
-	case "band.tunnel.v1beta1.RouterRoute.fund":
-		value := x.Fund
-		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "band.tunnel.v1beta1.RouterRoute.dest_chain_id":
-		value := x.DestChainId
-		return protoreflect.ValueOfString(value)
-	case "band.tunnel.v1beta1.RouterRoute.dest_contract_address":
-		value := x.DestContractAddress
-		return protoreflect.ValueOfString(value)
-	case "band.tunnel.v1beta1.RouterRoute.dest_gas_limit":
-		value := x.DestGasLimit
-		return protoreflect.ValueOfUint64(value)
-	case "band.tunnel.v1beta1.RouterRoute.dest_gas_price":
-		value := x.DestGasPrice
-		return protoreflect.ValueOfUint64(value)
-	default:
-		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.RouterRoute"))
-		}
-		panic(fmt.Errorf("message band.tunnel.v1beta1.RouterRoute does not contain field %s", descriptor.FullName()))
-	}
-}
-
-// Set stores the value for a field.
-//
-// For a field belonging to a oneof, it implicitly clears any other field
-// that may be currently set within the same oneof.
-// For extension fields, it implicitly stores the provided ExtensionType.
-// When setting a composite type, it is unspecified whether the stored value
-// aliases the source's memory in any way. If the composite value is an
-// empty, read-only value, then it panics.
-//
-// Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_RouterRoute) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
-	switch fd.FullName() {
-	case "band.tunnel.v1beta1.RouterRoute.fund":
-		x.Fund = value.Message().Interface().(*v1beta11.Coin)
-	case "band.tunnel.v1beta1.RouterRoute.dest_chain_id":
-		x.DestChainId = value.Interface().(string)
-	case "band.tunnel.v1beta1.RouterRoute.dest_contract_address":
-		x.DestContractAddress = value.Interface().(string)
-	case "band.tunnel.v1beta1.RouterRoute.dest_gas_limit":
-		x.DestGasLimit = value.Uint()
-	case "band.tunnel.v1beta1.RouterRoute.dest_gas_price":
-		x.DestGasPrice = value.Uint()
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.RouterRoute"))
-		}
-		panic(fmt.Errorf("message band.tunnel.v1beta1.RouterRoute does not contain field %s", fd.FullName()))
-	}
-}
-
-// Mutable returns a mutable reference to a composite type.
-//
-// If the field is unpopulated, it may allocate a composite value.
-// For a field belonging to a oneof, it implicitly clears any other field
-// that may be currently set within the same oneof.
-// For extension fields, it implicitly stores the provided ExtensionType
-// if not already stored.
-// It panics if the field does not contain a composite type.
-//
-// Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_RouterRoute) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
-	switch fd.FullName() {
-	case "band.tunnel.v1beta1.RouterRoute.fund":
-		if x.Fund == nil {
-			x.Fund = new(v1beta11.Coin)
-		}
-		return protoreflect.ValueOfMessage(x.Fund.ProtoReflect())
-	case "band.tunnel.v1beta1.RouterRoute.dest_chain_id":
-		panic(fmt.Errorf("field dest_chain_id of message band.tunnel.v1beta1.RouterRoute is not mutable"))
-	case "band.tunnel.v1beta1.RouterRoute.dest_contract_address":
-		panic(fmt.Errorf("field dest_contract_address of message band.tunnel.v1beta1.RouterRoute is not mutable"))
-	case "band.tunnel.v1beta1.RouterRoute.dest_gas_limit":
-		panic(fmt.Errorf("field dest_gas_limit of message band.tunnel.v1beta1.RouterRoute is not mutable"))
-	case "band.tunnel.v1beta1.RouterRoute.dest_gas_price":
-		panic(fmt.Errorf("field dest_gas_price of message band.tunnel.v1beta1.RouterRoute is not mutable"))
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.RouterRoute"))
-		}
-		panic(fmt.Errorf("message band.tunnel.v1beta1.RouterRoute does not contain field %s", fd.FullName()))
-	}
-}
-
-// NewField returns a new value that is assignable to the field
-// for the given descriptor. For scalars, this returns the default value.
-// For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_RouterRoute) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
-	switch fd.FullName() {
-	case "band.tunnel.v1beta1.RouterRoute.fund":
-		m := new(v1beta11.Coin)
-		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "band.tunnel.v1beta1.RouterRoute.dest_chain_id":
-		return protoreflect.ValueOfString("")
-	case "band.tunnel.v1beta1.RouterRoute.dest_contract_address":
-		return protoreflect.ValueOfString("")
-	case "band.tunnel.v1beta1.RouterRoute.dest_gas_limit":
-		return protoreflect.ValueOfUint64(uint64(0))
-	case "band.tunnel.v1beta1.RouterRoute.dest_gas_price":
-		return protoreflect.ValueOfUint64(uint64(0))
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.RouterRoute"))
-		}
-		panic(fmt.Errorf("message band.tunnel.v1beta1.RouterRoute does not contain field %s", fd.FullName()))
-	}
-}
-
-// WhichOneof reports which field within the oneof is populated,
-// returning nil if none are populated.
-// It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_RouterRoute) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
-	switch d.FullName() {
-	default:
-		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.RouterRoute", d.FullName()))
-	}
-	panic("unreachable")
-}
-
-// GetUnknown retrieves the entire list of unknown fields.
-// The caller may only mutate the contents of the RawFields
-// if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_RouterRoute) GetUnknown() protoreflect.RawFields {
-	return x.unknownFields
-}
-
-// SetUnknown stores an entire list of unknown fields.
-// The raw fields must be syntactically valid according to the wire format.
-// An implementation may panic if this is not the case.
-// Once stored, the caller must not mutate the content of the RawFields.
-// An empty RawFields may be passed to clear the fields.
-//
-// SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_RouterRoute) SetUnknown(fields protoreflect.RawFields) {
-	x.unknownFields = fields
-}
-
-// IsValid reports whether the message is valid.
-//
-// An invalid message is an empty, read-only value.
-//
-// An invalid message often corresponds to a nil pointer of the concrete
-// message type, but the details are implementation dependent.
-// Validity is not part of the protobuf data model, and may not
-// be preserved in marshaling or other operations.
-func (x *fastReflection_RouterRoute) IsValid() bool {
-	return x != nil
-}
-
-// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
-// This method may return nil.
-//
-// The returned methods type is identical to
-// "google.golang.org/protobuf/runtime/protoiface".Methods.
-// Consult the protoiface package documentation for details.
-func (x *fastReflection_RouterRoute) ProtoMethods() *protoiface.Methods {
-	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*RouterRoute)
-		if x == nil {
-			return protoiface.SizeOutput{
-				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-				Size:              0,
-			}
-		}
-		options := runtime.SizeInputToOptions(input)
-		_ = options
-		var n int
-		var l int
-		_ = l
-		if x.Fund != nil {
-			l = options.Size(x.Fund)
-			n += 1 + l + runtime.Sov(uint64(l))
-		}
-		l = len(x.DestChainId)
-		if l > 0 {
-			n += 1 + l + runtime.Sov(uint64(l))
-		}
-		l = len(x.DestContractAddress)
-		if l > 0 {
-			n += 1 + l + runtime.Sov(uint64(l))
-		}
-		if x.DestGasLimit != 0 {
-			n += 1 + runtime.Sov(uint64(x.DestGasLimit))
-		}
-		if x.DestGasPrice != 0 {
-			n += 1 + runtime.Sov(uint64(x.DestGasPrice))
-		}
-		if x.unknownFields != nil {
-			n += len(x.unknownFields)
-		}
-		return protoiface.SizeOutput{
-			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-			Size:              n,
-		}
-	}
-
-	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*RouterRoute)
-		if x == nil {
-			return protoiface.MarshalOutput{
-				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-				Buf:               input.Buf,
-			}, nil
-		}
-		options := runtime.MarshalInputToOptions(input)
-		_ = options
-		size := options.Size(x)
-		dAtA := make([]byte, size)
-		i := len(dAtA)
-		_ = i
-		var l int
-		_ = l
-		if x.unknownFields != nil {
-			i -= len(x.unknownFields)
-			copy(dAtA[i:], x.unknownFields)
-		}
-		if x.DestGasPrice != 0 {
-			i = runtime.EncodeVarint(dAtA, i, uint64(x.DestGasPrice))
-			i--
-			dAtA[i] = 0x30
-		}
-		if x.DestGasLimit != 0 {
-			i = runtime.EncodeVarint(dAtA, i, uint64(x.DestGasLimit))
-			i--
-			dAtA[i] = 0x28
-		}
-		if len(x.DestContractAddress) > 0 {
-			i -= len(x.DestContractAddress)
-			copy(dAtA[i:], x.DestContractAddress)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.DestContractAddress)))
-			i--
-			dAtA[i] = 0x22
-		}
-		if len(x.DestChainId) > 0 {
-			i -= len(x.DestChainId)
-			copy(dAtA[i:], x.DestChainId)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.DestChainId)))
-			i--
-			dAtA[i] = 0x1a
-		}
-		if x.Fund != nil {
-			encoded, err := options.Marshal(x.Fund)
-			if err != nil {
-				return protoiface.MarshalOutput{
-					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-					Buf:               input.Buf,
-				}, err
-			}
-			i -= len(encoded)
-			copy(dAtA[i:], encoded)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
-			i--
-			dAtA[i] = 0xa
-		}
-		if input.Buf != nil {
-			input.Buf = append(input.Buf, dAtA...)
-		} else {
-			input.Buf = dAtA
-		}
-		return protoiface.MarshalOutput{
-			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-			Buf:               input.Buf,
-		}, nil
-	}
-	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*RouterRoute)
-		if x == nil {
-			return protoiface.UnmarshalOutput{
-				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-				Flags:             input.Flags,
-			}, nil
-		}
-		options := runtime.UnmarshalInputToOptions(input)
-		_ = options
-		dAtA := input.Buf
-		l := len(dAtA)
-		iNdEx := 0
-		for iNdEx < l {
-			preIndex := iNdEx
-			var wire uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				wire |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			fieldNum := int32(wire >> 3)
-			wireType := int(wire & 0x7)
-			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: RouterRoute: wiretype end group for non-group")
-			}
-			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: RouterRoute: illegal tag %d (wire type %d)", fieldNum, wire)
-			}
-			switch fieldNum {
-			case 1:
-				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Fund", wireType)
-				}
-				var msglen int
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					msglen |= int(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				if msglen < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				postIndex := iNdEx + msglen
-				if postIndex < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if postIndex > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				if x.Fund == nil {
-					x.Fund = &v1beta11.Coin{}
-				}
-				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.Fund); err != nil {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
-				}
-				iNdEx = postIndex
-			case 3:
-				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field DestChainId", wireType)
-				}
-				var stringLen uint64
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					stringLen |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				intStringLen := int(stringLen)
-				if intStringLen < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				postIndex := iNdEx + intStringLen
-				if postIndex < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if postIndex > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				x.DestChainId = string(dAtA[iNdEx:postIndex])
-				iNdEx = postIndex
-			case 4:
-				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field DestContractAddress", wireType)
-				}
-				var stringLen uint64
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					stringLen |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				intStringLen := int(stringLen)
-				if intStringLen < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				postIndex := iNdEx + intStringLen
-				if postIndex < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if postIndex > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				x.DestContractAddress = string(dAtA[iNdEx:postIndex])
-				iNdEx = postIndex
-			case 5:
-				if wireType != 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field DestGasLimit", wireType)
-				}
-				x.DestGasLimit = 0
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					x.DestGasLimit |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-			case 6:
-				if wireType != 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field DestGasPrice", wireType)
-				}
-				x.DestGasPrice = 0
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					x.DestGasPrice |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-			default:
-				iNdEx = preIndex
-				skippy, err := runtime.Skip(dAtA[iNdEx:])
-				if err != nil {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
-				}
-				if (skippy < 0) || (iNdEx+skippy) < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if (iNdEx + skippy) > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				if !options.DiscardUnknown {
-					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
-				}
-				iNdEx += skippy
-			}
-		}
-
-		if iNdEx > l {
-			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-		}
-		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
-	}
-	return &protoiface.Methods{
-		NoUnkeyedLiterals: struct{}{},
-		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
-		Size:              size,
-		Marshal:           marshal,
-		Unmarshal:         unmarshal,
-		Merge:             nil,
-		CheckInitialized:  nil,
-	}
-}
-
-var (
-	md_RouterPacketReceipt          protoreflect.MessageDescriptor
-	fd_RouterPacketReceipt_sequence protoreflect.FieldDescriptor
-)
-
-func init() {
-	file_band_tunnel_v1beta1_route_proto_init()
-	md_RouterPacketReceipt = File_band_tunnel_v1beta1_route_proto.Messages().ByName("RouterPacketReceipt")
-	fd_RouterPacketReceipt_sequence = md_RouterPacketReceipt.Fields().ByName("sequence")
-}
-
-var _ protoreflect.Message = (*fastReflection_RouterPacketReceipt)(nil)
-
-type fastReflection_RouterPacketReceipt RouterPacketReceipt
-
-func (x *RouterPacketReceipt) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_RouterPacketReceipt)(x)
-}
-
-func (x *RouterPacketReceipt) slowProtoReflect() protoreflect.Message {
-	mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[5]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-var _fastReflection_RouterPacketReceipt_messageType fastReflection_RouterPacketReceipt_messageType
-var _ protoreflect.MessageType = fastReflection_RouterPacketReceipt_messageType{}
-
-type fastReflection_RouterPacketReceipt_messageType struct{}
-
-func (x fastReflection_RouterPacketReceipt_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_RouterPacketReceipt)(nil)
-}
-func (x fastReflection_RouterPacketReceipt_messageType) New() protoreflect.Message {
-	return new(fastReflection_RouterPacketReceipt)
-}
-func (x fastReflection_RouterPacketReceipt_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_RouterPacketReceipt
-}
-
-// Descriptor returns message descriptor, which contains only the protobuf
-// type information for the message.
-func (x *fastReflection_RouterPacketReceipt) Descriptor() protoreflect.MessageDescriptor {
-	return md_RouterPacketReceipt
-}
-
-// Type returns the message type, which encapsulates both Go and protobuf
-// type information. If the Go type information is not needed,
-// it is recommended that the message descriptor be used instead.
-func (x *fastReflection_RouterPacketReceipt) Type() protoreflect.MessageType {
-	return _fastReflection_RouterPacketReceipt_messageType
-}
-
-// New returns a newly allocated and mutable empty message.
-func (x *fastReflection_RouterPacketReceipt) New() protoreflect.Message {
-	return new(fastReflection_RouterPacketReceipt)
-}
-
-// Interface unwraps the message reflection interface and
-// returns the underlying ProtoMessage interface.
-func (x *fastReflection_RouterPacketReceipt) Interface() protoreflect.ProtoMessage {
-	return (*RouterPacketReceipt)(x)
-}
-
-// Range iterates over every populated field in an undefined order,
-// calling f for each field descriptor and value encountered.
-// Range returns immediately if f returns false.
-// While iterating, mutating operations may only be performed
-// on the current field descriptor.
-func (x *fastReflection_RouterPacketReceipt) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
-	if x.Sequence != uint64(0) {
-		value := protoreflect.ValueOfUint64(x.Sequence)
-		if !f(fd_RouterPacketReceipt_sequence, value) {
-			return
-		}
-	}
-}
-
-// Has reports whether a field is populated.
-//
-// Some fields have the property of nullability where it is possible to
-// distinguish between the default value of a field and whether the field
-// was explicitly populated with the default value. Singular message fields,
-// member fields of a oneof, and proto2 scalar fields are nullable. Such
-// fields are populated only if explicitly set.
-//
-// In other cases (aside from the nullable cases above),
-// a proto3 scalar field is populated if it contains a non-zero value, and
-// a repeated field is populated if it is non-empty.
-func (x *fastReflection_RouterPacketReceipt) Has(fd protoreflect.FieldDescriptor) bool {
-	switch fd.FullName() {
-	case "band.tunnel.v1beta1.RouterPacketReceipt.sequence":
-		return x.Sequence != uint64(0)
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.RouterPacketReceipt"))
-		}
-		panic(fmt.Errorf("message band.tunnel.v1beta1.RouterPacketReceipt does not contain field %s", fd.FullName()))
-	}
-}
-
-// Clear clears the field such that a subsequent Has call reports false.
-//
-// Clearing an extension field clears both the extension type and value
-// associated with the given field number.
-//
-// Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_RouterPacketReceipt) Clear(fd protoreflect.FieldDescriptor) {
-	switch fd.FullName() {
-	case "band.tunnel.v1beta1.RouterPacketReceipt.sequence":
-		x.Sequence = uint64(0)
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.RouterPacketReceipt"))
-		}
-		panic(fmt.Errorf("message band.tunnel.v1beta1.RouterPacketReceipt does not contain field %s", fd.FullName()))
-	}
-}
-
-// Get retrieves the value for a field.
-//
-// For unpopulated scalars, it returns the default value, where
-// the default value of a bytes scalar is guaranteed to be a copy.
-// For unpopulated composite types, it returns an empty, read-only view
-// of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_RouterPacketReceipt) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
-	switch descriptor.FullName() {
-	case "band.tunnel.v1beta1.RouterPacketReceipt.sequence":
-		value := x.Sequence
-		return protoreflect.ValueOfUint64(value)
-	default:
-		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.RouterPacketReceipt"))
-		}
-		panic(fmt.Errorf("message band.tunnel.v1beta1.RouterPacketReceipt does not contain field %s", descriptor.FullName()))
-	}
-}
-
-// Set stores the value for a field.
-//
-// For a field belonging to a oneof, it implicitly clears any other field
-// that may be currently set within the same oneof.
-// For extension fields, it implicitly stores the provided ExtensionType.
-// When setting a composite type, it is unspecified whether the stored value
-// aliases the source's memory in any way. If the composite value is an
-// empty, read-only value, then it panics.
-//
-// Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_RouterPacketReceipt) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
-	switch fd.FullName() {
-	case "band.tunnel.v1beta1.RouterPacketReceipt.sequence":
-		x.Sequence = value.Uint()
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.RouterPacketReceipt"))
-		}
-		panic(fmt.Errorf("message band.tunnel.v1beta1.RouterPacketReceipt does not contain field %s", fd.FullName()))
-	}
-}
-
-// Mutable returns a mutable reference to a composite type.
-//
-// If the field is unpopulated, it may allocate a composite value.
-// For a field belonging to a oneof, it implicitly clears any other field
-// that may be currently set within the same oneof.
-// For extension fields, it implicitly stores the provided ExtensionType
-// if not already stored.
-// It panics if the field does not contain a composite type.
-//
-// Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_RouterPacketReceipt) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
-	switch fd.FullName() {
-	case "band.tunnel.v1beta1.RouterPacketReceipt.sequence":
-		panic(fmt.Errorf("field sequence of message band.tunnel.v1beta1.RouterPacketReceipt is not mutable"))
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.RouterPacketReceipt"))
-		}
-		panic(fmt.Errorf("message band.tunnel.v1beta1.RouterPacketReceipt does not contain field %s", fd.FullName()))
-	}
-}
-
-// NewField returns a new value that is assignable to the field
-// for the given descriptor. For scalars, this returns the default value.
-// For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_RouterPacketReceipt) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
-	switch fd.FullName() {
-	case "band.tunnel.v1beta1.RouterPacketReceipt.sequence":
-		return protoreflect.ValueOfUint64(uint64(0))
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.RouterPacketReceipt"))
-		}
-		panic(fmt.Errorf("message band.tunnel.v1beta1.RouterPacketReceipt does not contain field %s", fd.FullName()))
-	}
-}
-
-// WhichOneof reports which field within the oneof is populated,
-// returning nil if none are populated.
-// It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_RouterPacketReceipt) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
-	switch d.FullName() {
-	default:
-		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.RouterPacketReceipt", d.FullName()))
-	}
-	panic("unreachable")
-}
-
-// GetUnknown retrieves the entire list of unknown fields.
-// The caller may only mutate the contents of the RawFields
-// if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_RouterPacketReceipt) GetUnknown() protoreflect.RawFields {
-	return x.unknownFields
-}
-
-// SetUnknown stores an entire list of unknown fields.
-// The raw fields must be syntactically valid according to the wire format.
-// An implementation may panic if this is not the case.
-// Once stored, the caller must not mutate the content of the RawFields.
-// An empty RawFields may be passed to clear the fields.
-//
-// SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_RouterPacketReceipt) SetUnknown(fields protoreflect.RawFields) {
-	x.unknownFields = fields
-}
-
-// IsValid reports whether the message is valid.
-//
-// An invalid message is an empty, read-only value.
-//
-// An invalid message often corresponds to a nil pointer of the concrete
-// message type, but the details are implementation dependent.
-// Validity is not part of the protobuf data model, and may not
-// be preserved in marshaling or other operations.
-func (x *fastReflection_RouterPacketReceipt) IsValid() bool {
-	return x != nil
-}
-
-// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
-// This method may return nil.
-//
-// The returned methods type is identical to
-// "google.golang.org/protobuf/runtime/protoiface".Methods.
-// Consult the protoiface package documentation for details.
-func (x *fastReflection_RouterPacketReceipt) ProtoMethods() *protoiface.Methods {
-	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*RouterPacketReceipt)
-		if x == nil {
-			return protoiface.SizeOutput{
-				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-				Size:              0,
-			}
-		}
-		options := runtime.SizeInputToOptions(input)
-		_ = options
-		var n int
-		var l int
-		_ = l
-		if x.Sequence != 0 {
-			n += 1 + runtime.Sov(uint64(x.Sequence))
-		}
-		if x.unknownFields != nil {
-			n += len(x.unknownFields)
-		}
-		return protoiface.SizeOutput{
-			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-			Size:              n,
-		}
-	}
-
-	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*RouterPacketReceipt)
-		if x == nil {
-			return protoiface.MarshalOutput{
-				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-				Buf:               input.Buf,
-			}, nil
-		}
-		options := runtime.MarshalInputToOptions(input)
-		_ = options
-		size := options.Size(x)
-		dAtA := make([]byte, size)
-		i := len(dAtA)
-		_ = i
-		var l int
-		_ = l
-		if x.unknownFields != nil {
-			i -= len(x.unknownFields)
-			copy(dAtA[i:], x.unknownFields)
-		}
-		if x.Sequence != 0 {
-			i = runtime.EncodeVarint(dAtA, i, uint64(x.Sequence))
-			i--
-			dAtA[i] = 0x8
-		}
-		if input.Buf != nil {
-			input.Buf = append(input.Buf, dAtA...)
-		} else {
-			input.Buf = dAtA
-		}
-		return protoiface.MarshalOutput{
-			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-			Buf:               input.Buf,
-		}, nil
-	}
-	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*RouterPacketReceipt)
-		if x == nil {
-			return protoiface.UnmarshalOutput{
-				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-				Flags:             input.Flags,
-			}, nil
-		}
-		options := runtime.UnmarshalInputToOptions(input)
-		_ = options
-		dAtA := input.Buf
-		l := len(dAtA)
-		iNdEx := 0
-		for iNdEx < l {
-			preIndex := iNdEx
-			var wire uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				wire |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			fieldNum := int32(wire >> 3)
-			wireType := int(wire & 0x7)
-			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: RouterPacketReceipt: wiretype end group for non-group")
-			}
-			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: RouterPacketReceipt: illegal tag %d (wire type %d)", fieldNum, wire)
-			}
-			switch fieldNum {
-			case 1:
-				if wireType != 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Sequence", wireType)
-				}
-				x.Sequence = 0
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					x.Sequence |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-			default:
-				iNdEx = preIndex
-				skippy, err := runtime.Skip(dAtA[iNdEx:])
-				if err != nil {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
-				}
-				if (skippy < 0) || (iNdEx+skippy) < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if (iNdEx + skippy) > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				if !options.DiscardUnknown {
-					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
-				}
-				iNdEx += skippy
-			}
-		}
-
-		if iNdEx > l {
-			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-		}
-		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
-	}
-	return &protoiface.Methods{
-		NoUnkeyedLiterals: struct{}{},
-		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
-		Size:              size,
-		Marshal:           marshal,
-		Unmarshal:         unmarshal,
-		Merge:             nil,
-		CheckInitialized:  nil,
-	}
-}
-
 var _ protoreflect.List = (*_TunnelPricesPacketData_3_list)(nil)
 
 type _TunnelPricesPacketData_3_list struct {
@@ -2917,7 +1852,7 @@ func (x *TunnelPricesPacketData) ProtoReflect() protoreflect.Message {
 }
 
 func (x *TunnelPricesPacketData) slowProtoReflect() protoreflect.Message {
-	mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[6]
+	mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3500,7 +2435,7 @@ func (x *IBCHookRoute) ProtoReflect() protoreflect.Message {
 }
 
 func (x *IBCHookRoute) slowProtoReflect() protoreflect.Message {
-	mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[7]
+	mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3982,7 +2917,7 @@ func (x *IBCHookPacketReceipt) ProtoReflect() protoreflect.Message {
 }
 
 func (x *IBCHookPacketReceipt) slowProtoReflect() protoreflect.Message {
-	mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[8]
+	mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4366,6 +3301,990 @@ func (x *fastReflection_IBCHookPacketReceipt) ProtoMethods() *protoiface.Methods
 	}
 }
 
+var (
+	md_RouterRoute                              protoreflect.MessageDescriptor
+	fd_RouterRoute_destination_chain_id         protoreflect.FieldDescriptor
+	fd_RouterRoute_destination_contract_address protoreflect.FieldDescriptor
+	fd_RouterRoute_destination_gas_limit        protoreflect.FieldDescriptor
+	fd_RouterRoute_destination_gas_price        protoreflect.FieldDescriptor
+)
+
+func init() {
+	file_band_tunnel_v1beta1_route_proto_init()
+	md_RouterRoute = File_band_tunnel_v1beta1_route_proto.Messages().ByName("RouterRoute")
+	fd_RouterRoute_destination_chain_id = md_RouterRoute.Fields().ByName("destination_chain_id")
+	fd_RouterRoute_destination_contract_address = md_RouterRoute.Fields().ByName("destination_contract_address")
+	fd_RouterRoute_destination_gas_limit = md_RouterRoute.Fields().ByName("destination_gas_limit")
+	fd_RouterRoute_destination_gas_price = md_RouterRoute.Fields().ByName("destination_gas_price")
+}
+
+var _ protoreflect.Message = (*fastReflection_RouterRoute)(nil)
+
+type fastReflection_RouterRoute RouterRoute
+
+func (x *RouterRoute) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_RouterRoute)(x)
+}
+
+func (x *RouterRoute) slowProtoReflect() protoreflect.Message {
+	mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_RouterRoute_messageType fastReflection_RouterRoute_messageType
+var _ protoreflect.MessageType = fastReflection_RouterRoute_messageType{}
+
+type fastReflection_RouterRoute_messageType struct{}
+
+func (x fastReflection_RouterRoute_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_RouterRoute)(nil)
+}
+func (x fastReflection_RouterRoute_messageType) New() protoreflect.Message {
+	return new(fastReflection_RouterRoute)
+}
+func (x fastReflection_RouterRoute_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_RouterRoute
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_RouterRoute) Descriptor() protoreflect.MessageDescriptor {
+	return md_RouterRoute
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_RouterRoute) Type() protoreflect.MessageType {
+	return _fastReflection_RouterRoute_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_RouterRoute) New() protoreflect.Message {
+	return new(fastReflection_RouterRoute)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_RouterRoute) Interface() protoreflect.ProtoMessage {
+	return (*RouterRoute)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_RouterRoute) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if x.DestinationChainId != "" {
+		value := protoreflect.ValueOfString(x.DestinationChainId)
+		if !f(fd_RouterRoute_destination_chain_id, value) {
+			return
+		}
+	}
+	if x.DestinationContractAddress != "" {
+		value := protoreflect.ValueOfString(x.DestinationContractAddress)
+		if !f(fd_RouterRoute_destination_contract_address, value) {
+			return
+		}
+	}
+	if x.DestinationGasLimit != uint64(0) {
+		value := protoreflect.ValueOfUint64(x.DestinationGasLimit)
+		if !f(fd_RouterRoute_destination_gas_limit, value) {
+			return
+		}
+	}
+	if x.DestinationGasPrice != uint64(0) {
+		value := protoreflect.ValueOfUint64(x.DestinationGasPrice)
+		if !f(fd_RouterRoute_destination_gas_price, value) {
+			return
+		}
+	}
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_RouterRoute) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.RouterRoute.destination_chain_id":
+		return x.DestinationChainId != ""
+	case "band.tunnel.v1beta1.RouterRoute.destination_contract_address":
+		return x.DestinationContractAddress != ""
+	case "band.tunnel.v1beta1.RouterRoute.destination_gas_limit":
+		return x.DestinationGasLimit != uint64(0)
+	case "band.tunnel.v1beta1.RouterRoute.destination_gas_price":
+		return x.DestinationGasPrice != uint64(0)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.RouterRoute"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.RouterRoute does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_RouterRoute) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.RouterRoute.destination_chain_id":
+		x.DestinationChainId = ""
+	case "band.tunnel.v1beta1.RouterRoute.destination_contract_address":
+		x.DestinationContractAddress = ""
+	case "band.tunnel.v1beta1.RouterRoute.destination_gas_limit":
+		x.DestinationGasLimit = uint64(0)
+	case "band.tunnel.v1beta1.RouterRoute.destination_gas_price":
+		x.DestinationGasPrice = uint64(0)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.RouterRoute"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.RouterRoute does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_RouterRoute) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	case "band.tunnel.v1beta1.RouterRoute.destination_chain_id":
+		value := x.DestinationChainId
+		return protoreflect.ValueOfString(value)
+	case "band.tunnel.v1beta1.RouterRoute.destination_contract_address":
+		value := x.DestinationContractAddress
+		return protoreflect.ValueOfString(value)
+	case "band.tunnel.v1beta1.RouterRoute.destination_gas_limit":
+		value := x.DestinationGasLimit
+		return protoreflect.ValueOfUint64(value)
+	case "band.tunnel.v1beta1.RouterRoute.destination_gas_price":
+		value := x.DestinationGasPrice
+		return protoreflect.ValueOfUint64(value)
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.RouterRoute"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.RouterRoute does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_RouterRoute) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.RouterRoute.destination_chain_id":
+		x.DestinationChainId = value.Interface().(string)
+	case "band.tunnel.v1beta1.RouterRoute.destination_contract_address":
+		x.DestinationContractAddress = value.Interface().(string)
+	case "band.tunnel.v1beta1.RouterRoute.destination_gas_limit":
+		x.DestinationGasLimit = value.Uint()
+	case "band.tunnel.v1beta1.RouterRoute.destination_gas_price":
+		x.DestinationGasPrice = value.Uint()
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.RouterRoute"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.RouterRoute does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_RouterRoute) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.RouterRoute.destination_chain_id":
+		panic(fmt.Errorf("field destination_chain_id of message band.tunnel.v1beta1.RouterRoute is not mutable"))
+	case "band.tunnel.v1beta1.RouterRoute.destination_contract_address":
+		panic(fmt.Errorf("field destination_contract_address of message band.tunnel.v1beta1.RouterRoute is not mutable"))
+	case "band.tunnel.v1beta1.RouterRoute.destination_gas_limit":
+		panic(fmt.Errorf("field destination_gas_limit of message band.tunnel.v1beta1.RouterRoute is not mutable"))
+	case "band.tunnel.v1beta1.RouterRoute.destination_gas_price":
+		panic(fmt.Errorf("field destination_gas_price of message band.tunnel.v1beta1.RouterRoute is not mutable"))
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.RouterRoute"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.RouterRoute does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_RouterRoute) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.RouterRoute.destination_chain_id":
+		return protoreflect.ValueOfString("")
+	case "band.tunnel.v1beta1.RouterRoute.destination_contract_address":
+		return protoreflect.ValueOfString("")
+	case "band.tunnel.v1beta1.RouterRoute.destination_gas_limit":
+		return protoreflect.ValueOfUint64(uint64(0))
+	case "band.tunnel.v1beta1.RouterRoute.destination_gas_price":
+		return protoreflect.ValueOfUint64(uint64(0))
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.RouterRoute"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.RouterRoute does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_RouterRoute) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.RouterRoute", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_RouterRoute) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_RouterRoute) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_RouterRoute) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_RouterRoute) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*RouterRoute)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		l = len(x.DestinationChainId)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		l = len(x.DestinationContractAddress)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.DestinationGasLimit != 0 {
+			n += 1 + runtime.Sov(uint64(x.DestinationGasLimit))
+		}
+		if x.DestinationGasPrice != 0 {
+			n += 1 + runtime.Sov(uint64(x.DestinationGasPrice))
+		}
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*RouterRoute)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if x.DestinationGasPrice != 0 {
+			i = runtime.EncodeVarint(dAtA, i, uint64(x.DestinationGasPrice))
+			i--
+			dAtA[i] = 0x30
+		}
+		if x.DestinationGasLimit != 0 {
+			i = runtime.EncodeVarint(dAtA, i, uint64(x.DestinationGasLimit))
+			i--
+			dAtA[i] = 0x28
+		}
+		if len(x.DestinationContractAddress) > 0 {
+			i -= len(x.DestinationContractAddress)
+			copy(dAtA[i:], x.DestinationContractAddress)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.DestinationContractAddress)))
+			i--
+			dAtA[i] = 0x22
+		}
+		if len(x.DestinationChainId) > 0 {
+			i -= len(x.DestinationChainId)
+			copy(dAtA[i:], x.DestinationChainId)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.DestinationChainId)))
+			i--
+			dAtA[i] = 0x1a
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*RouterRoute)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: RouterRoute: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: RouterRoute: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			case 3:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field DestinationChainId", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.DestinationChainId = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
+			case 4:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field DestinationContractAddress", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.DestinationContractAddress = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
+			case 5:
+				if wireType != 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field DestinationGasLimit", wireType)
+				}
+				x.DestinationGasLimit = 0
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					x.DestinationGasLimit |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+			case 6:
+				if wireType != 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field DestinationGasPrice", wireType)
+				}
+				x.DestinationGasPrice = 0
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					x.DestinationGasPrice |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
+var (
+	md_RouterPacketReceipt          protoreflect.MessageDescriptor
+	fd_RouterPacketReceipt_sequence protoreflect.FieldDescriptor
+)
+
+func init() {
+	file_band_tunnel_v1beta1_route_proto_init()
+	md_RouterPacketReceipt = File_band_tunnel_v1beta1_route_proto.Messages().ByName("RouterPacketReceipt")
+	fd_RouterPacketReceipt_sequence = md_RouterPacketReceipt.Fields().ByName("sequence")
+}
+
+var _ protoreflect.Message = (*fastReflection_RouterPacketReceipt)(nil)
+
+type fastReflection_RouterPacketReceipt RouterPacketReceipt
+
+func (x *RouterPacketReceipt) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_RouterPacketReceipt)(x)
+}
+
+func (x *RouterPacketReceipt) slowProtoReflect() protoreflect.Message {
+	mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_RouterPacketReceipt_messageType fastReflection_RouterPacketReceipt_messageType
+var _ protoreflect.MessageType = fastReflection_RouterPacketReceipt_messageType{}
+
+type fastReflection_RouterPacketReceipt_messageType struct{}
+
+func (x fastReflection_RouterPacketReceipt_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_RouterPacketReceipt)(nil)
+}
+func (x fastReflection_RouterPacketReceipt_messageType) New() protoreflect.Message {
+	return new(fastReflection_RouterPacketReceipt)
+}
+func (x fastReflection_RouterPacketReceipt_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_RouterPacketReceipt
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_RouterPacketReceipt) Descriptor() protoreflect.MessageDescriptor {
+	return md_RouterPacketReceipt
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_RouterPacketReceipt) Type() protoreflect.MessageType {
+	return _fastReflection_RouterPacketReceipt_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_RouterPacketReceipt) New() protoreflect.Message {
+	return new(fastReflection_RouterPacketReceipt)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_RouterPacketReceipt) Interface() protoreflect.ProtoMessage {
+	return (*RouterPacketReceipt)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_RouterPacketReceipt) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if x.Sequence != uint64(0) {
+		value := protoreflect.ValueOfUint64(x.Sequence)
+		if !f(fd_RouterPacketReceipt_sequence, value) {
+			return
+		}
+	}
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_RouterPacketReceipt) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.RouterPacketReceipt.sequence":
+		return x.Sequence != uint64(0)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.RouterPacketReceipt"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.RouterPacketReceipt does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_RouterPacketReceipt) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.RouterPacketReceipt.sequence":
+		x.Sequence = uint64(0)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.RouterPacketReceipt"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.RouterPacketReceipt does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_RouterPacketReceipt) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	case "band.tunnel.v1beta1.RouterPacketReceipt.sequence":
+		value := x.Sequence
+		return protoreflect.ValueOfUint64(value)
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.RouterPacketReceipt"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.RouterPacketReceipt does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_RouterPacketReceipt) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.RouterPacketReceipt.sequence":
+		x.Sequence = value.Uint()
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.RouterPacketReceipt"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.RouterPacketReceipt does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_RouterPacketReceipt) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.RouterPacketReceipt.sequence":
+		panic(fmt.Errorf("field sequence of message band.tunnel.v1beta1.RouterPacketReceipt is not mutable"))
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.RouterPacketReceipt"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.RouterPacketReceipt does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_RouterPacketReceipt) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.RouterPacketReceipt.sequence":
+		return protoreflect.ValueOfUint64(uint64(0))
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.RouterPacketReceipt"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.RouterPacketReceipt does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_RouterPacketReceipt) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.RouterPacketReceipt", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_RouterPacketReceipt) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_RouterPacketReceipt) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_RouterPacketReceipt) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_RouterPacketReceipt) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*RouterPacketReceipt)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		if x.Sequence != 0 {
+			n += 1 + runtime.Sov(uint64(x.Sequence))
+		}
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*RouterPacketReceipt)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if x.Sequence != 0 {
+			i = runtime.EncodeVarint(dAtA, i, uint64(x.Sequence))
+			i--
+			dAtA[i] = 0x8
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*RouterPacketReceipt)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: RouterPacketReceipt: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: RouterPacketReceipt: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			case 1:
+				if wireType != 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Sequence", wireType)
+				}
+				x.Sequence = 0
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					x.Sequence |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
 // Code generated by protoc-gen-go. DO NOT EDIT.
 // versions:
 // 	protoc-gen-go v1.27.0
@@ -4545,116 +4464,6 @@ func (x *IBCPacketReceipt) GetSequence() uint64 {
 	return 0
 }
 
-// RouterRoute is the type for a router route
-type RouterRoute struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	// fund is the fund allocated for the Router fee.
-	Fund *v1beta11.Coin `protobuf:"bytes,1,opt,name=fund,proto3" json:"fund,omitempty"`
-	// dest_chain_id is the destination chain ID
-	DestChainId string `protobuf:"bytes,3,opt,name=dest_chain_id,json=destChainId,proto3" json:"dest_chain_id,omitempty"`
-	// dest_contract_address is the destination contract address
-	DestContractAddress string `protobuf:"bytes,4,opt,name=dest_contract_address,json=destContractAddress,proto3" json:"dest_contract_address,omitempty"`
-	// dest_gas_limit is the destination gas limit
-	DestGasLimit uint64 `protobuf:"varint,5,opt,name=dest_gas_limit,json=destGasLimit,proto3" json:"dest_gas_limit,omitempty"`
-	// dest_gas_price is the destination gas price
-	DestGasPrice uint64 `protobuf:"varint,6,opt,name=dest_gas_price,json=destGasPrice,proto3" json:"dest_gas_price,omitempty"`
-}
-
-func (x *RouterRoute) Reset() {
-	*x = RouterRoute{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[4]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *RouterRoute) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RouterRoute) ProtoMessage() {}
-
-// Deprecated: Use RouterRoute.ProtoReflect.Descriptor instead.
-func (*RouterRoute) Descriptor() ([]byte, []int) {
-	return file_band_tunnel_v1beta1_route_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *RouterRoute) GetFund() *v1beta11.Coin {
-	if x != nil {
-		return x.Fund
-	}
-	return nil
-}
-
-func (x *RouterRoute) GetDestChainId() string {
-	if x != nil {
-		return x.DestChainId
-	}
-	return ""
-}
-
-func (x *RouterRoute) GetDestContractAddress() string {
-	if x != nil {
-		return x.DestContractAddress
-	}
-	return ""
-}
-
-func (x *RouterRoute) GetDestGasLimit() uint64 {
-	if x != nil {
-		return x.DestGasLimit
-	}
-	return 0
-}
-
-func (x *RouterRoute) GetDestGasPrice() uint64 {
-	if x != nil {
-		return x.DestGasPrice
-	}
-	return 0
-}
-
-// RouterPacketReceipt represents a receipt for a Router packet and implements the PacketReceiptI interface.
-type RouterPacketReceipt struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	// sequence is representing the sequence of the IBC packet.
-	Sequence uint64 `protobuf:"varint,1,opt,name=sequence,proto3" json:"sequence,omitempty"`
-}
-
-func (x *RouterPacketReceipt) Reset() {
-	*x = RouterPacketReceipt{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[5]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *RouterPacketReceipt) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RouterPacketReceipt) ProtoMessage() {}
-
-// Deprecated: Use RouterPacketReceipt.ProtoReflect.Descriptor instead.
-func (*RouterPacketReceipt) Descriptor() ([]byte, []int) {
-	return file_band_tunnel_v1beta1_route_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *RouterPacketReceipt) GetSequence() uint64 {
-	if x != nil {
-		return x.Sequence
-	}
-	return 0
-}
-
 // TunnelPricesPacketData represents the IBC packet payload for the tunnel packet.
 type TunnelPricesPacketData struct {
 	state         protoimpl.MessageState
@@ -4674,7 +4483,7 @@ type TunnelPricesPacketData struct {
 func (x *TunnelPricesPacketData) Reset() {
 	*x = TunnelPricesPacketData{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[6]
+		mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4688,7 +4497,7 @@ func (*TunnelPricesPacketData) ProtoMessage() {}
 
 // Deprecated: Use TunnelPricesPacketData.ProtoReflect.Descriptor instead.
 func (*TunnelPricesPacketData) Descriptor() ([]byte, []int) {
-	return file_band_tunnel_v1beta1_route_proto_rawDescGZIP(), []int{6}
+	return file_band_tunnel_v1beta1_route_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *TunnelPricesPacketData) GetTunnelId() uint64 {
@@ -4734,7 +4543,7 @@ type IBCHookRoute struct {
 func (x *IBCHookRoute) Reset() {
 	*x = IBCHookRoute{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[7]
+		mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4748,7 +4557,7 @@ func (*IBCHookRoute) ProtoMessage() {}
 
 // Deprecated: Use IBCHookRoute.ProtoReflect.Descriptor instead.
 func (*IBCHookRoute) Descriptor() ([]byte, []int) {
-	return file_band_tunnel_v1beta1_route_proto_rawDescGZIP(), []int{7}
+	return file_band_tunnel_v1beta1_route_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *IBCHookRoute) GetChannelId() string {
@@ -4778,7 +4587,7 @@ type IBCHookPacketReceipt struct {
 func (x *IBCHookPacketReceipt) Reset() {
 	*x = IBCHookPacketReceipt{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[8]
+		mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -4792,10 +4601,111 @@ func (*IBCHookPacketReceipt) ProtoMessage() {}
 
 // Deprecated: Use IBCHookPacketReceipt.ProtoReflect.Descriptor instead.
 func (*IBCHookPacketReceipt) Descriptor() ([]byte, []int) {
-	return file_band_tunnel_v1beta1_route_proto_rawDescGZIP(), []int{8}
+	return file_band_tunnel_v1beta1_route_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *IBCHookPacketReceipt) GetSequence() uint64 {
+	if x != nil {
+		return x.Sequence
+	}
+	return 0
+}
+
+// RouterRoute is the type for a router route
+type RouterRoute struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// destination_chain_id is the destination chain ID
+	DestinationChainId string `protobuf:"bytes,3,opt,name=destination_chain_id,json=destinationChainId,proto3" json:"destination_chain_id,omitempty"`
+	// destination_contract_address is the destination contract address
+	DestinationContractAddress string `protobuf:"bytes,4,opt,name=destination_contract_address,json=destinationContractAddress,proto3" json:"destination_contract_address,omitempty"`
+	// destination_gas_limit is the destination gas limit
+	DestinationGasLimit uint64 `protobuf:"varint,5,opt,name=destination_gas_limit,json=destinationGasLimit,proto3" json:"destination_gas_limit,omitempty"`
+	// destination_gas_price is the destination gas price
+	DestinationGasPrice uint64 `protobuf:"varint,6,opt,name=destination_gas_price,json=destinationGasPrice,proto3" json:"destination_gas_price,omitempty"`
+}
+
+func (x *RouterRoute) Reset() {
+	*x = RouterRoute{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *RouterRoute) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RouterRoute) ProtoMessage() {}
+
+// Deprecated: Use RouterRoute.ProtoReflect.Descriptor instead.
+func (*RouterRoute) Descriptor() ([]byte, []int) {
+	return file_band_tunnel_v1beta1_route_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *RouterRoute) GetDestinationChainId() string {
+	if x != nil {
+		return x.DestinationChainId
+	}
+	return ""
+}
+
+func (x *RouterRoute) GetDestinationContractAddress() string {
+	if x != nil {
+		return x.DestinationContractAddress
+	}
+	return ""
+}
+
+func (x *RouterRoute) GetDestinationGasLimit() uint64 {
+	if x != nil {
+		return x.DestinationGasLimit
+	}
+	return 0
+}
+
+func (x *RouterRoute) GetDestinationGasPrice() uint64 {
+	if x != nil {
+		return x.DestinationGasPrice
+	}
+	return 0
+}
+
+// RouterPacketReceipt represents a receipt for a Router packet and implements the PacketReceiptI interface.
+type RouterPacketReceipt struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// sequence is representing the sequence of the IBC packet.
+	Sequence uint64 `protobuf:"varint,1,opt,name=sequence,proto3" json:"sequence,omitempty"`
+}
+
+func (x *RouterPacketReceipt) Reset() {
+	*x = RouterPacketReceipt{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *RouterPacketReceipt) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RouterPacketReceipt) ProtoMessage() {}
+
+// Deprecated: Use RouterPacketReceipt.ProtoReflect.Descriptor instead.
+func (*RouterPacketReceipt) Descriptor() ([]byte, []int) {
+	return file_band_tunnel_v1beta1_route_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *RouterPacketReceipt) GetSequence() uint64 {
 	if x != nil {
 		return x.Sequence
 	}
@@ -4808,69 +4718,42 @@ var file_band_tunnel_v1beta1_route_proto_rawDesc = []byte{
 	0x0a, 0x1f, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31,
 	0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74,
 	0x6f, 0x12, 0x13, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76,
-	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x1a, 0x11, 0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2f, 0x61, 0x6d,
-	0x69, 0x6e, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x19, 0x63, 0x6f, 0x73, 0x6d, 0x6f,
-	0x73, 0x5f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x62, 0x61, 0x73,
-	0x65, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x63, 0x6f, 0x69, 0x6e, 0x2e, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x14, 0x67, 0x6f, 0x67, 0x6f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f,
-	0x67, 0x6f, 0x67, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x20, 0x62, 0x61, 0x6e, 0x64,
-	0x2f, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x65,
-	0x6e, 0x63, 0x6f, 0x64, 0x65, 0x72, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1e, 0x62, 0x61,
-	0x6e, 0x64, 0x2f, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
-	0x2f, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xd9, 0x01, 0x0a,
-	0x08, 0x54, 0x53, 0x53, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x12, 0x48, 0x0a, 0x14, 0x64, 0x65, 0x73,
-	0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x5f, 0x69,
-	0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x16, 0xe2, 0xde, 0x1f, 0x12, 0x44, 0x65, 0x73,
-	0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x44, 0x52,
-	0x12, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x69,
-	0x6e, 0x49, 0x64, 0x12, 0x40, 0x0a, 0x1c, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69,
-	0x6f, 0x6e, 0x5f, 0x63, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x5f, 0x61, 0x64, 0x64, 0x72,
-	0x65, 0x73, 0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x1a, 0x64, 0x65, 0x73, 0x74, 0x69,
-	0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x41, 0x64,
-	0x64, 0x72, 0x65, 0x73, 0x73, 0x12, 0x35, 0x0a, 0x07, 0x65, 0x6e, 0x63, 0x6f, 0x64, 0x65, 0x72,
-	0x18, 0x03, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x1b, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65,
-	0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x45, 0x6e, 0x63, 0x6f,
-	0x64, 0x65, 0x72, 0x52, 0x07, 0x65, 0x6e, 0x63, 0x6f, 0x64, 0x65, 0x72, 0x3a, 0x0a, 0xca, 0xb4,
-	0x2d, 0x06, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x49, 0x22, 0x92, 0x01, 0x0a, 0x10, 0x54, 0x53, 0x53,
-	0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x52, 0x65, 0x63, 0x65, 0x69, 0x70, 0x74, 0x12, 0x6a, 0x0a,
-	0x0a, 0x73, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28,
-	0x04, 0x42, 0x4b, 0xe2, 0xde, 0x1f, 0x09, 0x53, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x49, 0x44,
-	0xfa, 0xde, 0x1f, 0x3a, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62,
-	0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69,
-	0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x78, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2f, 0x74,
-	0x79, 0x70, 0x65, 0x73, 0x2e, 0x53, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x49, 0x44, 0x52, 0x09,
-	0x73, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x49, 0x64, 0x3a, 0x12, 0xca, 0xb4, 0x2d, 0x0e, 0x50,
-	0x61, 0x63, 0x6b, 0x65, 0x74, 0x52, 0x65, 0x63, 0x65, 0x69, 0x70, 0x74, 0x49, 0x22, 0x44, 0x0a,
-	0x08, 0x49, 0x42, 0x43, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x12, 0x2c, 0x0a, 0x0a, 0x63, 0x68, 0x61,
-	0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x0d, 0xe2,
-	0xde, 0x1f, 0x09, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x44, 0x52, 0x09, 0x63, 0x68,
-	0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64, 0x3a, 0x0a, 0xca, 0xb4, 0x2d, 0x06, 0x52, 0x6f, 0x75,
-	0x74, 0x65, 0x49, 0x22, 0x42, 0x0a, 0x10, 0x49, 0x42, 0x43, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74,
-	0x52, 0x65, 0x63, 0x65, 0x69, 0x70, 0x74, 0x12, 0x1a, 0x0a, 0x08, 0x73, 0x65, 0x71, 0x75, 0x65,
-	0x6e, 0x63, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x08, 0x73, 0x65, 0x71, 0x75, 0x65,
-	0x6e, 0x63, 0x65, 0x3a, 0x12, 0xca, 0xb4, 0x2d, 0x0e, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x52,
-	0x65, 0x63, 0x65, 0x69, 0x70, 0x74, 0x49, 0x22, 0xb3, 0x02, 0x0a, 0x0b, 0x52, 0x6f, 0x75, 0x74,
-	0x65, 0x72, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x12, 0x63, 0x0a, 0x04, 0x66, 0x75, 0x6e, 0x64, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62,
-	0x61, 0x73, 0x65, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x43, 0x6f, 0x69, 0x6e,
-	0x42, 0x34, 0xc8, 0xde, 0x1f, 0x00, 0xaa, 0xdf, 0x1f, 0x27, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62,
-	0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x63, 0x6f, 0x73, 0x6d,
-	0x6f, 0x73, 0x2d, 0x73, 0x64, 0x6b, 0x2f, 0x74, 0x79, 0x70, 0x65, 0x73, 0x2e, 0x43, 0x6f, 0x69,
-	0x6e, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x04, 0x66, 0x75, 0x6e, 0x64, 0x12, 0x33, 0x0a, 0x0d,
-	0x64, 0x65, 0x73, 0x74, 0x5f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x5f, 0x69, 0x64, 0x18, 0x03, 0x20,
-	0x01, 0x28, 0x09, 0x42, 0x0f, 0xe2, 0xde, 0x1f, 0x0b, 0x44, 0x65, 0x73, 0x74, 0x43, 0x68, 0x61,
-	0x69, 0x6e, 0x49, 0x44, 0x52, 0x0b, 0x64, 0x65, 0x73, 0x74, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49,
-	0x64, 0x12, 0x32, 0x0a, 0x15, 0x64, 0x65, 0x73, 0x74, 0x5f, 0x63, 0x6f, 0x6e, 0x74, 0x72, 0x61,
-	0x63, 0x74, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09,
-	0x52, 0x13, 0x64, 0x65, 0x73, 0x74, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x41, 0x64,
-	0x64, 0x72, 0x65, 0x73, 0x73, 0x12, 0x24, 0x0a, 0x0e, 0x64, 0x65, 0x73, 0x74, 0x5f, 0x67, 0x61,
-	0x73, 0x5f, 0x6c, 0x69, 0x6d, 0x69, 0x74, 0x18, 0x05, 0x20, 0x01, 0x28, 0x04, 0x52, 0x0c, 0x64,
-	0x65, 0x73, 0x74, 0x47, 0x61, 0x73, 0x4c, 0x69, 0x6d, 0x69, 0x74, 0x12, 0x24, 0x0a, 0x0e, 0x64,
-	0x65, 0x73, 0x74, 0x5f, 0x67, 0x61, 0x73, 0x5f, 0x70, 0x72, 0x69, 0x63, 0x65, 0x18, 0x06, 0x20,
-	0x01, 0x28, 0x04, 0x52, 0x0c, 0x64, 0x65, 0x73, 0x74, 0x47, 0x61, 0x73, 0x50, 0x72, 0x69, 0x63,
-	0x65, 0x3a, 0x0a, 0xca, 0xb4, 0x2d, 0x06, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x49, 0x22, 0x45, 0x0a,
-	0x13, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x72, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x52, 0x65, 0x63,
+	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x1a, 0x19, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x5f, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x1a, 0x14, 0x67, 0x6f, 0x67, 0x6f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x6f, 0x67,
+	0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x20, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x66, 0x65,
+	0x65, 0x64, 0x73, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x65, 0x6e, 0x63, 0x6f,
+	0x64, 0x65, 0x72, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1e, 0x62, 0x61, 0x6e, 0x64, 0x2f,
+	0x66, 0x65, 0x65, 0x64, 0x73, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x66, 0x65,
+	0x65, 0x64, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xd9, 0x01, 0x0a, 0x08, 0x54, 0x53,
+	0x53, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x12, 0x48, 0x0a, 0x14, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e,
+	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x5f, 0x69, 0x64, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x09, 0x42, 0x16, 0xe2, 0xde, 0x1f, 0x12, 0x44, 0x65, 0x73, 0x74, 0x69, 0x6e,
+	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x44, 0x52, 0x12, 0x64, 0x65,
+	0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x64,
+	0x12, 0x40, 0x0a, 0x1c, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x5f,
+	0x63, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x1a, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74,
+	0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x41, 0x64, 0x64, 0x72, 0x65,
+	0x73, 0x73, 0x12, 0x35, 0x0a, 0x07, 0x65, 0x6e, 0x63, 0x6f, 0x64, 0x65, 0x72, 0x18, 0x03, 0x20,
+	0x01, 0x28, 0x0e, 0x32, 0x1b, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73,
+	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x45, 0x6e, 0x63, 0x6f, 0x64, 0x65, 0x72,
+	0x52, 0x07, 0x65, 0x6e, 0x63, 0x6f, 0x64, 0x65, 0x72, 0x3a, 0x0a, 0xca, 0xb4, 0x2d, 0x06, 0x52,
+	0x6f, 0x75, 0x74, 0x65, 0x49, 0x22, 0x92, 0x01, 0x0a, 0x10, 0x54, 0x53, 0x53, 0x50, 0x61, 0x63,
+	0x6b, 0x65, 0x74, 0x52, 0x65, 0x63, 0x65, 0x69, 0x70, 0x74, 0x12, 0x6a, 0x0a, 0x0a, 0x73, 0x69,
+	0x67, 0x6e, 0x69, 0x6e, 0x67, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x42, 0x4b,
+	0xe2, 0xde, 0x1f, 0x09, 0x53, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x49, 0x44, 0xfa, 0xde, 0x1f,
+	0x3a, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76,
+	0x33, 0x2f, 0x78, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2f, 0x74, 0x79, 0x70, 0x65,
+	0x73, 0x2e, 0x53, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x49, 0x44, 0x52, 0x09, 0x73, 0x69, 0x67,
+	0x6e, 0x69, 0x6e, 0x67, 0x49, 0x64, 0x3a, 0x12, 0xca, 0xb4, 0x2d, 0x0e, 0x50, 0x61, 0x63, 0x6b,
+	0x65, 0x74, 0x52, 0x65, 0x63, 0x65, 0x69, 0x70, 0x74, 0x49, 0x22, 0x44, 0x0a, 0x08, 0x49, 0x42,
+	0x43, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x12, 0x2c, 0x0a, 0x0a, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65,
+	0x6c, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x0d, 0xe2, 0xde, 0x1f, 0x09,
+	0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x44, 0x52, 0x09, 0x63, 0x68, 0x61, 0x6e, 0x6e,
+	0x65, 0x6c, 0x49, 0x64, 0x3a, 0x0a, 0xca, 0xb4, 0x2d, 0x06, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x49,
+	0x22, 0x42, 0x0a, 0x10, 0x49, 0x42, 0x43, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x52, 0x65, 0x63,
 	0x65, 0x69, 0x70, 0x74, 0x12, 0x1a, 0x0a, 0x08, 0x73, 0x65, 0x71, 0x75, 0x65, 0x6e, 0x63, 0x65,
 	0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x08, 0x73, 0x65, 0x71, 0x75, 0x65, 0x6e, 0x63, 0x65,
 	0x3a, 0x12, 0xca, 0xb4, 0x2d, 0x0e, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x52, 0x65, 0x63, 0x65,
@@ -4899,21 +4782,43 @@ var file_band_tunnel_v1beta1_route_proto_rawDesc = []byte{
 	0x69, 0x70, 0x74, 0x12, 0x1a, 0x0a, 0x08, 0x73, 0x65, 0x71, 0x75, 0x65, 0x6e, 0x63, 0x65, 0x18,
 	0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x08, 0x73, 0x65, 0x71, 0x75, 0x65, 0x6e, 0x63, 0x65, 0x3a,
 	0x12, 0xca, 0xb4, 0x2d, 0x0e, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x43, 0x6f, 0x6e, 0x74, 0x65,
-	0x6e, 0x74, 0x49, 0x42, 0xdf, 0x01, 0x0a, 0x17, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e, 0x64,
-	0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42,
-	0x0a, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x46, 0x67,
-	0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f,
-	0x61, 0x70, 0x69, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f,
-	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x3b, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x76, 0x31,
-	0x62, 0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x42, 0x54, 0x58, 0xaa, 0x02, 0x13, 0x42, 0x61,
-	0x6e, 0x64, 0x2e, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61,
-	0x31, 0xca, 0x02, 0x13, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5c,
-	0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xe2, 0x02, 0x1f, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x54,
-	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x5c, 0x47, 0x50,
-	0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x15, 0x42, 0x61, 0x6e, 0x64,
-	0x3a, 0x3a, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61,
-	0x31, 0xa8, 0xe2, 0x1e, 0x01, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x6e, 0x74, 0x49, 0x22, 0x8d, 0x02, 0x0a, 0x0b, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x72, 0x52, 0x6f,
+	0x75, 0x74, 0x65, 0x12, 0x48, 0x0a, 0x14, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69,
+	0x6f, 0x6e, 0x5f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x5f, 0x69, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28,
+	0x09, 0x42, 0x16, 0xe2, 0xde, 0x1f, 0x12, 0x44, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69,
+	0x6f, 0x6e, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x44, 0x52, 0x12, 0x64, 0x65, 0x73, 0x74, 0x69,
+	0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x64, 0x12, 0x40, 0x0a,
+	0x1c, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x63, 0x6f, 0x6e,
+	0x74, 0x72, 0x61, 0x63, 0x74, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x04, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x1a, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e,
+	0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x12,
+	0x32, 0x0a, 0x15, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x67,
+	0x61, 0x73, 0x5f, 0x6c, 0x69, 0x6d, 0x69, 0x74, 0x18, 0x05, 0x20, 0x01, 0x28, 0x04, 0x52, 0x13,
+	0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x47, 0x61, 0x73, 0x4c, 0x69,
+	0x6d, 0x69, 0x74, 0x12, 0x32, 0x0a, 0x15, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69,
+	0x6f, 0x6e, 0x5f, 0x67, 0x61, 0x73, 0x5f, 0x70, 0x72, 0x69, 0x63, 0x65, 0x18, 0x06, 0x20, 0x01,
+	0x28, 0x04, 0x52, 0x13, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x47,
+	0x61, 0x73, 0x50, 0x72, 0x69, 0x63, 0x65, 0x3a, 0x0a, 0xca, 0xb4, 0x2d, 0x06, 0x52, 0x6f, 0x75,
+	0x74, 0x65, 0x49, 0x22, 0x45, 0x0a, 0x13, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x72, 0x50, 0x61, 0x63,
+	0x6b, 0x65, 0x74, 0x52, 0x65, 0x63, 0x65, 0x69, 0x70, 0x74, 0x12, 0x1a, 0x0a, 0x08, 0x73, 0x65,
+	0x71, 0x75, 0x65, 0x6e, 0x63, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x08, 0x73, 0x65,
+	0x71, 0x75, 0x65, 0x6e, 0x63, 0x65, 0x3a, 0x12, 0xca, 0xb4, 0x2d, 0x0e, 0x50, 0x61, 0x63, 0x6b,
+	0x65, 0x74, 0x52, 0x65, 0x63, 0x65, 0x69, 0x70, 0x74, 0x49, 0x42, 0xdf, 0x01, 0x0a, 0x17, 0x63,
+	0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76,
+	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42, 0x0a, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x50, 0x72, 0x6f,
+	0x74, 0x6f, 0x50, 0x01, 0x5a, 0x46, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d,
+	0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68,
+	0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x2f,
+	0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x3b, 0x74,
+	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x42,
+	0x54, 0x58, 0xaa, 0x02, 0x13, 0x42, 0x61, 0x6e, 0x64, 0x2e, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
+	0x2e, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xca, 0x02, 0x13, 0x42, 0x61, 0x6e, 0x64, 0x5c,
+	0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xe2, 0x02,
+	0x1f, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5c, 0x56, 0x31, 0x62,
+	0x65, 0x74, 0x61, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61,
+	0xea, 0x02, 0x15, 0x42, 0x61, 0x6e, 0x64, 0x3a, 0x3a, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x3a,
+	0x3a, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa8, 0xe2, 0x1e, 0x01, 0x62, 0x06, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -4934,24 +4839,22 @@ var file_band_tunnel_v1beta1_route_proto_goTypes = []interface{}{
 	(*TSSPacketReceipt)(nil),       // 1: band.tunnel.v1beta1.TSSPacketReceipt
 	(*IBCRoute)(nil),               // 2: band.tunnel.v1beta1.IBCRoute
 	(*IBCPacketReceipt)(nil),       // 3: band.tunnel.v1beta1.IBCPacketReceipt
-	(*RouterRoute)(nil),            // 4: band.tunnel.v1beta1.RouterRoute
-	(*RouterPacketReceipt)(nil),    // 5: band.tunnel.v1beta1.RouterPacketReceipt
-	(*TunnelPricesPacketData)(nil), // 6: band.tunnel.v1beta1.TunnelPricesPacketData
-	(*IBCHookRoute)(nil),           // 7: band.tunnel.v1beta1.IBCHookRoute
-	(*IBCHookPacketReceipt)(nil),   // 8: band.tunnel.v1beta1.IBCHookPacketReceipt
+	(*TunnelPricesPacketData)(nil), // 4: band.tunnel.v1beta1.TunnelPricesPacketData
+	(*IBCHookRoute)(nil),           // 5: band.tunnel.v1beta1.IBCHookRoute
+	(*IBCHookPacketReceipt)(nil),   // 6: band.tunnel.v1beta1.IBCHookPacketReceipt
+	(*RouterRoute)(nil),            // 7: band.tunnel.v1beta1.RouterRoute
+	(*RouterPacketReceipt)(nil),    // 8: band.tunnel.v1beta1.RouterPacketReceipt
 	(v1beta1.Encoder)(0),           // 9: band.feeds.v1beta1.Encoder
-	(*v1beta11.Coin)(nil),          // 10: cosmos.base.v1beta1.Coin
-	(*v1beta1.Price)(nil),          // 11: band.feeds.v1beta1.Price
+	(*v1beta1.Price)(nil),          // 10: band.feeds.v1beta1.Price
 }
 var file_band_tunnel_v1beta1_route_proto_depIdxs = []int32{
 	9,  // 0: band.tunnel.v1beta1.TSSRoute.encoder:type_name -> band.feeds.v1beta1.Encoder
-	10, // 1: band.tunnel.v1beta1.RouterRoute.fund:type_name -> cosmos.base.v1beta1.Coin
-	11, // 2: band.tunnel.v1beta1.TunnelPricesPacketData.prices:type_name -> band.feeds.v1beta1.Price
-	3,  // [3:3] is the sub-list for method output_type
-	3,  // [3:3] is the sub-list for method input_type
-	3,  // [3:3] is the sub-list for extension type_name
-	3,  // [3:3] is the sub-list for extension extendee
-	0,  // [0:3] is the sub-list for field type_name
+	10, // 1: band.tunnel.v1beta1.TunnelPricesPacketData.prices:type_name -> band.feeds.v1beta1.Price
+	2,  // [2:2] is the sub-list for method output_type
+	2,  // [2:2] is the sub-list for method input_type
+	2,  // [2:2] is the sub-list for extension type_name
+	2,  // [2:2] is the sub-list for extension extendee
+	0,  // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_band_tunnel_v1beta1_route_proto_init() }
@@ -5009,30 +4912,6 @@ func file_band_tunnel_v1beta1_route_proto_init() {
 			}
 		}
 		file_band_tunnel_v1beta1_route_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RouterRoute); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_band_tunnel_v1beta1_route_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RouterPacketReceipt); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_band_tunnel_v1beta1_route_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*TunnelPricesPacketData); i {
 			case 0:
 				return &v.state
@@ -5044,7 +4923,7 @@ func file_band_tunnel_v1beta1_route_proto_init() {
 				return nil
 			}
 		}
-		file_band_tunnel_v1beta1_route_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_route_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*IBCHookRoute); i {
 			case 0:
 				return &v.state
@@ -5056,8 +4935,32 @@ func file_band_tunnel_v1beta1_route_proto_init() {
 				return nil
 			}
 		}
-		file_band_tunnel_v1beta1_route_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_route_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*IBCHookPacketReceipt); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_band_tunnel_v1beta1_route_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*RouterRoute); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_band_tunnel_v1beta1_route_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*RouterPacketReceipt); i {
 			case 0:
 				return &v.state
 			case 1:

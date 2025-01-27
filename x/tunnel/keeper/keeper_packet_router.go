@@ -31,12 +31,18 @@ func (k Keeper) SendRouterPacket(
 	// create memo string for ibc transfer
 	memoStr, err := types.NewRouterMemo(
 		routerIntegrationContract,
-		route.DestChainID,
-		route.DestContractAddress,
-		route.DestGasLimit,
-		route.DestGasPrice,
+		route.DestinationChainID,
+		route.DestinationContractAddress,
+		route.DestinationGasLimit,
+		route.DestinationGasPrice,
 		base64.StdEncoding.EncodeToString(relayPacket),
 	).String()
+	if err != nil {
+		return nil, err
+	}
+
+	// mint coin to the fee payer
+	err = k.MintIBCHookCoinToAccount(ctx, packet.TunnelID, feePayer)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +50,7 @@ func (k Keeper) SendRouterPacket(
 	msg := ibctransfertypes.NewMsgTransfer(
 		ibctransfertypes.PortID,
 		routerIBCChannel,
-		route.Fund,
+		sdk.NewInt64Coin(types.FormatHookDenomIdentifier(packet.TunnelID), types.HookTransferAmount),
 		feePayer.String(),
 		routerIntegrationContract,
 		clienttypes.ZeroHeight(),

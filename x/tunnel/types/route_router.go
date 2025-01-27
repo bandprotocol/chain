@@ -1,24 +1,20 @@
 package types
 
-import sdk "github.com/cosmos/cosmos-sdk/types"
-
 // RouterRoute defines the Router route for the tunnel module
 var _ RouteI = &RouterRoute{}
 
 // NewRouterRoute creates a new RouterRoute instance.
 func NewRouterRoute(
-	fund sdk.Coin,
-	destChinID string,
-	destContractAddress string,
-	destGasLimit uint64,
-	destGasPrice uint64,
+	destinationChinID string,
+	destinationContractAddress string,
+	destinationGasLimit uint64,
+	destinationGasPrice uint64,
 ) *RouterRoute {
 	return &RouterRoute{
-		Fund:                fund,
-		DestChainID:         destChinID,
-		DestContractAddress: destContractAddress,
-		DestGasLimit:        destGasLimit,
-		DestGasPrice:        destGasPrice,
+		DestinationChainID:         destinationChinID,
+		DestinationContractAddress: destinationContractAddress,
+		DestinationGasLimit:        destinationGasLimit,
+		DestinationGasPrice:        destinationGasPrice,
 	}
 }
 

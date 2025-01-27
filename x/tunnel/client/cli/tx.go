@@ -209,44 +209,39 @@ func GetTxCmdCreateIBCHookTunnel() *cobra.Command {
 
 func GetTxCmdCreateRouterTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "router [fund] [dest-chain-id] [dest-contract-address] [dest-gas-limit] [dest-gas-price] [initial-deposit] [interval] [signalDeviations-json-file]",
+		Use:   "router [destination-chain-id] [destination-contract-address] [destination-gas-limit] [destination-gas-price] [initial-deposit] [interval] [signalDeviations-json-file]",
 		Short: "Create a new router tunnel",
-		Args:  cobra.ExactArgs(8),
+		Args:  cobra.ExactArgs(7),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			fund, err := sdk.ParseCoinNormalized(args[0])
+			destinationChainID := args[0]
+			destinationContractAddress := args[1]
+
+			destinationGasLimit, err := strconv.ParseUint(args[2], 10, 64)
 			if err != nil {
 				return err
 			}
 
-			destChainID := args[1]
-			destContractAddr := args[2]
-
-			destGasLimit, err := strconv.ParseUint(args[3], 10, 64)
+			destinationGasPrice, err := strconv.ParseUint(args[3], 10, 64)
 			if err != nil {
 				return err
 			}
 
-			destGasPrice, err := strconv.ParseUint(args[4], 10, 64)
+			initialDeposit, err := sdk.ParseCoinsNormalized(args[4])
 			if err != nil {
 				return err
 			}
 
-			initialDeposit, err := sdk.ParseCoinsNormalized(args[5])
+			interval, err := strconv.ParseUint(args[5], 10, 64)
 			if err != nil {
 				return err
 			}
 
-			interval, err := strconv.ParseUint(args[6], 10, 64)
-			if err != nil {
-				return err
-			}
-
-			signalDeviations, err := parseSignalDeviations(args[7])
+			signalDeviations, err := parseSignalDeviations(args[6])
 			if err != nil {
 				return err
 			}
@@ -254,11 +249,10 @@ func GetTxCmdCreateRouterTunnel() *cobra.Command {
 			msg, err := types.NewMsgCreateRouterTunnel(
 				signalDeviations.ToSignalDeviations(),
 				interval,
-				fund,
-				destChainID,
-				destContractAddr,
-				destGasLimit,
-				destGasPrice,
+				destinationChainID,
+				destinationContractAddress,
+				destinationGasLimit,
+				destinationGasPrice,
 				initialDeposit,
 				clientCtx.GetFromAddress().String(),
 			)
@@ -366,9 +360,9 @@ func GetTxCmdUpdateIBCHookRoute() *cobra.Command {
 
 func GetTxCmdUpdateRouterRoute() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "router [tunnel-id] [fund] [dest-chain-id] [dest-contract-address] [dest-gas-limit] [dest-gas-price]",
+		Use:   "router [tunnel-id] [destination-chain-id] [destination-contract-address] [destination-gas-limit] [destination-gas-price]",
 		Short: "Update router route of a router tunnel",
-		Args:  cobra.ExactArgs(6),
+		Args:  cobra.ExactArgs(5),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -380,31 +374,25 @@ func GetTxCmdUpdateRouterRoute() *cobra.Command {
 				return err
 			}
 
-			fund, err := sdk.ParseCoinNormalized(args[1])
+			destinationChainID := args[1]
+			destinationContractAddr := args[2]
+
+			destinationGasLimit, err := strconv.ParseUint(args[3], 10, 64)
 			if err != nil {
 				return err
 			}
 
-			destChainID := args[2]
-			destContractAddr := args[3]
-
-			destGasLimit, err := strconv.ParseUint(args[4], 10, 64)
-			if err != nil {
-				return err
-			}
-
-			destGasPrice, err := strconv.ParseUint(args[5], 10, 64)
+			destinationGasPrice, err := strconv.ParseUint(args[4], 10, 64)
 			if err != nil {
 				return err
 			}
 
 			msg, err := types.NewMsgUpdateRouterRoute(
 				id,
-				fund,
-				destChainID,
-				destContractAddr,
-				destGasLimit,
-				destGasPrice,
+				destinationChainID,
+				destinationContractAddr,
+				destinationGasLimit,
+				destinationGasPrice,
 				clientCtx.GetFromAddress().String(),
 			)
 			if err != nil {
