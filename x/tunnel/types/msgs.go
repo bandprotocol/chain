@@ -120,6 +120,29 @@ func NewMsgCreateRouterTunnel(
 	return m, nil
 }
 
+// NewMsgCreateHyperlaneStrideTunnel creates a new MsgCreateTunnel instance for HyperlaneStride tunnel.
+func NewMsgCreateHyperlaneStrideTunnel(
+	signalDeviations []SignalDeviation,
+	interval uint64,
+	dispatchDestDomain uint64,
+	dispatchRecipientAddr string,
+	fund sdk.Coin,
+	initialDeposit sdk.Coins,
+	creator string,
+) (*MsgCreateTunnel, error) {
+	r := &HyperlaneStrideRoute{
+		DispatchDestDomain:    dispatchDestDomain,
+		DispatchRecipientAddr: dispatchRecipientAddr,
+		Fund:                  fund,
+	}
+	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, initialDeposit, creator)
+	if err != nil {
+		return nil, err
+	}
+
+	return m, nil
+}
+
 // GetRouteValue returns the route of the tunnel.
 func (m MsgCreateTunnel) GetRouteValue() (RouteI, error) {
 	r, ok := m.Route.GetCachedValue().(RouteI)

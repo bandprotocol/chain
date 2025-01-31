@@ -31,4 +31,10 @@ message Params {
   // router_integration_contract specifies the address of the router integration contract on the router chain
   // that the tunnel module will interact with.
   string router_integration_contract = 9 [(gogoproto.customname) = "RouterIntegrationContract"];
+  // hyperlane_stride_ibc_channel specifies the IBC channel used by the hyperlane stride route to communicate with the
+  // tunnel module.
+  string hyperlane_stride_ibc_channel = 10 [(gogoproto.customname) = "HyperlaneStrideIBCChannel"];
+  // hyperlane_integration_contract specifies the address of the hyperlane stride integration contract on the stride
+  // chain that the tunnel module will interact with.
+  string hyperlane_stride_integration_contract = 11 [(gogoproto.customname) = "HyperlaneStrideIntegrationContract"];
 }

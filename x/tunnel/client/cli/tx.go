@@ -53,6 +53,7 @@ func GetTxCmdCreateTunnel() *cobra.Command {
 		GetTxCmdCreateIBCTunnel(),
 		GetTxCmdCreateIBCHookTunnel(),
 		GetTxCmdCreateRouterTunnel(),
+		GetTxCmdCreateHyperlaneStrideTunnel(),
 	)
 
 	return txCmd
@@ -253,6 +254,64 @@ func GetTxCmdCreateRouterTunnel() *cobra.Command {
 				destinationContractAddress,
 				destinationGasLimit,
 				destinationGasPrice,
+				initialDeposit,
+				clientCtx.GetFromAddress().String(),
+			)
+			if err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+func GetTxCmdCreateHyperlaneStrideTunnel() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "hyperlane-stride [dispatch-destination-domain] [dispatch-recipient-address] [fund] [initial-deposit] [interval] [signalDeviations-json-file]",
+		Short: "Create a new hyperlane stride tunnel",
+		Args:  cobra.ExactArgs(6),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			dispatchDestDomain, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+			dispatchRecipientAddr := args[1]
+
+			fund, err := sdk.ParseCoinNormalized(args[2])
+			if err != nil {
+				return err
+			}
+
+			initialDeposit, err := sdk.ParseCoinsNormalized(args[3])
+			if err != nil {
+				return err
+			}
+
+			interval, err := strconv.ParseUint(args[4], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			signalDeviations, err := parseSignalDeviations(args[5])
+			if err != nil {
+				return err
+			}
+
+			msg, err := types.NewMsgCreateHyperlaneStrideTunnel(
+				signalDeviations.ToSignalDeviations(),
+				interval,
+				dispatchDestDomain,
+				dispatchRecipientAddr,
+				fund,
 				initialDeposit,
 				clientCtx.GetFromAddress().String(),
 			)

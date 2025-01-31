@@ -117,16 +117,18 @@ func (x *_Params_7_list) IsValid() bool {
 }
 
 var (
-	md_Params                             protoreflect.MessageDescriptor
-	fd_Params_min_deposit                 protoreflect.FieldDescriptor
-	fd_Params_min_interval                protoreflect.FieldDescriptor
-	fd_Params_max_interval                protoreflect.FieldDescriptor
-	fd_Params_min_deviation_bps           protoreflect.FieldDescriptor
-	fd_Params_max_deviation_bps           protoreflect.FieldDescriptor
-	fd_Params_max_signals                 protoreflect.FieldDescriptor
-	fd_Params_base_packet_fee             protoreflect.FieldDescriptor
-	fd_Params_router_ibc_channel          protoreflect.FieldDescriptor
-	fd_Params_router_integration_contract protoreflect.FieldDescriptor
+	md_Params                                       protoreflect.MessageDescriptor
+	fd_Params_min_deposit                           protoreflect.FieldDescriptor
+	fd_Params_min_interval                          protoreflect.FieldDescriptor
+	fd_Params_max_interval                          protoreflect.FieldDescriptor
+	fd_Params_min_deviation_bps                     protoreflect.FieldDescriptor
+	fd_Params_max_deviation_bps                     protoreflect.FieldDescriptor
+	fd_Params_max_signals                           protoreflect.FieldDescriptor
+	fd_Params_base_packet_fee                       protoreflect.FieldDescriptor
+	fd_Params_router_ibc_channel                    protoreflect.FieldDescriptor
+	fd_Params_router_integration_contract           protoreflect.FieldDescriptor
+	fd_Params_hyperlane_stride_ibc_channel          protoreflect.FieldDescriptor
+	fd_Params_hyperlane_stride_integration_contract protoreflect.FieldDescriptor
 )
 
 func init() {
@@ -141,6 +143,8 @@ func init() {
 	fd_Params_base_packet_fee = md_Params.Fields().ByName("base_packet_fee")
 	fd_Params_router_ibc_channel = md_Params.Fields().ByName("router_ibc_channel")
 	fd_Params_router_integration_contract = md_Params.Fields().ByName("router_integration_contract")
+	fd_Params_hyperlane_stride_ibc_channel = md_Params.Fields().ByName("hyperlane_stride_ibc_channel")
+	fd_Params_hyperlane_stride_integration_contract = md_Params.Fields().ByName("hyperlane_stride_integration_contract")
 }
 
 var _ protoreflect.Message = (*fastReflection_Params)(nil)
@@ -262,6 +266,18 @@ func (x *fastReflection_Params) Range(f func(protoreflect.FieldDescriptor, proto
 			return
 		}
 	}
+	if x.HyperlaneStrideIbcChannel != "" {
+		value := protoreflect.ValueOfString(x.HyperlaneStrideIbcChannel)
+		if !f(fd_Params_hyperlane_stride_ibc_channel, value) {
+			return
+		}
+	}
+	if x.HyperlaneStrideIntegrationContract != "" {
+		value := protoreflect.ValueOfString(x.HyperlaneStrideIntegrationContract)
+		if !f(fd_Params_hyperlane_stride_integration_contract, value) {
+			return
+		}
+	}
 }
 
 // Has reports whether a field is populated.
@@ -295,6 +311,10 @@ func (x *fastReflection_Params) Has(fd protoreflect.FieldDescriptor) bool {
 		return x.RouterIbcChannel != ""
 	case "band.tunnel.v1beta1.Params.router_integration_contract":
 		return x.RouterIntegrationContract != ""
+	case "band.tunnel.v1beta1.Params.hyperlane_stride_ibc_channel":
+		return x.HyperlaneStrideIbcChannel != ""
+	case "band.tunnel.v1beta1.Params.hyperlane_stride_integration_contract":
+		return x.HyperlaneStrideIntegrationContract != ""
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.Params"))
@@ -329,6 +349,10 @@ func (x *fastReflection_Params) Clear(fd protoreflect.FieldDescriptor) {
 		x.RouterIbcChannel = ""
 	case "band.tunnel.v1beta1.Params.router_integration_contract":
 		x.RouterIntegrationContract = ""
+	case "band.tunnel.v1beta1.Params.hyperlane_stride_ibc_channel":
+		x.HyperlaneStrideIbcChannel = ""
+	case "band.tunnel.v1beta1.Params.hyperlane_stride_integration_contract":
+		x.HyperlaneStrideIntegrationContract = ""
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.Params"))
@@ -378,6 +402,12 @@ func (x *fastReflection_Params) Get(descriptor protoreflect.FieldDescriptor) pro
 	case "band.tunnel.v1beta1.Params.router_integration_contract":
 		value := x.RouterIntegrationContract
 		return protoreflect.ValueOfString(value)
+	case "band.tunnel.v1beta1.Params.hyperlane_stride_ibc_channel":
+		value := x.HyperlaneStrideIbcChannel
+		return protoreflect.ValueOfString(value)
+	case "band.tunnel.v1beta1.Params.hyperlane_stride_integration_contract":
+		value := x.HyperlaneStrideIntegrationContract
+		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.Params"))
@@ -420,6 +450,10 @@ func (x *fastReflection_Params) Set(fd protoreflect.FieldDescriptor, value proto
 		x.RouterIbcChannel = value.Interface().(string)
 	case "band.tunnel.v1beta1.Params.router_integration_contract":
 		x.RouterIntegrationContract = value.Interface().(string)
+	case "band.tunnel.v1beta1.Params.hyperlane_stride_ibc_channel":
+		x.HyperlaneStrideIbcChannel = value.Interface().(string)
+	case "band.tunnel.v1beta1.Params.hyperlane_stride_integration_contract":
+		x.HyperlaneStrideIntegrationContract = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.Params"))
@@ -466,6 +500,10 @@ func (x *fastReflection_Params) Mutable(fd protoreflect.FieldDescriptor) protore
 		panic(fmt.Errorf("field router_ibc_channel of message band.tunnel.v1beta1.Params is not mutable"))
 	case "band.tunnel.v1beta1.Params.router_integration_contract":
 		panic(fmt.Errorf("field router_integration_contract of message band.tunnel.v1beta1.Params is not mutable"))
+	case "band.tunnel.v1beta1.Params.hyperlane_stride_ibc_channel":
+		panic(fmt.Errorf("field hyperlane_stride_ibc_channel of message band.tunnel.v1beta1.Params is not mutable"))
+	case "band.tunnel.v1beta1.Params.hyperlane_stride_integration_contract":
+		panic(fmt.Errorf("field hyperlane_stride_integration_contract of message band.tunnel.v1beta1.Params is not mutable"))
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.Params"))
@@ -498,6 +536,10 @@ func (x *fastReflection_Params) NewField(fd protoreflect.FieldDescriptor) protor
 	case "band.tunnel.v1beta1.Params.router_ibc_channel":
 		return protoreflect.ValueOfString("")
 	case "band.tunnel.v1beta1.Params.router_integration_contract":
+		return protoreflect.ValueOfString("")
+	case "band.tunnel.v1beta1.Params.hyperlane_stride_ibc_channel":
+		return protoreflect.ValueOfString("")
+	case "band.tunnel.v1beta1.Params.hyperlane_stride_integration_contract":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
@@ -603,6 +645,14 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 		if l > 0 {
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
+		l = len(x.HyperlaneStrideIbcChannel)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		l = len(x.HyperlaneStrideIntegrationContract)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
 		if x.unknownFields != nil {
 			n += len(x.unknownFields)
 		}
@@ -631,6 +681,20 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 		if x.unknownFields != nil {
 			i -= len(x.unknownFields)
 			copy(dAtA[i:], x.unknownFields)
+		}
+		if len(x.HyperlaneStrideIntegrationContract) > 0 {
+			i -= len(x.HyperlaneStrideIntegrationContract)
+			copy(dAtA[i:], x.HyperlaneStrideIntegrationContract)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.HyperlaneStrideIntegrationContract)))
+			i--
+			dAtA[i] = 0x5a
+		}
+		if len(x.HyperlaneStrideIbcChannel) > 0 {
+			i -= len(x.HyperlaneStrideIbcChannel)
+			copy(dAtA[i:], x.HyperlaneStrideIbcChannel)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.HyperlaneStrideIbcChannel)))
+			i--
+			dAtA[i] = 0x52
 		}
 		if len(x.RouterIntegrationContract) > 0 {
 			i -= len(x.RouterIntegrationContract)
@@ -979,6 +1043,70 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 				}
 				x.RouterIntegrationContract = string(dAtA[iNdEx:postIndex])
 				iNdEx = postIndex
+			case 10:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field HyperlaneStrideIbcChannel", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.HyperlaneStrideIbcChannel = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
+			case 11:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field HyperlaneStrideIntegrationContract", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.HyperlaneStrideIntegrationContract = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
 			default:
 				iNdEx = preIndex
 				skippy, err := runtime.Skip(dAtA[iNdEx:])
@@ -1052,6 +1180,12 @@ type Params struct {
 	// router_integration_contract specifies the address of the router integration contract on the router chain
 	// that the tunnel module will interact with.
 	RouterIntegrationContract string `protobuf:"bytes,9,opt,name=router_integration_contract,json=routerIntegrationContract,proto3" json:"router_integration_contract,omitempty"`
+	// hyperlane_stride_ibc_channel specifies the IBC channel used by the hyperlane stride route to communicate with the
+	// tunnel module.
+	HyperlaneStrideIbcChannel string `protobuf:"bytes,10,opt,name=hyperlane_stride_ibc_channel,json=hyperlaneStrideIbcChannel,proto3" json:"hyperlane_stride_ibc_channel,omitempty"`
+	// hyperlane_integration_contract specifies the address of the hyperlane stride integration contract on the stride
+	// chain that the tunnel module will interact with.
+	HyperlaneStrideIntegrationContract string `protobuf:"bytes,11,opt,name=hyperlane_stride_integration_contract,json=hyperlaneStrideIntegrationContract,proto3" json:"hyperlane_stride_integration_contract,omitempty"`
 }
 
 func (x *Params) Reset() {
@@ -1137,6 +1271,20 @@ func (x *Params) GetRouterIntegrationContract() string {
 	return ""
 }
 
+func (x *Params) GetHyperlaneStrideIbcChannel() string {
+	if x != nil {
+		return x.HyperlaneStrideIbcChannel
+	}
+	return ""
+}
+
+func (x *Params) GetHyperlaneStrideIntegrationContract() string {
+	if x != nil {
+		return x.HyperlaneStrideIntegrationContract
+	}
+	return ""
+}
+
 var File_band_tunnel_v1beta1_params_proto protoreflect.FileDescriptor
 
 var file_band_tunnel_v1beta1_params_proto_rawDesc = []byte{
@@ -1146,7 +1294,7 @@ var file_band_tunnel_v1beta1_params_proto_rawDesc = []byte{
 	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x1a, 0x14, 0x67, 0x6f, 0x67, 0x6f, 0x70, 0x72, 0x6f,
 	0x74, 0x6f, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1e, 0x63,
 	0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x62, 0x61, 0x73, 0x65, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74,
-	0x61, 0x31, 0x2f, 0x63, 0x6f, 0x69, 0x6e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xfd, 0x04,
+	0x61, 0x31, 0x2f, 0x63, 0x6f, 0x69, 0x6e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xd8, 0x06,
 	0x0a, 0x06, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x6c, 0x0a, 0x0b, 0x6d, 0x69, 0x6e, 0x5f,
 	0x64, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x19, 0x2e,
 	0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x76, 0x31, 0x62, 0x65,
@@ -1186,22 +1334,35 @@ var file_band_tunnel_v1beta1_params_proto_rawDesc = []byte{
 	0xde, 0x1f, 0x19, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x72, 0x49, 0x6e, 0x74, 0x65, 0x67, 0x72, 0x61,
 	0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x52, 0x19, 0x72, 0x6f,
 	0x75, 0x74, 0x65, 0x72, 0x49, 0x6e, 0x74, 0x65, 0x67, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43,
-	0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x3a, 0x04, 0xe8, 0xa0, 0x1f, 0x01, 0x42, 0xdc, 0x01,
-	0x0a, 0x17, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65,
-	0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42, 0x0b, 0x50, 0x61, 0x72, 0x61, 0x6d,
-	0x73, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x46, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62,
-	0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f,
-	0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x62,
-	0x61, 0x6e, 0x64, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74,
-	0x61, 0x31, 0x3b, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
-	0xa2, 0x02, 0x03, 0x42, 0x54, 0x58, 0xaa, 0x02, 0x13, 0x42, 0x61, 0x6e, 0x64, 0x2e, 0x54, 0x75,
-	0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xca, 0x02, 0x13, 0x42,
-	0x61, 0x6e, 0x64, 0x5c, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74,
-	0x61, 0x31, 0xe2, 0x02, 0x1f, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
-	0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61,
-	0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x15, 0x42, 0x61, 0x6e, 0x64, 0x3a, 0x3a, 0x54, 0x75, 0x6e,
-	0x6e, 0x65, 0x6c, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x33,
+	0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x12, 0x5e, 0x0a, 0x1c, 0x68, 0x79, 0x70, 0x65, 0x72,
+	0x6c, 0x61, 0x6e, 0x65, 0x5f, 0x73, 0x74, 0x72, 0x69, 0x64, 0x65, 0x5f, 0x69, 0x62, 0x63, 0x5f,
+	0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x18, 0x0a, 0x20, 0x01, 0x28, 0x09, 0x42, 0x1d, 0xe2,
+	0xde, 0x1f, 0x19, 0x48, 0x79, 0x70, 0x65, 0x72, 0x6c, 0x61, 0x6e, 0x65, 0x53, 0x74, 0x72, 0x69,
+	0x64, 0x65, 0x49, 0x42, 0x43, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x19, 0x68, 0x79,
+	0x70, 0x65, 0x72, 0x6c, 0x61, 0x6e, 0x65, 0x53, 0x74, 0x72, 0x69, 0x64, 0x65, 0x49, 0x62, 0x63,
+	0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x79, 0x0a, 0x25, 0x68, 0x79, 0x70, 0x65, 0x72,
+	0x6c, 0x61, 0x6e, 0x65, 0x5f, 0x73, 0x74, 0x72, 0x69, 0x64, 0x65, 0x5f, 0x69, 0x6e, 0x74, 0x65,
+	0x67, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x63, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74,
+	0x18, 0x0b, 0x20, 0x01, 0x28, 0x09, 0x42, 0x26, 0xe2, 0xde, 0x1f, 0x22, 0x48, 0x79, 0x70, 0x65,
+	0x72, 0x6c, 0x61, 0x6e, 0x65, 0x53, 0x74, 0x72, 0x69, 0x64, 0x65, 0x49, 0x6e, 0x74, 0x65, 0x67,
+	0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x52, 0x22,
+	0x68, 0x79, 0x70, 0x65, 0x72, 0x6c, 0x61, 0x6e, 0x65, 0x53, 0x74, 0x72, 0x69, 0x64, 0x65, 0x49,
+	0x6e, 0x74, 0x65, 0x67, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61,
+	0x63, 0x74, 0x3a, 0x04, 0xe8, 0xa0, 0x1f, 0x01, 0x42, 0xdc, 0x01, 0x0a, 0x17, 0x63, 0x6f, 0x6d,
+	0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62,
+	0x65, 0x74, 0x61, 0x31, 0x42, 0x0b, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x50, 0x72, 0x6f, 0x74,
+	0x6f, 0x50, 0x01, 0x5a, 0x46, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f,
+	0x62, 0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61,
+	0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x74,
+	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x3b, 0x74, 0x75,
+	0x6e, 0x6e, 0x65, 0x6c, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x42, 0x54,
+	0x58, 0xaa, 0x02, 0x13, 0x42, 0x61, 0x6e, 0x64, 0x2e, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e,
+	0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xca, 0x02, 0x13, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x54,
+	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xe2, 0x02, 0x1f,
+	0x42, 0x61, 0x6e, 0x64, 0x5c, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5c, 0x56, 0x31, 0x62, 0x65,
+	0x74, 0x61, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea,
+	0x02, 0x15, 0x42, 0x61, 0x6e, 0x64, 0x3a, 0x3a, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x3a, 0x3a,
+	0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (

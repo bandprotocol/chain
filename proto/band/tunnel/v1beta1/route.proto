@@ -1,6 +1,8 @@
 syntax = "proto3";
 package band.tunnel.v1beta1;
 
+import "amino/amino.proto";
+import "cosmos/base/v1beta1/coin.proto";
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 
@@ -98,5 +100,30 @@ message RouterPacketReceipt {
   option (cosmos_proto.implements_interface) = "PacketReceiptI";
 
   // sequence is representing the sequence of the IBC packet.
+  uint64 sequence = 1;
+}
+
+// HyperlaneStrideRoute represents a route for Hyperlane Stride packets and implements the RouteI interface.
+message HyperlaneStrideRoute {
+  option (cosmos_proto.implements_interface) = "RouteI";
+
+  // dispatch_dest_domain is the dispatch chain id
+  uint64 dispatch_dest_domain = 1;
+  // dispatch_recipient_addr is the dispatch recipient address
+  string dispatch_recipient_addr = 2;
+  // fund is the fund allocated for the Hyperlane protocol fee.
+  cosmos.base.v1beta1.Coin fund = 3 [
+    (gogoproto.nullable)     = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin",
+    (amino.dont_omitempty)   = true
+  ];
+}
+
+// HyperlaneStridePacketReceipt represents a receipt for a Hyperlane Stride packet and implements the PacketReceiptI
+// interface.
+message HyperlaneStridePacketReceipt {
+  option (cosmos_proto.implements_interface) = "PacketReceiptI";
+
+  // sequence is representing the sequence of the Hyperlane packet.
   uint64 sequence = 1;
 }

@@ -34,12 +34,14 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&IBCRoute{}, "tunnel/IBCRoute", nil)
 	cdc.RegisterConcrete(&IBCHookRoute{}, "tunnel/IBCHookRoute", nil)
 	cdc.RegisterConcrete(&RouterRoute{}, "tunnel/RouterRoute", nil)
+	cdc.RegisterConcrete(&HyperlaneStrideRoute{}, "tunnel/HyperlaneStrideRoute", nil)
 
 	cdc.RegisterInterface((*PacketReceiptI)(nil), nil)
 	cdc.RegisterConcrete(&TSSPacketReceipt{}, "tunnel/TSSPacketReceipt", nil)
 	cdc.RegisterConcrete(&IBCPacketReceipt{}, "tunnel/IBCPacketReceipt", nil)
 	cdc.RegisterConcrete(&IBCHookPacketReceipt{}, "tunnel/IBCHookPacketReceipt", nil)
 	cdc.RegisterConcrete(&RouterPacketReceipt{}, "tunnel/RouterPacketReceipt", nil)
+	cdc.RegisterConcrete(&HyperlaneStridePacketReceipt{}, "tunnel/HyperlaneStridePacketReceipt", nil)
 
 	cdc.RegisterConcrete(Params{}, "tunnel/Params", nil)
 }
@@ -67,6 +69,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&IBCRoute{},
 		&IBCHookRoute{},
 		&RouterRoute{},
+		&HyperlaneStrideRoute{},
 	)
 
 	registry.RegisterInterface(
@@ -76,6 +79,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&IBCPacketReceipt{},
 		&IBCHookPacketReceipt{},
 		&RouterPacketReceipt{},
+		&HyperlaneStridePacketReceipt{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
