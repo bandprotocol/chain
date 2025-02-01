@@ -1,6 +1,7 @@
 package tss
 
 import (
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v3/x/tss/keeper"
@@ -9,6 +10,8 @@ import (
 
 // EndBlocker handles tasks at the end of a block.
 func EndBlocker(ctx sdk.Context, k *keeper.Keeper) error {
+	defer telemetry.ModuleMeasureSince(types.ModuleName, telemetry.Now(), telemetry.MetricKeyEndBlocker)
+
 	// Get the list of pending process groups.
 	gids := k.GetPendingProcessGroups(ctx)
 	for _, gid := range gids {
