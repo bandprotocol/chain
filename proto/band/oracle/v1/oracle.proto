@@ -378,7 +378,7 @@ message OracleResultSignatureOrder {
   uint64 request_id = 1 [(gogoproto.customname) = "RequestID", (gogoproto.casttype) = "RequestID"];
 
   // encoder is the mode of encoding oracle result signature order.
-  Encoder encoder = 3;
+  Encoder encoder = 2;
 }
 
 // Encoder is an enumerator that defines the mode of encoding message in tss module.
