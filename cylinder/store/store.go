@@ -42,7 +42,7 @@ func (s *Store) GetAllDKGs() ([]DKG, error) {
 	}
 	defer iterator.Close()
 
-	var dkgs []DKG
+	dkgs := make([]DKG, 0) // prevent nil slice when exporting data.
 	for ; iterator.Valid(); iterator.Next() {
 		var dkg DKG
 		err = json.Unmarshal(iterator.Value(), &dkg)
@@ -99,7 +99,7 @@ func (s *Store) GetAllGroups() ([]Group, error) {
 	}
 	defer iterator.Close()
 
-	var groups []Group
+	groups := make([]Group, 0) // prevent nil slice when exporting data.
 	for ; iterator.Valid(); iterator.Next() {
 		var group Group
 		err = json.Unmarshal(iterator.Value(), &group)
