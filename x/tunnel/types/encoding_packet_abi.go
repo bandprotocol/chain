@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	packetType, _ = abi.NewType("tuple", "", []abi.ArgumentMarshaling{
+	packetABI, _ = abi.NewType("tuple", "", []abi.ArgumentMarshaling{
 		{Name: "TunnelID", Type: "uint64"},
 		{Name: "Sequence", Type: "uint64"},
 		{
@@ -21,27 +21,27 @@ var (
 		{Name: "CreatedAt", Type: "int64"},
 	})
 
-	packetArguments = abi.Arguments{
-		{Type: packetType},
+	packetArgs = abi.Arguments{
+		{Type: packetABI},
 	}
 )
 
-// EncodingRouterPacket represents the Router packet that will be used for encoding a message.
-type EncodingRouterPacket struct {
+// PacketABI represents the Packet that will be used for encoding a tunnel packet into abi format.
+type PacketABI struct {
 	TunnelID     uint64
 	Sequence     uint64
 	SignalPrices []feedstypes.RelayPrice
 	CreatedAt    int64
 }
 
-// NewEncodingRouterPacket returns a new EncodingRouterPacket object
-func NewEncodingRouterPacket(
+// NewPacketABI returns a new PacketABI object
+func NewPacketABI(
 	tunnelID uint64,
 	sequence uint64,
 	signalPrices []feedstypes.RelayPrice,
 	createdAt int64,
-) EncodingRouterPacket {
-	return EncodingRouterPacket{
+) PacketABI {
+	return PacketABI{
 		TunnelID:     tunnelID,
 		Sequence:     sequence,
 		SignalPrices: signalPrices,
@@ -49,8 +49,8 @@ func NewEncodingRouterPacket(
 	}
 }
 
-// EncodingRouter encodes the packet to router message
-func EncodingRouter(p Packet) ([]byte, error) {
+// EncodingPacketABI encodes the packet to abi message
+func EncodingPacketABI(p Packet) ([]byte, error) {
 	var signalPrices []feedstypes.RelayPrice
 	for _, sp := range p.Prices {
 		signalPrices = append(signalPrices, feedstypes.RelayPrice{
@@ -59,8 +59,8 @@ func EncodingRouter(p Packet) ([]byte, error) {
 		})
 	}
 
-	routerPacket := NewEncodingRouterPacket(p.TunnelID, p.Sequence, signalPrices, p.CreatedAt)
-	return packetArguments.Pack(&routerPacket)
+	abiPacket := NewPacketABI(p.TunnelID, p.Sequence, signalPrices, p.CreatedAt)
+	return packetArgs.Pack(&abiPacket)
 }
 
 // stringToBytes32 converts a string to a fixed size byte array. If the string is longer than

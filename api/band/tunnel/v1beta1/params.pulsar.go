@@ -1047,7 +1047,7 @@ type Params struct {
 	MaxSignals uint64 `protobuf:"varint,6,opt,name=max_signals,json=maxSignals,proto3" json:"max_signals,omitempty"`
 	// base_packet_fee is the base fee for each packet.
 	BasePacketFee []*v1beta1.Coin `protobuf:"bytes,7,rep,name=base_packet_fee,json=basePacketFee,proto3" json:"base_packet_fee,omitempty"`
-	// router_ibc_channel specifies the IBC channel used by the router to communicate with the tunnel module.
+	// router_ibc_channel specifies the IBC channel used by the tunnel to communicate with the router chain.
 	RouterIbcChannel string `protobuf:"bytes,8,opt,name=router_ibc_channel,json=routerIbcChannel,proto3" json:"router_ibc_channel,omitempty"`
 	// router_integration_contract specifies the address of the router integration contract on the router chain
 	// that the tunnel module will interact with.

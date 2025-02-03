@@ -20,13 +20,15 @@ func (k Keeper) SendRouterPacket(
 	feePayer sdk.AccAddress,
 	interval uint64,
 ) (types.PacketReceiptI, error) {
-	relayPacket, err := types.EncodingRouter(packet)
+	payload, err := types.EncodingPacketABI(packet)
 	if err != nil {
 		return nil, err
 	}
 
-	routerIBCChannel := k.GetParams(ctx).RouterIBCChannel
-	routerIntegrationContract := k.GetParams(ctx).RouterIntegrationContract
+	// get router ibc channel and integration contract
+	params := k.GetParams(ctx)
+	routerIBCChannel := params.RouterIBCChannel
+	routerIntegrationContract := params.RouterIntegrationContract
 
 	// create memo string for ibc transfer
 	memoStr, err := types.NewRouterMemo(
@@ -35,7 +37,7 @@ func (k Keeper) SendRouterPacket(
 		route.DestinationContractAddress,
 		route.DestinationGasLimit,
 		route.DestinationGasPrice,
-		base64.StdEncoding.EncodeToString(relayPacket),
+		base64.StdEncoding.EncodeToString(payload),
 	).String()
 	if err != nil {
 		return nil, err

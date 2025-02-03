@@ -10,7 +10,7 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
-func TestEncodingRouter(t *testing.T) {
+func TestEncodingPacketABI(t *testing.T) {
 	packet := types.Packet{
 		TunnelID:  1,
 		Sequence:  1,
@@ -18,7 +18,7 @@ func TestEncodingRouter(t *testing.T) {
 		CreatedAt: 1730358471,
 	}
 
-	encodingPacket, err := types.EncodingRouter(packet)
+	encodingPacket, err := types.EncodingPacketABI(packet)
 	require.NoError(t, err)
 
 	expectedMsg := (
