@@ -95,6 +95,25 @@ func NewMsgCreateIBCHookTunnel(
 	return m, nil
 }
 
+// NewMsgCreateAxelarTunnel creates a new MsgCreateTunnel instance for Axelar tunnel.
+func NewMsgCreateAxelarTunnel(
+	signalDeviations []SignalDeviation,
+	interval uint64,
+	destinationChainID string,
+	destinationContractAddress string,
+	fee sdk.Coin,
+	initialDeposit sdk.Coins,
+	creator string,
+) (*MsgCreateTunnel, error) {
+	r := NewAxelarRoute(destinationChainID, destinationContractAddress, fee)
+	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, initialDeposit, creator)
+	if err != nil {
+		return nil, err
+	}
+
+	return m, nil
+}
+
 // GetRouteValue returns the route of the tunnel.
 func (m MsgCreateTunnel) GetRouteValue() (RouteI, error) {
 	r, ok := m.Route.GetCachedValue().(RouteI)

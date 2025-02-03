@@ -2,6 +2,7 @@ syntax = "proto3";
 package band.tunnel.v1beta1;
 
 import "cosmos_proto/cosmos.proto";
+import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 
 import "band/feeds/v1beta1/encoder.proto";
@@ -76,5 +77,25 @@ message IBCHookPacketReceipt {
   option (cosmos_proto.implements_interface) = "PacketContentI";
 
   // sequence is representing the sequence of the IBC packet.
+  uint64 sequence = 1;
+}
+
+// AxelarRoute represents a route for Axelar packets and implements the RouteI interface.
+message AxelarRoute {
+  option (cosmos_proto.implements_interface) = "RouteI";
+
+  // destination_chain_id is the destination chain ID
+  string destination_chain_id = 1 [(gogoproto.customname) = "DestinationChainID"];
+  // destination_contract_address is the destination contract address
+  string destination_contract_address = 2;
+  // fee is the fee for each packet in the Axelar network.
+  cosmos.base.v1beta1.Coin fee = 3 [(gogoproto.nullable) = false];
+}
+
+// AxelarPacketReceipt represents a receipt for a Axelar packet and implements the PacketReceiptI interface.
+message AxelarPacketReceipt {
+  option (cosmos_proto.implements_interface) = "PacketReceiptI";
+
+  // sequence is representing the sequence of the Axelar packet.
   uint64 sequence = 1;
 }
