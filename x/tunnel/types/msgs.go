@@ -206,6 +206,17 @@ func NewMsgUpdateIBCHookRoute(
 	return NewMsgUpdateRoute(tunnelID, NewIBCHookRoute(channelID, destinationContractAddress), creator)
 }
 
+// NewMsgUpdateAxelarRoute creates a new MsgUpdateRoute instance.
+func NewMsgUpdateAxelarRoute(
+	tunnelID uint64,
+	destinationChainID string,
+	destinationContractAddress string,
+	fee sdk.Coin,
+	creator string,
+) (*MsgUpdateRoute, error) {
+	return NewMsgUpdateRoute(tunnelID, NewAxelarRoute(destinationChainID, destinationContractAddress, fee), creator)
+}
+
 // GetRouteValue returns the route of the message.
 func (m MsgUpdateRoute) GetRouteValue() (RouteI, error) {
 	r, ok := m.Route.GetCachedValue().(RouteI)

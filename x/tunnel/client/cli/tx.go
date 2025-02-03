@@ -274,6 +274,7 @@ func GetTxCmdUpdateRoute() *cobra.Command {
 	txCmd.AddCommand(
 		GetTxCmdUpdateIBCRoute(),
 		GetTxCmdUpdateIBCHookRoute(),
+		GetTxCmdUpdateAxelarRoute(),
 	)
 
 	return txCmd
@@ -336,6 +337,50 @@ func GetTxCmdUpdateIBCHookRoute() *cobra.Command {
 				id,
 				channelID,
 				destContractAddr,
+				clientCtx.GetFromAddress().String(),
+			)
+			if err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetTxCmdUpdateAxelarRoute() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "axelar [tunnel-id] [destination-chain-id] [destination-contract-address] [axelar-fee]",
+		Short: "Update Axelar route of a Axelar tunnel",
+		Args:  cobra.ExactArgs(4),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			id, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			destinationChainID := args[1]
+			destinationContractAddress := args[2]
+
+			axelarFee, err := sdk.ParseCoinNormalized(args[3])
+			if err != nil {
+				return err
+			}
+
+			msg, err := types.NewMsgUpdateAxelarRoute(
+				id,
+				destinationChainID,
+				destinationContractAddress,
+				axelarFee,
 				clientCtx.GetFromAddress().String(),
 			)
 			if err != nil {
