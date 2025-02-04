@@ -98,11 +98,13 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		ante.NewDeductFeeDecorator(
-			options.AccountKeeper,
-			options.BankKeeper,
-			options.FeegrantKeeper,
-			options.TxFeeChecker,
+		NewIgnoreDecorator(
+			ante.NewDeductFeeDecorator(
+				options.AccountKeeper,
+				options.BankKeeper,
+				options.FeegrantKeeper,
+				options.TxFeeChecker,
+			),
 		),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
@@ -114,4 +116,30 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	}
 
 	return sdk.ChainAnteDecorators(anteDecorators...), nil
+}
+
+// IgnoreDecorator is an AnteDecorator that wraps an existing AnteDecorator. It allows
+// for the AnteDecorator to be ignored for specified lanes.
+type IgnoreDecorator struct {
+	decorator sdk.AnteDecorator
+}
+
+// NewIgnoreDecorator returns a new IgnoreDecorator instance.
+func NewIgnoreDecorator(decorator sdk.AnteDecorator) *IgnoreDecorator {
+	return &IgnoreDecorator{
+		decorator: decorator,
+	}
+}
+
+// AnteHandle implements the sdk.AnteDecorator interface. If the transaction belongs to
+// one of the lanes, the next AnteHandler is called. Otherwise, the decorator's AnteHandler
+// is called.
+func (sd IgnoreDecorator) AnteHandle(
+	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
+) (sdk.Context, error) {
+	if isBankSendTx(tx) || isDelegateTx(tx) {
+		return next(ctx, tx, simulate)
+	}
+
+	return sd.decorator.AnteHandle(ctx, tx, simulate, next)
 }

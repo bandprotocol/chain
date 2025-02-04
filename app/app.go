@@ -6,9 +6,6 @@ import (
 	"os"
 	"path/filepath"
 
-	blocksdkabci "github.com/skip-mev/block-sdk/v2/abci"
-	"github.com/skip-mev/block-sdk/v2/block"
-	"github.com/skip-mev/block-sdk/v2/block/base"
 	"github.com/spf13/cast"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -256,15 +253,18 @@ func NewBandApp(
 
 	app.sm.RegisterStoreDecoders()
 
-	// initialize lanes + mempool
-	feedsLane, defaultLane := CreateLanes(app, txConfig)
+	// // initialize lanes + mempool
+	// feedsLane, defaultLane := CreateLanes(app, txConfig)
 
-	lanedMempool, err := block.NewLanedMempool(app.Logger(), []block.Lane{feedsLane, defaultLane})
-	if err != nil {
-		panic(err)
-	}
+	// lanedMempool, err := block.NewLanedMempool(app.Logger(), []block.Lane{feedsLane, defaultLane})
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	// create Band mempool
+	bandMempool := NewBandMempool(txConfig.TxEncoder())
 	// set the mempool
-	app.SetMempool(lanedMempool)
+	app.SetMempool(bandMempool)
 
 	// Initialize stores.
 	app.MountKVStores(app.GetKVStoreKey())
@@ -295,21 +295,24 @@ func NewBandApp(
 		panic(fmt.Errorf("failed to create ante handler: %s", err))
 	}
 
-	// update ante-handlers on lanes
-	opt := []base.LaneOption{
-		base.WithAnteHandler(anteHandler),
-	}
-	feedsLane.WithOptions(opt...)
-	defaultLane.WithOptions(opt...)
+	// // update ante-handlers on lanes
+	// opt := []base.LaneOption{
+	// 	base.WithAnteHandler(anteHandler),
+	// }
+	// feedsLane.WithOptions(opt...)
+	// defaultLane.WithOptions(opt...)
 
-	// ABCI handlers
-	// prepare proposal
-	proposalHandler := blocksdkabci.NewDefaultProposalHandler(
-		app.Logger(),
-		txConfig.TxDecoder(),
-		txConfig.TxEncoder(),
-		lanedMempool,
-	)
+	// // ABCI handlers
+	// // prepare proposal
+	// proposalHandler := blocksdkabci.NewDefaultProposalHandler(
+	// 	app.Logger(),
+	// 	txConfig.TxDecoder(),
+	// 	txConfig.TxEncoder(),
+	// 	lanedMempool,
+	// )
+
+	// proposal handler
+	proposalHandler := NewDefaultProposalHandler(app.Logger(), txConfig.TxDecoder(), bandMempool)
 
 	// set the Prepare / ProcessProposal Handlers on the app to be the `LanedMempool`'s
 	app.SetPrepareProposal(proposalHandler.PrepareProposalHandler())
