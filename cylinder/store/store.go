@@ -151,7 +151,7 @@ func (s *Store) GetAllDEs() ([]DE, error) {
 	}
 	defer iterator.Close()
 
-	var des []DE
+	des := make([]DE, 0) // prevent nil slice when exporting data.
 	for ; iterator.Valid(); iterator.Next() {
 		var de DE
 		err = json.Unmarshal(iterator.Value(), &de)
