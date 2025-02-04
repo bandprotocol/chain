@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -17,7 +16,6 @@ func main() {
 	ctx := &context.Context{}
 	rootCmd := NewRootCmd(ctx)
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
 		os.Exit(1)
 	}
 }
