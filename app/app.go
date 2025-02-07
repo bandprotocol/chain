@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	signerextraction "github.com/skip-mev/block-sdk/v2/adapters/signer_extraction_adapter"
 	"github.com/spf13/cast"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -53,6 +54,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/bandprotocol/chain/v3/app/keepers"
+	"github.com/bandprotocol/chain/v3/app/mempool"
 	"github.com/bandprotocol/chain/v3/app/upgrades"
 	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3"
 	nodeservice "github.com/bandprotocol/chain/v3/client/grpc/node"
@@ -261,8 +263,10 @@ func NewBandApp(
 	// 	panic(err)
 	// }
 
+	bandLanes := DefaultLanes()
+
 	// create Band mempool
-	bandMempool := NewBandMempool(txConfig.TxEncoder())
+	bandMempool := mempool.NewMempool(txConfig.TxEncoder(), signerextraction.NewDefaultAdapter(), bandLanes)
 	// set the mempool
 	app.SetMempool(bandMempool)
 
@@ -312,7 +316,7 @@ func NewBandApp(
 	// )
 
 	// proposal handler
-	proposalHandler := NewDefaultProposalHandler(app.Logger(), txConfig.TxDecoder(), bandMempool)
+	proposalHandler := mempool.NewDefaultProposalHandler(app.Logger(), txConfig.TxDecoder(), bandMempool)
 
 	// set the Prepare / ProcessProposal Handlers on the app to be the `LanedMempool`'s
 	app.SetPrepareProposal(proposalHandler.PrepareProposalHandler())
