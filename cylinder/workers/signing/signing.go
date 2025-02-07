@@ -101,7 +101,7 @@ func (s *Signing) handleSigning(sid tss.SigningID) {
 	}
 
 	// Get private keys of DE
-	privDE, err := s.context.Store.GetDE(types.DE{
+	provide, err := s.context.Store.GetDE(types.DE{
 		PubD: assignedMember.PubD,
 		PubE: assignedMember.PubE,
 	})
@@ -111,7 +111,7 @@ func (s *Signing) handleSigning(sid tss.SigningID) {
 	}
 
 	// Compute own private nonce
-	privNonce, err := tss.ComputeOwnPrivNonce(privDE.PrivD, privDE.PrivE, assignedMember.BindingFactor)
+	privNonce, err := tss.ComputeOwnPrivNonce(provide.PrivD, provide.PrivE, assignedMember.BindingFactor)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to compute own private nonce: %s", err)
 		return
