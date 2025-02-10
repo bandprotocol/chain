@@ -3,6 +3,8 @@ package types
 import (
 	"fmt"
 
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -27,15 +29,19 @@ func NewParams(
 	maxDeviationBPS uint64,
 	maxSignals uint64,
 	basePacketFee sdk.Coins,
+	routerIBCChannel string,
+	routerIntegrationContract string,
 ) Params {
 	return Params{
-		MinDeposit:      minDeposit,
-		MinInterval:     minInterval,
-		MaxInterval:     maxInterval,
-		MinDeviationBPS: minDeviationBPS,
-		MaxDeviationBPS: maxDeviationBPS,
-		MaxSignals:      maxSignals,
-		BasePacketFee:   basePacketFee,
+		MinDeposit:                minDeposit,
+		MinInterval:               minInterval,
+		MaxInterval:               maxInterval,
+		MinDeviationBPS:           minDeviationBPS,
+		MaxDeviationBPS:           maxDeviationBPS,
+		MaxSignals:                maxSignals,
+		BasePacketFee:             basePacketFee,
+		RouterIBCChannel:          routerIBCChannel,
+		RouterIntegrationContract: routerIntegrationContract,
 	}
 }
 
@@ -49,6 +55,8 @@ func DefaultParams() Params {
 		DefaultMaxDeviationBPS,
 		DefaultMaxSignals,
 		DefaultBasePacketFee,
+		"",
+		"",
 	)
 }
 
@@ -105,6 +113,11 @@ func (p Params) Validate() error {
 	// validate BasePacketFee
 	if !p.BasePacketFee.IsValid() {
 		return fmt.Errorf("invalid base packet fee: %s", p.BasePacketFee)
+	}
+
+	// validate RouterIBCChannel
+	if p.RouterIBCChannel != "" && !channeltypes.IsChannelIDFormat(p.RouterIBCChannel) {
+		return fmt.Errorf("channel identifier is not in the format: `channel-{N}` or be empty string")
 	}
 
 	return nil

@@ -78,3 +78,25 @@ message IBCHookPacketReceipt {
   // sequence is representing the sequence of the IBC packet.
   uint64 sequence = 1;
 }
+
+// RouterRoute is the type for a Router route
+message RouterRoute {
+  option (cosmos_proto.implements_interface) = "RouteI";
+
+  // destination_chain_id is the destination chain ID
+  string destination_chain_id = 1 [(gogoproto.customname) = "DestinationChainID"];
+  // destination_contract_address is the destination contract address
+  string destination_contract_address = 2;
+  // destination_gas_limit is the destination gas limit
+  uint64 destination_gas_limit = 3;
+  // destination_gas_price is the destination gas price
+  uint64 destination_gas_price = 4;
+}
+
+// RouterPacketReceipt represents a receipt for a Router packet and implements the PacketReceiptI interface.
+message RouterPacketReceipt {
+  option (cosmos_proto.implements_interface) = "PacketReceiptI";
+
+  // sequence is representing the sequence of the IBC packet.
+  uint64 sequence = 1;
+}

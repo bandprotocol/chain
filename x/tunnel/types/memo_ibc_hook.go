@@ -6,8 +6,8 @@ import (
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
-// ReceiveBandData represents the data structure of the IBC hook message.
-type ReceiveBandData struct {
+// IBCHookReceiveBandData represents the data structure of the IBC hook message.
+type IBCHookReceiveBandData struct {
 	TunnelID  uint64             `json:"tunnel_id"`
 	Sequence  uint64             `json:"sequence"`
 	Prices    []feedstypes.Price `json:"prices"`
@@ -16,7 +16,7 @@ type ReceiveBandData struct {
 
 // IBCHookMsg represents the message structure of the IBC hook message.
 type IBCHookMsg struct {
-	ReceiveBandData ReceiveBandData `json:"receive_band_data"`
+	ReceiveBandData IBCHookReceiveBandData `json:"receive_band_data"`
 }
 
 // IBCHookWasm represents the WASM contract and its associated message.
@@ -42,7 +42,7 @@ func NewIBCHookMemo(
 		Wasm: IBCHookWasm{
 			Contract: contract,
 			Msg: IBCHookMsg{
-				ReceiveBandData: ReceiveBandData{
+				ReceiveBandData: IBCHookReceiveBandData{
 					TunnelID:  tunnelID,
 					Sequence:  sequence,
 					Prices:    prices,
