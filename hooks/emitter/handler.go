@@ -96,6 +96,8 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 		h.handleV1beta1MsgDeposit(ctx, txHash, msg, detail)
 	case *govv1.MsgDeposit:
 		h.handleMsgDeposit(ctx, txHash, msg, detail)
+	case *govv1.MsgCancelProposal:
+		h.handleMsgCancelProposal(msg)
 	case *channeltypes.MsgRecvPacket:
 		h.handleMsgRecvPacket(ctx, txHash, msg, events, evMap, detail)
 	case *transfertypes.MsgTransfer:

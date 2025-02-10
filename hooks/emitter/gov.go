@@ -198,6 +198,20 @@ func (h *Hook) handleMsgVote(
 	detail["title"] = proposal.Title
 }
 
+func (h *Hook) handleMsgCancelProposal(msg *v1.MsgCancelProposal) {
+	h.Write("REMOVE_DEPOSIT", common.JsDict{
+		"proposal_id": msg.ProposalId,
+	})
+
+	h.Write("REMOVE_VOTES", common.JsDict{
+		"proposal_id": msg.ProposalId,
+	})
+
+	h.Write("REMOVE_PROPOSAL", common.JsDict{
+		"id": msg.ProposalId,
+	})
+}
+
 // handleV1beta1MsgVote implements emitter handler for MsgVote v1beta1.
 func (h *Hook) handleV1beta1MsgVote(
 	ctx sdk.Context, txHash []byte, msg *v1beta1.MsgVote, detail common.JsDict,
