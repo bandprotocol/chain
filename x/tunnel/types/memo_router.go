@@ -2,7 +2,7 @@ package types
 
 import "encoding/json"
 
-// RouterReceiveBandData represents the payload of the router message.
+// RouterReceiveBandData represents the payload of the Router message.
 type RouterReceiveBandData struct {
 	DestChainID         string `json:"dest_chain_id"`
 	DestContractAddress string `json:"dest_contract_address"`

@@ -52,9 +52,6 @@ func (k msgServer) CreateTunnel(
 	// isIBCRoute is true if the route is IBCRoute
 	var isIBCRoute bool
 
-	// get router ibc channel id
-	routerIBCChannel := k.GetParams(ctx).RouterIBCChannel
-
 	route, err := msg.GetRouteValue()
 	if err != nil {
 		return nil, err
@@ -69,11 +66,6 @@ func (k msgServer) CreateTunnel(
 		isIBCRoute = true
 	case *types.IBCHookRoute:
 		_, found := k.channelKeeper.GetChannel(ctx, ibctransfertypes.PortID, r.ChannelID)
-		if !found {
-			return nil, types.ErrInvalidChannelID
-		}
-	case *types.RouterRoute:
-		_, found := k.channelKeeper.GetChannel(ctx, ibctransfertypes.PortID, routerIBCChannel)
 		if !found {
 			return nil, types.ErrInvalidChannelID
 		}

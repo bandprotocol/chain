@@ -11,15 +11,13 @@ import (
 var (
 	// Each value below is the default value for each parameter when generating the default
 	// genesis file. See comments in types.proto for explanation for each parameter.
-	DefaultMinInterval               = uint64(60)
-	DefaultMaxInterval               = uint64(3600)
-	DefaultMinDeviationBPS           = uint64(50)
-	DefaultMaxDeviationBPS           = uint64(3000)
-	DefaultMinDeposit                = sdk.NewCoins(sdk.NewInt64Coin("uband", 1_000_000_000))
-	DefaultMaxSignals                = uint64(25)
-	DefaultBasePacketFee             = sdk.NewCoins(sdk.NewInt64Coin("uband", 500))
-	DefaultRouterIBCChannel          = "channel-0"
-	DefaultRouterIntegrationContract = "router17c2txg2px6vna8a6v4ql4eh4ruvprerhytxvwt2ugp4qr473pajsyj9pgm"
+	DefaultMinInterval     = uint64(60)
+	DefaultMaxInterval     = uint64(3600)
+	DefaultMinDeviationBPS = uint64(50)
+	DefaultMaxDeviationBPS = uint64(3000)
+	DefaultMinDeposit      = sdk.NewCoins(sdk.NewInt64Coin("uband", 1_000_000_000))
+	DefaultMaxSignals      = uint64(25)
+	DefaultBasePacketFee   = sdk.NewCoins(sdk.NewInt64Coin("uband", 500))
 )
 
 // NewParams creates a new Params instance
@@ -57,8 +55,8 @@ func DefaultParams() Params {
 		DefaultMaxDeviationBPS,
 		DefaultMaxSignals,
 		DefaultBasePacketFee,
-		DefaultRouterIBCChannel,
-		DefaultRouterIntegrationContract,
+		"",
+		"",
 	)
 }
 

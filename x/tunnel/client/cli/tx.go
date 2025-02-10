@@ -210,7 +210,7 @@ func GetTxCmdCreateIBCHookTunnel() *cobra.Command {
 func GetTxCmdCreateRouterTunnel() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "router [destination-chain-id] [destination-contract-address] [destination-gas-limit] [destination-gas-price] [initial-deposit] [interval] [signalDeviations-json-file]",
-		Short: "Create a new router tunnel",
+		Short: "Create a new Router tunnel",
 		Args:  cobra.ExactArgs(7),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -361,7 +361,7 @@ func GetTxCmdUpdateIBCHookRoute() *cobra.Command {
 func GetTxCmdUpdateRouterRoute() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "router [tunnel-id] [destination-chain-id] [destination-contract-address] [destination-gas-limit] [destination-gas-price]",
-		Short: "Update router route of a router tunnel",
+		Short: "Update Router route of a Router tunnel",
 		Args:  cobra.ExactArgs(5),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
