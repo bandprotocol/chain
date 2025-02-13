@@ -188,13 +188,28 @@ func getActivatingGroupIDs(clientCtx client.Context) ([]tss.GroupID, error) {
 	}
 	penaltyExpiryTime := status.SyncInfo.LatestBlockTime.Add(-penaltyDuration)
 
+	groupTypeText := []string{"current group", "incoming group"}
+
 	// Check what group that the member should activate.
 	var activatingGroupIDs []tss.GroupID
-	for _, info := range memberInfos {
-		if info.Address != "" && !info.IsActive && info.Since.Before(penaltyExpiryTime) {
+	for i, info := range memberInfos {
+		displayedText := ""
+
+		if info.Address == "" {
+			displayedText = "skip; not belong to this group"
+		} else if info.IsActive {
+			displayedText = "skip; member is already active"
+		} else if info.Since.After(penaltyExpiryTime) {
+			displayedText = "skip; penalty not expired"
+		} else {
 			activatingGroupIDs = append(activatingGroupIDs, info.GroupID)
+			displayedText = "activating"
 		}
+
+		fmt.Printf("checking %s: %s\n", groupTypeText[i], displayedText)
 	}
+
+	fmt.Println() // extra-newline for better readability
 
 	return activatingGroupIDs, nil
 }
