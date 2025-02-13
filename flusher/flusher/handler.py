@@ -390,9 +390,6 @@ class Handler(object):
         del msg["proposer"]
         self.conn.execute(proposals.insert(), msg)
 
-    def handle_remove_proposal(self, msg):
-        self.conn.execute(proposals.delete().where(proposals.c.id == msg["id"]))
-
     def handle_set_deposit(self, msg):
         msg["depositor_id"] = self.get_account_id(msg["depositor"])
         del msg["depositor"]
@@ -400,18 +397,12 @@ class Handler(object):
         del msg["tx_hash"]
         self.conn.execute(insert(deposits).values(**msg).on_conflict_do_update(constraint="deposits_pkey", set_=msg))
 
-    def handle_remove_deposit(self, msg):
-        self.conn.execute(deposits.delete().where(deposits.c.proposal_id == msg["proposal_id"]))
-
     def handle_set_vote_weighted(self, msg):
         msg["voter_id"] = self.get_account_id(msg["voter"])
         del msg["voter"]
         msg["tx_id"] = self.get_transaction_id(msg["tx_hash"])
         del msg["tx_hash"]
         self.conn.execute(insert(votes).values(**msg).on_conflict_do_update(constraint="votes_pkey", set_=msg))
-
-    def handle_remove_votes(self, msg):
-        self.conn.execute(votes.delete().where(votes.c.proposal_id == msg["proposal_id"]))
 
     def handle_update_proposal(self, msg):
         condition = True

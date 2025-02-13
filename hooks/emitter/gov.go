@@ -15,6 +15,7 @@ var (
 	EventTypeInactiveProposal = types.EventTypeInactiveProposal
 	EventTypeActiveProposal   = types.EventTypeActiveProposal
 	StatusInactive            = 6
+	StatusCancelled           = 7
 )
 
 func (h *Hook) emitSetDeposit(ctx sdk.Context, txHash []byte, id uint64, depositor sdk.AccAddress) {
@@ -199,16 +200,9 @@ func (h *Hook) handleMsgVote(
 }
 
 func (h *Hook) handleMsgCancelProposal(msg *v1.MsgCancelProposal) {
-	h.Write("REMOVE_DEPOSIT", common.JsDict{
-		"proposal_id": msg.ProposalId,
-	})
-
-	h.Write("REMOVE_VOTES", common.JsDict{
-		"proposal_id": msg.ProposalId,
-	})
-
-	h.Write("REMOVE_PROPOSAL", common.JsDict{
-		"id": msg.ProposalId,
+	h.Write("UPDATE_PROPOSAL", common.JsDict{
+		"id":     msg.ProposalId,
+		"status": StatusCancelled,
 	})
 }
 

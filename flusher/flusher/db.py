@@ -19,6 +19,7 @@ class ProposalStatus(enum.Enum):
     Rejected = 4
     Failed = 5
     Inactive = 6
+    Cancelled = 7
 
 
 class TSSEncoder(enum.Enum):
