@@ -199,6 +199,7 @@ func (h *Hook) handleMsgVote(
 	detail["title"] = proposal.Title
 }
 
+// handleMsgCancelProposal implements emitter handler for MsgCancelProposal.
 func (h *Hook) handleMsgCancelProposal(msg *v1.MsgCancelProposal) {
 	h.Write("UPDATE_PROPOSAL", common.JsDict{
 		"id":     msg.ProposalId,
