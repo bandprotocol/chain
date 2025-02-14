@@ -32,9 +32,19 @@ func TestIBCHookRoute_ValidateBasic(t *testing.T) {
 			errMsg: "channel identifier is not in the format: `channel-{N}`",
 		},
 		{
+			name: "empty destination contract address",
+			route: types.IBCHookRoute{
+				ChannelID:                  "channel-1",
+				DestinationContractAddress: "",
+			},
+			expErr: true,
+			errMsg: "destination contract address cannot be empty",
+		},
+		{
 			name: "all good",
 			route: types.IBCHookRoute{
-				ChannelID: "channel-1",
+				ChannelID:                  "channel-1",
+				DestinationContractAddress: "mock17evppqj3qsx7c2z9vhpd3m3r0p9a7ghs6ht4vvtzn4v2xx6vxhhsuqvf0w",
 			},
 			expErr: false,
 		},

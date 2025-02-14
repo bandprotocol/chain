@@ -4,8 +4,6 @@ import (
 	"fmt"
 
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 var (
@@ -33,10 +31,9 @@ func (r *IBCHookRoute) ValidateBasic() error {
 		return fmt.Errorf("channel identifier is not in the format: `channel-{N}`")
 	}
 
-	// Validate the DestinationContractAddress format
-	_, err := sdk.AccAddressFromBech32(r.DestinationContractAddress)
-	if err != nil {
-		return fmt.Errorf("invalid destination contract address format: %w", err)
+	// Validate the DestinationContractAddress cannot be empty
+	if r.DestinationContractAddress == "" {
+		return fmt.Errorf("destination contract address cannot be empty")
 	}
 
 	return nil
