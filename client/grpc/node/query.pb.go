@@ -152,7 +152,7 @@ var xxx_messageInfo_EVMValidatorsRequest proto.InternalMessageInfo
 type EVMValidatorsResponse struct {
 	// BlockHeight is the latest block height
 	BlockHeight int64 `protobuf:"varint,1,opt,name=block_height,json=blockHeight,proto3" json:"block_height,omitempty"`
-	// Validators is list of validator's addresss and voting power
+	// Validators is list of validator's address and voting power
 	Validators []ValidatorMinimal `protobuf:"bytes,2,rep,name=validators,proto3" json:"validators"`
 }
 
