@@ -1,119 +1,255 @@
 package mempool
 
 import (
+	"context"
+	"encoding/hex"
+	"fmt"
+	"strings"
+
+	"cosmossdk.io/log"
+	"cosmossdk.io/math"
+	signerextraction "github.com/skip-mev/block-sdk/v2/adapters/signer_extraction_adapter"
+
+	comettypes "github.com/cometbft/cometbft/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 )
 
 // Lane defines a logical grouping of transactions within the mempool.
 type Lane struct {
-	// Name is a friendly identifier for this lane (e.g. "bankSend", "delegate").
+	Logger          log.Logger
+	TxEncoder       sdk.TxEncoder
+	SignerExtractor signerextraction.Adapter
+	// Name is a identifier for this lane (e.g. "bankSend", "delegate").
 	Name string
 
 	// Filter determines if a given transaction belongs in this lane.
-	Filter func(sdk.Tx) bool
+	Match func(sdk.Tx) bool
 
-	// Percentage is the fraction (0-100) of the block's gas budget allocated to this lane.
-	Percentage uint64
+	MaxTransactionSpace math.LegacyDec
+	MaxLaneSpace        math.LegacyDec
 
-	// EnforceOneTxPerSigner indicates that each signer may only have one tx
-	// included in this lane per proposal.
-	EnforceOneTxPerSigner bool
-
-	// signersUsed tracks which signers have already added a transaction in this lane
-	// for the current proposal. (Only used if EnforceOneTxPerSigner == true.)
-	signersUsed map[string]bool
-
-	// txs holds the set of transactions that matched Filter.
-	txs []TxWithInfo
+	// laneMempool is the mempool that is responsible for storing transactions
+	// that are waiting to be processed.
+	laneMempool sdkmempool.Mempool
 }
 
 // NewLane is a simple constructor for a lane.
-func NewLane(name string, filter func(sdk.Tx) bool, percentage uint64, enforceOneTxPerSigner bool) *Lane {
+func NewLane(
+	logger log.Logger,
+	txEncoder sdk.TxEncoder,
+	signerExtractor signerextraction.Adapter,
+	name string,
+	matchFn func(sdk.Tx) bool,
+	maxTransactionSpace math.LegacyDec,
+	maxLaneSpace math.LegacyDec,
+	laneMempool sdkmempool.Mempool,
+) *Lane {
 	return &Lane{
-		Name:                  name,
-		Filter:                filter,
-		Percentage:            percentage,
-		EnforceOneTxPerSigner: enforceOneTxPerSigner,
-		signersUsed:           make(map[string]bool),
-		txs:                   []TxWithInfo{},
+		Logger:              logger,
+		TxEncoder:           txEncoder,
+		SignerExtractor:     signerExtractor,
+		Name:                name,
+		Match:               matchFn,
+		MaxTransactionSpace: maxTransactionSpace,
+		MaxLaneSpace:        maxLaneSpace,
+		laneMempool:         laneMempool,
 	}
 }
 
-// AddTx appends a transaction to this lane's slice.
-func (l *Lane) AddTx(tx TxWithInfo) {
-	l.txs = append(l.txs, tx)
+func (l *Lane) Insert(ctx context.Context, tx sdk.Tx) error {
+	return l.laneMempool.Insert(ctx, tx)
 }
 
-// RemoveTx removes a transaction from this lane by matching TxWithInfo.Hash.
-func (l *Lane) RemoveTx(txInfo TxWithInfo) {
-	newTxs := make([]TxWithInfo, 0, len(l.txs))
-	for _, t := range l.txs {
-		if t.Hash != txInfo.Hash {
-			newTxs = append(newTxs, t)
+func (l *Lane) CountTx() int {
+	return l.laneMempool.CountTx()
+}
+
+func (l *Lane) Remove(tx sdk.Tx) error {
+	return l.laneMempool.Remove(tx)
+}
+
+// FillProposal fills the proposal with transactions from the lane mempool.
+// It returns the total size and gas of the transactions added to the proposal.
+// If customLaneLimit is provided, it will be used instead of the lane's limit.
+func (l *Lane) FillProposal(
+	ctx sdk.Context,
+	proposal *Proposal,
+) (sizeUsed int64, gasUsed uint64, iterator sdkmempool.Iterator, txsToRemove []sdk.Tx) {
+	var (
+		transactionLimit BlockSpace
+		laneLimit        BlockSpace
+	)
+	// Get the transaction and lane limit for the lane.
+	transactionLimit = proposal.GetLimit(l.MaxTransactionSpace)
+	laneLimit = proposal.GetLimit(l.MaxLaneSpace)
+
+	// Select all transactions in the mempool that are valid and not already in the
+	// partial proposal.
+	for iterator = l.laneMempool.Select(ctx, nil); iterator != nil; iterator = iterator.Next() {
+		// If the total size used or total gas used exceeds the limit, we break and do not attempt to include more txs.
+		// We can tolerate a few bytes/gas over the limit, since we limit the size of each transaction.
+		if laneLimit.IsReached(sizeUsed, gasUsed) {
+
+			break
 		}
-	}
-	l.txs = newTxs
-}
 
-// GetTxs returns the slice of lane transactions.
-func (l *Lane) GetTxs() []TxWithInfo {
-	return l.txs
-}
+		tx := iterator.Tx()
+		txInfo, err := l.GetTxInfo(ctx, tx)
+		if err != nil {
+			l.Logger.Info("failed to get hash of tx", "err", err)
 
-// SetTxs overwrites the lane's transactions with the new slice.
-func (l *Lane) SetTxs(newTxs []TxWithInfo) {
-	l.txs = newTxs
-}
-
-// ResetState resets the lane’s state for a new proposal,
-// clearing the signersUsed map.
-func (l *Lane) ResetState() {
-	l.signersUsed = make(map[string]bool)
-}
-
-// FillProposal attempts to add lane transactions to the proposal,
-// respecting the laneGasLimit and the “one tx per signer” rule (if enforced).
-// It returns the leftover (unconsumed) gas for the lane.
-func (l *Lane) FillProposal(proposal *Proposal, laneGasLimit uint64) uint64 {
-	for _, txInfo := range l.txs {
-		// If the next tx doesn't fit the lane's gas budget, skip it (or break).
-		if txInfo.GasLimit > laneGasLimit {
+			txsToRemove = append(txsToRemove, tx)
 			continue
 		}
 
-		// If we enforce "one tx per signer," check if any signer has already used this lane.
-		if l.EnforceOneTxPerSigner {
-			skip := false
-			for _, signer := range txInfo.Signers {
-				signerAddr := signer.Signer.String()
-				if l.signersUsed[signerAddr] {
-					// This signer has already used the lane for a prior tx.
-					skip = true
-					break
-				}
-			}
-			if skip {
-				continue
-			}
+		// if the transaction is exceed the limit, we remove it from the lane mempool.
+		if transactionLimit.IsExceeded(txInfo.Size, txInfo.GasLimit) {
+			l.Logger.Info(
+				"failed to select tx for lane; tx exceeds limit",
+				"tx_hash", txInfo.Hash,
+				"lane", l.Name,
+			)
+
+			txsToRemove = append(txsToRemove, tx)
+			continue
 		}
 
-		// Attempt to add the transaction to the proposal.
+		// Verify the transaction.
+		if err = l.VerifyTx(ctx, tx, false); err != nil {
+			l.Logger.Info(
+				"failed to verify tx",
+				"tx_hash", txInfo.Hash,
+				"err", err,
+			)
+
+			txsToRemove = append(txsToRemove, tx)
+			continue
+		}
+
+		// Add the transaction to the proposal.
+		// TODO: check if the transaction cannot be added here, it should also cannot be added afterward.
 		if err := proposal.Add(txInfo); err != nil {
-			// If we fail (e.g. block size or gas limit exceeded), skip or break based on your policy.
+			l.Logger.Info(
+				"failed to add tx to proposal",
+				"lane", l.Name,
+				"tx_hash", txInfo.Hash,
+				"err", err,
+			)
+
+			break
+		}
+
+		// Update the total size and gas.
+		sizeUsed += txInfo.Size
+		gasUsed += txInfo.GasLimit
+	}
+
+	return
+}
+
+func (l *Lane) FillProposalBy(
+	ctx sdk.Context,
+	proposal *Proposal,
+	iterator sdkmempool.Iterator,
+	laneLimit BlockSpace,
+) (sizeUsed int64, gasUsed uint64, txsToRemove []sdk.Tx) {
+	// get the transaction limit for the lane.
+	transactionLimit := proposal.GetLimit(l.MaxTransactionSpace)
+
+	// Select all transactions in the mempool that are valid and not already in the
+	// partial proposal.
+	for ; iterator != nil; iterator = iterator.Next() {
+		// If the total size used or total gas used exceeds the limit, we break and do not attempt to include more txs.
+		// We can tolerate a few bytes/gas over the limit, since we limit the size of each transaction.
+		if laneLimit.IsReached(sizeUsed, gasUsed) {
+			break
+		}
+
+		tx := iterator.Tx()
+		txInfo, err := l.GetTxInfo(ctx, tx)
+		if err != nil {
+			l.Logger.Info("failed to get hash of tx", "err", err)
+
+			txsToRemove = append(txsToRemove, tx)
 			continue
 		}
 
-		// The transaction fits the lane's gas limit and the proposal’s constraints.
-		laneGasLimit -= txInfo.GasLimit
+		// if the transaction is exceed the limit, we remove it from the lane mempool.
+		if transactionLimit.IsExceeded(txInfo.Size, txInfo.GasLimit) {
+			l.Logger.Info(
+				"failed to select tx for lane; tx exceeds limit",
+				"tx_hash", txInfo.Hash,
+				"lane", l.Name,
+			)
 
-		// Mark signers as used if one-tx-per-signer is enforced.
-		if l.EnforceOneTxPerSigner {
-			for _, signer := range txInfo.Signers {
-				signerAddr := signer.Signer.String()
-				l.signersUsed[signerAddr] = true
-			}
+			txsToRemove = append(txsToRemove, tx)
+			continue
 		}
+
+		// Verify the transaction.
+		if err = l.VerifyTx(ctx, tx, false); err != nil {
+			l.Logger.Info(
+				"failed to verify tx",
+				"tx_hash", txInfo.Hash,
+				"err", err,
+			)
+
+			txsToRemove = append(txsToRemove, tx)
+			continue
+		}
+
+		// Add the transaction to the proposal.
+		if err := proposal.Add(txInfo); err != nil {
+			l.Logger.Info(
+				"failed to add tx to proposal",
+				"lane", l.Name,
+				"tx_hash", txInfo.Hash,
+				"err", err,
+			)
+
+			break
+		}
+
+		// Update the total size and gas.
+		sizeUsed += txInfo.Size
+		gasUsed += txInfo.GasLimit
 	}
 
-	return laneGasLimit
+	return
+}
+
+// GetTxInfo returns various information about the transaction that
+// belongs to the lane including its priority, signer's, sequence number,
+// size and more.
+func (l *Lane) GetTxInfo(ctx sdk.Context, tx sdk.Tx) (TxWithInfo, error) {
+	txBytes, err := l.TxEncoder(tx)
+	if err != nil {
+		return TxWithInfo{}, fmt.Errorf("failed to encode transaction: %w", err)
+	}
+
+	// TODO: Add an adapter to lanes so that this can be flexible to support EVM, etc.
+	gasTx, ok := tx.(sdk.FeeTx)
+	if !ok {
+		return TxWithInfo{}, fmt.Errorf("failed to cast transaction to gas tx")
+	}
+
+	signers, err := l.SignerExtractor.GetSigners(tx)
+	if err != nil {
+		return TxWithInfo{}, err
+	}
+
+	return TxWithInfo{
+		Hash:     strings.ToUpper(hex.EncodeToString(comettypes.Tx(txBytes).Hash())),
+		Size:     int64(len(txBytes)),
+		GasLimit: gasTx.GetGas(),
+		TxBytes:  txBytes,
+		Signers:  signers,
+	}, nil
+}
+
+// TODO: Add a method to verify the transaction.
+// VerifyTx verifies that the transaction is valid respecting to the msg server
+func (l *Lane) VerifyTx(ctx sdk.Context, tx sdk.Tx, simulate bool) error {
+	return nil
 }

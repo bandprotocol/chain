@@ -4,7 +4,9 @@ import (
 	"fmt"
 
 	"cosmossdk.io/log"
+	"cosmossdk.io/math"
 
+	comettypes "github.com/cometbft/cometbft/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -99,16 +101,51 @@ func (p *Proposal) Add(txInfo TxWithInfo) error {
 	return nil
 }
 
+// GetLimit returns the maximum block space available for a given ratio.
+func (p *Proposal) GetLimit(ratio math.LegacyDec) BlockSpace {
+	var (
+		txBytesLimit int64
+		gasLimit     uint64
+	)
+
+	// In the case where the ratio is zero, we return the max tx bytes remaining.
+	if ratio.IsZero() {
+		txBytesLimit = p.Info.MaxBlockSize - p.Info.BlockSize
+		if txBytesLimit < 0 {
+			txBytesLimit = 0
+		}
+
+		// Unsigned subtraction needs an additional check
+		if p.Info.GasLimit >= p.Info.MaxGasLimit {
+			gasLimit = 0
+		} else {
+			gasLimit = p.Info.MaxGasLimit - p.Info.GasLimit
+		}
+	} else {
+		// Otherwise, we calculate the max tx bytes / gas limit for the lane based on the ratio.
+		txBytesLimit = ratio.MulInt64(p.Info.MaxBlockSize).TruncateInt().Int64()
+		gasLimit = ratio.MulInt(math.NewIntFromUint64(p.Info.MaxGasLimit)).TruncateInt().Uint64()
+	}
+
+	return NewBlockSpace(txBytesLimit, gasLimit)
+}
+
 // GetBlockLimits retrieves the maximum block size and gas limit from context.
 func GetBlockLimits(ctx sdk.Context) (int64, uint64) {
 	blockParams := ctx.ConsensusParams().Block
 
 	var maxGasLimit uint64
-	if maxGas := blockParams.MaxGas; maxGas > 0 {
-		maxGasLimit = uint64(maxGas)
-	} else {
+
+	if blockParams.MaxGas == -1 {
 		maxGasLimit = MaxUint64
+	} else {
+		maxGasLimit = uint64(blockParams.MaxGas)
 	}
 
-	return blockParams.MaxBytes, maxGasLimit
+	maxBytesLimit := blockParams.MaxBytes
+	if blockParams.MaxBytes == -1 {
+		maxBytesLimit = comettypes.MaxBlockSizeBytes
+	}
+
+	return maxBytesLimit, maxGasLimit
 }

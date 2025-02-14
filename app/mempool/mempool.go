@@ -2,58 +2,50 @@ package mempool
 
 import (
 	"context"
-	"encoding/hex"
 	"fmt"
-	"strings"
 
-	signerextraction "github.com/skip-mev/block-sdk/v2/adapters/signer_extraction_adapter"
-
-	comettypes "github.com/cometbft/cometbft/types"
+	"cosmossdk.io/log"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 )
 
+var _ sdkmempool.Mempool = (*Mempool)(nil)
+
 // Mempool implements the sdkmempool.Mempool interface and uses Lanes internally.
 type Mempool struct {
-	txEncoder       sdk.TxEncoder
-	signerExtractor signerextraction.Adapter
-	lanes           []*Lane
+	logger log.Logger
+
+	lanes []*Lane
 }
 
 // NewMempool returns a new mempool with the given lanes.
 func NewMempool(
-	txEncoder sdk.TxEncoder,
-	signerExtractor signerextraction.Adapter,
+	logger log.Logger,
 	lanes []*Lane,
 ) *Mempool {
 	return &Mempool{
-		txEncoder:       txEncoder,
-		signerExtractor: signerExtractor,
-		lanes:           lanes,
+		logger: logger,
+		lanes:  lanes,
 	}
 }
 
-var _ sdkmempool.Mempool = (*Mempool)(nil)
+// Insert will insert a transaction into the mempool. It inserts the transaction
+// into the first lane that it matches.
+func (m *Mempool) Insert(ctx context.Context, tx sdk.Tx) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			m.logger.Error("panic in Insert", "err", r)
+			err = fmt.Errorf("panic in Insert: %v", r)
+		}
+	}()
 
-// Insert inserts a transaction into the first matching lane.
-func (m *Mempool) Insert(ctx context.Context, tx sdk.Tx) error {
-	txInfo, err := m.GetTxInfo(tx)
-	if err != nil {
-		return fmt.Errorf("Insert: failed to get tx info: %w", err)
-	}
-
-	placed := false
 	for _, lane := range m.lanes {
-		if lane.Filter(tx) {
-			lane.AddTx(txInfo)
-			placed = true
-			break
+		if lane.Match(tx) {
+			return lane.Insert(ctx, tx)
 		}
 	}
-	if !placed {
-		fmt.Printf("Insert: no lane matched for tx %s\n", txInfo.Hash)
-	}
+
 	return nil
 }
 
@@ -66,20 +58,27 @@ func (m *Mempool) Select(ctx context.Context, txs [][]byte) sdkmempool.Iterator 
 func (m *Mempool) CountTx() int {
 	count := 0
 	for _, lane := range m.lanes {
-		count += len(lane.GetTxs())
+		count += lane.CountTx()
 	}
 	return count
 }
 
-// Remove attempts to remove a transaction from whichever lane it is in.
-func (m *Mempool) Remove(tx sdk.Tx) error {
-	txInfo, err := m.GetTxInfo(tx)
-	if err != nil {
-		return fmt.Errorf("Remove: failed to get tx info: %w", err)
-	}
+// Remove removes a transaction from the mempool. This assumes that the transaction
+// is contained in only one of the lanes.
+func (m *Mempool) Remove(tx sdk.Tx) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			m.logger.Error("panic in Remove", "err", r)
+			err = fmt.Errorf("panic in Remove: %v", r)
+		}
+	}()
+
 	for _, lane := range m.lanes {
-		lane.RemoveTx(txInfo)
+		if lane.Match(tx) {
+			return lane.Remove(tx)
+		}
 	}
+
 	return nil
 }
 
@@ -87,75 +86,92 @@ func (m *Mempool) Remove(tx sdk.Tx) error {
 // then calls each lane’s FillProposal method. If leftover gas is important to you,
 // you can implement a second pass or distribute leftover to subsequent lanes, etc.
 func (m *Mempool) PrepareProposal(ctx sdk.Context, proposal Proposal) (Proposal, error) {
-	// Reset each lane’s state for the new proposal, clearing signersUsed, etc.
-	for _, lane := range m.lanes {
-		lane.ResetState()
-	}
+	// 1) Perform the initial fill of proposals
+	laneIterators, txsToRemove, totalSize, totalGas := m.fillInitialProposals(ctx, &proposal)
 
-	totalGasLimit := proposal.Info.MaxGasLimit
+	// 2) Calculate the remaining block space
+	remainderLimit := NewBlockSpace(proposal.Info.MaxBlockSize-totalSize, proposal.Info.MaxGasLimit-totalGas)
 
-	// 1) Compute each lane's gas budget from its percentage
-	laneGasLimits := make([]uint64, len(m.lanes))
-	for i, lane := range m.lanes {
-		laneGasLimits[i] = (lane.Percentage * totalGasLimit) / 100
-	}
+	// 3) Fill proposals with leftover space
+	m.fillRemainderProposals(ctx, &proposal, laneIterators, txsToRemove, remainderLimit)
 
-	// 2) Fill the proposal lane by lane
-	remainder := uint64(0)
-	for i, lane := range m.lanes {
-		remainder += lane.FillProposal(&proposal, laneGasLimits[i])
-	}
+	// 4) Remove the transactions that were invalidated from each lane
+	m.removeTxsFromLanes(txsToRemove)
 
-	// 3) use remainder gas from first round to fill proposal further
-	for _, lane := range m.lanes {
-		remainder = lane.FillProposal(&proposal, remainder)
-	}
 	return proposal, nil
 }
 
-// GetTxInfo returns metadata (hash, size, gas, signers) for the given tx by encoding it.
-func (m *Mempool) GetTxInfo(tx sdk.Tx) (TxWithInfo, error) {
-	txBytes, err := m.txEncoder(tx)
-	if err != nil {
-		return TxWithInfo{}, fmt.Errorf("failed to encode transaction: %w", err)
+// fillInitialProposals iterates over lanes, calling FillProposal. It returns:
+//   - laneIterators:  the Iterator for each lane
+//   - txsToRemove:    slice-of-slice of transactions to be removed later
+//   - totalSize:      total block size used
+//   - totalGas:       total gas used
+func (m *Mempool) fillInitialProposals(
+	ctx sdk.Context,
+	proposal *Proposal,
+) (
+	[]sdkmempool.Iterator,
+	[][]sdk.Tx,
+	int64,
+	uint64,
+) {
+	var (
+		totalSize int64
+		totalGas  uint64
+	)
+
+	laneIterators := make([]sdkmempool.Iterator, len(m.lanes))
+	txsToRemove := make([][]sdk.Tx, len(m.lanes))
+
+	for i, lane := range m.lanes {
+		sizeUsed, gasUsed, iterator, txs := lane.FillProposal(ctx, proposal)
+		totalSize += sizeUsed
+		totalGas += gasUsed
+
+		laneIterators[i] = iterator
+		txsToRemove[i] = txs
 	}
 
-	gasTx, ok := tx.(sdk.FeeTx)
-	if !ok {
-		return TxWithInfo{}, fmt.Errorf("failed to cast transaction to FeeTx")
-	}
-
-	signers, err := m.signerExtractor.GetSigners(tx)
-	if err != nil {
-		return TxWithInfo{}, err
-	}
-
-	return TxWithInfo{
-		Hash:     strings.ToUpper(hex.EncodeToString(comettypes.Tx(txBytes).Hash())),
-		Size:     int64(len(txBytes)),
-		GasLimit: gasTx.GetGas(),
-		TxBytes:  txBytes,
-		Signers:  signers,
-	}, nil
+	return laneIterators, txsToRemove, totalSize, totalGas
 }
 
-// MempoolIterator is an example iterator (optional).
-type MempoolIterator struct {
-	txs   []sdk.Tx
-	index int
+// fillRemainderProposals performs an additional fill on each lane using the leftover
+// BlockSpace. It updates txsToRemove to include any newly removed transactions.
+func (m *Mempool) fillRemainderProposals(
+	ctx sdk.Context,
+	proposal *Proposal,
+	laneIterators []sdkmempool.Iterator,
+	txsToRemove [][]sdk.Tx,
+	remainderLimit BlockSpace,
+) {
+	for i, lane := range m.lanes {
+		sizeUsed, gasUsed, removedTxs := lane.FillProposalBy(
+			ctx,
+			proposal,
+			laneIterators[i],
+			remainderLimit,
+		)
+
+		// Decrement the remainder for subsequent lanes
+		remainderLimit.DecreaseBy(sizeUsed, gasUsed)
+
+		// Append any newly removed transactions to be removed
+		txsToRemove[i] = append(txsToRemove[i], removedTxs...)
+	}
 }
 
-func (it *MempoolIterator) Next() sdkmempool.Iterator {
-	it.index++
-	if it.index >= len(it.txs) {
-		return nil
+// removeTxsFromLanes loops through each lane and removes all transactions
+// accumulated in txsToRemove.
+func (m *Mempool) removeTxsFromLanes(txsToRemove [][]sdk.Tx) {
+	for i, lane := range m.lanes {
+		for _, tx := range txsToRemove[i] {
+			if err := lane.Remove(tx); err != nil {
+				m.logger.Error(
+					"failed to remove transactions from lane",
+					"lane", lane.Name,
+					"err", err,
+				)
+			}
+		}
 	}
-	return it
-}
-
-func (it *MempoolIterator) Tx() sdk.Tx {
-	if it.index < len(it.txs) {
-		return it.txs[it.index]
-	}
-	return nil
 }

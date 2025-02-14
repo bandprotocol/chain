@@ -3,8 +3,6 @@ package mempool
 import (
 	"fmt"
 
-	"github.com/skip-mev/block-sdk/v2/block/utils"
-
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	"cosmossdk.io/log"
@@ -104,7 +102,7 @@ func (h *ProposalHandler) ProcessProposalHandler() sdk.ProcessProposalHandler {
 		}()
 
 		// Decode the transactions in the proposal.
-		decodedTxs, err := utils.GetDecodedTxs(h.txDecoder, req.Txs)
+		decodedTxs, err := GetDecodedTxs(h.txDecoder, req.Txs)
 		if err != nil {
 			h.logger.Error("failed to decode txs", "err", err)
 			return &abci.ResponseProcessProposal{Status: abci.ResponseProcessProposal_REJECT}, err

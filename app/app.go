@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 
-	signerextraction "github.com/skip-mev/block-sdk/v2/adapters/signer_extraction_adapter"
 	"github.com/spf13/cast"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -263,10 +262,10 @@ func NewBandApp(
 	// 	panic(err)
 	// }
 
-	bandLanes := DefaultLanes()
+	bandLanes := BandLanes(app)
 
 	// create Band mempool
-	bandMempool := mempool.NewMempool(txConfig.TxEncoder(), signerextraction.NewDefaultAdapter(), bandLanes)
+	bandMempool := mempool.NewMempool(app.Logger(), bandLanes)
 	// set the mempool
 	app.SetMempool(bandMempool)
 

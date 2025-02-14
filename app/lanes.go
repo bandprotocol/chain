@@ -1,9 +1,12 @@
 package band
 
 import (
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	signerextraction "github.com/skip-mev/block-sdk/v2/adapters/signer_extraction_adapter"
 
 	"github.com/bandprotocol/chain/v3/app/mempool"
 )
@@ -41,45 +44,44 @@ func isOtherTx(tx sdk.Tx) bool {
 	return !isBankSendTx(tx) && !isDelegateTx(tx)
 }
 
-// BankSendLane returns a lane named "bankSend" that matches only MsgSend transactions,
-// assigning 30% of the block's gas limit to this lane.
-func BankSendLane() *mempool.Lane {
-	return mempool.NewLane(
+// BandLanes returns the default lanes for the Band Protocol blockchain.
+func BandLanes(app *BandApp) []*mempool.Lane {
+	// 1. Create the signer extractor. This is used to extract the expected signers from
+	// a transaction. Each lane can have a different signer extractor if needed.
+	signerAdapter := signerextraction.NewDefaultAdapter()
+
+	BankSendLane := mempool.NewLane(
+		app.Logger(),
+		app.txConfig.TxEncoder(),
+		signerAdapter,
 		"bankSend",
 		isBankSendTx,
-		30,    // percentage
-		false, // EnforceOneTxPerSigner? set to true if you want one tx per signer
+		math.LegacyMustNewDecFromStr("0.05"),
+		math.LegacyMustNewDecFromStr("0.3"),
+		sdkmempool.DefaultPriorityMempool(),
 	)
-}
 
-// DelegateLane returns a lane named "delegate" that matches only MsgDelegate transactions,
-// assigning 30% of the block's gas limit to this lane.
-func DelegateLane() *mempool.Lane {
-	return mempool.NewLane(
+	DelegateLane := mempool.NewLane(
+		app.Logger(),
+		app.txConfig.TxEncoder(),
+		signerAdapter,
 		"delegate",
 		isDelegateTx,
-		30,    // percentage
-		false, // EnforceOneTxPerSigner? set to true if you want one tx per signer
+		math.LegacyMustNewDecFromStr("0.05"),
+		math.LegacyMustNewDecFromStr("0.3"),
+		sdkmempool.DefaultPriorityMempool(),
 	)
-}
 
-// OtherLane returns a lane named "other" for any transaction that does not strictly
-// match isBankSendTx or isDelegateTx. It allocates 40% of the block's gas limit.
-func OtherLane() *mempool.Lane {
-	return mempool.NewLane(
+	OtherLane := mempool.NewLane(
+		app.Logger(),
+		app.txConfig.TxEncoder(),
+		signerAdapter,
 		"other",
 		isOtherTx,
-		40,    // percentage
-		false, // EnforceOneTxPerSigner? set to true if you want one tx per signer
+		math.LegacyMustNewDecFromStr("0.1"),
+		math.LegacyMustNewDecFromStr("0.4"),
+		sdkmempool.DefaultPriorityMempool(),
 	)
-}
 
-// DefaultLanes is a convenience helper returning the typical three lanes:
-// bankSend, delegate, and other (30%, 30%, and 40%).
-func DefaultLanes() []*mempool.Lane {
-	return []*mempool.Lane{
-		BankSendLane(),
-		DelegateLane(),
-		OtherLane(),
-	}
+	return []*mempool.Lane{BankSendLane, DelegateLane, OtherLane}
 }
