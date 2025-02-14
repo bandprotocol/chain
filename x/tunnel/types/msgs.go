@@ -87,12 +87,7 @@ func NewMsgCreateIBCHookTunnel(
 	creator string,
 ) (*MsgCreateTunnel, error) {
 	r := NewIBCHookRoute(channelID, destinationContractAddress)
-	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, initialDeposit, creator)
-	if err != nil {
-		return nil, err
-	}
-
-	return m, nil
+	return NewMsgCreateTunnel(signalDeviations, interval, r, initialDeposit, creator)
 }
 
 // GetRouteValue returns the route of the tunnel.
