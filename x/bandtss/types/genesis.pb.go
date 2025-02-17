@@ -31,7 +31,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // GenesisState defines the bandtss module's genesis state.
 type GenesisState struct {
-	// params defines all the paramiters of the module.
+	// params defines all the parameters of the module.
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 	// members is an array containing members information.
 	Members []Member `protobuf:"bytes,2,rep,name=members,proto3" json:"members"`

@@ -9,7 +9,7 @@ COPY . /chain
 RUN go mod download
 RUN GO_OWASM_VERSION=$(go list -m github.com/bandprotocol/go-owasm | cut -d ' ' -f 2) && \
     wget https://github.com/bandprotocol/go-owasm/releases/download/$GO_OWASM_VERSION/libgo_owasm_muslc.x86_64.a -O /lib/libgo_owasm_muslc.x86_64.a
-RUN sha256sum /lib/libgo_owasm_muslc.x86_64.a | grep c56ad7694196175df51585cbc7f2543cfa8ba9a42c62dcfec76ca28a5842d073
+RUN sha256sum /lib/libgo_owasm_muslc.x86_64.a | grep a53839a28548aa5ec9e6d542b420a1cbf45c791671eb7d9cc44a45c6e43bced8
 
 # Copy the library you want to the final location that will be found by the linker flag `-lgo_owasm_muslc`
 RUN cp /lib/libgo_owasm_muslc.x86_64.a /lib/libgo_owasm_muslc.a

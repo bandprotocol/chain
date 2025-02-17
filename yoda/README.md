@@ -8,7 +8,7 @@ Since a subset of validators who are selected for a data request must return the
 
 Although the transaction can be sent manually by the user, it is not convenient, and would be rather time-consuming. Furthermore, most data providers already have APIs that can be used to query data automatically by another software. Therefore, we have developed Yoda to help validators to automatically query data from data providers by executing data source script, then submit the result to fulfill the request.
 
-For more detail about Yoda, please follows this [link](https://docs.bandchain.org/node-validators/yoda)
+For more details about Yoda, please follow this [link](https://docs.bandchain.org/node-validators/yoda)
 
 ## Installation
 

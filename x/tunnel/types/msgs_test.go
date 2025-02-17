@@ -107,11 +107,11 @@ func TestMsgUpdateSignalsAndInterval_ValidateBasic(t *testing.T) {
 }
 
 // ====================================
-// MsgActivate
+// MsgActivateTunnel
 // ====================================
 
-func TestMsgActivate_ValidateBasic(t *testing.T) {
-	msg := types.NewMsgActivate(1, validCreator.String())
+func TestMsgActivateTunnel_ValidateBasic(t *testing.T) {
+	msg := types.NewMsgActivateTunnel(1, validCreator.String())
 
 	// Valid case
 	err := msg.ValidateBasic()
@@ -124,11 +124,11 @@ func TestMsgActivate_ValidateBasic(t *testing.T) {
 }
 
 // ====================================
-// MsgDeactivate
+// MsgDeactivateTunnel
 // ====================================
 
-func TestMsgDeactivate_ValidateBasic(t *testing.T) {
-	msg := types.NewMsgDeactivate(1, validCreator.String())
+func TestMsgDeactivateTunnel_ValidateBasic(t *testing.T) {
+	msg := types.NewMsgDeactivateTunnel(1, validCreator.String())
 
 	// Valid case
 	err := msg.ValidateBasic()

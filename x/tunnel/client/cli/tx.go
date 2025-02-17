@@ -29,8 +29,8 @@ func GetTxCmd() *cobra.Command {
 		GetTxCmdUpdateRoute(),
 		GetTxCmdUpdateSignalsAndInterval(),
 		GetTxCmdWithdrawFeePayerFunds(),
-		GetTxCmdActivate(),
-		GetTxCmdDeactivate(),
+		GetTxCmdActivateTunnel(),
+		GetTxCmdDeactivateTunnel(),
 		GetTxCmdTriggerTunnel(),
 		GetTxCmdDepositToTunnel(),
 		GetTxCmdWithdrawFromTunnel(),
@@ -208,8 +208,8 @@ func GetTxCmdUpdateIBCRoute() *cobra.Command {
 
 func GetTxCmdUpdateSignalsAndInterval() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update-and-reset-tunnel [tunnel-id] [interval] [signalDeviations-json-file] ",
-		Short: "Update an existing tunnel and reset the latest price interval of the tunnel",
+		Use:   "update-signals-and-interval [tunnel-id] [interval] [signalDeviations-json-file] ",
+		Short: "Update signals and interval of the existing tunnel",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -278,9 +278,9 @@ func GetTxCmdWithdrawFeePayerFunds() *cobra.Command {
 	return cmd
 }
 
-func GetTxCmdActivate() *cobra.Command {
+func GetTxCmdActivateTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "activate [tunnel-id]",
+		Use:   "activate-tunnel [tunnel-id]",
 		Short: "Activate a tunnel",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -294,7 +294,7 @@ func GetTxCmdActivate() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgActivate(id, clientCtx.GetFromAddress().String())
+			msg := types.NewMsgActivateTunnel(id, clientCtx.GetFromAddress().String())
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -304,9 +304,9 @@ func GetTxCmdActivate() *cobra.Command {
 	return cmd
 }
 
-func GetTxCmdDeactivate() *cobra.Command {
+func GetTxCmdDeactivateTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "deactivate [tunnel-id]",
+		Use:   "deactivate-tunnel [tunnel-id]",
 		Short: "Deactivate a tunnel",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -320,7 +320,7 @@ func GetTxCmdDeactivate() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgDeactivate(id, clientCtx.GetFromAddress().String())
+			msg := types.NewMsgDeactivateTunnel(id, clientCtx.GetFromAddress().String())
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}

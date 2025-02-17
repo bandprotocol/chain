@@ -47,7 +47,7 @@ sleep 3
 # add feeder to bandchain
 echo "y" | bandd tx feeds add-feeders $(grogu keys list -a) --from validator --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain
 
-# wait for addding feeder transaction success
+# wait for adding feeder transaction success
 sleep 3
 
 # run grogu

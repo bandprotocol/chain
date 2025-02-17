@@ -3,7 +3,7 @@ package context
 import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 
-	band "github.com/bandprotocol/chain/v3/app"
+	"github.com/bandprotocol/chain/v3/app/params"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 )
 
@@ -51,9 +51,9 @@ type Config struct {
 
 // Context holds the runtime context for the application.
 type Context struct {
-	Config  Config
-	Keyring keyring.Keyring
-	Logger  *logger.Logger
-	Home    string
-	BandApp *band.BandApp
+	Config         Config
+	Keyring        keyring.Keyring
+	Logger         *logger.Logger
+	Home           string
+	EncodingConfig params.EncodingConfig
 }

@@ -2,7 +2,6 @@ package submitter
 
 import (
 	"context"
-	"os"
 	"sync"
 	"testing"
 	"time"
@@ -26,6 +25,7 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	auth "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -49,20 +49,10 @@ func TestSubmitterTestSuite(t *testing.T) {
 	suite.Run(t, new(SubmitterTestSuite))
 }
 
-var tempDir = func() string {
-	dir, err := os.MkdirTemp("", ".band")
-	if err != nil {
-		dir = band.DefaultNodeHome
-	}
-	defer os.RemoveAll(dir)
-
-	return dir
-}
-
 func (s *SubmitterTestSuite) SetupTest() {
 	// Initialize encoding config
+	tempDir := sdktestutil.GetTempDir(s.T())
 	initAppOptions := viper.New()
-	tempDir := tempDir()
 	initAppOptions.Set(flags.FlagHome, tempDir)
 	tempApplication := band.NewBandApp(
 		log.NewNopLogger(),

@@ -10,7 +10,7 @@ option go_package = "github.com/bandprotocol/chain/v3/x/tss/types";
 
 // GenesisState defines the tss module's genesis state.
 message GenesisState {
-  // params defines all the paramiters of the module.
+  // params defines all the parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
   // groups is an array containing information about each group.
   repeated Group groups = 2 [(gogoproto.nullable) = false];

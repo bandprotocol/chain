@@ -90,6 +90,26 @@ func CreateUpgradeHandler(
 			return nil, err
 		}
 
+		mintParams, err := keepers.MintKeeper.Params.Get(ctx)
+		if err != nil {
+			return nil, err
+		}
+		mintParams.BlocksPerYear = 31557600
+		err = keepers.MintKeeper.Params.Set(ctx, mintParams)
+		if err != nil {
+			return nil, err
+		}
+
+		slashingParams, err := keepers.SlashingKeeper.GetParams(ctx)
+		if err != nil {
+			return nil, err
+		}
+		slashingParams.SignedBlocksWindow = 86400
+		err = keepers.SlashingKeeper.SetParams(ctx, slashingParams)
+		if err != nil {
+			return nil, err
+		}
+
 		hostParams := icahosttypes.Params{
 			HostEnabled: true,
 			// specifying the whole list instead of adding and removing. Less fragile.

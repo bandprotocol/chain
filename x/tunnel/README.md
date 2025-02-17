@@ -30,8 +30,8 @@ The Tunnel module is designed to decentralize the creation of push-based price d
     - [MsgUpdateRoute](#msgupdateroute)
     - [MsgUpdateSignalsAndInterval](#msgupdatesignalsandinterval)
     - [MsgWithdrawFeePayerFunds](#msgwithdrawfeepayerfunds)
-    - [MsgActivate](#msgactivate)
-    - [MsgDeactivate](#msgdeactivate)
+    - [MsgActivateTunnel](#msgactivatetunnel)
+    - [MsgDeactivateTunnel](#msgdeactivatetunnel)
     - [MsgTriggerTunnel](#msgtriggertunnel)
     - [MsgDepositToTunnel](#msgdeposittotunnel)
     - [MsgWithdrawFromTunnel](#msgwithdrawfromtunnel)
@@ -332,7 +332,7 @@ message MsgWithdrawFeePayerFunds {
 }
 ```
 
-### MsgActivate
+### MsgActivateTunnel
 
 To activate the tunnel for processing at the EndBlock, the following conditions must be met:
 
@@ -340,10 +340,10 @@ To activate the tunnel for processing at the EndBlock, the following conditions 
 2. The fee payer must have sufficient Band tokens in their account to cover the base fee (will deactivate if tunnel didn’t have band).
 
 ```protobuf
-// Activate is the transaction message to activate a tunnel.
-message MsgActivate {
+// MsgActivateTunnel is the transaction message to activate a tunnel.
+message MsgActivateTunnel {
   option (cosmos.msg.v1.signer) = "creator";
-  option (amino.name)           = "tunnel/MsgActivate";
+  option (amino.name)           = "tunnel/MsgActivateTunnel";
 
   // tunnel_id is the ID of the tunnel to activate.
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
@@ -352,15 +352,15 @@ message MsgActivate {
 }
 ```
 
-### MsgDeactivate
+### MsgDeactivateTunnel
 
 To stop producing new packets, the tunnel can be deactivated.
 
 ```protobuf
-// MsgDeactivate is the transaction message to deactivate a tunnel.
-message MsgDeactivate {
+// MsgDeactivateTunnel is the transaction message to deactivate a tunnel.
+message MsgDeactivateTunnel {
   option (cosmos.msg.v1.signer) = "creator";
-  option (amino.name)           = "tunnel/MsgDeactivate";
+  option (amino.name)           = "tunnel/MsgDeactivateTunnel";
 
   // tunnel_id is the ID of the tunnel to deactivate.
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
@@ -509,7 +509,7 @@ This event is emitted when the tunnel fails to produce a packet.
 
 ### Event: `produce_packet_success`
 
-This event is emitted when the tunnel successes to produce a packet.
+This event is emitted when the tunnel succeeds to produce a packet.
 
 | Attribute Key | Attribute Value     |
 | ------------- | ------------------- |

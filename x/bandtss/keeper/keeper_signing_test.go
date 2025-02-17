@@ -3,6 +3,8 @@ package keeper_test
 import (
 	"go.uber.org/mock/gomock"
 
+	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v3/pkg/tss"
@@ -35,6 +37,8 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 		{
 			name: "test success with only current group",
 			preProcess: func(s *KeeperTestSuite) {
+				params := s.keeper.GetParams(s.ctx)
+
 				s.keeper.SetCurrentGroup(s.ctx, types.NewCurrentGroup(currentGroupID, s.ctx.BlockTime()))
 
 				s.tssKeeper.EXPECT().GetGroup(gomock.Any(), currentGroupID).
@@ -46,10 +50,12 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 					gomock.Any(),
 					bandtesting.Alice.Address,
 					types.ModuleName,
-					sdk.NewCoins(sdk.NewInt64Coin("uband", 20)),
+					params.FeePerSigner.MulInt(math.NewInt(2)),
 				).Return(nil)
 			},
 			postCheck: func(s *KeeperTestSuite) {
+				params := s.keeper.GetParams(s.ctx)
+
 				// check mapping of tss signingID -> bandtss signingID
 				actualMappedSigningID := s.keeper.GetSigningIDMapping(s.ctx, tss.SigningID(1))
 				s.Require().Equal(types.SigningID(1), actualMappedSigningID)
@@ -59,7 +65,7 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 				s.Require().NoError(err)
 				s.Require().Equal(types.Signing{
 					ID:                     types.SigningID(1),
-					FeePerSigner:           sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
+					FeePerSigner:           params.FeePerSigner,
 					Requester:              bandtesting.Alice.Address.String(),
 					CurrentGroupSigningID:  tss.SigningID(1),
 					IncomingGroupSigningID: tss.SigningID(0),
@@ -74,6 +80,8 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 		{
 			name: "test failed insufficient member in current group even normal incoming group",
 			preProcess: func(s *KeeperTestSuite) {
+				params := s.keeper.GetParams(s.ctx)
+
 				incomingGroupID := tss.GroupID(2)
 				transition := types.GroupTransition{
 					SigningID:       tss.SigningID(1),
@@ -103,7 +111,7 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 					gomock.Any(),
 					bandtesting.Alice.Address,
 					types.ModuleName,
-					sdk.NewCoins(sdk.NewInt64Coin("uband", 20)),
+					params.FeePerSigner.MulInt(math.NewInt(2)),
 				).Return(nil)
 			},
 			postCheck: func(s *KeeperTestSuite) {
@@ -118,6 +126,8 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 		{
 			name: "test success with only current group; insufficient member on incoming group",
 			preProcess: func(s *KeeperTestSuite) {
+				params := s.keeper.GetParams(s.ctx)
+
 				incomingGroupID := tss.GroupID(2)
 				transition := types.GroupTransition{
 					SigningID:       tss.SigningID(1),
@@ -158,10 +168,12 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 					gomock.Any(),
 					bandtesting.Alice.Address,
 					types.ModuleName,
-					sdk.NewCoins(sdk.NewInt64Coin("uband", 20)),
+					params.FeePerSigner.MulInt(math.NewInt(2)),
 				).Return(nil)
 			},
 			postCheck: func(s *KeeperTestSuite) {
+				params := s.keeper.GetParams(s.ctx)
+
 				// check mapping of tss signingID -> bandtss signingID
 				actualMappedSigningID := s.keeper.GetSigningIDMapping(s.ctx, tss.SigningID(1))
 				s.Require().Equal(types.SigningID(1), actualMappedSigningID)
@@ -171,7 +183,7 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 				s.Require().NoError(err)
 				s.Require().Equal(types.Signing{
 					ID:                     types.SigningID(1),
-					FeePerSigner:           sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
+					FeePerSigner:           params.FeePerSigner,
 					Requester:              bandtesting.Alice.Address.String(),
 					CurrentGroupSigningID:  tss.SigningID(1),
 					IncomingGroupSigningID: tss.SigningID(0),
@@ -189,6 +201,8 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 		{
 			name: "test success with both current and incoming group",
 			preProcess: func(s *KeeperTestSuite) {
+				params := s.keeper.GetParams(s.ctx)
+
 				incomingGroupID := tss.GroupID(2)
 				transition := types.GroupTransition{
 					SigningID:       tss.SigningID(1),
@@ -210,10 +224,12 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 					gomock.Any(),
 					bandtesting.Alice.Address,
 					types.ModuleName,
-					sdk.NewCoins(sdk.NewInt64Coin("uband", 20)),
+					params.FeePerSigner.MulInt(math.NewInt(2)),
 				).Return(nil)
 			},
 			postCheck: func(s *KeeperTestSuite) {
+				params := s.keeper.GetParams(s.ctx)
+
 				// check mapping of tss signingID -> bandtss signingID
 				bandtssSignignID := s.keeper.GetSigningIDMapping(s.ctx, tss.SigningID(2))
 				s.Require().Equal(types.SigningID(1), bandtssSignignID)
@@ -225,7 +241,7 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 				s.Require().NoError(err)
 				s.Require().Equal(types.Signing{
 					ID:                     types.SigningID(1),
-					FeePerSigner:           sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
+					FeePerSigner:           params.FeePerSigner,
 					Requester:              bandtesting.Alice.Address.String(),
 					CurrentGroupSigningID:  tss.SigningID(2),
 					IncomingGroupSigningID: tss.SigningID(3),
@@ -240,6 +256,8 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 		{
 			name: "request only current group; transition message is not signed",
 			preProcess: func(s *KeeperTestSuite) {
+				params := s.keeper.GetParams(s.ctx)
+
 				incomingGroupID := tss.GroupID(2)
 				transition := types.GroupTransition{
 					SigningID:       tss.SigningID(1),
@@ -259,10 +277,12 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 					gomock.Any(),
 					bandtesting.Alice.Address,
 					types.ModuleName,
-					sdk.NewCoins(sdk.NewInt64Coin("uband", 20)),
+					params.FeePerSigner.MulInt(math.NewInt(2)),
 				).Return(nil)
 			},
 			postCheck: func(s *KeeperTestSuite) {
+				params := s.keeper.GetParams(s.ctx)
+
 				// check mapping of tss signingID -> bandtss signingID
 				bandtssSignignID := s.keeper.GetSigningIDMapping(s.ctx, tss.SigningID(4))
 				s.Require().Equal(types.SigningID(1), bandtssSignignID)
@@ -272,7 +292,7 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 				s.Require().NoError(err)
 				s.Require().Equal(types.Signing{
 					ID:                     types.SigningID(1),
-					FeePerSigner:           sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
+					FeePerSigner:           params.FeePerSigner,
 					Requester:              bandtesting.Alice.Address.String(),
 					CurrentGroupSigningID:  tss.SigningID(4),
 					IncomingGroupSigningID: tss.SigningID(0),

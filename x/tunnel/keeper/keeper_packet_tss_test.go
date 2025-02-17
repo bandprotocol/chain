@@ -27,10 +27,10 @@ func (s *KeeperTestSuite) TestSendTSSPacket() {
 		1,                    // tunnelID
 		1,                    // sequence
 		[]feedstypes.Price{}, // priceInfos[]
-		sdk.NewCoins(),       // baseFee
-		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), // routeFee
 		time.Now().Unix(),
 	)
+
+	s.bandtssKeeper.EXPECT().GetSigningFee(ctx).Return(sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil)
 
 	// Mock the TSS keeper and set the state for checking later
 	s.bandtssKeeper.EXPECT().CreateTunnelSigningRequest(

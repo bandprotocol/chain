@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	_, _, _, _, _, _, _, _, _, _ sdk.Msg                       = &MsgCreateTunnel{}, &MsgUpdateRoute{}, &MsgUpdateSignalsAndInterval{}, &MsgWithdrawFeePayerFunds{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositToTunnel{}, &MsgWithdrawFromTunnel{}, &MsgUpdateParams{}
-	_, _, _, _, _, _, _, _, _    sdk.HasValidateBasic          = &MsgCreateTunnel{}, &MsgUpdateRoute{}, &MsgUpdateSignalsAndInterval{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositToTunnel{}, &MsgWithdrawFromTunnel{}, &MsgUpdateParams{}
+	_, _, _, _, _, _, _, _, _, _ sdk.Msg                       = &MsgCreateTunnel{}, &MsgUpdateRoute{}, &MsgUpdateSignalsAndInterval{}, &MsgWithdrawFeePayerFunds{}, &MsgActivateTunnel{}, &MsgDeactivateTunnel{}, &MsgTriggerTunnel{}, &MsgDepositToTunnel{}, &MsgWithdrawFromTunnel{}, &MsgUpdateParams{}
+	_, _, _, _, _, _, _, _, _    sdk.HasValidateBasic          = &MsgCreateTunnel{}, &MsgUpdateRoute{}, &MsgUpdateSignalsAndInterval{}, &MsgActivateTunnel{}, &MsgDeactivateTunnel{}, &MsgTriggerTunnel{}, &MsgDepositToTunnel{}, &MsgWithdrawFromTunnel{}, &MsgUpdateParams{}
 	_, _                         types.UnpackInterfacesMessage = &MsgCreateTunnel{}, &MsgUpdateRoute{}
 )
 
@@ -252,19 +252,19 @@ func (m MsgWithdrawFeePayerFunds) ValidateBasic() error {
 	return nil
 }
 
-// NewMsgActivate creates a new MsgActivate instance.
-func NewMsgActivate(
+// NewMsgActivateTunnel creates a new MsgActivateTunnel instance.
+func NewMsgActivateTunnel(
 	tunnelID uint64,
 	creator string,
-) *MsgActivate {
-	return &MsgActivate{
+) *MsgActivateTunnel {
+	return &MsgActivateTunnel{
 		TunnelID: tunnelID,
 		Creator:  creator,
 	}
 }
 
 // ValidateBasic does a sanity check on the provided data
-func (m MsgActivate) ValidateBasic() error {
+func (m MsgActivateTunnel) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Creator); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
@@ -272,19 +272,19 @@ func (m MsgActivate) ValidateBasic() error {
 	return nil
 }
 
-// NewMsgDeactivate creates a new MsgDeactivate instance.
-func NewMsgDeactivate(
+// NewMsgDeactivateTunnel creates a new MsgDeactivateTunnel instance.
+func NewMsgDeactivateTunnel(
 	tunnelID uint64,
 	creator string,
-) *MsgDeactivate {
-	return &MsgDeactivate{
+) *MsgDeactivateTunnel {
+	return &MsgDeactivateTunnel{
 		TunnelID: tunnelID,
 		Creator:  creator,
 	}
 }
 
 // ValidateBasic does a sanity check on the provided data
-func (m MsgDeactivate) ValidateBasic() error {
+func (m MsgDeactivateTunnel) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Creator); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
