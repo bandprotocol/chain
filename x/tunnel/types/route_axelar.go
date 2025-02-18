@@ -22,7 +22,7 @@ func NewAxelarRoute(
 // ValidateBasic validates the AxelarRoute.
 func (r *AxelarRoute) ValidateBasic() error {
 	// Validate fee coin
-	if !r.Fee.IsValid() {
+	if !r.Fee.IsValid() && !r.Fee.IsPositive() {
 		return fmt.Errorf("invalid fee: %s", r.Fee)
 	}
 

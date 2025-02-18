@@ -33,7 +33,7 @@ func (k Keeper) SendAxelarPacket(
 
 	// create axelar fee
 	feePayerStr := feePayer.String()
-	axelarFee := types.NewAxelarFee(route.Fee.String(), feeRecipient, &feePayerStr)
+	axelarFee := types.NewAxelarFee(route.Fee.Amount.String(), feeRecipient, &feePayerStr)
 
 	// create memo string for ibc transfer
 	memoStr, err := types.NewAxelarMemo(

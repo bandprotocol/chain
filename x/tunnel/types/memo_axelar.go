@@ -39,7 +39,7 @@ func NewAxelarFee(
 type AxelarMemo struct {
 	DestinationChain   string            `json:"destination_chain"`
 	DestinationAddress string            `json:"destination_address"`
-	Payload            []byte            `json:"payload"`
+	Payload            []uint            `json:"payload"`
 	Type               AxelarMessageType `json:"type"`
 	Fee                *AxelarFee        `json:"fee"` // Optional
 }
@@ -52,10 +52,16 @@ func NewAxelarMemo(
 	messageType AxelarMessageType,
 	fee *AxelarFee,
 ) AxelarMemo {
+	// Convert payload to uint array
+	payloadAsInts := make([]uint, len(payload))
+	for i, b := range payload {
+		payloadAsInts[i] = uint(b)
+	}
+
 	return AxelarMemo{
 		DestinationChain:   destinationChain,
 		DestinationAddress: destinationAddress,
-		Payload:            payload,
+		Payload:            payloadAsInts,
 		Type:               messageType,
 		Fee:                fee,
 	}
@@ -67,5 +73,6 @@ func (r AxelarMemo) String() (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return string(j), nil
 }
