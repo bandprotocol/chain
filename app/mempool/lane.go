@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"strings"
 
-	"cosmossdk.io/log"
-	"cosmossdk.io/math"
 	signerextraction "github.com/skip-mev/block-sdk/v2/adapters/signer_extraction_adapter"
 
 	comettypes "github.com/cometbft/cometbft/types"
+
+	"cosmossdk.io/log"
+	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 )
@@ -20,27 +22,26 @@ type Lane struct {
 	Logger          log.Logger
 	TxEncoder       sdk.TxEncoder
 	SignerExtractor signerextraction.Adapter
-	// Name is a identifier for this lane (e.g. "bankSend", "delegate").
-	Name string
-
-	// Filter determines if a given transaction belongs in this lane.
-	Match func(sdk.Tx) bool
+	Name            string
+	Match           func(ctx sdk.Context, tx sdk.Tx) bool
 
 	MaxTransactionSpace math.LegacyDec
 	MaxLaneSpace        math.LegacyDec
 
-	// laneMempool is the mempool that is responsible for storing transactions
-	// that are waiting to be processed.
 	laneMempool sdkmempool.Mempool
+
+	// txIndex holds the uppercase hex-encoded hash for every transaction
+	// currently in this lane's mempool.
+	txIndex map[string]struct{}
 }
 
-// NewLane is a simple constructor for a lane.
+// NewLane is a constructor for a lane.
 func NewLane(
 	logger log.Logger,
 	txEncoder sdk.TxEncoder,
 	signerExtractor signerextraction.Adapter,
 	name string,
-	matchFn func(sdk.Tx) bool,
+	matchFn func(sdk.Context, sdk.Tx) bool,
 	maxTransactionSpace math.LegacyDec,
 	maxLaneSpace math.LegacyDec,
 	laneMempool sdkmempool.Mempool,
@@ -54,11 +55,25 @@ func NewLane(
 		MaxTransactionSpace: maxTransactionSpace,
 		MaxLaneSpace:        maxLaneSpace,
 		laneMempool:         laneMempool,
+
+		// Initialize the txIndex.
+		txIndex: make(map[string]struct{}),
 	}
 }
 
 func (l *Lane) Insert(ctx context.Context, tx sdk.Tx) error {
-	return l.laneMempool.Insert(ctx, tx)
+	txInfo, err := l.GetTxInfo(tx)
+	if err != nil {
+		return err
+	}
+
+	if err = l.laneMempool.Insert(ctx, tx); err != nil {
+		return err
+	}
+
+	l.txIndex[txInfo.Hash] = struct{}{}
+	fmt.Println("insert tx to lane", l.Name, txInfo.Hash)
+	return nil
 }
 
 func (l *Lane) CountTx() int {
@@ -66,7 +81,28 @@ func (l *Lane) CountTx() int {
 }
 
 func (l *Lane) Remove(tx sdk.Tx) error {
-	return l.laneMempool.Remove(tx)
+	txInfo, err := l.GetTxInfo(tx)
+	if err != nil {
+		return err
+	}
+
+	if err = l.laneMempool.Remove(tx); err != nil {
+		return err
+	}
+
+	// Remove it from the local index
+	delete(l.txIndex, txInfo.Hash)
+	return nil
+}
+
+func (l *Lane) Contains(tx sdk.Tx) bool {
+	txInfo, err := l.GetTxInfo(tx)
+	if err != nil {
+		return false
+	}
+
+	_, exists := l.txIndex[txInfo.Hash]
+	return exists
 }
 
 // FillProposal fills the proposal with transactions from the lane mempool.
@@ -90,12 +126,11 @@ func (l *Lane) FillProposal(
 		// If the total size used or total gas used exceeds the limit, we break and do not attempt to include more txs.
 		// We can tolerate a few bytes/gas over the limit, since we limit the size of each transaction.
 		if laneLimit.IsReached(sizeUsed, gasUsed) {
-
 			break
 		}
 
 		tx := iterator.Tx()
-		txInfo, err := l.GetTxInfo(ctx, tx)
+		txInfo, err := l.GetTxInfo(tx)
 		if err != nil {
 			l.Logger.Info("failed to get hash of tx", "err", err)
 
@@ -109,18 +144,6 @@ func (l *Lane) FillProposal(
 				"failed to select tx for lane; tx exceeds limit",
 				"tx_hash", txInfo.Hash,
 				"lane", l.Name,
-			)
-
-			txsToRemove = append(txsToRemove, tx)
-			continue
-		}
-
-		// Verify the transaction.
-		if err = l.VerifyTx(ctx, tx, false); err != nil {
-			l.Logger.Info(
-				"failed to verify tx",
-				"tx_hash", txInfo.Hash,
-				"err", err,
 			)
 
 			txsToRemove = append(txsToRemove, tx)
@@ -149,7 +172,6 @@ func (l *Lane) FillProposal(
 }
 
 func (l *Lane) FillProposalBy(
-	ctx sdk.Context,
 	proposal *Proposal,
 	iterator sdkmempool.Iterator,
 	laneLimit BlockSpace,
@@ -167,7 +189,7 @@ func (l *Lane) FillProposalBy(
 		}
 
 		tx := iterator.Tx()
-		txInfo, err := l.GetTxInfo(ctx, tx)
+		txInfo, err := l.GetTxInfo(tx)
 		if err != nil {
 			l.Logger.Info("failed to get hash of tx", "err", err)
 
@@ -181,18 +203,6 @@ func (l *Lane) FillProposalBy(
 				"failed to select tx for lane; tx exceeds limit",
 				"tx_hash", txInfo.Hash,
 				"lane", l.Name,
-			)
-
-			txsToRemove = append(txsToRemove, tx)
-			continue
-		}
-
-		// Verify the transaction.
-		if err = l.VerifyTx(ctx, tx, false); err != nil {
-			l.Logger.Info(
-				"failed to verify tx",
-				"tx_hash", txInfo.Hash,
-				"err", err,
 			)
 
 			txsToRemove = append(txsToRemove, tx)
@@ -222,7 +232,7 @@ func (l *Lane) FillProposalBy(
 // GetTxInfo returns various information about the transaction that
 // belongs to the lane including its priority, signer's, sequence number,
 // size and more.
-func (l *Lane) GetTxInfo(ctx sdk.Context, tx sdk.Tx) (TxWithInfo, error) {
+func (l *Lane) GetTxInfo(tx sdk.Tx) (TxWithInfo, error) {
 	txBytes, err := l.TxEncoder(tx)
 	if err != nil {
 		return TxWithInfo{}, fmt.Errorf("failed to encode transaction: %w", err)
@@ -246,10 +256,4 @@ func (l *Lane) GetTxInfo(ctx sdk.Context, tx sdk.Tx) (TxWithInfo, error) {
 		TxBytes:  txBytes,
 		Signers:  signers,
 	}, nil
-}
-
-// TODO: Add a method to verify the transaction.
-// VerifyTx verifies that the transaction is valid respecting to the msg server
-func (l *Lane) VerifyTx(ctx sdk.Context, tx sdk.Tx, simulate bool) error {
-	return nil
 }

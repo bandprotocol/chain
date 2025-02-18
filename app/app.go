@@ -254,15 +254,8 @@ func NewBandApp(
 
 	app.sm.RegisterStoreDecoders()
 
-	// // initialize lanes + mempool
-	// feedsLane, defaultLane := CreateLanes(app, txConfig)
-
-	// lanedMempool, err := block.NewLanedMempool(app.Logger(), []block.Lane{feedsLane, defaultLane})
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	bandLanes := BandLanes(app)
+	feedsLane, tssLane, oracleLane, defaultLane := CreateLanes(app)
+	bandLanes := []*mempool.Lane{feedsLane, tssLane, oracleLane, defaultLane}
 
 	// create Band mempool
 	bandMempool := mempool.NewMempool(app.Logger(), bandLanes)
@@ -292,27 +285,12 @@ func NewBandApp(
 			IBCKeeper:       app.IBCKeeper,
 			StakingKeeper:   app.StakingKeeper,
 			GlobalfeeKeeper: &app.GlobalFeeKeeper,
+			Lanes:           []*mempool.Lane{feedsLane, tssLane, oracleLane}, // every lane except default lane
 		},
 	)
 	if err != nil {
 		panic(fmt.Errorf("failed to create ante handler: %s", err))
 	}
-
-	// // update ante-handlers on lanes
-	// opt := []base.LaneOption{
-	// 	base.WithAnteHandler(anteHandler),
-	// }
-	// feedsLane.WithOptions(opt...)
-	// defaultLane.WithOptions(opt...)
-
-	// // ABCI handlers
-	// // prepare proposal
-	// proposalHandler := blocksdkabci.NewDefaultProposalHandler(
-	// 	app.Logger(),
-	// 	txConfig.TxDecoder(),
-	// 	txConfig.TxEncoder(),
-	// 	lanedMempool,
-	// )
 
 	// proposal handler
 	proposalHandler := mempool.NewDefaultProposalHandler(app.Logger(), txConfig.TxDecoder(), bandMempool)

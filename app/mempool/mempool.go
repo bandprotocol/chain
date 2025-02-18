@@ -40,8 +40,9 @@ func (m *Mempool) Insert(ctx context.Context, tx sdk.Tx) (err error) {
 		}
 	}()
 
+	cacheSdkCtx, _ := sdk.UnwrapSDKContext(ctx).CacheContext()
 	for _, lane := range m.lanes {
-		if lane.Match(tx) {
+		if lane.Match(cacheSdkCtx, tx) {
 			return lane.Insert(ctx, tx)
 		}
 	}
@@ -74,7 +75,7 @@ func (m *Mempool) Remove(tx sdk.Tx) (err error) {
 	}()
 
 	for _, lane := range m.lanes {
-		if lane.Match(tx) {
+		if lane.Contains(tx) {
 			return lane.Remove(tx)
 		}
 	}
@@ -86,14 +87,15 @@ func (m *Mempool) Remove(tx sdk.Tx) (err error) {
 // then calls each lane’s FillProposal method. If leftover gas is important to you,
 // you can implement a second pass or distribute leftover to subsequent lanes, etc.
 func (m *Mempool) PrepareProposal(ctx sdk.Context, proposal Proposal) (Proposal, error) {
+	cacheCtx, _ := ctx.CacheContext()
 	// 1) Perform the initial fill of proposals
-	laneIterators, txsToRemove, totalSize, totalGas := m.fillInitialProposals(ctx, &proposal)
+	laneIterators, txsToRemove, totalSize, totalGas := m.fillInitialProposals(cacheCtx, &proposal)
 
 	// 2) Calculate the remaining block space
 	remainderLimit := NewBlockSpace(proposal.Info.MaxBlockSize-totalSize, proposal.Info.MaxGasLimit-totalGas)
 
 	// 3) Fill proposals with leftover space
-	m.fillRemainderProposals(ctx, &proposal, laneIterators, txsToRemove, remainderLimit)
+	m.fillRemainderProposals(&proposal, laneIterators, txsToRemove, remainderLimit)
 
 	// 4) Remove the transactions that were invalidated from each lane
 	m.removeTxsFromLanes(txsToRemove)
@@ -138,7 +140,6 @@ func (m *Mempool) fillInitialProposals(
 // fillRemainderProposals performs an additional fill on each lane using the leftover
 // BlockSpace. It updates txsToRemove to include any newly removed transactions.
 func (m *Mempool) fillRemainderProposals(
-	ctx sdk.Context,
 	proposal *Proposal,
 	laneIterators []sdkmempool.Iterator,
 	txsToRemove [][]sdk.Tx,
@@ -146,7 +147,6 @@ func (m *Mempool) fillRemainderProposals(
 ) {
 	for i, lane := range m.lanes {
 		sizeUsed, gasUsed, removedTxs := lane.FillProposalBy(
-			ctx,
 			proposal,
 			laneIterators[i],
 			remainderLimit,

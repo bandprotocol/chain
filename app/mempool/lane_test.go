@@ -60,7 +60,7 @@ func (s *LaneTestSuite) TestLaneInsertAndCount() {
 		s.encodingConfig.TxConfig.TxEncoder(),
 		signerextraction.NewDefaultAdapter(),
 		"testLane",
-		func(sdk.Tx) bool { return true }, // accept all
+		func(sdk.Context, sdk.Tx) bool { return true }, // accept all
 		math.LegacyMustNewDecFromStr("0.3"),
 		math.LegacyMustNewDecFromStr("0.3"),
 		sdkmempool.DefaultPriorityMempool(),
@@ -84,7 +84,7 @@ func (s *LaneTestSuite) TestLaneRemove() {
 		s.encodingConfig.TxConfig.TxEncoder(),
 		signerextraction.NewDefaultAdapter(),
 		"testLane",
-		func(sdk.Tx) bool { return true }, // accept all
+		func(sdk.Context, sdk.Tx) bool { return true }, // accept all
 		math.LegacyMustNewDecFromStr("0.3"),
 		math.LegacyMustNewDecFromStr("0.3"),
 		sdkmempool.DefaultPriorityMempool(),
@@ -107,7 +107,7 @@ func (s *LaneTestSuite) TestLaneFillProposal() {
 		s.encodingConfig.TxConfig.TxEncoder(),
 		signerextraction.NewDefaultAdapter(),
 		"testLane",
-		func(sdk.Tx) bool { return true }, // accept all
+		func(sdk.Context, sdk.Tx) bool { return true }, // accept all
 		math.LegacyMustNewDecFromStr("0.2"),
 		math.LegacyMustNewDecFromStr("0.3"),
 		sdkmempool.DefaultPriorityMempool(),
@@ -158,7 +158,7 @@ func (s *LaneTestSuite) TestLaneFillProposal() {
 	remainderLimit := NewBlockSpace(proposal.Info.MaxBlockSize-sizeUsed, proposal.Info.MaxGasLimit-gasUsed)
 
 	// Call FillProposalBy with the remainder limit and iterator from the previous call.
-	sizeUsed, gasUsed, txsToRemove = lane.FillProposalBy(s.ctx, &proposal, iterator, remainderLimit)
+	sizeUsed, gasUsed, txsToRemove = lane.FillProposalBy(&proposal, iterator, remainderLimit)
 
 	// We expect tx1, tx2, tx5, tx6, tx7, tx8 to be included in the proposal.
 	s.Require().Equal(int64(884), sizeUsed)

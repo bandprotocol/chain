@@ -7,14 +7,14 @@ import (
 	signerextraction "github.com/skip-mev/block-sdk/v2/adapters/signer_extraction_adapter"
 	"github.com/stretchr/testify/suite"
 
+	tmprototypes "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	"github.com/cosmos/gogoproto/proto"
+
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
 	"cosmossdk.io/x/tx/signing"
-
-	tmprototypes "github.com/cometbft/cometbft/proto/tendermint/types"
-
-	"github.com/cosmos/gogoproto/proto"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -190,7 +190,7 @@ func (s *MempoolTestSuite) newMempool() *Mempool {
 	)
 }
 
-func isBankSendTx(tx sdk.Tx) bool {
+func isBankSendTx(_ sdk.Context, tx sdk.Tx) bool {
 	msgs := tx.GetMsgs()
 	if len(msgs) == 0 {
 		return false
@@ -203,7 +203,7 @@ func isBankSendTx(tx sdk.Tx) bool {
 	return true
 }
 
-func isDelegateTx(tx sdk.Tx) bool {
+func isDelegateTx(_ sdk.Context, tx sdk.Tx) bool {
 	msgs := tx.GetMsgs()
 	if len(msgs) == 0 {
 		return false
@@ -216,9 +216,9 @@ func isDelegateTx(tx sdk.Tx) bool {
 	return true
 }
 
-func isOtherTx(tx sdk.Tx) bool {
+func isOtherTx(_ sdk.Context, tx sdk.Tx) bool {
 	// fallback if not pure bank send nor pure delegate
-	return !isBankSendTx(tx) && !isDelegateTx(tx)
+	return true
 }
 
 // -----------------------------------------------------------------------------

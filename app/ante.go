@@ -11,6 +11,7 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	"github.com/bandprotocol/chain/v3/app/mempool"
 	bandtsskeeper "github.com/bandprotocol/chain/v3/x/bandtss/keeper"
 	feedskeeper "github.com/bandprotocol/chain/v3/x/feeds/keeper"
 	"github.com/bandprotocol/chain/v3/x/globalfee/feechecker"
@@ -32,6 +33,7 @@ type HandlerOptions struct {
 	TSSKeeper       *tsskeeper.Keeper
 	BandtssKeeper   *bandtsskeeper.Keeper
 	FeedsKeeper     *feedskeeper.Keeper
+	Lanes           []*mempool.Lane
 }
 
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
@@ -105,6 +107,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 				options.FeegrantKeeper,
 				options.TxFeeChecker,
 			),
+			options.Lanes...,
 		),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
@@ -122,12 +125,14 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 // for the AnteDecorator to be ignored for specified lanes.
 type IgnoreDecorator struct {
 	decorator sdk.AnteDecorator
+	lanes     []*mempool.Lane
 }
 
 // NewIgnoreDecorator returns a new IgnoreDecorator instance.
-func NewIgnoreDecorator(decorator sdk.AnteDecorator) *IgnoreDecorator {
+func NewIgnoreDecorator(decorator sdk.AnteDecorator, lanes ...*mempool.Lane) *IgnoreDecorator {
 	return &IgnoreDecorator{
 		decorator: decorator,
+		lanes:     lanes,
 	}
 }
 
@@ -137,8 +142,11 @@ func NewIgnoreDecorator(decorator sdk.AnteDecorator) *IgnoreDecorator {
 func (sd IgnoreDecorator) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
 ) (sdk.Context, error) {
-	if isBankSendTx(tx) || isDelegateTx(tx) {
-		return next(ctx, tx, simulate)
+	cacheCtx, _ := ctx.CacheContext()
+	for _, lane := range sd.lanes {
+		if lane.Match(cacheCtx, tx) {
+			return next(ctx, tx, simulate)
+		}
 	}
 
 	return sd.decorator.AnteHandle(ctx, tx, simulate, next)
