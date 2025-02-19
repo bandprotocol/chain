@@ -15,6 +15,7 @@ var (
 	EventTypeInactiveProposal = types.EventTypeInactiveProposal
 	EventTypeActiveProposal   = types.EventTypeActiveProposal
 	StatusInactive            = 6
+	StatusCancelled           = 7
 )
 
 func (h *Hook) emitSetDeposit(ctx sdk.Context, txHash []byte, id uint64, depositor sdk.AccAddress) {
@@ -196,6 +197,14 @@ func (h *Hook) handleMsgVote(
 	h.emitSetVoteWeighted(setVoteWeighted, v1.NewNonSplitVoteOption(msg.Option))
 	proposal, _ := h.govKeeper.Proposals.Get(ctx, msg.ProposalId)
 	detail["title"] = proposal.Title
+}
+
+// handleMsgCancelProposal implements emitter handler for MsgCancelProposal.
+func (h *Hook) handleMsgCancelProposal(msg *v1.MsgCancelProposal) {
+	h.Write("UPDATE_PROPOSAL", common.JsDict{
+		"id":     msg.ProposalId,
+		"status": StatusCancelled,
+	})
 }
 
 // handleV1beta1MsgVote implements emitter handler for MsgVote v1beta1.
