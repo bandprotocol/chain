@@ -18,9 +18,9 @@ var (
 	DefaultMinDeposit         = sdk.NewCoins(sdk.NewInt64Coin("uband", 1_000_000_000))
 	DefaultMaxSignals         = uint64(25)
 	DefaultBasePacketFee      = sdk.NewCoins(sdk.NewInt64Coin("uband", 500))
-	DefaultAxelarIBCChannel   = "channel-0"
+	DefaultAxelarIBCChannel   = ""
 	DefaultAxelarGmpAccount   = "axelar1dv4u5k73pzqrxlzujxg3qp8kvc3pje7jtdvu72npnt5zhq05ejcsn5qme5"
-	DefaultAxelarFeeRecipient = "axelar1aythygn6z5thymj6tmzfwekzh05ewg3l7d6y89"
+	DefaultAxelarFeeRecipient = ""
 )
 
 // NewParams creates a new Params instance
