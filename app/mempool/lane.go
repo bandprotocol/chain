@@ -72,7 +72,6 @@ func (l *Lane) Insert(ctx context.Context, tx sdk.Tx) error {
 	}
 
 	l.txIndex[txInfo.Hash] = struct{}{}
-	fmt.Println("insert tx to lane", l.Name, txInfo.Hash)
 	return nil
 }
 
@@ -111,7 +110,7 @@ func (l *Lane) Contains(tx sdk.Tx) bool {
 func (l *Lane) FillProposal(
 	ctx sdk.Context,
 	proposal *Proposal,
-) (sizeUsed int64, gasUsed uint64, iterator sdkmempool.Iterator, txsToRemove []sdk.Tx) {
+) (blockUsed BlockSpace, iterator sdkmempool.Iterator, txsToRemove []sdk.Tx) {
 	var (
 		transactionLimit BlockSpace
 		laneLimit        BlockSpace
@@ -125,7 +124,7 @@ func (l *Lane) FillProposal(
 	for iterator = l.laneMempool.Select(ctx, nil); iterator != nil; iterator = iterator.Next() {
 		// If the total size used or total gas used exceeds the limit, we break and do not attempt to include more txs.
 		// We can tolerate a few bytes/gas over the limit, since we limit the size of each transaction.
-		if laneLimit.IsReached(sizeUsed, gasUsed) {
+		if laneLimit.IsReachedBy(blockUsed) {
 			break
 		}
 
@@ -139,7 +138,7 @@ func (l *Lane) FillProposal(
 		}
 
 		// if the transaction is exceed the limit, we remove it from the lane mempool.
-		if transactionLimit.IsExceeded(txInfo.Size, txInfo.GasLimit) {
+		if transactionLimit.IsExceededBy(txInfo.BlockSpace) {
 			l.Logger.Info(
 				"failed to select tx for lane; tx exceeds limit",
 				"tx_hash", txInfo.Hash,
@@ -163,9 +162,7 @@ func (l *Lane) FillProposal(
 			break
 		}
 
-		// Update the total size and gas.
-		sizeUsed += txInfo.Size
-		gasUsed += txInfo.GasLimit
+		blockUsed.IncreaseBy(txInfo.BlockSpace)
 	}
 
 	return
@@ -175,7 +172,7 @@ func (l *Lane) FillProposalBy(
 	proposal *Proposal,
 	iterator sdkmempool.Iterator,
 	laneLimit BlockSpace,
-) (sizeUsed int64, gasUsed uint64, txsToRemove []sdk.Tx) {
+) (blockUsed BlockSpace, txsToRemove []sdk.Tx) {
 	// get the transaction limit for the lane.
 	transactionLimit := proposal.GetLimit(l.MaxTransactionSpace)
 
@@ -184,7 +181,7 @@ func (l *Lane) FillProposalBy(
 	for ; iterator != nil; iterator = iterator.Next() {
 		// If the total size used or total gas used exceeds the limit, we break and do not attempt to include more txs.
 		// We can tolerate a few bytes/gas over the limit, since we limit the size of each transaction.
-		if laneLimit.IsReached(sizeUsed, gasUsed) {
+		if laneLimit.IsReachedBy(blockUsed) {
 			break
 		}
 
@@ -198,7 +195,7 @@ func (l *Lane) FillProposalBy(
 		}
 
 		// if the transaction is exceed the limit, we remove it from the lane mempool.
-		if transactionLimit.IsExceeded(txInfo.Size, txInfo.GasLimit) {
+		if transactionLimit.IsExceededBy(txInfo.BlockSpace) {
 			l.Logger.Info(
 				"failed to select tx for lane; tx exceeds limit",
 				"tx_hash", txInfo.Hash,
@@ -222,8 +219,7 @@ func (l *Lane) FillProposalBy(
 		}
 
 		// Update the total size and gas.
-		sizeUsed += txInfo.Size
-		gasUsed += txInfo.GasLimit
+		blockUsed.IncreaseBy(txInfo.BlockSpace)
 	}
 
 	return
@@ -249,11 +245,12 @@ func (l *Lane) GetTxInfo(tx sdk.Tx) (TxWithInfo, error) {
 		return TxWithInfo{}, err
 	}
 
+	BlockSpace := NewBlockSpace(int64(len(txBytes)), gasTx.GetGas())
+
 	return TxWithInfo{
-		Hash:     strings.ToUpper(hex.EncodeToString(comettypes.Tx(txBytes).Hash())),
-		Size:     int64(len(txBytes)),
-		GasLimit: gasTx.GetGas(),
-		TxBytes:  txBytes,
-		Signers:  signers,
+		Hash:       strings.ToUpper(hex.EncodeToString(comettypes.Tx(txBytes).Hash())),
+		BlockSpace: BlockSpace,
+		TxBytes:    txBytes,
+		Signers:    signers,
 	}, nil
 }

@@ -68,10 +68,8 @@ func (h *ProposalHandler) PrepareProposalHandler() sdk.PrepareProposalHandler {
 		h.logger.Info(
 			"prepared proposal",
 			"num_txs", len(finalProposal.Txs),
-			"total_tx_bytes", finalProposal.Info.BlockSize,
-			"max_tx_bytes", finalProposal.Info.MaxBlockSize,
-			"total_gas_limit", finalProposal.Info.GasLimit,
-			"max_gas_limit", finalProposal.Info.MaxGasLimit,
+			"total_block_space", finalProposal.TotalBlockSpace.String(),
+			"max_block_space", finalProposal.MaxBlockSpace.String(),
 			"height", req.Height,
 		)
 

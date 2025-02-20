@@ -139,12 +139,12 @@ func (s *LaneTestSuite) TestLaneFillProposal() {
 	)
 
 	// FillProposal
-	sizeUsed, gasUsed, iterator, txsToRemove := lane.FillProposal(s.ctx, &proposal)
+	blockUsed, iterator, txsToRemove := lane.FillProposal(s.ctx, &proposal)
 
 	// We expect tx1 and tx2 to be included in the proposal.
 	// Then the gas should be over the limit, so tx3 is yet to be considered.
-	s.Require().Equal(int64(440), sizeUsed)
-	s.Require().Equal(uint64(40), gasUsed, "20 gas from tx1 and 20 gas from tx2")
+	s.Require().Equal(int64(440), blockUsed.TxBytes())
+	s.Require().Equal(uint64(40), blockUsed.Gas(), "20 gas from tx1 and 20 gas from tx2")
 	s.Require().NotNil(iterator)
 	s.Require().
 		Len(txsToRemove, 0, "tx3 is yet to be considered")
@@ -155,14 +155,14 @@ func (s *LaneTestSuite) TestLaneFillProposal() {
 	s.Require().Equal(expectedIncludedTxs, proposal.Txs)
 
 	// Calculate the remaining block space
-	remainderLimit := NewBlockSpace(proposal.Info.MaxBlockSize-sizeUsed, proposal.Info.MaxGasLimit-gasUsed)
+	remainderLimit := proposal.MaxBlockSpace.Sub(proposal.TotalBlockSpace)
 
 	// Call FillProposalBy with the remainder limit and iterator from the previous call.
-	sizeUsed, gasUsed, txsToRemove = lane.FillProposalBy(&proposal, iterator, remainderLimit)
+	blockUsed, txsToRemove = lane.FillProposalBy(&proposal, iterator, remainderLimit)
 
 	// We expect tx1, tx2, tx5, tx6, tx7, tx8 to be included in the proposal.
-	s.Require().Equal(int64(884), sizeUsed)
-	s.Require().Equal(uint64(60), gasUsed)
+	s.Require().Equal(int64(884), blockUsed.TxBytes())
+	s.Require().Equal(uint64(60), blockUsed.Gas())
 	s.Require().Equal([]sdk.Tx{tx3, tx4}, txsToRemove)
 	s.Require().
 		Len(txsToRemove, 2, "tx3 and tx4 are removed")

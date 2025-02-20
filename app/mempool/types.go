@@ -8,10 +8,8 @@ import (
 type TxWithInfo struct {
 	// Hash is the hex-encoded hash of the transaction.
 	Hash string
-	// Size is the size of the transaction in bytes.
-	Size int64
-	// GasLimit is the gas limit of the transaction.
-	GasLimit uint64
+	// BlockSpace is the block space used by the transaction.
+	BlockSpace BlockSpace
 	// TxBytes is the raw transaction bytes.
 	TxBytes []byte
 	// Signers defines the signers of a transaction.
