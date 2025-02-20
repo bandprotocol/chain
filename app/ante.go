@@ -1,39 +1,56 @@
 package band
 
 import (
+	feemarketante "github.com/skip-mev/feemarket/x/feemarket/ante"
+	feemarketkeeper "github.com/skip-mev/feemarket/x/feemarket/keeper"
+
 	ibcante "github.com/cosmos/ibc-go/v8/modules/core/ante"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
+
+	storetypes "cosmossdk.io/store/types"
+	txsigning "cosmossdk.io/x/tx/signing"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	"github.com/bandprotocol/chain/v3/app/mempool"
 	bandtsskeeper "github.com/bandprotocol/chain/v3/x/bandtss/keeper"
 	feedskeeper "github.com/bandprotocol/chain/v3/x/feeds/keeper"
-	"github.com/bandprotocol/chain/v3/x/globalfee/feechecker"
-	globalfeekeeper "github.com/bandprotocol/chain/v3/x/globalfee/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
 	tsskeeper "github.com/bandprotocol/chain/v3/x/tss/keeper"
 )
 
+// UseFeeMarketDecorator to make the integration testing easier: we can switch off its ante and post decorators with this flag
+var UseFeeMarketDecorator = true
+
 // HandlerOptions extend the SDK's AnteHandler options by requiring the IBC
 // channel keeper.
 type HandlerOptions struct {
-	ante.HandlerOptions
-	Cdc             codec.Codec
+	Cdc                    codec.Codec
+	ExtensionOptionChecker ante.ExtensionOptionChecker
+	SignModeHandler        *txsigning.HandlerMap
+	SigGasConsumer         func(meter storetypes.GasMeter, sig signing.SignatureV2, params authtypes.Params) error
+	TxFeeChecker           ante.TxFeeChecker
+
+	AccountKeeper   feemarketante.AccountKeeper
+	BankKeeper      feemarketante.BankKeeper
+	FeegrantKeeper  ante.FeegrantKeeper
 	AuthzKeeper     *authzkeeper.Keeper
 	OracleKeeper    *oraclekeeper.Keeper
 	IBCKeeper       *ibckeeper.Keeper
 	StakingKeeper   *stakingkeeper.Keeper
-	GlobalfeeKeeper *globalfeekeeper.Keeper
+	FeeMarketKeeper *feemarketkeeper.Keeper
 	TSSKeeper       *tsskeeper.Keeper
 	BandtssKeeper   *bandtsskeeper.Keeper
 	FeedsKeeper     *feedskeeper.Keeper
-	Lanes           []*mempool.Lane
+
+	Lanes []*mempool.Lane
 }
 
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
@@ -70,27 +87,13 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	if options.StakingKeeper == nil {
 		return nil, sdkerrors.ErrLogic.Wrap("Staking keeper is required for AnteHandler")
 	}
-	if options.GlobalfeeKeeper == nil {
-		return nil, sdkerrors.ErrLogic.Wrap("Globalfee keeper is required for AnteHandler")
+	if options.FeeMarketKeeper == nil {
+		return nil, sdkerrors.ErrLogic.Wrap("FeeMarket keeper is required for AnteHandler")
 	}
 
 	sigGasConsumer := options.SigGasConsumer
 	if sigGasConsumer == nil {
 		sigGasConsumer = ante.DefaultSigVerificationGasConsumer
-	}
-
-	if options.TxFeeChecker == nil {
-		feeChecker := feechecker.NewFeeChecker(
-			options.Cdc,
-			options.AuthzKeeper,
-			options.OracleKeeper,
-			options.GlobalfeeKeeper,
-			options.StakingKeeper,
-			options.TSSKeeper,
-			options.BandtssKeeper,
-			options.FeedsKeeper,
-		)
-		options.TxFeeChecker = feeChecker.CheckTxFee
 	}
 
 	anteDecorators := []sdk.AnteDecorator{
@@ -100,15 +103,6 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		NewIgnoreDecorator(
-			ante.NewDeductFeeDecorator(
-				options.AccountKeeper,
-				options.BankKeeper,
-				options.FeegrantKeeper,
-				options.TxFeeChecker,
-			),
-			options.Lanes...,
-		),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
@@ -116,6 +110,24 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewSigVerificationDecorator(options.AccountKeeper, options.SignModeHandler),
 		ante.NewIncrementSequenceDecorator(options.AccountKeeper),
 		ibcante.NewRedundantRelayDecorator(options.IBCKeeper),
+	}
+
+	if UseFeeMarketDecorator {
+		anteDecorators = append(anteDecorators,
+			NewIgnoreDecorator(
+				feemarketante.NewFeeMarketCheckDecorator(
+					options.AccountKeeper,
+					options.BankKeeper,
+					options.FeegrantKeeper,
+					options.FeeMarketKeeper,
+					ante.NewDeductFeeDecorator(
+						options.AccountKeeper,
+						options.BankKeeper,
+						options.FeegrantKeeper,
+						options.TxFeeChecker)),
+				options.Lanes...,
+			),
+		)
 	}
 
 	return sdk.ChainAnteDecorators(anteDecorators...), nil

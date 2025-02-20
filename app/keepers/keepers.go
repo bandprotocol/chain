@@ -1,8 +1,12 @@
 package keepers
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
+
+	feemarketkeeper "github.com/skip-mev/feemarket/x/feemarket/keeper"
+	feemarkettypes "github.com/skip-mev/feemarket/x/feemarket/types"
 
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
@@ -73,8 +77,6 @@ import (
 	"github.com/bandprotocol/chain/v3/x/feeds"
 	feedskeeper "github.com/bandprotocol/chain/v3/x/feeds/keeper"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
-	globalfeekeeper "github.com/bandprotocol/chain/v3/x/globalfee/keeper"
-	globalfeetypes "github.com/bandprotocol/chain/v3/x/globalfee/types"
 	"github.com/bandprotocol/chain/v3/x/oracle"
 	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
@@ -118,7 +120,7 @@ type AppKeepers struct {
 	FeedsKeeper           feedskeeper.Keeper
 	TunnelKeeper          tunnelkeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
-	GlobalFeeKeeper       globalfeekeeper.Keeper
+	FeeMarketKeeper       *feemarketkeeper.Keeper
 	RestakeKeeper         restakekeeper.Keeper
 	// IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	IBCKeeper      *ibckeeper.Keeper
@@ -378,9 +380,11 @@ func NewAppKeeper(
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	appKeepers.EvidenceKeeper = *evidenceKeeper
 	// GlobalFeeKeeper
-	appKeepers.GlobalFeeKeeper = globalfeekeeper.NewKeeper(
+	appKeepers.FeeMarketKeeper = feemarketkeeper.NewKeeper(
 		appCodec,
-		appKeepers.keys[globalfeetypes.StoreKey],
+		appKeepers.keys[feemarkettypes.StoreKey],
+		appKeepers.AccountKeeper,
+		&DefaultFeemarketDenomResolver{},
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
@@ -584,4 +588,22 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(oracletypes.ModuleName)
 
 	return paramsKeeper
+}
+
+type DefaultFeemarketDenomResolver struct{}
+
+func (r *DefaultFeemarketDenomResolver) ConvertToDenom(
+	_ sdk.Context,
+	coin sdk.DecCoin,
+	denom string,
+) (sdk.DecCoin, error) {
+	if coin.Denom == denom {
+		return coin, nil
+	}
+
+	return sdk.DecCoin{}, fmt.Errorf("error resolving denom")
+}
+
+func (r *DefaultFeemarketDenomResolver) ExtraDenoms(_ sdk.Context) ([]string, error) {
+	return []string{}, nil
 }

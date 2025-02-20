@@ -1,6 +1,9 @@
 package band
 
 import (
+	feemarket "github.com/skip-mev/feemarket/x/feemarket"
+	feemarkettypes "github.com/skip-mev/feemarket/x/feemarket/types"
+
 	"github.com/cosmos/ibc-go/modules/capability"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 	icatypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/types"
@@ -56,8 +59,6 @@ import (
 	"github.com/bandprotocol/chain/v3/x/feeds"
 	feedsclient "github.com/bandprotocol/chain/v3/x/feeds/client"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
-	"github.com/bandprotocol/chain/v3/x/globalfee"
-	globalfeetypes "github.com/bandprotocol/chain/v3/x/globalfee/types"
 	"github.com/bandprotocol/chain/v3/x/oracle"
 	oracleclient "github.com/bandprotocol/chain/v3/x/oracle/client"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
@@ -72,18 +73,20 @@ import (
 )
 
 var maccPerms = map[string][]string{
-	authtypes.FeeCollectorName:     nil,
-	distrtypes.ModuleName:          nil,
-	icatypes.ModuleName:            nil,
-	minttypes.ModuleName:           {authtypes.Minter},
-	stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
-	stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
-	govtypes.ModuleName:            {authtypes.Burner},
-	ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
-	ibcfeetypes.ModuleName:         nil,
-	bandtsstypes.ModuleName:        nil,
-	restaketypes.ModuleName:        nil,
-	tunneltypes.ModuleName:         nil,
+	authtypes.FeeCollectorName:      nil,
+	distrtypes.ModuleName:           nil,
+	icatypes.ModuleName:             nil,
+	minttypes.ModuleName:            {authtypes.Minter},
+	stakingtypes.BondedPoolName:     {authtypes.Burner, authtypes.Staking},
+	stakingtypes.NotBondedPoolName:  {authtypes.Burner, authtypes.Staking},
+	govtypes.ModuleName:             {authtypes.Burner},
+	ibctransfertypes.ModuleName:     {authtypes.Minter, authtypes.Burner},
+	ibcfeetypes.ModuleName:          nil,
+	bandtsstypes.ModuleName:         nil,
+	restaketypes.ModuleName:         nil,
+	tunneltypes.ModuleName:          nil,
+	feemarkettypes.ModuleName:       nil,
+	feemarkettypes.FeeCollectorName: nil,
 }
 
 func appModules(
@@ -160,7 +163,7 @@ func appModules(
 		),
 		app.TransferModule,
 		app.ICAModule,
-		globalfee.NewAppModule(app.GlobalFeeKeeper),
+		feemarket.NewAppModule(appCodec, *app.FeeMarketKeeper),
 		ibcfee.NewAppModule(app.IBCFeeKeeper),
 		restake.NewAppModule(appCodec, app.RestakeKeeper),
 		feeds.NewAppModule(appCodec, app.FeedsKeeper),
@@ -294,8 +297,8 @@ func orderBeginBlockers() []string {
 		feegrant.ModuleName,
 		paramstypes.ModuleName,
 		vestingtypes.ModuleName,
+		feemarkettypes.ModuleName,
 		consensusparamtypes.ModuleName,
-		globalfeetypes.ModuleName,
 	}
 }
 
@@ -336,8 +339,8 @@ func orderEndBlockers() []string {
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
+		feemarkettypes.ModuleName,
 		consensusparamtypes.ModuleName,
-		globalfeetypes.ModuleName,
 	}
 }
 
@@ -371,12 +374,19 @@ func orderInitBlockers() []string {
 		paramstypes.ModuleName,
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
+		// The feemarket module should ideally be initialized before the genutil module in theory:
+		// The feemarket antehandler performs checks in DeliverTx, which is called by gentx.
+		// When the fee > 0, gentx needs to pay the fee. However, this is not expected.
+		// To resolve this issue, we should initialize the feemarket module after genutil, ensuring that the
+		// min fee is empty when gentx is called.
+		// A similar issue existed for the 'globalfee' module, which was previously used instead of 'feemarket'.
+		// For more details, please refer to the following link: https://github.com/cosmos/gaia/issues/2489
+		feemarkettypes.ModuleName,
 		consensusparamtypes.ModuleName,
 		rollingseedtypes.ModuleName,
 		oracletypes.ModuleName,
 		tsstypes.ModuleName,
 		bandtsstypes.ModuleName,
-		globalfeetypes.ModuleName,
 		restaketypes.ModuleName,
 		feedstypes.ModuleName,
 		tunneltypes.ModuleName,

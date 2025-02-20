@@ -1,6 +1,8 @@
 package keepers
 
 import (
+	feemarkettypes "github.com/skip-mev/feemarket/x/feemarket/types"
+
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 	icahosttypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/types"
 	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
@@ -26,7 +28,6 @@ import (
 
 	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
-	globalfeetypes "github.com/bandprotocol/chain/v3/x/globalfee/types"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
 	rollingseedtypes "github.com/bandprotocol/chain/v3/x/rollingseed/types"
@@ -57,7 +58,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		authzkeeper.StoreKey,
 		icahosttypes.StoreKey,
 		oracletypes.StoreKey,
-		globalfeetypes.StoreKey,
+		feemarkettypes.StoreKey,
 		ibcfeetypes.StoreKey,
 		restaketypes.StoreKey,
 		feedstypes.StoreKey,

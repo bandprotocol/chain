@@ -78,6 +78,8 @@ func TestAppTestSuite(t *testing.T) {
 
 func (s *AppTestSuite) SetupTest() {
 	dir := testutil.GetTempDir(s.T())
+
+	band.UseFeeMarketDecorator = false
 	s.app = bandtesting.SetupWithCustomHome(false, dir)
 	ctx := s.app.BaseApp.NewUncachedContext(false, cmtproto.Header{})
 
@@ -86,12 +88,14 @@ func (s *AppTestSuite) SetupTest() {
 	_, err = s.app.Commit()
 	s.Require().NoError(err)
 
-	params, err := s.app.SlashingKeeper.GetParams(ctx)
+	// Set new sign window
+	slashingParams, err := s.app.SlashingKeeper.GetParams(ctx)
 	s.Require().NoError(err)
 
-	// Set new sign window
-	params.SignedBlocksWindow = 2
-	params.MinSignedPerWindow = math.LegacyNewDecWithPrec(5, 1)
+	slashingParams.SignedBlocksWindow = 2
+	slashingParams.MinSignedPerWindow = math.LegacyNewDecWithPrec(5, 1)
+	err = s.app.SlashingKeeper.SetParams(ctx, slashingParams)
+	s.Require().NoError(err)
 
 	// Add Missed validator
 	res1 := s.app.AccountKeeper.GetAccount(ctx, bandtesting.MissedValidator.Address)
@@ -101,9 +105,6 @@ func (s *AppTestSuite) SetupTest() {
 	acc1Seq := res1.GetSequence()
 
 	txConfig := moduletestutil.MakeTestTxConfig()
-
-	err = s.app.SlashingKeeper.SetParams(ctx, params)
-	s.Require().NoError(err)
 
 	msg, err := stakingtypes.NewMsgCreateValidator(
 		sdk.ValAddress(bandtesting.MissedValidator.Address).String(),
