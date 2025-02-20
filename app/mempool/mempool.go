@@ -88,11 +88,12 @@ func (m *Mempool) Remove(tx sdk.Tx) (err error) {
 // you can implement a second pass or distribute leftover to subsequent lanes, etc.
 func (m *Mempool) PrepareProposal(ctx sdk.Context, proposal Proposal) (Proposal, error) {
 	cacheCtx, _ := ctx.CacheContext()
+
 	// 1) Perform the initial fill of proposals
-	laneIterators, txsToRemove, totalSize, totalGas := m.fillInitialProposals(cacheCtx, &proposal)
+	laneIterators, txsToRemove, blockUsed := m.fillInitialProposals(cacheCtx, &proposal)
 
 	// 2) Calculate the remaining block space
-	remainderLimit := NewBlockSpace(proposal.Info.MaxBlockSize-totalSize, proposal.Info.MaxGasLimit-totalGas)
+	remainderLimit := proposal.MaxBlockSpace.Sub(blockUsed)
 
 	// 3) Fill proposals with leftover space
 	m.fillRemainderProposals(&proposal, laneIterators, txsToRemove, remainderLimit)
@@ -114,27 +115,22 @@ func (m *Mempool) fillInitialProposals(
 ) (
 	[]sdkmempool.Iterator,
 	[][]sdk.Tx,
-	int64,
-	uint64,
+	BlockSpace,
 ) {
-	var (
-		totalSize int64
-		totalGas  uint64
-	)
+	totalBlockUsed := NewBlockSpace(0, 0)
 
 	laneIterators := make([]sdkmempool.Iterator, len(m.lanes))
 	txsToRemove := make([][]sdk.Tx, len(m.lanes))
 
 	for i, lane := range m.lanes {
-		sizeUsed, gasUsed, iterator, txs := lane.FillProposal(ctx, proposal)
-		totalSize += sizeUsed
-		totalGas += gasUsed
+		blockUsed, iterator, txs := lane.FillProposal(ctx, proposal)
+		totalBlockUsed.IncreaseBy(blockUsed)
 
 		laneIterators[i] = iterator
 		txsToRemove[i] = txs
 	}
 
-	return laneIterators, txsToRemove, totalSize, totalGas
+	return laneIterators, txsToRemove, totalBlockUsed
 }
 
 // fillRemainderProposals performs an additional fill on each lane using the leftover
@@ -146,14 +142,14 @@ func (m *Mempool) fillRemainderProposals(
 	remainderLimit BlockSpace,
 ) {
 	for i, lane := range m.lanes {
-		sizeUsed, gasUsed, removedTxs := lane.FillProposalBy(
+		blockUsed, removedTxs := lane.FillProposalBy(
 			proposal,
 			laneIterators[i],
 			remainderLimit,
 		)
 
 		// Decrement the remainder for subsequent lanes
-		remainderLimit.DecreaseBy(sizeUsed, gasUsed)
+		remainderLimit.DecreaseBy(blockUsed)
 
 		// Append any newly removed transactions to be removed
 		txsToRemove[i] = append(txsToRemove[i], removedTxs...)

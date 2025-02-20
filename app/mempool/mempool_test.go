@@ -4,7 +4,6 @@ import (
 	"math/rand"
 	"testing"
 
-	signerextraction "github.com/skip-mev/block-sdk/v2/adapters/signer_extraction_adapter"
 	"github.com/stretchr/testify/suite"
 
 	tmprototypes "github.com/cometbft/cometbft/proto/tendermint/types"
@@ -147,7 +146,7 @@ func (s *MempoolTestSuite) setBlockParams(maxGasLimit, maxBlockSize int64) {
 // -----------------------------------------------------------------------------
 
 func (s *MempoolTestSuite) newMempool() *Mempool {
-	signerAdapter := signerextraction.NewDefaultAdapter()
+	signerAdapter := sdkmempool.NewDefaultSignerExtractionAdapter()
 
 	BankSendLane := NewLane(
 		log.NewTestLogger(s.T()),

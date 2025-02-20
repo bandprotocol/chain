@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"strings"
 
-	signerextraction "github.com/skip-mev/block-sdk/v2/adapters/signer_extraction_adapter"
-
 	comettypes "github.com/cometbft/cometbft/types"
 
 	"cosmossdk.io/log"
@@ -21,7 +19,7 @@ import (
 type Lane struct {
 	Logger          log.Logger
 	TxEncoder       sdk.TxEncoder
-	SignerExtractor signerextraction.Adapter
+	SignerExtractor sdkmempool.SignerExtractionAdapter
 	Name            string
 	Match           func(ctx sdk.Context, tx sdk.Tx) bool
 
@@ -39,7 +37,7 @@ type Lane struct {
 func NewLane(
 	logger log.Logger,
 	txEncoder sdk.TxEncoder,
-	signerExtractor signerextraction.Adapter,
+	signerExtractor sdkmempool.SignerExtractionAdapter,
 	name string,
 	matchFn func(sdk.Context, sdk.Tx) bool,
 	maxTransactionSpace math.LegacyDec,
@@ -61,6 +59,7 @@ func NewLane(
 	}
 }
 
+// Insert inserts a transaction into the lane's mempool.
 func (l *Lane) Insert(ctx context.Context, tx sdk.Tx) error {
 	txInfo, err := l.GetTxInfo(tx)
 	if err != nil {
@@ -72,14 +71,15 @@ func (l *Lane) Insert(ctx context.Context, tx sdk.Tx) error {
 	}
 
 	l.txIndex[txInfo.Hash] = struct{}{}
-	fmt.Println("insert tx to lane", l.Name, txInfo.Hash)
 	return nil
 }
 
+// CountTx returns the total number of transactions in the lane's mempool.
 func (l *Lane) CountTx() int {
 	return l.laneMempool.CountTx()
 }
 
+// Remove removes a transaction from the lane's mempool.
 func (l *Lane) Remove(tx sdk.Tx) error {
 	txInfo, err := l.GetTxInfo(tx)
 	if err != nil {
@@ -95,6 +95,7 @@ func (l *Lane) Remove(tx sdk.Tx) error {
 	return nil
 }
 
+// Contains returns true if the lane's mempool contains the transaction.
 func (l *Lane) Contains(tx sdk.Tx) bool {
 	txInfo, err := l.GetTxInfo(tx)
 	if err != nil {
@@ -105,13 +106,14 @@ func (l *Lane) Contains(tx sdk.Tx) bool {
 	return exists
 }
 
-// FillProposal fills the proposal with transactions from the lane mempool.
+// FillProposal fills the proposal with transactions from the lane mempool with the its own limit.
 // It returns the total size and gas of the transactions added to the proposal.
-// If customLaneLimit is provided, it will be used instead of the lane's limit.
+// It also returns an iterator to the next transaction in the mempool and a list
+// of transactions that were removed from the lane mempool.
 func (l *Lane) FillProposal(
 	ctx sdk.Context,
 	proposal *Proposal,
-) (sizeUsed int64, gasUsed uint64, iterator sdkmempool.Iterator, txsToRemove []sdk.Tx) {
+) (blockUsed BlockSpace, iterator sdkmempool.Iterator, txsToRemove []sdk.Tx) {
 	var (
 		transactionLimit BlockSpace
 		laneLimit        BlockSpace
@@ -125,7 +127,7 @@ func (l *Lane) FillProposal(
 	for iterator = l.laneMempool.Select(ctx, nil); iterator != nil; iterator = iterator.Next() {
 		// If the total size used or total gas used exceeds the limit, we break and do not attempt to include more txs.
 		// We can tolerate a few bytes/gas over the limit, since we limit the size of each transaction.
-		if laneLimit.IsReached(sizeUsed, gasUsed) {
+		if laneLimit.IsReachedBy(blockUsed) {
 			break
 		}
 
@@ -139,7 +141,7 @@ func (l *Lane) FillProposal(
 		}
 
 		// if the transaction is exceed the limit, we remove it from the lane mempool.
-		if transactionLimit.IsExceeded(txInfo.Size, txInfo.GasLimit) {
+		if transactionLimit.IsExceededBy(txInfo.BlockSpace) {
 			l.Logger.Info(
 				"failed to select tx for lane; tx exceeds limit",
 				"tx_hash", txInfo.Hash,
@@ -163,19 +165,20 @@ func (l *Lane) FillProposal(
 			break
 		}
 
-		// Update the total size and gas.
-		sizeUsed += txInfo.Size
-		gasUsed += txInfo.GasLimit
+		blockUsed.IncreaseBy(txInfo.BlockSpace)
 	}
 
 	return
 }
 
+// FillProposalBy fills the proposal with transactions from the lane mempool with the given iterator and limit.
+// It returns the total size and gas of the transactions added to the proposal.
+// It also returns a list of transactions that were removed from the lane mempool.
 func (l *Lane) FillProposalBy(
 	proposal *Proposal,
 	iterator sdkmempool.Iterator,
 	laneLimit BlockSpace,
-) (sizeUsed int64, gasUsed uint64, txsToRemove []sdk.Tx) {
+) (blockUsed BlockSpace, txsToRemove []sdk.Tx) {
 	// get the transaction limit for the lane.
 	transactionLimit := proposal.GetLimit(l.MaxTransactionSpace)
 
@@ -184,7 +187,7 @@ func (l *Lane) FillProposalBy(
 	for ; iterator != nil; iterator = iterator.Next() {
 		// If the total size used or total gas used exceeds the limit, we break and do not attempt to include more txs.
 		// We can tolerate a few bytes/gas over the limit, since we limit the size of each transaction.
-		if laneLimit.IsReached(sizeUsed, gasUsed) {
+		if laneLimit.IsReachedBy(blockUsed) {
 			break
 		}
 
@@ -198,7 +201,7 @@ func (l *Lane) FillProposalBy(
 		}
 
 		// if the transaction is exceed the limit, we remove it from the lane mempool.
-		if transactionLimit.IsExceeded(txInfo.Size, txInfo.GasLimit) {
+		if transactionLimit.IsExceededBy(txInfo.BlockSpace) {
 			l.Logger.Info(
 				"failed to select tx for lane; tx exceeds limit",
 				"tx_hash", txInfo.Hash,
@@ -222,8 +225,7 @@ func (l *Lane) FillProposalBy(
 		}
 
 		// Update the total size and gas.
-		sizeUsed += txInfo.Size
-		gasUsed += txInfo.GasLimit
+		blockUsed.IncreaseBy(txInfo.BlockSpace)
 	}
 
 	return
@@ -249,11 +251,12 @@ func (l *Lane) GetTxInfo(tx sdk.Tx) (TxWithInfo, error) {
 		return TxWithInfo{}, err
 	}
 
+	BlockSpace := NewBlockSpace(int64(len(txBytes)), gasTx.GetGas())
+
 	return TxWithInfo{
-		Hash:     strings.ToUpper(hex.EncodeToString(comettypes.Tx(txBytes).Hash())),
-		Size:     int64(len(txBytes)),
-		GasLimit: gasTx.GetGas(),
-		TxBytes:  txBytes,
-		Signers:  signers,
+		Hash:       strings.ToUpper(hex.EncodeToString(comettypes.Tx(txBytes).Hash())),
+		BlockSpace: BlockSpace,
+		TxBytes:    txBytes,
+		Signers:    signers,
 	}, nil
 }

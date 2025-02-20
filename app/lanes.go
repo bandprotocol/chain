@@ -1,10 +1,6 @@
 package band
 
 import (
-	"fmt"
-
-	signerextraction "github.com/skip-mev/block-sdk/v2/adapters/signer_extraction_adapter"
-
 	"cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -39,7 +35,6 @@ func FeedsLaneMatchHandler(
 				return false
 			}
 		}
-		fmt.Println("valid feeds message")
 		return true
 	}
 }
@@ -113,7 +108,6 @@ func TssLaneMatchHandler(
 				return false
 			}
 		}
-		fmt.Println("valid tss message")
 		return true
 	}
 }
@@ -219,7 +213,6 @@ func oracleLaneMatchHandler(
 				return false
 			}
 		}
-		fmt.Println("valid bank send message")
 		return true
 	}
 }
@@ -279,7 +272,6 @@ func isValidMsgReportData(
 // DefaultLaneMatchHandler is a function that returns the match function for the default lane.
 func DefaultLaneMatchHandler() func(sdk.Context, sdk.Tx) bool {
 	return func(_ sdk.Context, _ sdk.Tx) bool {
-		fmt.Println("valid default message")
 		return true
 	}
 }
@@ -288,7 +280,7 @@ func DefaultLaneMatchHandler() func(sdk.Context, sdk.Tx) bool {
 func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleLane, defaultLane *mempool.Lane) {
 	// 1. Create the signer extractor. This is used to extract the expected signers from
 	// a transaction. Each lane can have a different signer extractor if needed.
-	signerAdapter := signerextraction.NewDefaultAdapter()
+	signerAdapter := sdkmempool.NewDefaultSignerExtractionAdapter()
 
 	feedsMsgServer := feedskeeper.NewMsgServerImpl(app.FeedsKeeper)
 	tssMsgServer := tsskeeper.NewMsgServerImpl(app.TSSKeeper)
