@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"strings"
 
-	signerextraction "github.com/skip-mev/block-sdk/v2/adapters/signer_extraction_adapter"
-
 	comettypes "github.com/cometbft/cometbft/types"
 
 	"cosmossdk.io/log"
@@ -21,7 +19,7 @@ import (
 type Lane struct {
 	Logger          log.Logger
 	TxEncoder       sdk.TxEncoder
-	SignerExtractor signerextraction.Adapter
+	SignerExtractor sdkmempool.SignerExtractionAdapter
 	Name            string
 	Match           func(ctx sdk.Context, tx sdk.Tx) bool
 
@@ -39,7 +37,7 @@ type Lane struct {
 func NewLane(
 	logger log.Logger,
 	txEncoder sdk.TxEncoder,
-	signerExtractor signerextraction.Adapter,
+	signerExtractor sdkmempool.SignerExtractionAdapter,
 	name string,
 	matchFn func(sdk.Context, sdk.Tx) bool,
 	maxTransactionSpace math.LegacyDec,
@@ -61,6 +59,7 @@ func NewLane(
 	}
 }
 
+// Insert inserts a transaction into the lane's mempool.
 func (l *Lane) Insert(ctx context.Context, tx sdk.Tx) error {
 	txInfo, err := l.GetTxInfo(tx)
 	if err != nil {
@@ -75,10 +74,12 @@ func (l *Lane) Insert(ctx context.Context, tx sdk.Tx) error {
 	return nil
 }
 
+// CountTx returns the total number of transactions in the lane's mempool.
 func (l *Lane) CountTx() int {
 	return l.laneMempool.CountTx()
 }
 
+// Remove removes a transaction from the lane's mempool.
 func (l *Lane) Remove(tx sdk.Tx) error {
 	txInfo, err := l.GetTxInfo(tx)
 	if err != nil {
@@ -94,6 +95,7 @@ func (l *Lane) Remove(tx sdk.Tx) error {
 	return nil
 }
 
+// Contains returns true if the lane's mempool contains the transaction.
 func (l *Lane) Contains(tx sdk.Tx) bool {
 	txInfo, err := l.GetTxInfo(tx)
 	if err != nil {
@@ -104,9 +106,10 @@ func (l *Lane) Contains(tx sdk.Tx) bool {
 	return exists
 }
 
-// FillProposal fills the proposal with transactions from the lane mempool.
+// FillProposal fills the proposal with transactions from the lane mempool with the its own limit.
 // It returns the total size and gas of the transactions added to the proposal.
-// If customLaneLimit is provided, it will be used instead of the lane's limit.
+// It also returns an iterator to the next transaction in the mempool and a list
+// of transactions that were removed from the lane mempool.
 func (l *Lane) FillProposal(
 	ctx sdk.Context,
 	proposal *Proposal,
@@ -168,6 +171,9 @@ func (l *Lane) FillProposal(
 	return
 }
 
+// FillProposalBy fills the proposal with transactions from the lane mempool with the given iterator and limit.
+// It returns the total size and gas of the transactions added to the proposal.
+// It also returns a list of transactions that were removed from the lane mempool.
 func (l *Lane) FillProposalBy(
 	proposal *Proposal,
 	iterator sdkmempool.Iterator,

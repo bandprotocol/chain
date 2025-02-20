@@ -4,7 +4,6 @@ import (
 	"math/rand"
 	"testing"
 
-	signerextraction "github.com/skip-mev/block-sdk/v2/adapters/signer_extraction_adapter"
 	"github.com/stretchr/testify/suite"
 
 	"cosmossdk.io/log"
@@ -58,7 +57,7 @@ func (s *LaneTestSuite) TestLaneInsertAndCount() {
 	lane := NewLane(
 		log.NewNopLogger(),
 		s.encodingConfig.TxConfig.TxEncoder(),
-		signerextraction.NewDefaultAdapter(),
+		sdkmempool.NewDefaultSignerExtractionAdapter(),
 		"testLane",
 		func(sdk.Context, sdk.Tx) bool { return true }, // accept all
 		math.LegacyMustNewDecFromStr("0.3"),
@@ -82,7 +81,7 @@ func (s *LaneTestSuite) TestLaneRemove() {
 	lane := NewLane(
 		log.NewNopLogger(),
 		s.encodingConfig.TxConfig.TxEncoder(),
-		signerextraction.NewDefaultAdapter(),
+		sdkmempool.NewDefaultSignerExtractionAdapter(),
 		"testLane",
 		func(sdk.Context, sdk.Tx) bool { return true }, // accept all
 		math.LegacyMustNewDecFromStr("0.3"),
@@ -105,7 +104,7 @@ func (s *LaneTestSuite) TestLaneFillProposal() {
 	lane := NewLane(
 		log.NewNopLogger(),
 		s.encodingConfig.TxConfig.TxEncoder(),
-		signerextraction.NewDefaultAdapter(),
+		sdkmempool.NewDefaultSignerExtractionAdapter(),
 		"testLane",
 		func(sdk.Context, sdk.Tx) bool { return true }, // accept all
 		math.LegacyMustNewDecFromStr("0.2"),

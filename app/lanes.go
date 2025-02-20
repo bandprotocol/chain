@@ -1,8 +1,6 @@
 package band
 
 import (
-	signerextraction "github.com/skip-mev/block-sdk/v2/adapters/signer_extraction_adapter"
-
 	"cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -282,7 +280,7 @@ func DefaultLaneMatchHandler() func(sdk.Context, sdk.Tx) bool {
 func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleLane, defaultLane *mempool.Lane) {
 	// 1. Create the signer extractor. This is used to extract the expected signers from
 	// a transaction. Each lane can have a different signer extractor if needed.
-	signerAdapter := signerextraction.NewDefaultAdapter()
+	signerAdapter := sdkmempool.NewDefaultSignerExtractionAdapter()
 
 	feedsMsgServer := feedskeeper.NewMsgServerImpl(app.FeedsKeeper)
 	tssMsgServer := tsskeeper.NewMsgServerImpl(app.TSSKeeper)
