@@ -47,7 +47,6 @@ func (p *Proposal) Contains(txHash string) bool {
 
 // Add attempts to add a transaction to the proposal, respecting size/gas limits.
 func (p *Proposal) Add(txInfo TxWithInfo) error {
-	fmt.Println("try add tx to proposal", txInfo.Hash)
 	if p.Contains(txInfo.Hash) {
 		return fmt.Errorf("transaction already in proposal: %s", txInfo.Hash)
 	}
