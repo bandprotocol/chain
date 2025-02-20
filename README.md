@@ -61,7 +61,7 @@ make install
 
 **Step 3. Verify your installation**
 
-Using `bandd version` command to verify that your `bandd` has been build successfully.
+Using `bandd version` command to verify that your `bandd` has been built successfully.
 
 ```
 name: bandchain

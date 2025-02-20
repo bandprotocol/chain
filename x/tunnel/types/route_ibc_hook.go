@@ -30,6 +30,12 @@ func (r *IBCHookRoute) ValidateBasic() error {
 	if !channeltypes.IsChannelIDFormat(r.ChannelID) {
 		return fmt.Errorf("channel identifier is not in the format: `channel-{N}`")
 	}
+
+	// Validate the DestinationContractAddress cannot be empty
+	if r.DestinationContractAddress == "" {
+		return fmt.Errorf("destination contract address cannot be empty")
+	}
+
 	return nil
 }
 
