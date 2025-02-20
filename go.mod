@@ -14,7 +14,7 @@ require (
 	cosmossdk.io/tools/rosetta v0.2.1-0.20230613133644-0a778132a60f
 	cosmossdk.io/x/evidence v0.1.1
 	cosmossdk.io/x/feegrant v0.1.1
-	cosmossdk.io/x/tx v0.13.7
+	cosmossdk.io/x/tx v0.13.8
 	cosmossdk.io/x/upgrade v0.1.4
 	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/bandprotocol/bothan/bothan-api/client/go-client v0.0.1-alpha.6
@@ -49,7 +49,7 @@ require (
 	golang.org/x/crypto v0.27.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20241021214115-324edc3d5d38
 	google.golang.org/grpc v1.67.1
-	google.golang.org/protobuf v1.36.1
+	google.golang.org/protobuf v1.36.4
 )
 
 require (
