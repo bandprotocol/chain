@@ -108,6 +108,8 @@ func (bs BlockSpace) MulDec(dec math.LegacyDec) BlockSpace {
 }
 
 // --- Stringer ---
+
+// String returns a string representation of the BlockSpace.
 func (bs BlockSpace) String() string {
 	return fmt.Sprintf("BlockSpace{txBytes: %d, gas: %d}", bs.txBytes, bs.gas)
 }
