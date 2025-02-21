@@ -21,7 +21,6 @@ func (s *KeeperTestSuite) TestSendRouterPacket() {
 		DestinationChainID:         "17000",
 		DestinationContractAddress: "0xDFCfEbF22e85193eDc37b8b136d4F3394987d1AE",
 		DestinationGasLimit:        300000,
-		DestinationGasPrice:        10000000,
 	}
 	packet := types.Packet{
 		TunnelID:  tunnelID,

@@ -87,7 +87,6 @@ func NewMsgCreateRouterTunnel(
 	destinationChainID string,
 	destinationContractAddress string,
 	destinationGasLimit uint64,
-	destinationGasPrice uint64,
 	initialDeposit sdk.Coins,
 	creator string,
 ) (*MsgCreateTunnel, error) {
@@ -95,7 +94,6 @@ func NewMsgCreateRouterTunnel(
 		DestinationChainID:         destinationChainID,
 		DestinationContractAddress: destinationContractAddress,
 		DestinationGasLimit:        destinationGasLimit,
-		DestinationGasPrice:        destinationGasPrice,
 	}
 	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, initialDeposit, creator)
 	if err != nil {
@@ -203,12 +201,11 @@ func NewMsgUpdateRouterRoute(
 	destChainID string,
 	destContractAddress string,
 	destGasLimit uint64,
-	destGasPrice uint64,
 	creator string,
 ) (*MsgUpdateRoute, error) {
 	return NewMsgUpdateRoute(
 		tunnelID,
-		NewRouterRoute(destChainID, destContractAddress, destGasLimit, destGasPrice),
+		NewRouterRoute(destChainID, destContractAddress, destGasLimit),
 		creator,
 	)
 }

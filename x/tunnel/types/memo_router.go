@@ -7,7 +7,6 @@ type RouterReceiveBandData struct {
 	DestChainID         string `json:"dest_chain_id"`
 	DestContractAddress string `json:"dest_contract_address"`
 	GasLimit            uint64 `json:"gas_limit"`
-	GasPrice            uint64 `json:"gas_price"`
 	Payload             string `json:"payload"`
 }
 
@@ -33,7 +32,6 @@ func NewRouterMemo(
 	destinationChainID string,
 	destinationContractAddress string,
 	gasLimit uint64,
-	gasPrice uint64,
 	payload string,
 ) RouterMemo {
 	return RouterMemo{
@@ -44,7 +42,6 @@ func NewRouterMemo(
 					DestChainID:         destinationChainID,
 					DestContractAddress: destinationContractAddress,
 					GasLimit:            gasLimit,
-					GasPrice:            gasPrice,
 					Payload:             payload,
 				},
 			},

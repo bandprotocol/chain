@@ -36,7 +36,6 @@ func (k Keeper) SendRouterPacket(
 		route.DestinationChainID,
 		route.DestinationContractAddress,
 		route.DestinationGasLimit,
-		route.DestinationGasPrice,
 		base64.StdEncoding.EncodeToString(payload),
 	).String()
 	if err != nil {

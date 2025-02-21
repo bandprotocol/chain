@@ -8,13 +8,11 @@ func NewRouterRoute(
 	destinationChinID string,
 	destinationContractAddress string,
 	destinationGasLimit uint64,
-	destinationGasPrice uint64,
 ) *RouterRoute {
 	return &RouterRoute{
 		DestinationChainID:         destinationChinID,
 		DestinationContractAddress: destinationContractAddress,
 		DestinationGasLimit:        destinationGasLimit,
-		DestinationGasPrice:        destinationGasPrice,
 	}
 }
 

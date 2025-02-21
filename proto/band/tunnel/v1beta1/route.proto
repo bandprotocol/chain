@@ -89,8 +89,6 @@ message RouterRoute {
   string destination_contract_address = 2;
   // destination_gas_limit is the destination gas limit
   uint64 destination_gas_limit = 3;
-  // destination_gas_price is the destination gas price
-  uint64 destination_gas_price = 4;
 }
 
 // RouterPacketReceipt represents a receipt for a Router packet and implements the PacketReceiptI interface.

@@ -209,9 +209,9 @@ func GetTxCmdCreateIBCHookTunnel() *cobra.Command {
 
 func GetTxCmdCreateRouterTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "router [destination-chain-id] [destination-contract-address] [destination-gas-limit] [destination-gas-price] [initial-deposit] [interval] [signalDeviations-json-file]",
+		Use:   "router [destination-chain-id] [destination-contract-address] [destination-gas-limit] [initial-deposit] [interval] [signalDeviations-json-file]",
 		Short: "Create a new Router tunnel",
-		Args:  cobra.ExactArgs(7),
+		Args:  cobra.ExactArgs(6),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -226,22 +226,17 @@ func GetTxCmdCreateRouterTunnel() *cobra.Command {
 				return err
 			}
 
-			destinationGasPrice, err := strconv.ParseUint(args[3], 10, 64)
+			initialDeposit, err := sdk.ParseCoinsNormalized(args[3])
 			if err != nil {
 				return err
 			}
 
-			initialDeposit, err := sdk.ParseCoinsNormalized(args[4])
+			interval, err := strconv.ParseUint(args[4], 10, 64)
 			if err != nil {
 				return err
 			}
 
-			interval, err := strconv.ParseUint(args[5], 10, 64)
-			if err != nil {
-				return err
-			}
-
-			signalDeviations, err := parseSignalDeviations(args[6])
+			signalDeviations, err := parseSignalDeviations(args[5])
 			if err != nil {
 				return err
 			}
@@ -252,7 +247,6 @@ func GetTxCmdCreateRouterTunnel() *cobra.Command {
 				destinationChainID,
 				destinationContractAddress,
 				destinationGasLimit,
-				destinationGasPrice,
 				initialDeposit,
 				clientCtx.GetFromAddress().String(),
 			)
@@ -360,9 +354,9 @@ func GetTxCmdUpdateIBCHookRoute() *cobra.Command {
 
 func GetTxCmdUpdateRouterRoute() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "router [tunnel-id] [destination-chain-id] [destination-contract-address] [destination-gas-limit] [destination-gas-price]",
+		Use:   "router [tunnel-id] [destination-chain-id] [destination-contract-address] [destination-gas-limit]",
 		Short: "Update Router route of a Router tunnel",
-		Args:  cobra.ExactArgs(5),
+		Args:  cobra.ExactArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -382,17 +376,11 @@ func GetTxCmdUpdateRouterRoute() *cobra.Command {
 				return err
 			}
 
-			destinationGasPrice, err := strconv.ParseUint(args[4], 10, 64)
-			if err != nil {
-				return err
-			}
-
 			msg, err := types.NewMsgUpdateRouterRoute(
 				id,
 				destinationChainID,
 				destinationContractAddr,
 				destinationGasLimit,
-				destinationGasPrice,
 				clientCtx.GetFromAddress().String(),
 			)
 			if err != nil {
