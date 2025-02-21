@@ -1,67 +1,30 @@
 package types
 
-import "encoding/json"
-
-type AxelarMessageType int
-
-const (
-	// AxelarMessageTypeUnrecognized means coin type is unrecognized by axelar
-	AxelarMessageTypeUnrecognized AxelarMessageType = iota
-	// AxelarMessageTypeGeneralMessage is a pure axelar message
-	AxelarMessageTypeGeneralMessage
-	// AxelarMessageTypeGeneralMessageWithToken is a general axelar message with token
-	AxelarMessageTypeGeneralMessageWithToken
-	// AxelarMessageTypeSendToken is a direct token transfer
-	AxelarMessageTypeSendToken
+import (
+	"encoding/json"
 )
-
-// AxelarFee is used to pay relayer for executing cross chain message
-type AxelarFee struct {
-	Amount          string  `json:"amount"`
-	Recipient       string  `json:"recipient"`
-	RefundRecipient *string `json:"refund_recipient"`
-}
-
-// NewAxelarFee creates a new AxelarFee instance.
-func NewAxelarFee(
-	amount string,
-	recipient string,
-	refundRecipient *string,
-) AxelarFee {
-	return AxelarFee{
-		Amount:          amount,
-		Recipient:       recipient,
-		RefundRecipient: refundRecipient,
-	}
-}
 
 // AxelarMemo is attached in ICS20 packet memo field for axelar cross chain message
 type AxelarMemo struct {
-	DestinationChain   string            `json:"destination_chain"`
+	DestinationChain   ChainName         `json:"destination_chain"`
 	DestinationAddress string            `json:"destination_address"`
-	Payload            []uint            `json:"payload"`
+	Payload            WasmBytes         `json:"payload"`
 	Type               AxelarMessageType `json:"type"`
 	Fee                *AxelarFee        `json:"fee"` // Optional
 }
 
 // NewAxelarMemo creates a new AxelarMemo instance.
 func NewAxelarMemo(
-	destinationChain string,
+	destinationChain ChainName,
 	destinationAddress string,
 	payload []byte,
 	messageType AxelarMessageType,
 	fee *AxelarFee,
 ) AxelarMemo {
-	// Convert payload to uint array
-	payloadAsInts := make([]uint, len(payload))
-	for i, b := range payload {
-		payloadAsInts[i] = uint(b)
-	}
-
 	return AxelarMemo{
 		DestinationChain:   destinationChain,
 		DestinationAddress: destinationAddress,
-		Payload:            payloadAsInts,
+		Payload:            payload,
 		Type:               messageType,
 		Fee:                fee,
 	}

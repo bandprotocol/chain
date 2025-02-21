@@ -199,7 +199,11 @@ func NewMsgUpdateAxelarRoute(
 	fee sdk.Coin,
 	creator string,
 ) (*MsgUpdateRoute, error) {
-	return NewMsgUpdateRoute(tunnelID, NewAxelarRoute(destinationChainID, destinationContractAddress, fee), creator)
+	return NewMsgUpdateRoute(
+		tunnelID,
+		NewAxelarRoute(destinationChainID, destinationContractAddress, fee),
+		creator,
+	)
 }
 
 // GetRouteValue returns the route of the message.
