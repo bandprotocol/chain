@@ -59,18 +59,6 @@ func (bz WasmBytes) MarshalJSON() ([]byte, error) {
 	return json.Marshal(slices.Map(bz, func(b byte) uint16 { return uint16(b) }))
 }
 
-// UnmarshalJSON implements json.Unmarshaler
-func (bz *WasmBytes) UnmarshalJSON(data []byte) error {
-	var arr []uint16
-	if err := json.Unmarshal(data, &arr); err != nil {
-		return err
-	}
-
-	*bz = slices.Map(arr, func(u uint16) byte { return byte(u) })
-
-	return nil
-}
-
 // ChainNameLengthMax bounds the max chain name length
 const ChainNameLengthMax = 20
 
