@@ -20,19 +20,11 @@ func (k Keeper) SendIBCHookPacket(
 	interval uint64,
 ) (types.PacketReceiptI, error) {
 	// create memo string for ibc transfer
-	memoStr, err := types.NewIBCHookMemo(
-		route.DestinationContractAddress,
-		packet.TunnelID,
-		packet.Sequence,
-		packet.Prices,
-		packet.CreatedAt,
-	).String()
-	if err != nil {
-		return nil, err
-	}
+	pricePacket := types.NewTunnelPricesPacketData(packet.TunnelID, packet.Sequence, packet.Prices, packet.CreatedAt)
+	memoStr := types.NewIBCHookMemo(route.DestinationContractAddress, pricePacket).JSONString()
 
 	// mint coin to the fee payer
-	err = k.MintIBCHookCoinToAccount(ctx, packet.TunnelID, feePayer)
+	err := k.MintIBCHookCoinToAccount(ctx, packet.TunnelID, feePayer)
 	if err != nil {
 		return nil, err
 	}

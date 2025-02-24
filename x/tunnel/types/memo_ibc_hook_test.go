@@ -10,21 +10,24 @@ import (
 )
 
 func TestStringIBCHookMemo(t *testing.T) {
-	memo := types.NewIBCHookMemo(
-		"wasm1vjq0k3fj47s8wns4a7zw5c4lsjd8l6r2kzzlpk",
+	packet := types.NewTunnelPricesPacketData(
 		1,
 		2,
 		[]feedstypes.Price{
-			{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "signal1", Price: 200},
-			{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "signal2", Price: 300},
+			{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "signal1", Price: 200, Timestamp: 1740131933},
+			{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "signal2", Price: 300, Timestamp: 1740131933},
 		},
 		1610000000,
 	)
-	memoStr, err := memo.String()
-	require.NoError(t, err)
+
+	memo := types.NewIBCHookMemo(
+		"wasm1vjq0k3fj47s8wns4a7zw5c4lsjd8l6r2kzzlpk",
+		packet,
+	)
+	memoStr := memo.JSONString()
 	require.Equal(
 		t,
-		`{"wasm":{"contract":"wasm1vjq0k3fj47s8wns4a7zw5c4lsjd8l6r2kzzlpk","msg":{"receive_band_data":{"tunnel_id":1,"sequence":2,"prices":[{"status":3,"signal_id":"signal1","price":200},{"status":3,"signal_id":"signal2","price":300}],"created_at":1610000000}}}}`,
+		`{"wasm":{"contract":"wasm1vjq0k3fj47s8wns4a7zw5c4lsjd8l6r2kzzlpk","msg":{"receive_packet":{"packet":{"created_at":"1610000000","prices":[{"price":"200","signal_id":"signal1","status":"PRICE_STATUS_AVAILABLE","timestamp":"1740131933"},{"price":"300","signal_id":"signal2","status":"PRICE_STATUS_AVAILABLE","timestamp":"1740131933"}],"sequence":"2","tunnel_id":"1"}}}}}`,
 		memoStr,
 	)
 }
