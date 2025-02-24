@@ -2,6 +2,8 @@ package types
 
 import (
 	"encoding/json"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // AxelarMemo is attached in ICS20 packet memo field for axelar cross chain message
@@ -37,5 +39,10 @@ func (r AxelarMemo) String() (string, error) {
 		return "", err
 	}
 
-	return string(j), nil
+	sj, err := sdk.SortJSON(j)
+	if err != nil {
+		return "", err
+	}
+
+	return string(sj), nil
 }

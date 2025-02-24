@@ -29,7 +29,7 @@ func TestStringAxelarMemo(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(
 		t,
-		`{"destination_chain":"mock-chain","destination_address":"0x75F01b3a2352bdc6e0D3983e40E09E9A8AAf4DF6","payload":[1,2,3],"type":1,"fee":{"amount":"100","recipient":"axelar1aythygn6z5thymj6tmzfwekzh05ewg3l7d6y89","refund_recipient":"band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"}}`,
+		`{"destination_address":"0x75F01b3a2352bdc6e0D3983e40E09E9A8AAf4DF6","destination_chain":"mock-chain","fee":{"amount":"100","recipient":"axelar1aythygn6z5thymj6tmzfwekzh05ewg3l7d6y89","refund_recipient":"band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"},"payload":[1,2,3],"type":1}`,
 		memoStr,
 	)
 }
