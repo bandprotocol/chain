@@ -78,3 +78,29 @@ message IBCHookPacketReceipt {
   // sequence is representing the sequence of the IBC packet.
   uint64 sequence = 1;
 }
+
+// IBCHookPacket represents the IBC packet payload for the IBC hook packet.
+message IBCHookPacket {
+  // packet is the packet data
+  TunnelPricesPacketData packet = 1;
+}
+
+// IBCHookMsg represents the message structure of the IBC hook message.
+message IBCHookMsg {
+  // receive_packet is the function name on the destination contract
+  IBCHookPacket receive_packet = 1;
+}
+
+// IBCHookWasm represents the WASM contract and its associated message.
+message IBCHookWasm {
+  // contract is destination contract address
+  string contract = 1;
+  // ibc_hook_msg is the IBC hook message
+  IBCHookMsg msg = 2;
+}
+
+// IBCHookMemo is the type for an IBC hook memo
+message IBCHookMemo {
+  // wasm is the wasm memo struct for IBC hook
+  IBCHookWasm wasm = 1;
+}
