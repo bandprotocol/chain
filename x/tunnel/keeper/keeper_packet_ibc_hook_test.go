@@ -1,8 +1,6 @@
 package keeper_test
 
 import (
-	"time"
-
 	"go.uber.org/mock/gomock"
 
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
@@ -25,7 +23,7 @@ func (s *KeeperTestSuite) TestSendIBCHookPacket() {
 		TunnelID:  tunnelID,
 		Sequence:  1,
 		Prices:    []feedstypes.Price{},
-		CreatedAt: time.Now().Unix(),
+		CreatedAt: 1730358471,
 	}
 	interval := uint64(60)
 	feePayer := sdk.AccAddress([]byte("feePayer"))

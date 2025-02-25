@@ -95,7 +95,7 @@ message IBCHookMsg {
 message IBCHookWasm {
   // contract is destination contract address
   string contract = 1;
-  // ibc_hook_msg is the IBC hook message
+  // msg is the IBC hook message
   IBCHookMsg msg = 2;
 }
 
