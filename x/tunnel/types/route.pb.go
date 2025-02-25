@@ -301,52 +301,362 @@ func (m *TunnelPricesPacketData) GetCreatedAt() int64 {
 	return 0
 }
 
+// IBCHookRoute is the type for an IBC hook route
+type IBCHookRoute struct {
+	// channel_id is the IBC channel ID
+	ChannelID string `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	// destination_contract_address is the destination contract address
+	DestinationContractAddress string `protobuf:"bytes,2,opt,name=destination_contract_address,json=destinationContractAddress,proto3" json:"destination_contract_address,omitempty"`
+}
+
+func (m *IBCHookRoute) Reset()         { *m = IBCHookRoute{} }
+func (m *IBCHookRoute) String() string { return proto.CompactTextString(m) }
+func (*IBCHookRoute) ProtoMessage()    {}
+func (*IBCHookRoute) Descriptor() ([]byte, []int) {
+	return fileDescriptor_543238289d94b7a6, []int{5}
+}
+func (m *IBCHookRoute) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *IBCHookRoute) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_IBCHookRoute.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *IBCHookRoute) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IBCHookRoute.Merge(m, src)
+}
+func (m *IBCHookRoute) XXX_Size() int {
+	return m.Size()
+}
+func (m *IBCHookRoute) XXX_DiscardUnknown() {
+	xxx_messageInfo_IBCHookRoute.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_IBCHookRoute proto.InternalMessageInfo
+
+func (m *IBCHookRoute) GetChannelID() string {
+	if m != nil {
+		return m.ChannelID
+	}
+	return ""
+}
+
+func (m *IBCHookRoute) GetDestinationContractAddress() string {
+	if m != nil {
+		return m.DestinationContractAddress
+	}
+	return ""
+}
+
+// IBCHookPacketReceipt represents a receipt for a IBC hook packet and implements the PacketReceiptI interface.
+type IBCHookPacketReceipt struct {
+	// sequence is representing the sequence of the IBC packet.
+	Sequence uint64 `protobuf:"varint,1,opt,name=sequence,proto3" json:"sequence,omitempty"`
+}
+
+func (m *IBCHookPacketReceipt) Reset()         { *m = IBCHookPacketReceipt{} }
+func (m *IBCHookPacketReceipt) String() string { return proto.CompactTextString(m) }
+func (*IBCHookPacketReceipt) ProtoMessage()    {}
+func (*IBCHookPacketReceipt) Descriptor() ([]byte, []int) {
+	return fileDescriptor_543238289d94b7a6, []int{6}
+}
+func (m *IBCHookPacketReceipt) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *IBCHookPacketReceipt) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_IBCHookPacketReceipt.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *IBCHookPacketReceipt) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IBCHookPacketReceipt.Merge(m, src)
+}
+func (m *IBCHookPacketReceipt) XXX_Size() int {
+	return m.Size()
+}
+func (m *IBCHookPacketReceipt) XXX_DiscardUnknown() {
+	xxx_messageInfo_IBCHookPacketReceipt.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_IBCHookPacketReceipt proto.InternalMessageInfo
+
+func (m *IBCHookPacketReceipt) GetSequence() uint64 {
+	if m != nil {
+		return m.Sequence
+	}
+	return 0
+}
+
+// IBCHookPacket represents the IBC packet payload for the IBC hook packet.
+type IBCHookPacket struct {
+	// packet is the packet data
+	Packet *TunnelPricesPacketData `protobuf:"bytes,1,opt,name=packet,proto3" json:"packet,omitempty"`
+}
+
+func (m *IBCHookPacket) Reset()         { *m = IBCHookPacket{} }
+func (m *IBCHookPacket) String() string { return proto.CompactTextString(m) }
+func (*IBCHookPacket) ProtoMessage()    {}
+func (*IBCHookPacket) Descriptor() ([]byte, []int) {
+	return fileDescriptor_543238289d94b7a6, []int{7}
+}
+func (m *IBCHookPacket) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *IBCHookPacket) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_IBCHookPacket.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *IBCHookPacket) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IBCHookPacket.Merge(m, src)
+}
+func (m *IBCHookPacket) XXX_Size() int {
+	return m.Size()
+}
+func (m *IBCHookPacket) XXX_DiscardUnknown() {
+	xxx_messageInfo_IBCHookPacket.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_IBCHookPacket proto.InternalMessageInfo
+
+func (m *IBCHookPacket) GetPacket() *TunnelPricesPacketData {
+	if m != nil {
+		return m.Packet
+	}
+	return nil
+}
+
+// IBCHookMsg represents the message structure of the IBC hook message.
+type IBCHookMsg struct {
+	// receive_packet is the function name on the destination contract
+	ReceivePacket *IBCHookPacket `protobuf:"bytes,1,opt,name=receive_packet,json=receivePacket,proto3" json:"receive_packet,omitempty"`
+}
+
+func (m *IBCHookMsg) Reset()         { *m = IBCHookMsg{} }
+func (m *IBCHookMsg) String() string { return proto.CompactTextString(m) }
+func (*IBCHookMsg) ProtoMessage()    {}
+func (*IBCHookMsg) Descriptor() ([]byte, []int) {
+	return fileDescriptor_543238289d94b7a6, []int{8}
+}
+func (m *IBCHookMsg) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *IBCHookMsg) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_IBCHookMsg.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *IBCHookMsg) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IBCHookMsg.Merge(m, src)
+}
+func (m *IBCHookMsg) XXX_Size() int {
+	return m.Size()
+}
+func (m *IBCHookMsg) XXX_DiscardUnknown() {
+	xxx_messageInfo_IBCHookMsg.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_IBCHookMsg proto.InternalMessageInfo
+
+func (m *IBCHookMsg) GetReceivePacket() *IBCHookPacket {
+	if m != nil {
+		return m.ReceivePacket
+	}
+	return nil
+}
+
+// IBCHookWasm represents the WASM contract and its associated message.
+type IBCHookWasm struct {
+	// contract is destination contract address
+	Contract string `protobuf:"bytes,1,opt,name=contract,proto3" json:"contract,omitempty"`
+	// msg is the IBC hook message
+	Msg *IBCHookMsg `protobuf:"bytes,2,opt,name=msg,proto3" json:"msg,omitempty"`
+}
+
+func (m *IBCHookWasm) Reset()         { *m = IBCHookWasm{} }
+func (m *IBCHookWasm) String() string { return proto.CompactTextString(m) }
+func (*IBCHookWasm) ProtoMessage()    {}
+func (*IBCHookWasm) Descriptor() ([]byte, []int) {
+	return fileDescriptor_543238289d94b7a6, []int{9}
+}
+func (m *IBCHookWasm) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *IBCHookWasm) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_IBCHookWasm.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *IBCHookWasm) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IBCHookWasm.Merge(m, src)
+}
+func (m *IBCHookWasm) XXX_Size() int {
+	return m.Size()
+}
+func (m *IBCHookWasm) XXX_DiscardUnknown() {
+	xxx_messageInfo_IBCHookWasm.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_IBCHookWasm proto.InternalMessageInfo
+
+func (m *IBCHookWasm) GetContract() string {
+	if m != nil {
+		return m.Contract
+	}
+	return ""
+}
+
+func (m *IBCHookWasm) GetMsg() *IBCHookMsg {
+	if m != nil {
+		return m.Msg
+	}
+	return nil
+}
+
+// IBCHookMemo is the type for an IBC hook memo
+type IBCHookMemo struct {
+	// wasm is the wasm memo struct for IBC hook
+	Wasm *IBCHookWasm `protobuf:"bytes,1,opt,name=wasm,proto3" json:"wasm,omitempty"`
+}
+
+func (m *IBCHookMemo) Reset()         { *m = IBCHookMemo{} }
+func (m *IBCHookMemo) String() string { return proto.CompactTextString(m) }
+func (*IBCHookMemo) ProtoMessage()    {}
+func (*IBCHookMemo) Descriptor() ([]byte, []int) {
+	return fileDescriptor_543238289d94b7a6, []int{10}
+}
+func (m *IBCHookMemo) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *IBCHookMemo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_IBCHookMemo.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *IBCHookMemo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IBCHookMemo.Merge(m, src)
+}
+func (m *IBCHookMemo) XXX_Size() int {
+	return m.Size()
+}
+func (m *IBCHookMemo) XXX_DiscardUnknown() {
+	xxx_messageInfo_IBCHookMemo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_IBCHookMemo proto.InternalMessageInfo
+
+func (m *IBCHookMemo) GetWasm() *IBCHookWasm {
+	if m != nil {
+		return m.Wasm
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*TSSRoute)(nil), "band.tunnel.v1beta1.TSSRoute")
 	proto.RegisterType((*TSSPacketReceipt)(nil), "band.tunnel.v1beta1.TSSPacketReceipt")
 	proto.RegisterType((*IBCRoute)(nil), "band.tunnel.v1beta1.IBCRoute")
 	proto.RegisterType((*IBCPacketReceipt)(nil), "band.tunnel.v1beta1.IBCPacketReceipt")
 	proto.RegisterType((*TunnelPricesPacketData)(nil), "band.tunnel.v1beta1.TunnelPricesPacketData")
+	proto.RegisterType((*IBCHookRoute)(nil), "band.tunnel.v1beta1.IBCHookRoute")
+	proto.RegisterType((*IBCHookPacketReceipt)(nil), "band.tunnel.v1beta1.IBCHookPacketReceipt")
+	proto.RegisterType((*IBCHookPacket)(nil), "band.tunnel.v1beta1.IBCHookPacket")
+	proto.RegisterType((*IBCHookMsg)(nil), "band.tunnel.v1beta1.IBCHookMsg")
+	proto.RegisterType((*IBCHookWasm)(nil), "band.tunnel.v1beta1.IBCHookWasm")
+	proto.RegisterType((*IBCHookMemo)(nil), "band.tunnel.v1beta1.IBCHookMemo")
 }
 
 func init() { proto.RegisterFile("band/tunnel/v1beta1/route.proto", fileDescriptor_543238289d94b7a6) }
 
 var fileDescriptor_543238289d94b7a6 = []byte{
-	// 542 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x93, 0xc1, 0x6e, 0xd3, 0x30,
-	0x18, 0xc7, 0xeb, 0xb5, 0x2a, 0xad, 0x81, 0x69, 0x32, 0xd3, 0xd4, 0x15, 0x48, 0xaa, 0x9e, 0x8a,
-	0xc4, 0x12, 0x6d, 0x13, 0x42, 0xea, 0x89, 0xa5, 0x41, 0x22, 0x42, 0x48, 0x53, 0xda, 0x13, 0x97,
-	0xca, 0xb5, 0x4d, 0x1b, 0xd8, 0xec, 0x12, 0xbb, 0x13, 0xbc, 0x05, 0xe2, 0x29, 0x78, 0x80, 0x49,
-	0xbc, 0xc2, 0xb4, 0xd3, 0x8e, 0x70, 0x89, 0x50, 0xfa, 0x16, 0x9c, 0x50, 0x6c, 0xaf, 0x25, 0xa8,
-	0x07, 0x6e, 0xf5, 0xff, 0xfb, 0xe5, 0xfb, 0x7f, 0xff, 0xcf, 0x2e, 0x74, 0x27, 0x98, 0x53, 0x5f,
-	0x2d, 0x38, 0x67, 0x67, 0xfe, 0xc5, 0xe1, 0x84, 0x29, 0x7c, 0xe8, 0xa7, 0x62, 0xa1, 0x98, 0x37,
-	0x4f, 0x85, 0x12, 0xe8, 0x41, 0x01, 0x78, 0x06, 0xf0, 0x2c, 0xd0, 0xde, 0x27, 0x42, 0x9e, 0x0b,
-	0x39, 0xd6, 0x88, 0x6f, 0x0e, 0x86, 0x6f, 0xef, 0x4e, 0xc5, 0x54, 0x18, 0xbd, 0xf8, 0x65, 0xd5,
-	0x8e, 0xb6, 0x79, 0xc7, 0x18, 0x95, 0x2b, 0x17, 0xc6, 0x89, 0xa0, 0x2c, 0xb5, 0x84, 0xb3, 0x81,
-	0xd0, 0x27, 0x53, 0xef, 0xfe, 0x04, 0xb0, 0x31, 0x1a, 0x0e, 0xe3, 0x62, 0x34, 0xf4, 0x0a, 0xee,
-	0x52, 0x26, 0x55, 0xc2, 0xb1, 0x4a, 0x04, 0x1f, 0x93, 0x19, 0x4e, 0xf8, 0x38, 0xa1, 0x2d, 0xd0,
-	0x01, 0xbd, 0x66, 0xb0, 0x97, 0x67, 0x2e, 0x0a, 0xd7, 0xf5, 0x41, 0x51, 0x8e, 0xc2, 0x18, 0xd1,
-	0x7f, 0x35, 0x8a, 0x5e, 0xc0, 0x47, 0xa5, 0x4e, 0x82, 0xab, 0x14, 0x13, 0x35, 0xc6, 0x94, 0xa6,
-	0x4c, 0xca, 0xd6, 0x56, 0xd1, 0x31, 0x6e, 0xff, 0xfd, 0xa5, 0x45, 0x4e, 0x0c, 0x81, 0x9e, 0xc1,
-	0x3b, 0x36, 0x49, 0xab, 0xda, 0x01, 0xbd, 0xed, 0xa3, 0x87, 0x9e, 0x5e, 0x99, 0x19, 0xde, 0x46,
-	0xf1, 0x5e, 0x1a, 0x24, 0xbe, 0x65, 0xfb, 0xf0, 0xfa, 0xf2, 0xa0, 0xae, 0xd3, 0x44, 0xdd, 0xaf,
-	0x00, 0xee, 0x8c, 0x86, 0xc3, 0x53, 0x4c, 0x3e, 0x30, 0x15, 0x33, 0xc2, 0x92, 0xb9, 0x42, 0xef,
-	0x21, 0x94, 0xc9, 0x94, 0x27, 0x7c, 0x7a, 0x9b, 0xac, 0x16, 0xbc, 0xce, 0x33, 0xb7, 0x39, 0x34,
-	0x6a, 0x14, 0xfe, 0xce, 0xdc, 0xfe, 0x34, 0x51, 0xb3, 0xc5, 0xc4, 0x23, 0xe2, 0xdc, 0x2f, 0x5c,
-	0xf5, 0xae, 0x88, 0x38, 0xf3, 0xf5, 0x4a, 0xfc, 0x8b, 0x63, 0xff, 0x93, 0xd6, 0x95, 0x94, 0xbe,
-	0xfa, 0x3c, 0x67, 0xd2, 0x5b, 0x7d, 0x1d, 0x37, 0x6d, 0xfb, 0x88, 0xf6, 0xd1, 0xf5, 0xe5, 0xc1,
-	0x76, 0xc9, 0x3e, 0xea, 0x86, 0xb0, 0x11, 0x05, 0x03, 0xb3, 0xef, 0xa7, 0x10, 0x92, 0x19, 0x2e,
-	0x9e, 0xc0, 0x7a, 0xcb, 0xf7, 0x8b, 0x59, 0x06, 0x46, 0x2d, 0xba, 0x59, 0x20, 0xa2, 0xa5, 0x68,
-	0x01, 0xdc, 0x89, 0x82, 0x41, 0x39, 0x59, 0x1b, 0x36, 0x24, 0xfb, 0xb8, 0x60, 0x9c, 0x30, 0x93,
-	0x2b, 0x5e, 0x9d, 0x37, 0x4e, 0xf2, 0x1d, 0xc0, 0xbd, 0x91, 0x7e, 0x80, 0xa7, 0x69, 0x42, 0x98,
-	0x34, 0xe5, 0x10, 0x2b, 0x8c, 0x9e, 0xc0, 0xa6, 0x79, 0x9a, 0xeb, 0x1d, 0xdd, 0xcb, 0x33, 0xb7,
-	0x61, 0xf0, 0x28, 0x8c, 0x1b, 0xa6, 0x1c, 0xd1, 0x92, 0xeb, 0x56, 0xd9, 0x15, 0x3d, 0x87, 0xf5,
-	0xb9, 0x6e, 0xdd, 0xaa, 0x76, 0xaa, 0xbd, 0xbb, 0x47, 0xfb, 0x9b, 0xae, 0x50, 0x9b, 0x07, 0xb5,
-	0xab, 0xcc, 0xad, 0xc4, 0x16, 0x47, 0x8f, 0x21, 0x24, 0x29, 0xc3, 0x8a, 0xd1, 0x31, 0x56, 0xad,
-	0x5a, 0x07, 0xf4, 0xaa, 0x71, 0xd3, 0x2a, 0x27, 0x2a, 0x78, 0xf3, 0x2d, 0x77, 0xc0, 0x55, 0xee,
-	0x80, 0x9b, 0xdc, 0x01, 0xbf, 0x72, 0x07, 0x7c, 0x59, 0x3a, 0x95, 0x9b, 0xa5, 0x53, 0xf9, 0xb1,
-	0x74, 0x2a, 0x6f, 0xfd, 0xff, 0xb8, 0x3c, 0xfb, 0xcf, 0xd4, 0x77, 0x37, 0xa9, 0x6b, 0xe2, 0xf8,
-	0x4f, 0x00, 0x00, 0x00, 0xff, 0xff, 0xce, 0xc1, 0x97, 0x14, 0xb5, 0x03, 0x00, 0x00,
+	// 689 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x54, 0xcd, 0x6a, 0xdb, 0x4a,
+	0x14, 0xb6, 0x62, 0xe3, 0x6b, 0x1f, 0x27, 0x21, 0xcc, 0x0d, 0xc1, 0xf1, 0xbd, 0x57, 0x36, 0x5a,
+	0xf9, 0xd2, 0x46, 0x22, 0x4e, 0x4b, 0x21, 0xab, 0x46, 0x76, 0x4b, 0x44, 0x31, 0x04, 0xd9, 0x10,
+	0x28, 0x05, 0x33, 0x96, 0xa6, 0x8a, 0x9a, 0x58, 0xe3, 0x6a, 0xc6, 0x69, 0xfb, 0x0a, 0x5d, 0x95,
+	0x3e, 0x45, 0x1f, 0x20, 0xd0, 0x57, 0x08, 0x59, 0x65, 0xd9, 0x6e, 0x4c, 0x71, 0xde, 0xa2, 0xab,
+	0x32, 0x3f, 0x71, 0xaa, 0x62, 0x42, 0x49, 0x77, 0x3a, 0xe7, 0x7c, 0xe7, 0x3b, 0xe7, 0xfb, 0x66,
+	0x34, 0x50, 0x1f, 0xe2, 0x24, 0x74, 0xf8, 0x24, 0x49, 0xc8, 0x89, 0x73, 0xba, 0x3d, 0x24, 0x1c,
+	0x6f, 0x3b, 0x29, 0x9d, 0x70, 0x62, 0x8f, 0x53, 0xca, 0x29, 0xfa, 0x5b, 0x00, 0x6c, 0x05, 0xb0,
+	0x35, 0xa0, 0xb6, 0x19, 0x50, 0x36, 0xa2, 0x6c, 0x20, 0x21, 0x8e, 0x0a, 0x14, 0xbe, 0xb6, 0x1e,
+	0xd1, 0x88, 0xaa, 0xbc, 0xf8, 0xd2, 0xd9, 0x86, 0x1c, 0xf3, 0x92, 0x90, 0x90, 0xcd, 0xa7, 0x90,
+	0x24, 0xa0, 0x21, 0x49, 0x35, 0xc2, 0x5c, 0x80, 0x90, 0x91, 0xaa, 0x5b, 0x5f, 0x0d, 0x28, 0xf5,
+	0x7b, 0x3d, 0x5f, 0xac, 0x86, 0xf6, 0x61, 0x3d, 0x24, 0x8c, 0xc7, 0x09, 0xe6, 0x31, 0x4d, 0x06,
+	0xc1, 0x11, 0x8e, 0x93, 0x41, 0x1c, 0x56, 0x8d, 0x86, 0xd1, 0x2c, 0xbb, 0x1b, 0xb3, 0x69, 0x1d,
+	0x75, 0x6e, 0xea, 0x6d, 0x51, 0xf6, 0x3a, 0x3e, 0x0a, 0x7f, 0xcd, 0x85, 0xe8, 0x31, 0xfc, 0x9b,
+	0x61, 0xa2, 0x09, 0x4f, 0x71, 0xc0, 0x07, 0x38, 0x0c, 0x53, 0xc2, 0x58, 0x75, 0x49, 0x30, 0xfa,
+	0xb5, 0x9f, 0x3b, 0x35, 0x64, 0x4f, 0x21, 0xd0, 0x43, 0xf8, 0x4b, 0x2b, 0xa9, 0xe6, 0x1b, 0x46,
+	0x73, 0xb5, 0xf5, 0x8f, 0x2d, 0x2d, 0x53, 0xcb, 0x6b, 0x29, 0xf6, 0x13, 0x05, 0xf1, 0xaf, 0xb1,
+	0xbb, 0x70, 0x71, 0xb6, 0x55, 0x94, 0x6a, 0x3c, 0xeb, 0xa3, 0x01, 0x6b, 0xfd, 0x5e, 0xef, 0x00,
+	0x07, 0xc7, 0x84, 0xfb, 0x24, 0x20, 0xf1, 0x98, 0xa3, 0x57, 0x00, 0x2c, 0x8e, 0x92, 0x38, 0x89,
+	0xae, 0x95, 0x15, 0xdc, 0x67, 0xb3, 0x69, 0xbd, 0xdc, 0x53, 0x59, 0xaf, 0xf3, 0x7d, 0x5a, 0xdf,
+	0x8d, 0x62, 0x7e, 0x34, 0x19, 0xda, 0x01, 0x1d, 0x39, 0x62, 0xaa, 0xf4, 0x2a, 0xa0, 0x27, 0x8e,
+	0xb4, 0xc4, 0x39, 0xdd, 0x71, 0xde, 0xca, 0x3c, 0x67, 0xcc, 0xe1, 0xef, 0xc6, 0x84, 0xd9, 0xf3,
+	0x6e, 0xbf, 0xac, 0xe9, 0xbd, 0x70, 0x17, 0x5d, 0x9c, 0x6d, 0xad, 0x66, 0xc6, 0x7b, 0x56, 0x07,
+	0x4a, 0x9e, 0xdb, 0x56, 0x7e, 0xdf, 0x07, 0x08, 0x8e, 0xb0, 0xb8, 0x02, 0x37, 0x2e, 0xaf, 0x88,
+	0x5d, 0xda, 0x2a, 0x2b, 0xd8, 0x34, 0xc0, 0x0b, 0x33, 0xd2, 0x5c, 0x58, 0xf3, 0xdc, 0x76, 0x56,
+	0x59, 0x0d, 0x4a, 0x8c, 0xbc, 0x9e, 0x90, 0x24, 0x20, 0x4a, 0x97, 0x3f, 0x8f, 0x17, 0x6e, 0xf2,
+	0xd9, 0x80, 0x8d, 0xbe, 0xbc, 0x80, 0x07, 0x69, 0x1c, 0x10, 0xa6, 0xca, 0x1d, 0xcc, 0x31, 0xfa,
+	0x1f, 0xca, 0xea, 0x6a, 0xde, 0x78, 0xb4, 0x3c, 0x9b, 0xd6, 0x4b, 0x0a, 0xee, 0x75, 0xfc, 0x92,
+	0x2a, 0x7b, 0x61, 0x66, 0xea, 0x52, 0x76, 0x2a, 0x7a, 0x04, 0xc5, 0xb1, 0xa4, 0xae, 0xe6, 0x1b,
+	0xf9, 0x66, 0xa5, 0xb5, 0xb9, 0xe8, 0x08, 0xe5, 0x70, 0xb7, 0x70, 0x3e, 0xad, 0xe7, 0x7c, 0x0d,
+	0x47, 0xff, 0x01, 0x04, 0x29, 0xc1, 0x9c, 0x84, 0x03, 0xcc, 0xab, 0x85, 0x86, 0xd1, 0xcc, 0xfb,
+	0x65, 0x9d, 0xd9, 0xe3, 0xd6, 0x7b, 0x03, 0x96, 0x3d, 0xb7, 0xbd, 0x4f, 0xe9, 0xf1, 0x1d, 0x8c,
+	0xfc, 0xf3, 0xcb, 0x99, 0x39, 0x8a, 0xa7, 0xb0, 0xae, 0x77, 0xb9, 0xd3, 0x71, 0x08, 0x6a, 0x92,
+	0x70, 0xcf, 0xea, 0xc3, 0x4a, 0x86, 0x07, 0xb5, 0xa1, 0x38, 0x96, 0x5f, 0xb2, 0xbd, 0xd2, 0xba,
+	0x67, 0x2f, 0x78, 0x33, 0xec, 0xc5, 0x27, 0xe8, 0xeb, 0x56, 0xeb, 0x10, 0x40, 0xb3, 0x76, 0x59,
+	0x84, 0x3c, 0x58, 0x4d, 0xc5, 0x7a, 0xa7, 0x64, 0x90, 0xa1, 0xb6, 0x16, 0x52, 0x67, 0x65, 0xad,
+	0xe8, 0x4e, 0x15, 0x5a, 0x2f, 0xa0, 0xa2, 0xeb, 0x87, 0x98, 0x8d, 0x84, 0xda, 0x6b, 0x1f, 0x95,
+	0xff, 0xfe, 0x3c, 0x46, 0xdb, 0x90, 0x1f, 0xb1, 0x48, 0xda, 0x5a, 0x69, 0xd5, 0x6f, 0x1b, 0xd5,
+	0x65, 0x91, 0x2f, 0xb0, 0x56, 0x7b, 0xce, 0xde, 0x25, 0x23, 0x8a, 0x1e, 0x40, 0xe1, 0x0d, 0x66,
+	0x23, 0xbd, 0x6d, 0xe3, 0x36, 0x0a, 0xb1, 0x8d, 0x2f, 0xd1, 0x6e, 0xf7, 0xd3, 0xcc, 0x34, 0xce,
+	0x67, 0xa6, 0x71, 0x39, 0x33, 0x8d, 0x6f, 0x33, 0xd3, 0xf8, 0x70, 0x65, 0xe6, 0x2e, 0xaf, 0xcc,
+	0xdc, 0x97, 0x2b, 0x33, 0xf7, 0xdc, 0xf9, 0x8d, 0x7f, 0x5c, 0x3f, 0xe0, 0xf2, 0x17, 0x1f, 0x16,
+	0x25, 0x62, 0xe7, 0x47, 0x00, 0x00, 0x00, 0xff, 0xff, 0xc6, 0x4e, 0x2c, 0xfe, 0xdc, 0x05, 0x00,
+	0x00,
 }
 
 func (this *TSSRoute) Equal(that interface{}) bool {
@@ -485,6 +795,156 @@ func (this *TunnelPricesPacketData) Equal(that interface{}) bool {
 		}
 	}
 	if this.CreatedAt != that1.CreatedAt {
+		return false
+	}
+	return true
+}
+func (this *IBCHookRoute) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*IBCHookRoute)
+	if !ok {
+		that2, ok := that.(IBCHookRoute)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.ChannelID != that1.ChannelID {
+		return false
+	}
+	if this.DestinationContractAddress != that1.DestinationContractAddress {
+		return false
+	}
+	return true
+}
+func (this *IBCHookPacketReceipt) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*IBCHookPacketReceipt)
+	if !ok {
+		that2, ok := that.(IBCHookPacketReceipt)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Sequence != that1.Sequence {
+		return false
+	}
+	return true
+}
+func (this *IBCHookPacket) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*IBCHookPacket)
+	if !ok {
+		that2, ok := that.(IBCHookPacket)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.Packet.Equal(that1.Packet) {
+		return false
+	}
+	return true
+}
+func (this *IBCHookMsg) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*IBCHookMsg)
+	if !ok {
+		that2, ok := that.(IBCHookMsg)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.ReceivePacket.Equal(that1.ReceivePacket) {
+		return false
+	}
+	return true
+}
+func (this *IBCHookWasm) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*IBCHookWasm)
+	if !ok {
+		that2, ok := that.(IBCHookWasm)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Contract != that1.Contract {
+		return false
+	}
+	if !this.Msg.Equal(that1.Msg) {
+		return false
+	}
+	return true
+}
+func (this *IBCHookMemo) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*IBCHookMemo)
+	if !ok {
+		that2, ok := that.(IBCHookMemo)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.Wasm.Equal(that1.Wasm) {
 		return false
 	}
 	return true
@@ -669,6 +1129,218 @@ func (m *TunnelPricesPacketData) MarshalToSizedBuffer(dAtA []byte) (int, error) 
 	return len(dAtA) - i, nil
 }
 
+func (m *IBCHookRoute) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *IBCHookRoute) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *IBCHookRoute) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.DestinationContractAddress) > 0 {
+		i -= len(m.DestinationContractAddress)
+		copy(dAtA[i:], m.DestinationContractAddress)
+		i = encodeVarintRoute(dAtA, i, uint64(len(m.DestinationContractAddress)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.ChannelID) > 0 {
+		i -= len(m.ChannelID)
+		copy(dAtA[i:], m.ChannelID)
+		i = encodeVarintRoute(dAtA, i, uint64(len(m.ChannelID)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *IBCHookPacketReceipt) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *IBCHookPacketReceipt) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *IBCHookPacketReceipt) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Sequence != 0 {
+		i = encodeVarintRoute(dAtA, i, uint64(m.Sequence))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *IBCHookPacket) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *IBCHookPacket) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *IBCHookPacket) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Packet != nil {
+		{
+			size, err := m.Packet.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintRoute(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *IBCHookMsg) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *IBCHookMsg) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *IBCHookMsg) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.ReceivePacket != nil {
+		{
+			size, err := m.ReceivePacket.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintRoute(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *IBCHookWasm) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *IBCHookWasm) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *IBCHookWasm) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Msg != nil {
+		{
+			size, err := m.Msg.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintRoute(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Contract) > 0 {
+		i -= len(m.Contract)
+		copy(dAtA[i:], m.Contract)
+		i = encodeVarintRoute(dAtA, i, uint64(len(m.Contract)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *IBCHookMemo) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *IBCHookMemo) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *IBCHookMemo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Wasm != nil {
+		{
+			size, err := m.Wasm.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintRoute(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintRoute(dAtA []byte, offset int, v uint64) int {
 	offset -= sovRoute(v)
 	base := offset
@@ -757,6 +1429,91 @@ func (m *TunnelPricesPacketData) Size() (n int) {
 	}
 	if m.CreatedAt != 0 {
 		n += 1 + sovRoute(uint64(m.CreatedAt))
+	}
+	return n
+}
+
+func (m *IBCHookRoute) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.ChannelID)
+	if l > 0 {
+		n += 1 + l + sovRoute(uint64(l))
+	}
+	l = len(m.DestinationContractAddress)
+	if l > 0 {
+		n += 1 + l + sovRoute(uint64(l))
+	}
+	return n
+}
+
+func (m *IBCHookPacketReceipt) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Sequence != 0 {
+		n += 1 + sovRoute(uint64(m.Sequence))
+	}
+	return n
+}
+
+func (m *IBCHookPacket) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Packet != nil {
+		l = m.Packet.Size()
+		n += 1 + l + sovRoute(uint64(l))
+	}
+	return n
+}
+
+func (m *IBCHookMsg) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.ReceivePacket != nil {
+		l = m.ReceivePacket.Size()
+		n += 1 + l + sovRoute(uint64(l))
+	}
+	return n
+}
+
+func (m *IBCHookWasm) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Contract)
+	if l > 0 {
+		n += 1 + l + sovRoute(uint64(l))
+	}
+	if m.Msg != nil {
+		l = m.Msg.Size()
+		n += 1 + l + sovRoute(uint64(l))
+	}
+	return n
+}
+
+func (m *IBCHookMemo) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Wasm != nil {
+		l = m.Wasm.Size()
+		n += 1 + l + sovRoute(uint64(l))
 	}
 	return n
 }
@@ -1240,6 +1997,565 @@ func (m *TunnelPricesPacketData) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRoute(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthRoute
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *IBCHookRoute) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRoute
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: IBCHookRoute: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: IBCHookRoute: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ChannelID", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRoute
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthRoute
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthRoute
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ChannelID = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DestinationContractAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRoute
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthRoute
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthRoute
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.DestinationContractAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRoute(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthRoute
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *IBCHookPacketReceipt) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRoute
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: IBCHookPacketReceipt: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: IBCHookPacketReceipt: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Sequence", wireType)
+			}
+			m.Sequence = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRoute
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Sequence |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRoute(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthRoute
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *IBCHookPacket) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRoute
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: IBCHookPacket: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: IBCHookPacket: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Packet", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRoute
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthRoute
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthRoute
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Packet == nil {
+				m.Packet = &TunnelPricesPacketData{}
+			}
+			if err := m.Packet.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRoute(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthRoute
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *IBCHookMsg) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRoute
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: IBCHookMsg: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: IBCHookMsg: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ReceivePacket", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRoute
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthRoute
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthRoute
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.ReceivePacket == nil {
+				m.ReceivePacket = &IBCHookPacket{}
+			}
+			if err := m.ReceivePacket.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRoute(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthRoute
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *IBCHookWasm) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRoute
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: IBCHookWasm: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: IBCHookWasm: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Contract", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRoute
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthRoute
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthRoute
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Contract = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Msg", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRoute
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthRoute
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthRoute
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Msg == nil {
+				m.Msg = &IBCHookMsg{}
+			}
+			if err := m.Msg.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRoute(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthRoute
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *IBCHookMemo) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRoute
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: IBCHookMemo: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: IBCHookMemo: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Wasm", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRoute
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthRoute
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthRoute
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Wasm == nil {
+				m.Wasm = &IBCHookWasm{}
+			}
+			if err := m.Wasm.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipRoute(dAtA[iNdEx:])
