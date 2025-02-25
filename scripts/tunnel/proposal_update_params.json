@@ -1,0 +1,34 @@
+{
+    "messages": [
+        {
+            "@type": "/band.tunnel.v1beta1.MsgUpdateParams",
+            "params": {
+                "min_deposit": [
+                    {
+                        "denom": "uband",
+                        "amount": "1000000000"
+                    }
+                ],
+                "min_interval": "60",
+                "max_interval": "3600",
+                "min_deviation_bps": "50",
+                "max_deviation_bps": "3000",
+                "max_signals": "25",
+                "base_packet_fee": [
+                    {
+                        "denom": "uband",
+                        "amount": "50"
+                    }
+                ],
+                "axelar_ibc_channel": "channel-0",
+                "axelar_gmp_account": "axelar1dv4u5k73pzqrxlzujxg3qp8kvc3pje7jtdvu72npnt5zhq05ejcsn5qme5",
+                "axelar_fee_recipient": "axelar1aythygn6z5thymj6tmzfwekzh05ewg3l7d6y89"
+            },
+            "authority": "band10d07y265gmmuvt4z0w9aw880jnsr700jrdn8wm"
+        }
+    ],
+    "metadata": "ipfs://",
+    "deposit": "1000000000uband",
+    "title": "Update Params",
+    "summary": "This proposal is to update router route params"
+}
