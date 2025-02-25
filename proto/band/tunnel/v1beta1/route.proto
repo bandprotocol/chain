@@ -124,3 +124,35 @@ message RouterPacketReceipt {
   // sequence is representing the sequence of the IBC packet.
   uint64 sequence = 1;
 }
+
+// RouterPacket represents the IBC packet payload for the Router packet.
+message RouterPacket {
+  // dest_chain_id is the destination chain ID
+  string dest_chain_id = 1 [(gogoproto.customname) = "DestChainID"];
+  // dest_contract_address is the destination contract address
+  string dest_contract_address = 2;
+  // gas_limit is the destination gas limit
+  uint64 gas_limit = 3;
+  // payload is the payload of the packet
+  string payload = 4;
+}
+
+// RouterMsg represents the message structure of the Router message.
+message RouterMsg {
+  // receive_band_data is the function name on the destination contract
+  RouterPacket receive_band_data = 1;
+}
+
+// RouterWasm represents the WASM contract and its associated message.
+message RouterWasm {
+  // contract is destination contract address
+  string contract = 1;
+  // msg is the Router message
+  RouterMsg msg = 2;
+}
+
+// RouterMemo is the type for a Router memo
+message RouterMemo {
+  // wasm is the wasm memo struct for Router
+  RouterWasm wasm = 1;
+}

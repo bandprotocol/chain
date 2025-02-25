@@ -30,23 +30,20 @@ func (k Keeper) SendRouterPacket(
 	routerIBCChannel := params.RouterIBCChannel
 	routerIntegrationContract := params.RouterIntegrationContract
 
-	// create memo string for ibc transfer
-	memoStr, err := types.NewRouterMemo(
-		routerIntegrationContract,
-		route.DestinationChainID,
-		route.DestinationContractAddress,
-		route.DestinationGasLimit,
-		base64.StdEncoding.EncodeToString(payload),
-	).String()
-	if err != nil {
-		return nil, err
-	}
-
 	// mint coin to the fee payer
 	err = k.MintIBCHookCoinToAccount(ctx, packet.TunnelID, feePayer)
 	if err != nil {
 		return nil, err
 	}
+
+	// create memo string for ibc transfer
+	memoStr := types.NewRouterMemo(
+		routerIntegrationContract,
+		route.DestinationChainID,
+		route.DestinationContractAddress,
+		route.DestinationGasLimit,
+		base64.StdEncoding.EncodeToString(payload),
+	).JSONString()
 
 	msg := ibctransfertypes.NewMsgTransfer(
 		ibctransfertypes.PortID,
