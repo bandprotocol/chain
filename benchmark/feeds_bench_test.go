@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"sort"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 
@@ -66,7 +65,7 @@ func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 		params, err := ba.StakingKeeper.GetParams(ba.Ctx)
 		require.NoError(b, err)
 
-		numVals := params.MaxValidators
+		numVals := params.MaxValidators - 5 // some validators are already activated
 
 		vals, err := generateValidators(ba, int(numVals))
 		require.NoError(b, err)
@@ -100,12 +99,16 @@ func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 			&abci.RequestFinalizeBlock{
 				Txs:    txs,
 				Height: ba.LastBlockHeight() + 1,
-				Time:   time.Now(),
+				Time:   ba.Ctx.BlockTime(),
 			},
 		)
-		require.NoError(b, err)
-
 		b.StopTimer()
+
+		require.NoError(b, err)
+		for _, tx := range res.TxResults {
+			require.Equal(b, uint32(0), tx.Code)
+		}
+
 		_, err = ba.Commit()
 		require.NoError(b, err)
 
@@ -144,14 +147,18 @@ func BenchmarkFeedsEndBlock(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		// process endblock
 		b.StartTimer()
-		_, err := ba.FinalizeBlock(
+		res, err := ba.FinalizeBlock(
 			&abci.RequestFinalizeBlock{
 				Height: ba.LastBlockHeight() + 1,
-				Time:   time.Now(),
+				Time:   ba.Ctx.BlockTime(),
 			},
 		)
-		require.NoError(b, err)
 		b.StopTimer()
+
+		require.NoError(b, err)
+		for _, tx := range res.TxResults {
+			require.Equal(b, uint32(0), tx.Code)
+		}
 
 		_, err = ba.Commit()
 		require.NoError(b, err)
@@ -230,7 +237,7 @@ func generateValidators(ba *BenchmarkApp, num int) ([]*Account, error) {
 		tx := GenSequenceOfTxs(
 			ba.TxEncoder,
 			ba.TxConfig,
-			[]sdk.Msg{banktypes.NewMsgSend(ba.Sender.Address, acc.Address, sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(1))))},
+			[]sdk.Msg{banktypes.NewMsgSend(ba.Sender.Address, acc.Address, bandtesting.Coins100band)},
 			ba.Sender,
 			1,
 		)[0]
@@ -238,16 +245,23 @@ func generateValidators(ba *BenchmarkApp, num int) ([]*Account, error) {
 		txs = append(txs, tx)
 	}
 
-	_, err := ba.FinalizeBlock(
+	res, err := ba.FinalizeBlock(
 		&abci.RequestFinalizeBlock{
 			Txs:    txs,
 			Height: ba.LastBlockHeight() + 1,
-			Time:   time.Now(),
+			Time:   ba.Ctx.BlockTime(),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
+
+	for _, tx := range res.TxResults {
+		if tx.Code != 0 {
+			return nil, fmt.Errorf("transfer error: %s", tx.Log)
+		}
+	}
+
 	_, err = ba.Commit()
 	if err != nil {
 		return nil, err
@@ -268,7 +282,7 @@ func generateValidators(ba *BenchmarkApp, num int) ([]*Account, error) {
 		msgCreateVal, err := stakingtypes.NewMsgCreateValidator(
 			val.ValAddress.String(),
 			val.PubKey,
-			sdk.NewCoin("uband", sdkmath.NewInt(150000000)),
+			sdk.NewCoin("uband", sdkmath.NewInt(1000000)),
 			stakingtypes.NewDescription(val.Address.String(), val.Address.String(), "", "", ""),
 			stakingtypes.NewCommissionRates(sdkmath.LegacyNewDec(1), sdkmath.LegacyNewDec(1), sdkmath.LegacyNewDec(1)),
 			sdkmath.NewInt(1),
@@ -290,15 +304,21 @@ func generateValidators(ba *BenchmarkApp, num int) ([]*Account, error) {
 		txs = append(txs, tx)
 	}
 
-	_, err = ba.FinalizeBlock(
+	res, err = ba.FinalizeBlock(
 		&abci.RequestFinalizeBlock{
 			Txs:    txs,
 			Height: ba.LastBlockHeight() + 1,
-			Time:   time.Now(),
+			Time:   ba.Ctx.BlockTime(),
 		},
 	)
 	if err != nil {
 		return nil, err
+	}
+
+	for _, tx := range res.TxResults {
+		if tx.Code != 0 {
+			return nil, fmt.Errorf("validator error: %s", tx.Log)
+		}
 	}
 
 	_, err = ba.Commit()
