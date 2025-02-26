@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"time"
 
+	feemarkettypes "github.com/skip-mev/feemarket/x/feemarket/types"
+
 	"github.com/cosmos/ibc-go/modules/capability"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 	icagenesistypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/genesis/types"
@@ -41,12 +43,11 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3"
+	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3_mainnet"
 	"github.com/bandprotocol/chain/v3/x/bandtss"
 	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	"github.com/bandprotocol/chain/v3/x/feeds"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
-	globalfeetypes "github.com/bandprotocol/chain/v3/x/globalfee/types"
 	"github.com/bandprotocol/chain/v3/x/oracle"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 	"github.com/bandprotocol/chain/v3/x/restake"
@@ -74,7 +75,7 @@ func NewDefaultGenesisState(cdc codec.Codec) GenesisState {
 	crisisGenesis := crisistypes.DefaultGenesisState()
 	slashingGenesis := slashingtypes.DefaultGenesisState()
 	icaGenesis := icagenesistypes.DefaultGenesis()
-	globalfeeGenesis := globalfeetypes.DefaultGenesisState()
+	feemarketGenesis := feemarkettypes.DefaultGenesisState()
 	// Override the genesis parameters.
 	authGenesis.Params.TxSizeCostPerByte = 5
 	stakingGenesis.Params.BondDenom = denom
@@ -102,9 +103,12 @@ func NewDefaultGenesisState(cdc codec.Codec) GenesisState {
 		AllowMessages: v3.ICAAllowMessages,
 	}
 
-	globalfeeGenesis.Params.MinimumGasPrices = sdk.NewDecCoins(
-		sdk.NewDecCoinFromDec(denom, math.LegacyNewDecWithPrec(25, 4)), // 0.0025uband
-	)
+	feemarketGenesis.Params.MaxBlockUtilization = 50_000_000
+	feemarketGenesis.Params.MinBaseGasPrice = math.LegacyNewDecWithPrec(25, 4) // 0.0025uband
+	feemarketGenesis.Params.FeeDenom = denom
+	feemarketGenesis.Params.Enabled = false
+
+	feemarketGenesis.State.BaseGasPrice = math.LegacyNewDecWithPrec(25, 4) // 0.0025uband
 
 	return GenesisState{
 		authtypes.ModuleName:         cdc.MustMarshalJSON(authGenesis),
@@ -125,13 +129,13 @@ func NewDefaultGenesisState(cdc codec.Codec) GenesisState {
 		ibctransafertypes.ModuleName: ibctransfer.AppModuleBasic{}.DefaultGenesis(cdc),
 		icatypes.ModuleName:          cdc.MustMarshalJSON(icaGenesis),
 		ibcfeetypes.ModuleName:       ibcfee.AppModuleBasic{}.DefaultGenesis(cdc),
+		feemarkettypes.ModuleName:    cdc.MustMarshalJSON(feemarketGenesis),
 		rollingseedtypes.ModuleName:  rollingseed.AppModuleBasic{}.DefaultGenesis(cdc),
 		oracletypes.ModuleName:       oracle.AppModuleBasic{}.DefaultGenesis(cdc),
 		tsstypes.ModuleName:          tss.AppModuleBasic{}.DefaultGenesis(cdc),
 		bandtsstypes.ModuleName:      bandtss.AppModuleBasic{}.DefaultGenesis(cdc),
 		feedstypes.ModuleName:        feeds.AppModuleBasic{}.DefaultGenesis(cdc),
 		tunneltypes.ModuleName:       tunnel.AppModuleBasic{}.DefaultGenesis(cdc),
-		globalfeetypes.ModuleName:    cdc.MustMarshalJSON(globalfeeGenesis),
 		restaketypes.ModuleName:      restake.AppModuleBasic{}.DefaultGenesis(cdc),
 	}
 }

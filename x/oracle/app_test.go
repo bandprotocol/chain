@@ -31,6 +31,7 @@ func TestAppTestSuite(t *testing.T) {
 
 func (s *AppTestSuite) SetupTest() {
 	dir := testutil.GetTempDir(s.T())
+	band.UseFeeMarketDecorator = false
 	s.app = bandtesting.SetupWithCustomHome(false, dir)
 	ctx := s.app.BaseApp.NewUncachedContext(false, cmtproto.Header{})
 

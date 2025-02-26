@@ -1,7 +1,9 @@
-package v3
+package v3_mainnet
 
 import (
 	"context"
+
+	feemarkettypes "github.com/skip-mev/feemarket/x/feemarket/types"
 
 	cmttypes "github.com/cometbft/cometbft/types"
 
@@ -10,7 +12,6 @@ import (
 	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	ibcconnectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 
-	sdkmath "cosmossdk.io/math"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -27,7 +28,6 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/bandprotocol/chain/v3/app/keepers"
-	globalfeetypes "github.com/bandprotocol/chain/v3/x/globalfee/types"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
@@ -122,9 +122,23 @@ func CreateUpgradeHandler(
 			return nil, err
 		}
 
-		err = keepers.GlobalFeeKeeper.SetParams(ctx, globalfeetypes.Params{
-			MinimumGasPrices: sdk.DecCoins{sdk.NewDecCoinFromDec("uband", sdkmath.LegacyNewDecWithPrec(25, 4))},
-		})
+		feemarketParams := feemarkettypes.DefaultParams()
+		feemarketParams.MaxBlockUtilization = uint64(BlockMaxGas)
+		feemarketParams.MinBaseGasPrice = MinimumGasPrice
+		feemarketParams.FeeDenom = Denom
+		feemarketParams.Enabled = false
+		err = keepers.FeeMarketKeeper.SetParams(ctx, feemarketParams)
+		if err != nil {
+			return nil, err
+		}
+
+		state, err := keepers.FeeMarketKeeper.GetState(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		state.BaseGasPrice = MinimumGasPrice
+		err = keepers.FeeMarketKeeper.SetState(ctx, state)
 		if err != nil {
 			return nil, err
 		}

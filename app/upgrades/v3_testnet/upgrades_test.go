@@ -1,22 +1,21 @@
-package v3_test
+package v3_testnet_test
 
 import (
 	"testing"
 
+	feemarkettypes "github.com/skip-mev/feemarket/x/feemarket/types"
 	"github.com/stretchr/testify/suite"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	cmttypes "github.com/cometbft/cometbft/types"
 
-	sdkmath "cosmossdk.io/math"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	band "github.com/bandprotocol/chain/v3/app"
-	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3"
+	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3_testnet"
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
 )
 
@@ -67,31 +66,24 @@ func postUpgradeChecks(s *UpgradeTestSuite) {
 		s.Require().True(subspace.HasKeyTable())
 	}
 
-	// Check consensus params after upgrade
-	consensusParam, err := s.app.ConsensusParamsKeeper.ParamsStore.Get(s.ctx)
+	// check feemarket params
+	feemarketParams, err := s.app.FeeMarketKeeper.GetParams(s.ctx)
 	s.Require().NoError(err)
+	s.Require().Equal(feemarkettypes.DefaultWindow, feemarketParams.Window)
+	s.Require().Equal(feemarkettypes.DefaultAlpha, feemarketParams.Alpha)
+	s.Require().Equal(feemarkettypes.DefaultBeta, feemarketParams.Beta)
+	s.Require().Equal(feemarkettypes.DefaultGamma, feemarketParams.Gamma)
+	s.Require().Equal(feemarkettypes.DefaultMinLearningRate, feemarketParams.MinLearningRate)
+	s.Require().Equal(feemarkettypes.DefaultMaxLearningRate, feemarketParams.MaxLearningRate)
+	s.Require().Equal(uint64(v3.BlockMaxGas), feemarketParams.MaxBlockUtilization)
+	s.Require().Equal(v3.MinimumGasPrice, feemarketParams.MinBaseGasPrice)
+	s.Require().Equal(v3.Denom, feemarketParams.FeeDenom)
+	s.Require().False(feemarketParams.Enabled)
 
-	s.Require().Equal(v3.BlockMaxBytes, consensusParam.Block.MaxBytes)
-	s.Require().Equal(v3.BlockMaxGas, consensusParam.Block.MaxGas)
-	s.Require().Equal([]string{cmttypes.ABCIPubKeyTypeSecp256k1}, consensusParam.Validator.PubKeyTypes)
-
-	DefaultEvidenceParams := cmttypes.DefaultEvidenceParams()
-	s.Require().Equal(DefaultEvidenceParams.MaxAgeNumBlocks, consensusParam.Evidence.MaxAgeNumBlocks)
-	s.Require().Equal(DefaultEvidenceParams.MaxAgeDuration, consensusParam.Evidence.MaxAgeDuration)
-	s.Require().Equal(DefaultEvidenceParams.MaxBytes, consensusParam.Evidence.MaxBytes)
-
-	s.Require().Equal(cmttypes.DefaultVersionParams().App, consensusParam.Version.App)
-	s.Require().
-		Equal(cmttypes.DefaultABCIParams().VoteExtensionsEnableHeight, consensusParam.Abci.VoteExtensionsEnableHeight)
-
-	// check ICA host params
-	icaHostParams := s.app.ICAHostKeeper.GetParams(s.ctx)
-	s.Require().True(icaHostParams.HostEnabled)
-	s.Require().Equal(v3.ICAAllowMessages, icaHostParams.AllowMessages)
-
-	// check global fee params
-	s.Require().
-		Equal(sdk.DecCoins{sdk.NewDecCoinFromDec("uband", sdkmath.LegacyNewDecWithPrec(25, 4))}, s.app.GlobalFeeKeeper.GetParams(s.ctx).MinimumGasPrices)
+	// check feemarket state
+	state, err := s.app.FeeMarketKeeper.GetState(s.ctx)
+	s.Require().NoError(err)
+	s.Require().Equal(v3.MinimumGasPrice, state.BaseGasPrice)
 }
 
 func (s *UpgradeTestSuite) ConfirmUpgradeSucceeded(upgradeName string, upgradeHeight int64) {

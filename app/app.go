@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	feemarketkeeper "github.com/skip-mev/feemarket/x/feemarket/keeper"
 	"github.com/spf13/cast"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -21,6 +22,7 @@ import (
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/log"
+	"cosmossdk.io/math"
 	"cosmossdk.io/x/tx/signing"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
@@ -40,6 +42,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/std"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 	sigtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -55,7 +58,7 @@ import (
 	"github.com/bandprotocol/chain/v3/app/keepers"
 	"github.com/bandprotocol/chain/v3/app/mempool"
 	"github.com/bandprotocol/chain/v3/app/upgrades"
-	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3"
+	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3_mainnet"
 	nodeservice "github.com/bandprotocol/chain/v3/client/grpc/node"
 	proofservice "github.com/bandprotocol/chain/v3/client/grpc/oracle/proof"
 	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
@@ -269,27 +272,40 @@ func NewBandApp(
 
 	anteHandler, err := NewAnteHandler(
 		HandlerOptions{
-			HandlerOptions: ante.HandlerOptions{
-				AccountKeeper:   app.AccountKeeper,
-				BankKeeper:      app.BankKeeper,
-				SignModeHandler: txConfig.SignModeHandler(),
-				FeegrantKeeper:  app.FeeGrantKeeper,
-				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
-			},
 			Cdc:             app.appCodec,
+			SignModeHandler: txConfig.SignModeHandler(),
+			SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
+			TxFeeChecker: func(ctx sdk.Context, tx sdk.Tx) (sdk.Coins, int64, error) {
+				return minTxFeesChecker(ctx, tx, *app.FeeMarketKeeper)
+			},
+
+			AccountKeeper:   app.AccountKeeper,
+			BankKeeper:      app.BankKeeper,
+			FeegrantKeeper:  app.FeeGrantKeeper,
 			AuthzKeeper:     &app.AuthzKeeper,
 			OracleKeeper:    &app.OracleKeeper,
+			IBCKeeper:       app.IBCKeeper,
+			StakingKeeper:   app.StakingKeeper,
+			FeeMarketKeeper: app.FeeMarketKeeper,
 			TSSKeeper:       app.TSSKeeper,
 			BandtssKeeper:   &app.BandtssKeeper,
 			FeedsKeeper:     &app.FeedsKeeper,
-			IBCKeeper:       app.IBCKeeper,
-			StakingKeeper:   app.StakingKeeper,
-			GlobalfeeKeeper: &app.GlobalFeeKeeper,
-			Lanes:           []*mempool.Lane{feedsLane, tssLane, oracleLane}, // every lane except default lane
+
+			Lanes: []*mempool.Lane{feedsLane, tssLane, oracleLane}, // every lane except default lane
 		},
 	)
 	if err != nil {
 		panic(fmt.Errorf("failed to create ante handler: %s", err))
+	}
+
+	postHandlerOptions := PostHandlerOptions{
+		AccountKeeper:   app.AccountKeeper,
+		BankKeeper:      app.BankKeeper,
+		FeeMarketKeeper: app.FeeMarketKeeper,
+	}
+	postHandler, err := NewPostHandler(postHandlerOptions)
+	if err != nil {
+		panic(err)
 	}
 
 	// proposal handler
@@ -298,13 +314,6 @@ func NewBandApp(
 	// set the Prepare / ProcessProposal Handlers on the app to be the `LanedMempool`'s
 	app.SetPrepareProposal(proposalHandler.PrepareProposalHandler())
 	app.SetProcessProposal(proposalHandler.ProcessProposalHandler())
-
-	postHandler, err := NewPostHandler(
-		PostHandlerOptions{},
-	)
-	if err != nil {
-		panic(fmt.Errorf("failed to create post handler: %s", err))
-	}
 
 	// set ante and post handlers
 	app.SetAnteHandler(anteHandler)
@@ -526,4 +535,43 @@ func (app *BandApp) AutoCliOpts() autocli.AppOptions {
 		ValidatorAddressCodec: authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix()),
 		ConsensusAddressCodec: authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix()),
 	}
+}
+
+// minTxFeesChecker will be executed only if the feemarket module is disabled.
+// In this case, the auth module's DeductFeeDecorator is executed, and
+// we use the minTxFeesChecker to enforce the minimum transaction fees.
+// Min tx fees are calculated as gas_limit * feemarket_min_base_gas_price
+func minTxFeesChecker(ctx sdk.Context, tx sdk.Tx, feemarketKp feemarketkeeper.Keeper) (sdk.Coins, int64, error) {
+	feeTx, ok := tx.(sdk.FeeTx)
+	if !ok {
+		return nil, 0, sdkerrors.ErrTxDecode.Wrap("tx must be FeeTx")
+	}
+
+	// To keep the gentxs with zero fees, we need to skip the validation in the first block
+	if ctx.BlockHeight() == 0 {
+		return feeTx.GetFee(), 0, nil
+	}
+
+	feeMarketParams, err := feemarketKp.GetParams(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	feeRequired := sdk.NewCoins(
+		sdk.NewCoin(
+			feeMarketParams.FeeDenom,
+			feeMarketParams.MinBaseGasPrice.MulInt(math.NewIntFromUint64(feeTx.GetGas())).Ceil().RoundInt()))
+
+	feeCoins := feeTx.GetFee()
+	if len(feeCoins) != 1 {
+		return nil, 0, fmt.Errorf(
+			"expected exactly one fee coin; got %s, required: %s", feeCoins.String(), feeRequired.String())
+	}
+
+	if !feeCoins.IsAnyGTE(feeRequired) {
+		return nil, 0, fmt.Errorf(
+			"not enough fees provided; got %s, required: %s", feeCoins.String(), feeRequired.String())
+	}
+
+	return feeTx.GetFee(), 0, nil
 }
