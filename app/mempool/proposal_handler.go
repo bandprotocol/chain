@@ -21,8 +21,8 @@ type (
 	}
 )
 
-// NewDefaultProposalHandler returns a new ABCI++ proposal handler for the Mempool.
-func NewDefaultProposalHandler(
+// NewProposalHandler returns a new ABCI++ proposal handler for the Mempool.
+func NewProposalHandler(
 	logger log.Logger,
 	txDecoder sdk.TxDecoder,
 	mempool *Mempool,
@@ -79,45 +79,7 @@ func (h *ProposalHandler) PrepareProposalHandler() sdk.PrepareProposalHandler {
 	}
 }
 
-// ProcessProposalHandler optionally validates the proposal's transactions prior to consensus acceptance.
+// ProcessProposalHandler returns a no-op process proposal handler.
 func (h *ProposalHandler) ProcessProposalHandler() sdk.ProcessProposalHandler {
-	if !h.useCustomProcessProposal {
-		// By default, do nothing special on ProcessProposal.
-		return baseapp.NoOpProcessProposal()
-	}
-
-	return func(ctx sdk.Context, req *abci.RequestProcessProposal) (resp *abci.ResponseProcessProposal, err error) {
-		if req.Height <= 1 {
-			return &abci.ResponseProcessProposal{Status: abci.ResponseProcessProposal_ACCEPT}, nil
-		}
-
-		defer func() {
-			if rec := recover(); rec != nil {
-				h.logger.Error("failed to process proposal", "recover_err", rec)
-				resp = &abci.ResponseProcessProposal{Status: abci.ResponseProcessProposal_REJECT}
-				err = fmt.Errorf("failed to process proposal: %v", rec)
-			}
-		}()
-
-		// Decode the transactions in the proposal.
-		decodedTxs, err := GetDecodedTxs(h.txDecoder, req.Txs)
-		if err != nil {
-			h.logger.Error("failed to decode txs", "err", err)
-			return &abci.ResponseProcessProposal{Status: abci.ResponseProcessProposal_REJECT}, err
-		}
-
-		// (Optional) verify each transaction in the proposal.
-		for _, tx := range decodedTxs {
-			// Custom verification logic can go here.
-			h.logger.Info("verified transaction", "tx", tx)
-		}
-
-		h.logger.Info(
-			"processed proposal",
-			"num_txs", len(decodedTxs),
-			"height", req.Height,
-		)
-
-		return &abci.ResponseProcessProposal{Status: abci.ResponseProcessProposal_ACCEPT}, nil
-	}
+	return baseapp.NoOpProcessProposal()
 }

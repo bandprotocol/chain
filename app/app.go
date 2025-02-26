@@ -293,7 +293,7 @@ func NewBandApp(
 	}
 
 	// proposal handler
-	proposalHandler := mempool.NewDefaultProposalHandler(app.Logger(), txConfig.TxDecoder(), bandMempool)
+	proposalHandler := mempool.NewProposalHandler(app.Logger(), txConfig.TxDecoder(), bandMempool)
 
 	// set the Prepare / ProcessProposal Handlers on the app to be the `LanedMempool`'s
 	app.SetPrepareProposal(proposalHandler.PrepareProposalHandler())
