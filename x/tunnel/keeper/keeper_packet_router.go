@@ -37,13 +37,16 @@ func (k Keeper) SendRouterPacket(
 	}
 
 	// create memo string for ibc transfer
-	memoStr := types.NewRouterMemo(
+	memoStr, err := types.NewRouterMemo(
 		routerIntegrationContract,
 		route.DestinationChainID,
 		route.DestinationContractAddress,
 		route.DestinationGasLimit,
 		base64.StdEncoding.EncodeToString(payload),
 	).JSONString()
+	if err != nil {
+		return nil, err
+	}
 
 	msg := ibctransfertypes.NewMsgTransfer(
 		ibctransfertypes.PortID,

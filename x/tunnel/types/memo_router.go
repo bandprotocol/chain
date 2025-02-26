@@ -1,6 +1,10 @@
 package types
 
-import sdk "github.com/cosmos/cosmos-sdk/types"
+import (
+	"encoding/json"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
 
 // NewRouterMemo creates a new RouterMemo object.
 func NewRouterMemo(
@@ -26,6 +30,11 @@ func NewRouterMemo(
 }
 
 // JSONString returns the JSON string representation of the RouterMemo
-func (r RouterMemo) JSONString() string {
-	return string(sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&r)))
+func (r RouterMemo) JSONString() (string, error) {
+	bz, err := json.Marshal(r)
+	if err != nil {
+		return "", err
+	}
+
+	return string(sdk.MustSortJSON(bz)), nil
 }
