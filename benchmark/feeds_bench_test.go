@@ -70,7 +70,7 @@ func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 		vals, err := generateValidators(ba, int(numVals))
 		require.NoError(b, err)
 
-		err = setupFeeds(ba)
+		err = setupFeeds(ba, 300)
 		require.NoError(b, err)
 
 		err = setupValidatorPriceList(ba, vals)
@@ -134,7 +134,7 @@ func BenchmarkFeedsEndBlock(b *testing.B) {
 	vals, err := generateValidators(ba, int(numVals))
 	require.NoError(b, err)
 
-	err = setupFeeds(ba)
+	err = setupFeeds(ba, 300)
 	require.NoError(b, err)
 
 	err = setupValidatorPrices(ba, vals)
@@ -165,9 +165,7 @@ func BenchmarkFeedsEndBlock(b *testing.B) {
 	}
 }
 
-func setupFeeds(ba *BenchmarkApp) error {
-	numFeeds := ba.FeedsKeeper.GetParams(ba.Ctx).MaxCurrentFeeds
-
+func setupFeeds(ba *BenchmarkApp, numFeeds uint64) error {
 	feeds := []types.Feed{}
 	for i := uint64(0); i < numFeeds; i++ {
 		feeds = append(feeds, types.Feed{
