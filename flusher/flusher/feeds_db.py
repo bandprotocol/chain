@@ -71,6 +71,7 @@ feeds_validator_prices = sa.Table(
     metadata,
     Column("validator_id", sa.Integer, sa.ForeignKey("validators.id"), primary_key=True),
     Column("signal_id", sa.String, primary_key=True),
+    Column("transaction_id", sa.Integer, sa.ForeignKey("transactions.id")),
     Column("status", CustomSignalPriceStatus),
     Column("price", sa.BigInteger),
     Column("timestamp", CustomDateTime, index=True),

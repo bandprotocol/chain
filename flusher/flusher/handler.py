@@ -633,6 +633,9 @@ class Handler(object):
         )
 
     def handle_set_validator_prices(self, msg):
+        if msg["tx_hash"] is not None:
+            msg["transaction_id"] = self.get_transaction_id(msg["tx_hash"])
+        del msg["tx_hash"]
         msg["validator_id"] = self.get_validator_id(msg["validator"])
         del msg["validator"]
 
@@ -643,6 +646,7 @@ class Handler(object):
             {
                 "validator_id": msg["validator_id"],
                 "signal_id": signal_price["signal_id"],
+                "transaction_id": msg["transaction_id"],
                 "status": signal_price["status"],
                 "price": signal_price.get("price", 0),
                 "timestamp": msg["timestamp"],
@@ -655,6 +659,7 @@ class Handler(object):
         stmt = stmt.on_conflict_do_update(
             constraint="feeds_validator_prices_pkey",
             set_={
+                "transaction_id": stmt.excluded.transaction_id,
                 "status": stmt.excluded.status,
                 "price": stmt.excluded.price,
                 "timestamp": stmt.excluded.timestamp,
