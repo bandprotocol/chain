@@ -333,6 +333,8 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req *abci.RequestInitChain, res *
 				"reporter":  authz.Grantee,
 				"validator": val,
 			})
+		default:
+			// No action needed for other cases yet
 		}
 	}
 
