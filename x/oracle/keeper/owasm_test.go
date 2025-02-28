@@ -182,7 +182,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestSuccessBasic() {
 		1,
 		1,
 		basicClientID,
-		coins100000000uband,
+		bandtesting.Coins100band,
 		testDefaultPrepareGas,
 		testDefaultExecuteGas,
 		alice,
@@ -195,9 +195,9 @@ func (suite *KeeperTestSuite) TestPrepareRequestSuccessBasic() {
 		GetRollingSeed(gomock.Any()).
 		Return([]byte("ROLLING_SEED_A_WITH_LONG_ENOUGH_ENTROPY"))
 
-	suite.bankKeeper.EXPECT().SendCoins(gomock.Any(), alice, treasury, coins1000000uband)
-	suite.bankKeeper.EXPECT().SendCoins(gomock.Any(), alice, treasury, coins1000000uband)
-	suite.bankKeeper.EXPECT().SendCoins(gomock.Any(), alice, treasury, coins1000000uband)
+	suite.bankKeeper.EXPECT().SendCoins(gomock.Any(), alice, treasury, bandtesting.Coins1band)
+	suite.bankKeeper.EXPECT().SendCoins(gomock.Any(), alice, treasury, bandtesting.Coins1band)
+	suite.bankKeeper.EXPECT().SendCoins(gomock.Any(), alice, treasury, bandtesting.Coins1band)
 
 	id, err := k.PrepareRequest(ctx, msg, alice, nil)
 	require.NoError(err)
@@ -242,7 +242,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestInvalidCalldataSize() {
 		1,
 		1,
 		basicClientID,
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
@@ -270,7 +270,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestOracleScriptNotFound() {
 		1,
 		1,
 		basicClientID,
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
@@ -295,7 +295,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestNotEnoughMaxFee() {
 		AnyTimes()
 
 	suite.bankKeeper.EXPECT().
-		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
+		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1band).
 		Return(nil).AnyTimes()
 
 	ctx = ctx.WithBlockTime(bandtesting.ParseTime(1581589790)).WithBlockHeight(42)
@@ -388,11 +388,11 @@ func (suite *KeeperTestSuite) TestPrepareRequestNotEnoughFund() {
 		Return([]byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
 
 	suite.bankKeeper.EXPECT().
-		SendCoins(gomock.Any(), bandtesting.Alice.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
+		SendCoins(gomock.Any(), bandtesting.Alice.Address, bandtesting.Treasury.Address, bandtesting.Coins1band).
 		Return(errorsmod.Wrapf(
 			sdkerrors.ErrInsufficientFunds,
 			"spendable balance %s is smaller than %s",
-			"0uband", "1000000uband",
+			"0uband", "1band",
 		))
 
 	ctx = ctx.WithBlockTime(bandtesting.ParseTime(1581589790)).WithBlockHeight(42)
@@ -403,14 +403,14 @@ func (suite *KeeperTestSuite) TestPrepareRequestNotEnoughFund() {
 		1,
 		1,
 		basicClientID,
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
 		0,
 	)
 	_, err := k.PrepareRequest(ctx, m, bandtesting.Alice.Address, nil)
-	require.EqualError(err, "spendable balance 0uband is smaller than 1000000uband: insufficient funds")
+	require.EqualError(err, "spendable balance 0uband is smaller than 1band: insufficient funds")
 }
 
 func (suite *KeeperTestSuite) TestPrepareRequestNotEnoughPrepareGas() {
@@ -467,7 +467,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestInvalidAskCountFail() {
 		Return([]byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
 
 	suite.bankKeeper.EXPECT().
-		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
+		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1band).
 		Return(nil).AnyTimes()
 
 	params := k.GetParams(ctx)
@@ -484,7 +484,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestInvalidAskCountFail() {
 		10,
 		1,
 		basicClientID,
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
@@ -503,7 +503,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestInvalidAskCountFail() {
 		4,
 		1,
 		basicClientID,
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
@@ -522,7 +522,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestInvalidAskCountFail() {
 		1,
 		1,
 		basicClientID,
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
@@ -551,7 +551,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestBaseOwasmFeePanic() {
 		AnyTimes()
 
 	suite.bankKeeper.EXPECT().
-		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
+		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1band).
 		Return(nil).AnyTimes()
 
 	params := k.GetParams(ctx)
@@ -565,7 +565,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestBaseOwasmFeePanic() {
 		1,
 		1,
 		basicClientID,
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
@@ -597,7 +597,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestPerValidatorRequestFeePanic() {
 		AnyTimes()
 
 	suite.bankKeeper.EXPECT().
-		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
+		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1band).
 		Return(nil).AnyTimes()
 
 	params := k.GetParams(ctx)
@@ -611,7 +611,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestPerValidatorRequestFeePanic() {
 		2,
 		1,
 		basicClientID,
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
@@ -628,7 +628,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestPerValidatorRequestFeePanic() {
 		1,
 		1,
 		basicClientID,
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
@@ -661,7 +661,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestEmptyCalldata() {
 		1,
 		1,
 		basicClientID,
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
@@ -691,7 +691,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestBadWasmExecutionFail() {
 		1,
 		1,
 		basicClientID,
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
@@ -721,7 +721,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestWithEmptyRawRequest() {
 		1,
 		1,
 		basicClientID,
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
@@ -746,13 +746,13 @@ func (suite *KeeperTestSuite) TestPrepareRequestUnknownDataSource() {
 		AnyTimes()
 
 	suite.bankKeeper.EXPECT().
-		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
+		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1band).
 		Return(nil).AnyTimes()
 
 	m := types.NewMsgRequestData(4, obi.MustEncode(testdata.Wasm4Input{
 		IDs:      []int64{1, 2, 99},
 		Calldata: "test",
-	}), 1, 1, basicClientID, bandtesting.Coins100000000uband, bandtesting.TestDefaultPrepareGas, bandtesting.TestDefaultExecuteGas, bandtesting.Alice.Address, 0)
+	}), 1, 1, basicClientID, bandtesting.Coins100band, bandtesting.TestDefaultPrepareGas, bandtesting.TestDefaultExecuteGas, bandtesting.Alice.Address, 0)
 	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.EqualError(err, "id: 99: data source not found")
 }
@@ -772,7 +772,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestInvalidDataSourceCount() {
 		AnyTimes()
 
 	suite.bankKeeper.EXPECT().
-		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
+		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1band).
 		Return(nil).AnyTimes()
 
 	params := k.GetParams(ctx)
@@ -782,13 +782,13 @@ func (suite *KeeperTestSuite) TestPrepareRequestInvalidDataSourceCount() {
 	m := types.NewMsgRequestData(4, obi.MustEncode(testdata.Wasm4Input{
 		IDs:      []int64{1, 2, 3, 4},
 		Calldata: "test",
-	}), 1, 1, basicClientID, bandtesting.Coins100000000uband, bandtesting.TestDefaultPrepareGas, bandtesting.TestDefaultExecuteGas, bandtesting.Alice.Address, 0)
+	}), 1, 1, basicClientID, bandtesting.Coins100band, bandtesting.TestDefaultPrepareGas, bandtesting.TestDefaultExecuteGas, bandtesting.Alice.Address, 0)
 	_, err = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.ErrorIs(err, types.ErrBadWasmExecution)
 	m = types.NewMsgRequestData(4, obi.MustEncode(testdata.Wasm4Input{
 		IDs:      []int64{1, 2, 3},
 		Calldata: "test",
-	}), 1, 1, basicClientID, bandtesting.Coins100000000uband, bandtesting.TestDefaultPrepareGas, bandtesting.TestDefaultExecuteGas, bandtesting.Alice.Address, 0)
+	}), 1, 1, basicClientID, bandtesting.Coins100band, bandtesting.TestDefaultPrepareGas, bandtesting.TestDefaultExecuteGas, bandtesting.Alice.Address, 0)
 	id, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.Equal(types.RequestID(1), id)
 	require.NoError(err)
@@ -809,7 +809,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestTooMuchWasmGas() {
 		AnyTimes()
 
 	suite.bankKeeper.EXPECT().
-		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
+		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1band).
 		Return(nil).AnyTimes()
 
 	m := types.NewMsgRequestData(
@@ -818,7 +818,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestTooMuchWasmGas() {
 		1,
 		1,
 		basicClientID,
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
@@ -833,7 +833,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestTooMuchWasmGas() {
 		1,
 		1,
 		basicClientID,
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
@@ -858,7 +858,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestTooLargeCalldata() {
 		AnyTimes()
 
 	suite.bankKeeper.EXPECT().
-		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
+		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1band).
 		Return(nil).AnyTimes()
 
 	m := types.NewMsgRequestData(
@@ -867,7 +867,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestTooLargeCalldata() {
 		1,
 		1,
 		basicClientID,
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
@@ -882,7 +882,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestTooLargeCalldata() {
 		1,
 		1,
 		basicClientID,
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
@@ -916,7 +916,7 @@ func (suite *KeeperTestSuite) TestResolveRequestOutOfGas() {
 		0,
 		0,
 		bandtesting.FeePayer.Address.String(),
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		bandtesting.Validators[0].ValAddress, true, []types.RawReport{
@@ -952,7 +952,7 @@ func (suite *KeeperTestSuite) TestResolveReadNilExternalData() {
 		}, nil, bandtesting.TestDefaultExecuteGas,
 		0,
 		bandtesting.FeePayer.Address.String(),
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		bandtesting.Validators[0].ValAddress, true, []types.RawReport{
@@ -1010,7 +1010,7 @@ func (suite *KeeperTestSuite) TestResolveRequestNoReturnData() {
 		1,
 		0,
 		bandtesting.FeePayer.Address.String(),
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		bandtesting.Validators[0].ValAddress, true, []types.RawReport{
@@ -1055,7 +1055,7 @@ func (suite *KeeperTestSuite) TestResolveRequestWasmFailure() {
 		0,
 		0,
 		bandtesting.FeePayer.Address.String(),
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		bandtesting.Validators[0].ValAddress, true, []types.RawReport{
@@ -1100,7 +1100,7 @@ func (suite *KeeperTestSuite) TestResolveRequestCallReturnDataSeveralTimes() {
 		bandtesting.TestDefaultExecuteGas,
 		0,
 		bandtesting.FeePayer.Address.String(),
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 	))
 	k.ResolveRequest(ctx, 42)
 
@@ -1142,7 +1142,7 @@ func (suite *KeeperTestSuite) TestResolveRequestSuccess() {
 		testDefaultExecuteGas,
 		0,
 		bandtesting.FeePayer.Address.String(),
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		validators[0].Address, true, []types.RawReport{
@@ -1183,7 +1183,7 @@ func (suite *KeeperTestSuite) TestResolveRequestSuccessComplex() {
 		testDefaultExecuteGas,
 		0,
 		bandtesting.FeePayer.Address.String(),
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		validators[0].Address, true, []types.RawReport{
@@ -1247,7 +1247,7 @@ func (suite *KeeperTestSuite) TestCollectFeeEmptyFee() {
 	require.NoError(err)
 	require.Empty(coins)
 
-	coins, err = k.CollectFee(ctx, bandtesting.Alice.Address, bandtesting.Coins100000000uband, 1, raws)
+	coins, err = k.CollectFee(ctx, bandtesting.Alice.Address, bandtesting.Coins100band, 1, raws)
 	require.NoError(err)
 	require.Empty(coins)
 
@@ -1255,7 +1255,7 @@ func (suite *KeeperTestSuite) TestCollectFeeEmptyFee() {
 	require.NoError(err)
 	require.Empty(coins)
 
-	coins, err = k.CollectFee(ctx, bandtesting.Alice.Address, bandtesting.Coins100000000uband, 2, raws)
+	coins, err = k.CollectFee(ctx, bandtesting.Alice.Address, bandtesting.Coins100band, 2, raws)
 	require.NoError(err)
 	require.Empty(coins)
 }
@@ -1267,7 +1267,7 @@ func (suite *KeeperTestSuite) TestCollectFeeBasicSuccess() {
 
 	oracletestutil.ChainGoMockCalls(
 		suite.bankKeeper.EXPECT().
-			SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
+			SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1band).
 			Return(nil),
 		suite.bankKeeper.EXPECT().
 			SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000)))).
@@ -1276,13 +1276,13 @@ func (suite *KeeperTestSuite) TestCollectFeeBasicSuccess() {
 
 	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
 		bandtesting.EmptyCoins,
-		bandtesting.Coins1000000uband,
+		bandtesting.Coins1band,
 		bandtesting.EmptyCoins,
 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000))),
 		bandtesting.EmptyCoins,
 	})
 
-	coins, err := k.CollectFee(ctx, bandtesting.FeePayer.Address, bandtesting.Coins100000000uband, 1, raws)
+	coins, err := k.CollectFee(ctx, bandtesting.FeePayer.Address, bandtesting.Coins100band, 1, raws)
 	require.NoError(err)
 	require.Equal(sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000))), coins)
 }
@@ -1303,13 +1303,13 @@ func (suite *KeeperTestSuite) TestCollectFeeBasicSuccessWithOtherAskCount() {
 
 	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
 		bandtesting.EmptyCoins,
-		bandtesting.Coins1000000uband,
+		bandtesting.Coins1band,
 		bandtesting.EmptyCoins,
 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000))),
 		bandtesting.EmptyCoins,
 	})
 
-	coins, err := k.CollectFee(ctx, bandtesting.FeePayer.Address, bandtesting.Coins100000000uband, 4, raws)
+	coins, err := k.CollectFee(ctx, bandtesting.FeePayer.Address, bandtesting.Coins100band, 4, raws)
 	require.NoError(err)
 	require.Equal(sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(12000000))), coins)
 }
@@ -1320,12 +1320,12 @@ func (suite *KeeperTestSuite) TestCollectFeeWithMixedAndFeeNotEnough() {
 	require := suite.Require()
 
 	suite.bankKeeper.EXPECT().
-		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
+		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1band).
 		Return(nil)
 
 	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
 		bandtesting.EmptyCoins,
-		bandtesting.Coins1000000uband,
+		bandtesting.Coins1band,
 		bandtesting.EmptyCoins,
 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000))),
 		bandtesting.EmptyCoins,
@@ -1335,7 +1335,7 @@ func (suite *KeeperTestSuite) TestCollectFeeWithMixedAndFeeNotEnough() {
 	require.ErrorIs(err, types.ErrNotEnoughFee)
 	require.Nil(coins)
 
-	coins, err = k.CollectFee(ctx, bandtesting.FeePayer.Address, bandtesting.Coins1000000uband, 1, raws)
+	coins, err = k.CollectFee(ctx, bandtesting.FeePayer.Address, bandtesting.Coins1band, 1, raws)
 	require.ErrorIs(err, types.ErrNotEnoughFee)
 	require.Nil(coins)
 }
@@ -1347,30 +1347,30 @@ func (suite *KeeperTestSuite) TestCollectFeeWithEnoughFeeButInsufficientBalance(
 
 	oracletestutil.ChainGoMockCalls(
 		suite.bankKeeper.EXPECT().
-			SendCoins(gomock.Any(), bandtesting.Alice.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
+			SendCoins(gomock.Any(), bandtesting.Alice.Address, bandtesting.Treasury.Address, bandtesting.Coins1band).
 			Return(nil),
 		suite.bankKeeper.EXPECT().
 			SendCoins(gomock.Any(), bandtesting.Alice.Address, bandtesting.Treasury.Address, sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000)))).
 			Return(errorsmod.Wrapf(
 				sdkerrors.ErrInsufficientFunds,
 				"spendable balance %s is smaller than %s",
-				"0uband", "2000000uband",
+				"0uband", "2band",
 			)),
 	)
 
 	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
 		bandtesting.EmptyCoins,
-		bandtesting.Coins1000000uband,
+		bandtesting.Coins1band,
 		bandtesting.EmptyCoins,
 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000))),
 		bandtesting.EmptyCoins,
 	})
 
-	coins, err := k.CollectFee(ctx, bandtesting.Alice.Address, bandtesting.Coins100000000uband, 1, raws)
+	coins, err := k.CollectFee(ctx, bandtesting.Alice.Address, bandtesting.Coins100band, 1, raws)
 	require.Nil(coins)
 	// MAX is 100m but have only 1m in account
 	// First ds collect 1m so there no balance enough for next ds but it doesn't touch limit
-	require.EqualError(err, "spendable balance 0uband is smaller than 2000000uband: insufficient funds")
+	require.EqualError(err, "spendable balance 0uband is smaller than 2band: insufficient funds")
 }
 
 func (suite *KeeperTestSuite) TestCollectFeeWithWithManyUnitSuccess() {
@@ -1380,7 +1380,7 @@ func (suite *KeeperTestSuite) TestCollectFeeWithWithManyUnitSuccess() {
 
 	oracletestutil.ChainGoMockCalls(
 		suite.bankKeeper.EXPECT().
-			SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
+			SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1band).
 			Return(nil),
 		suite.bankKeeper.EXPECT().
 			SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000)), sdk.NewCoin("uabc", math.NewInt(1000000)))).
@@ -1389,7 +1389,7 @@ func (suite *KeeperTestSuite) TestCollectFeeWithWithManyUnitSuccess() {
 
 	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
 		bandtesting.EmptyCoins,
-		bandtesting.Coins1000000uband,
+		bandtesting.Coins1band,
 		bandtesting.EmptyCoins,
 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000)), sdk.NewCoin("uabc", math.NewInt(1000000))),
 		bandtesting.EmptyCoins,

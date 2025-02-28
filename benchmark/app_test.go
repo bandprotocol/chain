@@ -57,13 +57,11 @@ var (
 	PrivE = tsstestutil.HexDecode("3ff4fb2beac0cee0ab230829a5ae0881310046282e79c978ca22f44897ea434a")
 	PubD  = tss.Scalar(PrivD).Point()
 	PubE  = tss.Scalar(PrivE).Point()
-
-	DELen = 30
 )
 
-func GetDEs() []tsstypes.DE {
+func GetDEs(deLen int) []tsstypes.DE {
 	var delist []tsstypes.DE
-	for i := 0; i < DELen; i++ {
+	for i := 0; i < deLen; i++ {
 		delist = append(delist, tsstypes.DE{PubD: PubD, PubE: PubE})
 	}
 	return delist
@@ -76,19 +74,20 @@ func InitializeBenchmarkApp(tb testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 	ba := &BenchmarkApp{
 		BandApp: app,
 		Sender: &Account{
-			Account: bandtesting.Owner,
-			Num:     0,
+			Account: bandtesting.Treasury,
+			Num:     1,
 			Seq:     0,
 		},
 		Validator: &Account{
 			Account: bandtesting.Validators[0],
-			Num:     6,
+			Num:     7,
 			Seq:     0,
 		},
 	}
 
 	ba.TB = tb
-	ba.Ctx = ba.NewUncachedContext(false, cmtproto.Header{ChainID: bandtesting.ChainID})
+	ba.Ctx = ba.NewUncachedContext(false, cmtproto.Header{ChainID: bandtesting.ChainID}).
+		WithBlockTime(time.Unix(1000000, 0))
 	ba.TSSMsgSrvr = tsskeeper.NewMsgServerImpl(ba.TSSKeeper)
 	ba.BandtssMsgSrvr = bandtsskeeper.NewMsgServerImpl(ba.BandtssKeeper)
 	ba.Querier = keeper.Querier{
@@ -125,18 +124,26 @@ func InitializeBenchmarkApp(tb testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 	)
 
 	res, err := ba.FinalizeBlock(
-		&abci.RequestFinalizeBlock{Txs: txs, Height: ba.LastBlockHeight() + 1, Time: time.Now()},
+		&abci.RequestFinalizeBlock{Txs: txs, Height: ba.LastBlockHeight() + 1, Time: ba.Ctx.BlockTime()},
 	)
 	require.NoError(tb, err)
+
+	for _, tx := range res.TxResults {
+		require.Equal(tb, uint32(0), tx.Code)
+	}
 
 	// get gov address
 	ba.Authority = authtypes.NewModuleAddress(govtypes.ModuleName)
 	ba.PrivKeyStore = make(map[string]tss.Scalar)
 
 	_, err = ba.FinalizeBlock(
-		&abci.RequestFinalizeBlock{Height: ba.LastBlockHeight() + 1, Time: time.Now()},
+		&abci.RequestFinalizeBlock{Height: ba.LastBlockHeight() + 1, Time: ba.Ctx.BlockTime()},
 	)
 	require.NoError(tb, err)
+
+	for _, tx := range res.TxResults {
+		require.Equal(tb, uint32(0), tx.Code)
+	}
 
 	_, err = ba.Commit()
 	require.NoError(tb, err)
@@ -217,7 +224,7 @@ func (ba *BenchmarkApp) SetupTSSGroup() {
 		IsActive:    true,
 	})
 	_, err := msgSrvr.SubmitDEs(ctx, &tsstypes.MsgSubmitDEs{
-		DEs:    GetDEs(),
+		DEs:    GetDEs(300),
 		Sender: ba.Sender.Address.String(),
 	})
 	require.NoError(ba.TB, err)
@@ -322,9 +329,9 @@ func (ba *BenchmarkApp) AddDEs(addr sdk.AccAddress) {
 
 	deQueue := k.GetDEQueue(ctx, addr)
 	count := deQueue.Tail - deQueue.Head
-	if count < uint64(DELen) {
+	if count < uint64(30) {
 		_, err := msgSrvr.SubmitDEs(ctx, &tsstypes.MsgSubmitDEs{
-			DEs:    GetDEs(),
+			DEs:    GetDEs(30),
 			Sender: addr.String(),
 		})
 		require.NoError(ba.TB, err)

@@ -159,7 +159,7 @@ func (s *AppTestSuite) TestNoAbsent() {
 	_, err = s.app.Commit()
 	s.Require().NoError(err)
 
-	s.checkCommunityPool("4.04")
+	s.checkCommunityPool("8326.44")
 
 	// Pass 2 block no absent
 	_, err = s.app.FinalizeBlock(
@@ -169,7 +169,7 @@ func (s *AppTestSuite) TestNoAbsent() {
 	_, err = s.app.Commit()
 	s.Require().NoError(err)
 
-	s.checkCommunityPool("4.08")
+	s.checkCommunityPool("8408.88")
 
 	// Pass 3 block no absent
 	_, err = s.app.FinalizeBlock(
@@ -179,7 +179,7 @@ func (s *AppTestSuite) TestNoAbsent() {
 	_, err = s.app.Commit()
 	s.Require().NoError(err)
 
-	s.checkCommunityPool("4.12")
+	s.checkCommunityPool("8491.32")
 }
 
 func (s *AppTestSuite) TestMissedValidatorAbsent() {
@@ -191,7 +191,7 @@ func (s *AppTestSuite) TestMissedValidatorAbsent() {
 	_, err = s.app.Commit()
 	s.Require().NoError(err)
 
-	s.checkCommunityPool("4.04")
+	s.checkCommunityPool("8326.44")
 
 	// Pass 2 block absent missed validator not slash yet due to not pass min height
 	_, err = s.app.FinalizeBlock(
@@ -206,7 +206,7 @@ func (s *AppTestSuite) TestMissedValidatorAbsent() {
 	s.Require().NoError(err)
 	s.Require().False(missVal.IsJailed())
 
-	s.checkCommunityPool("4.08")
+	s.checkCommunityPool("8408.88")
 
 	// Pass 3 block still miss should be slashed
 	_, err = s.app.FinalizeBlock(
@@ -222,5 +222,5 @@ func (s *AppTestSuite) TestMissedValidatorAbsent() {
 	s.Require().True(missVal.IsJailed())
 
 	// Community pool should increase 1% of validator power(100 band) == 1 band == 1000000uband
-	s.checkCommunityPool("1000004.12")
+	s.checkCommunityPool("1008491.32")
 }
