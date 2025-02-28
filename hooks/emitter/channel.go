@@ -59,6 +59,8 @@ func (h *Hook) handleMsgChannelOpenTry(ctx sdk.Context, msg *types.MsgChannelOpe
 	switch msg.PortId {
 	case "icahost":
 		h.handleIcahostChannelOpenTry(ctx, msg)
+	default:
+		// No action needed for other cases yet
 	}
 
 	h.emitSetChannel(ctx, msg.PortId, evMap[types.EventTypeChannelOpenTry+"."+types.AttributeKeyChannelID][0])

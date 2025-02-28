@@ -86,6 +86,8 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, tx sdk.Tx, res *abci.ExecTxResult
 					reports[reqID] = append(reports[reqID], report)
 				}
 			}
+		default:
+			// No action needed for other cases yet
 		}
 	}
 
@@ -120,6 +122,8 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, events []abci.Event) {
 					Result:  &result,
 				})
 			}
+		default:
+			// No action needed for other cases yet
 		}
 	}
 

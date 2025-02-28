@@ -22,7 +22,7 @@ func (s *KeeperTestSuite) TestSendIBCPacket() {
 		TunnelID:  1,
 		Sequence:  1,
 		Prices:    []feedstypes.Price{},
-		CreatedAt: time.Now().Unix(),
+		CreatedAt: 1730358471,
 	}
 	interval := uint64(60)
 

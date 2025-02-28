@@ -98,6 +98,8 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, events []abci.Event) {
 					}
 				}
 			}
+		default:
+			// No action needed for other cases yet
 		}
 	}
 }
