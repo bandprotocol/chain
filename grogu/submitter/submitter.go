@@ -16,6 +16,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
+	"github.com/bandprotocol/chain/v3/grogu/telemetry"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
@@ -98,7 +99,10 @@ func New(
 func (s *Submitter) Start() {
 	for {
 		priceSubmission := <-s.submitSignalPriceCh
+		since := time.Now()
 		keyID := <-s.idleKeyIDChannel
+		telemetry.ObserveWaitingSenderDuration(time.Since(since).Seconds())
+
 		go func(sps SignalPriceSubmission, kid string) {
 			s.logger.Debug("[Submitter] starting submission")
 			s.submitPrice(sps, kid)
@@ -107,6 +111,8 @@ func (s *Submitter) Start() {
 }
 
 func (s *Submitter) submitPrice(pricesSubmission SignalPriceSubmission, keyID string) {
+	telemetry.IncrementSubmittingTx()
+
 	signalPrices, uuid := pricesSubmission.SignalPrices, pricesSubmission.UUID
 	defer func() {
 		s.removePending(signalPrices)
@@ -124,9 +130,11 @@ func (s *Submitter) submitPrice(pricesSubmission SignalPriceSubmission, keyID st
 	key, err := s.clientCtx.Keyring.Key(keyID)
 	if err != nil {
 		s.logger.Error("[Submitter] failed to get key: %v", err)
+		telemetry.IncrementSubmitTxFailed()
 		return
 	}
 
+	since := time.Now()
 	gasAdjustment := 1.3
 	for i := uint64(0); i < s.broadcastMaxTry; i++ {
 		txResp, err := s.broadcastMsg(
@@ -158,8 +166,14 @@ func (s *Submitter) submitPrice(pricesSubmission SignalPriceSubmission, keyID st
 
 		switch {
 		case finalizedTxResp.Code == 0:
+			telemetry.ObserveSubmitTxDuration(time.Since(since).Seconds())
+
 			s.logger.Info("[Submitter] price submitted at %v", finalizedTxResp.TxHash)
 			s.pushMonitoringRecords(uuid, finalizedTxResp.TxHash)
+
+			// telemetry.Set
+			telemetry.ObserveSignalPriceUpdateInterval(signalPrices)
+			telemetry.IncrementSubmitTxSuccess()
 			return
 		case finalizedTxResp.Codespace == sdkerrors.RootCodespace && finalizedTxResp.Code == sdkerrors.ErrOutOfGas.ABCICode():
 			s.logger.Info("[Submitter] transaction is out of gas, retrying with increased gas adjustment")
@@ -170,6 +184,7 @@ func (s *Submitter) submitPrice(pricesSubmission SignalPriceSubmission, keyID st
 	}
 
 	s.logger.Error("[Submitter] failed to submit price")
+	telemetry.IncrementSubmitTxFailed()
 }
 
 func (s *Submitter) pushMonitoringRecords(uuid, txHash string) {
