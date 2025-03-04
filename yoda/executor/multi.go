@@ -1,6 +1,7 @@
 package executor
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"sync/atomic"
@@ -69,7 +70,7 @@ func (e *MultiExec) Exec(code []byte, arg string, env interface{}) (ExecResult, 
 	errs := []error{}
 	for _, each := range e.nextExecOrder() {
 		res, err := each.Exec(code, arg, env)
-		if err == nil || err == ErrExecutionimeout {
+		if err == nil || errors.Is(err, ErrExecutionimeout) {
 			return res, err
 		} else {
 			errs = append(errs, err)
