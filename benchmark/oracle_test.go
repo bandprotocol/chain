@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"os"
 	"testing"
 	"time"
 
@@ -396,6 +397,14 @@ func BenchmarkBlockOracleMsgReportData(b *testing.B) {
 	b.Cleanup(func() {
 		data, _ := json.MarshalIndent(allResults, "", "  ")
 		fmt.Println(string(data))
+
+		err := os.WriteFile("oracle_report_bench.json", data, 0o644)
+		if err != nil {
+			// If writing to the file fails, we at least log the error
+			b.Logf("Error writing oracle_report_bench.json: %v", err)
+		} else {
+			b.Logf("Wrote %d benchmark results to oracle_report_bench.json", len(allResults))
+		}
 	})
 
 	// Loop over your test configurations
