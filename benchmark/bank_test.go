@@ -100,7 +100,7 @@ func BenchmarkBankSend(b *testing.B) {
 			allResults = append(allResults, benchRecord{
 				Name:    subBenchName,
 				TxCount: txCount,
-				GasUsed: gasUsed,
+				GasUsed: gasUsed / uint64(subB.N),
 				B_N:     subB.N,
 				NsPerOp: nsPerOp,
 			})

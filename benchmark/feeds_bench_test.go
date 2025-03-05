@@ -58,13 +58,13 @@ func BenchmarkSortMap(b *testing.B) {
 func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 	// We'll accumulate results for all sub-benchmarks here.
 	var allResults []struct {
-		Name           string `json:"sub_bench_name"`
-		Vals           int    `json:"vals"`
-		Feeds          uint64 `json:"feeds"`
-		Prices         int    `json:"prices"`
-		GasUsedFirstTx uint64 `json:"gas_used_first_tx"`
-		N              int    `json:"b_n"`
-		NsPerOp        int64  `json:"ns_per_op"`
+		Name    string `json:"sub_bench_name"`
+		Vals    int    `json:"vals"`
+		Feeds   uint64 `json:"feeds"`
+		Prices  int    `json:"prices"`
+		GasUsed uint64 `json:"gas_used_first_tx"`
+		N       int    `json:"b_n"`
+		NsPerOp int64  `json:"ns_per_op"`
 	}
 
 	// Schedule a one-time cleanup that runs after ALL sub-benchmarks finish
@@ -90,7 +90,7 @@ func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 				name := fmt.Sprintf("Vals_%d_Feeds_%d_Prices_%d", numVals, numFeeds, numPrices)
 
 				b.Run(name, func(subB *testing.B) {
-					var gasUsedFirstTx uint64
+					var gasUsed uint64
 
 					for i := 0; i < subB.N; i++ {
 						// Stop timer during setup so it doesn't affect ns/op measurement.
@@ -146,10 +146,12 @@ func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 						require.NoError(subB, err)
 
 						// Capture gas usage for the *first iteration only*
-						if i == 0 && len(res.TxResults) > 0 {
-							gasUsedFirstTx = uint64(res.TxResults[0].GasUsed)
-							// Optionally print it:
-							// fmt.Printf("[%s] - Gas used first tx: %d\n", name, gasUsedFirstTx)
+						for _, tx := range res.TxResults {
+							if tx.Code != 0 && i == 0 {
+								fmt.Println("\tDeliver Error:", tx.Log)
+							} else {
+								gasUsed += uint64(tx.GasUsed)
+							}
 						}
 					}
 
@@ -159,21 +161,21 @@ func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 
 					// Add a record to allResults
 					allResults = append(allResults, struct {
-						Name           string `json:"sub_bench_name"`
-						Vals           int    `json:"vals"`
-						Feeds          uint64 `json:"feeds"`
-						Prices         int    `json:"prices"`
-						GasUsedFirstTx uint64 `json:"gas_used_first_tx"`
-						N              int    `json:"b_n"`
-						NsPerOp        int64  `json:"ns_per_op"`
+						Name    string `json:"sub_bench_name"`
+						Vals    int    `json:"vals"`
+						Feeds   uint64 `json:"feeds"`
+						Prices  int    `json:"prices"`
+						GasUsed uint64 `json:"gas_used_first_tx"`
+						N       int    `json:"b_n"`
+						NsPerOp int64  `json:"ns_per_op"`
 					}{
-						Name:           name,
-						Vals:           numVals,
-						Feeds:          numFeeds,
-						Prices:         numPrices,
-						GasUsedFirstTx: gasUsedFirstTx,
-						N:              subB.N,
-						NsPerOp:        int64(subB.Elapsed()) / int64(subB.N),
+						Name:    name,
+						Vals:    numVals,
+						Feeds:   numFeeds,
+						Prices:  numPrices,
+						GasUsed: gasUsed / uint64(subB.N),
+						N:       subB.N,
+						NsPerOp: int64(subB.Elapsed()) / int64(subB.N),
 					})
 				})
 			}

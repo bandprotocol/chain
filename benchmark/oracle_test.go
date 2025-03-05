@@ -385,7 +385,7 @@ func BenchmarkBlockOracleMsgReportData(b *testing.B) {
 		Param        uint64 `json:"param"`         // pm
 		StringLength int    `json:"string_length"` // strlen
 		ReqPerBlock  int    `json:"req_per_block"`
-		GasUsedFirst uint64 `json:"gas_used_first_tx"`
+		GasUsed      uint64 `json:"gas_used"`
 		B_N          int    `json:"b_n"`
 		NsPerOp      int64  `json:"ns_per_op"`
 	}
@@ -500,10 +500,9 @@ func BenchmarkBlockOracleMsgReportData(b *testing.B) {
 
 							// If this is the first iteration, capture gas usage
 							for _, tx := range res.TxResults {
-								if tx.Code != 0 {
+								if tx.Code != 0 && i == 0 {
 									fmt.Println("\tDeliver Error:", tx.Log)
 								} else {
-									fmt.Println("\tCosmos Gas used:", tx.GasUsed)
 									gasUsed += uint64(tx.GasUsed)
 								}
 							}
@@ -519,7 +518,7 @@ func BenchmarkBlockOracleMsgReportData(b *testing.B) {
 							Param:        pm,
 							StringLength: strlen,
 							ReqPerBlock:  reqPerBlock,
-							GasUsedFirst: gasUsed / uint64(subB.N),
+							GasUsed:      gasUsed / uint64(subB.N),
 							B_N:          subB.N,
 							NsPerOp:      int64(subB.Elapsed()) / int64(subB.N),
 						})
