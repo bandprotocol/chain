@@ -15,11 +15,11 @@ import (
 func BenchmarkBankSend(b *testing.B) {
 	// Define the structure for each sub-benchmark's results.
 	type benchRecord struct {
-		Name         string `json:"sub_bench_name"`
-		TxCount      int    `json:"tx_count"`
-		GasUsedFirst uint64 `json:"gas_used_first_tx"`
-		B_N          int    `json:"b_n"`
-		NsPerOp      int64  `json:"ns_per_op"`
+		Name    string `json:"sub_bench_name"`
+		TxCount int    `json:"tx_count"`
+		GasUsed uint64 `json:"gas_used"`
+		B_N     int    `json:"b_n"`
+		NsPerOp int64  `json:"ns_per_op"`
 	}
 
 	// We accumulate all results in this slice and print them at the end.
@@ -40,7 +40,7 @@ func BenchmarkBankSend(b *testing.B) {
 		subBenchName := fmt.Sprintf("TxCount_%d", txCount)
 
 		b.Run(subBenchName, func(subB *testing.B) {
-			var gasUsedFirstTx uint64
+			var gasUsed uint64
 
 			for i := 0; i < subB.N; i++ {
 				// Stop timer during setup so it won't count toward NsPerOp.
@@ -87,8 +87,8 @@ func BenchmarkBankSend(b *testing.B) {
 				}
 
 				// Capture gas usage for first iteration
-				if i == 0 && len(res.TxResults) > 0 {
-					gasUsedFirstTx = uint64(res.TxResults[0].GasUsed)
+				for _, tx := range res.TxResults {
+					gasUsed += uint64(tx.GasUsed)
 				}
 			}
 
@@ -98,11 +98,11 @@ func BenchmarkBankSend(b *testing.B) {
 
 			// Append record
 			allResults = append(allResults, benchRecord{
-				Name:         subBenchName,
-				TxCount:      txCount,
-				GasUsedFirst: gasUsedFirstTx,
-				B_N:          subB.N,
-				NsPerOp:      nsPerOp,
+				Name:    subBenchName,
+				TxCount: txCount,
+				GasUsed: gasUsed,
+				B_N:     subB.N,
+				NsPerOp: nsPerOp,
 			})
 		})
 	}
@@ -169,7 +169,7 @@ func BenchmarkEmptyBlock(b *testing.B) {
 
 		// Compute approximate NsPerOp using subB.Elapsed()
 		// (available in Go 1.20+; otherwise measure time yourself)
-		nsPerOp := int64(subB.Elapsed())/int64(subB.N) - 1200000
+		nsPerOp := int64(subB.Elapsed()) / int64(subB.N)
 
 		// Append record
 		allResults = append(allResults, benchRecord{
