@@ -1,6 +1,8 @@
 package cylinder
 
-import "github.com/bandprotocol/chain/v3/cylinder/context"
+import (
+	"github.com/bandprotocol/chain/v3/cylinder/context"
+)
 
 // Run starts the Cylinder process with the provided context and workers.
 func Run(c *context.Context, workers Workers) error {
