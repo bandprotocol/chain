@@ -1,0 +1,36 @@
+goos: darwin
+goarch: amd64
+pkg: github.com/bandprotocol/chain/v3/benchmark
+cpu: Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
+BenchmarkBankSend
+BenchmarkBankSend/TxCount_1
+BenchmarkBankSend/TxCount_1-4         	       1	   1645667 ns/op	  735688 B/op	    8955 allocs/op
+BenchmarkBankSend/TxCount_10
+BenchmarkBankSend/TxCount_10-4        	       1	   5254494 ns/op	 1476344 B/op	   20326 allocs/op
+BenchmarkBankSend/TxCount_100
+BenchmarkBankSend/TxCount_100-4       	       1	  46390031 ns/op	 9890488 B/op	  136913 allocs/op
+[
+  {
+    "sub_bench_name": "TxCount_1",
+    "tx_count": 1,
+    "gas_used": 68420,
+    "b_n": 1,
+    "ns_per_op": 1645667
+  },
+  {
+    "sub_bench_name": "TxCount_10",
+    "tx_count": 10,
+    "gas_used": 684284,
+    "b_n": 1,
+    "ns_per_op": 5254494
+  },
+  {
+    "sub_bench_name": "TxCount_100",
+    "tx_count": 100,
+    "gas_used": 6845624,
+    "b_n": 1,
+    "ns_per_op": 46390031
+  }
+]
+PASS
+ok  	github.com/bandprotocol/chain/v3/benchmark	2.894s
