@@ -44,9 +44,15 @@ func (h *Hook) emitSetFeedsSignalPricesTx(ctx sdk.Context, txHash []byte, valida
 	})
 }
 
-func (h *Hook) emitSetFeedsValidatorPrices(ctx sdk.Context, validator string, signalPrices []types.SignalPrice) {
+func (h *Hook) emitSetFeedsValidatorPrices(
+	ctx sdk.Context,
+	validator string,
+	txhash []byte,
+	signalPrices []types.SignalPrice,
+) {
 	h.Write("SET_VALIDATOR_PRICES", common.JsDict{
 		"validator":     validator,
+		"tx_hash":       txhash,
 		"signal_prices": signalPrices,
 		"timestamp":     ctx.BlockTime().UnixNano(),
 	})
@@ -106,7 +112,7 @@ func (h *Hook) handleFeedsMsgSubmitSignalPrices(
 	}
 
 	h.emitSetFeedsSignalPricesTx(ctx, txHash, msg.Validator, feeder)
-	h.emitSetFeedsValidatorPrices(ctx, msg.Validator, msg.SignalPrices)
+	h.emitSetFeedsValidatorPrices(ctx, msg.Validator, txHash, msg.SignalPrices)
 }
 
 // handleFeedsMsgUpdateReferenceSourceConfig implements emitter handler for MsgUpdateReferenceSourceConfig.
