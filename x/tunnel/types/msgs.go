@@ -53,12 +53,7 @@ func NewMsgCreateTSSTunnel(
 	creator string,
 ) (*MsgCreateTunnel, error) {
 	r := NewTSSRoute(destinationChainID, destinationContractAddress, encoder)
-	m, err := NewMsgCreateTunnel(signalDeviations, interval, &r, initialDeposit, creator)
-	if err != nil {
-		return nil, err
-	}
-
-	return m, nil
+	return NewMsgCreateTunnel(signalDeviations, interval, &r, initialDeposit, creator)
 }
 
 // NewMsgCreateIBCTunnel creates a new MsgCreateTunnel instance with IBC route type.
@@ -69,12 +64,20 @@ func NewMsgCreateIBCTunnel(
 	creator string,
 ) (*MsgCreateTunnel, error) {
 	r := NewIBCRoute("")
-	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, deposit, creator)
-	if err != nil {
-		return nil, err
-	}
+	return NewMsgCreateTunnel(signalDeviations, interval, r, deposit, creator)
+}
 
-	return m, nil
+// NewMsgCreateIBCHookTunnel creates a new MsgCreateTunnel instance for IBC hook tunnel.
+func NewMsgCreateIBCHookTunnel(
+	signalDeviations []SignalDeviation,
+	interval uint64,
+	channelID string,
+	destinationContractAddress string,
+	initialDeposit sdk.Coins,
+	creator string,
+) (*MsgCreateTunnel, error) {
+	r := NewIBCHookRoute(channelID, destinationContractAddress)
+	return NewMsgCreateTunnel(signalDeviations, interval, r, initialDeposit, creator)
 }
 
 // GetRouteValue returns the route of the tunnel.
@@ -157,6 +160,16 @@ func NewMsgUpdateIBCRoute(
 	creator string,
 ) (*MsgUpdateRoute, error) {
 	return NewMsgUpdateRoute(tunnelID, NewIBCRoute(channelID), creator)
+}
+
+// NewMsgUpdateIBCHookRoute creates a new MsgUpdateRoute instance.
+func NewMsgUpdateIBCHookRoute(
+	tunnelID uint64,
+	channelID string,
+	destinationContractAddress string,
+	creator string,
+) (*MsgUpdateRoute, error) {
+	return NewMsgUpdateRoute(tunnelID, NewIBCHookRoute(channelID, destinationContractAddress), creator)
 }
 
 // GetRouteValue returns the route of the message.
