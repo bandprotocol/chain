@@ -28,7 +28,7 @@ func (s *KeeperTestSuite) TestSendIBCHookPacket() {
 	interval := uint64(60)
 	feePayer := sdk.AccAddress([]byte("feePayer"))
 	hookCoins := sdk.NewCoins(
-		sdk.NewInt64Coin(types.FormatHookDenomIdentifier(tunnelID), types.HookTransferAmount),
+		sdk.NewInt64Coin(types.FormatHookDenomIdentifier(tunnelID), int64(types.HookTransferAmount)),
 	)
 
 	expectedPacketReceipt := types.IBCHookPacketReceipt{
@@ -63,7 +63,7 @@ func (s *KeeperTestSuite) TestMintIBCHookCoinToAccount() {
 	tunnelID := uint64(1)
 	account := sdk.AccAddress([]byte("test_account"))
 	hookCoins := sdk.NewCoins(
-		sdk.NewInt64Coin(types.FormatHookDenomIdentifier(tunnelID), types.HookTransferAmount),
+		sdk.NewInt64Coin(types.FormatHookDenomIdentifier(tunnelID), int64(types.HookTransferAmount)),
 	)
 
 	s.bankKeeper.EXPECT().MintCoins(ctx, types.ModuleName, hookCoins).Return(nil)
@@ -72,6 +72,6 @@ func (s *KeeperTestSuite) TestMintIBCHookCoinToAccount() {
 		Return(nil)
 
 	// Mint coins to the account
-	err := k.MintIBCHookCoinToAccount(ctx, tunnelID, account)
+	err := k.MintIBCHookCoinToAccount(ctx, tunnelID, account, types.HookTransferAmount)
 	s.Require().NoError(err)
 }
