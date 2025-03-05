@@ -166,7 +166,6 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 			metrics.IncProcessRound3FailureCount(uint64(gid))
 			return
 		}
-
 		metrics.DecDKGLeftGauge()
 	}
 
@@ -187,8 +186,8 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 	// Send MsgConfirm
 	r.context.MsgCh <- types.NewMsgConfirm(gid, group.MemberID, ownPubKeySig, r.context.Config.Granter)
 
-	metrics.IncProcessRound3ConfirmCount(uint64(gid))
 	metrics.ObserveProcessRound3Time(uint64(gid), time.Since(since).Seconds())
+	metrics.IncProcessRound3ConfirmCount(uint64(gid))
 }
 
 // Start starts the Round3 worker.

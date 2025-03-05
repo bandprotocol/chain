@@ -111,8 +111,9 @@ func (s *Sender) sendMsgs(key *keyring.Record, msgs []sdk.Msg) {
 
 	logger.Info(":smiling_face_with_sunglasses: Successfully broadcast tx with hash: %s", res.TxHash)
 
-	metrics.IncSubmitTxSuccessCount()
 	metrics.ObserveSubmitTxTime(time.Since(since).Seconds())
+	metrics.IncSubmitTxSuccessCount()
+
 }
 
 // Stop stops the Sender worker.
