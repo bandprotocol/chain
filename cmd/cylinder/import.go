@@ -8,7 +8,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/bandprotocol/chain/v3/cylinder/context"
-	"github.com/bandprotocol/chain/v3/cylinder/metrics"
 	"github.com/bandprotocol/chain/v3/cylinder/store"
 )
 
@@ -60,8 +59,6 @@ func importGroupsCmd(ctx *context.Context) *cobra.Command {
 				if err = ctx.Store.SetGroup(group); err != nil {
 					return err
 				}
-
-				metrics.IncGroupCount()
 			}
 
 			return nil
@@ -104,8 +101,6 @@ func importDKGsCmd(ctx *context.Context) *cobra.Command {
 				if err != nil {
 					return err
 				}
-
-				metrics.IncDKGLeftGauge()
 			}
 
 			return nil

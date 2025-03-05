@@ -138,6 +138,13 @@ func IncDKGLeftGauge() {
 	})
 }
 
+// AddDKGLeftGauge adds the value to the DKG left gauge.
+func AddDKGLeftGauge(n float64) {
+	updateMetrics(func() {
+		metrics.DKGLeftGauge.Add(n)
+	})
+}
+
 // DecDKGLeftGauge decrements the value of the DKG left gauge.
 func DecDKGLeftGauge() {
 	updateMetrics(func() {
@@ -152,6 +159,13 @@ func IncGroupCount() {
 	})
 }
 
+// AddGroupCount adds the number of groups.
+func AddGroupCount(n float64) {
+	updateMetrics(func() {
+		metrics.GroupCount.Add(n)
+	})
+}
+
 // SetOnChainDELeftGauge sets the value of the on-chain DE left gauge.
 func SetOnChainDELeftGauge(value float64) {
 	updateMetrics(func() {
@@ -163,6 +177,13 @@ func SetOnChainDELeftGauge(value float64) {
 func IncOffChainDELeftGauge() {
 	updateMetrics(func() {
 		metrics.OffChainDELeftGauge.Inc()
+	})
+}
+
+// AddOffChainDELeftGauge adds the value to the off-chain DE left gauge.
+func AddOffChainDELeftGauge(n float64) {
+	updateMetrics(func() {
+		metrics.OffChainDELeftGauge.Add(n)
 	})
 }
 

@@ -70,6 +70,23 @@ func runCmd(ctx *context.Context) *cobra.Command {
 				if err != nil {
 					return fmt.Errorf("failed to start metrics server: %w", err)
 				}
+
+				// Add metrics from import data
+				groups, err := ctx.Store.GetAllGroups()
+				if err != nil {
+					return err
+				}
+				metrics.AddGroupCount(float64(len(groups)))
+				dkgs, err := ctx.Store.GetAllDKGs()
+				if err != nil {
+					return err
+				}
+				metrics.AddDKGLeftGauge(float64(len(dkgs)))
+				des, err := ctx.Store.GetAllDEs()
+				if err != nil {
+					return err
+				}
+				metrics.AddOffChainDELeftGauge(float64(len(des)))
 			}
 
 			return cylinder.Run(ctx, workers)
