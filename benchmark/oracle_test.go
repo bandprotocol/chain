@@ -1,6 +1,7 @@
 package benchmark
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
 	"testing"
@@ -211,24 +212,56 @@ func BenchmarkOwasmVMPrepare(b *testing.B) {
 
 // benchmark test for execute function of owasm vm
 func BenchmarkOwasmVMExecute(b *testing.B) {
+	// We define a struct to record each sub-benchmark result
+	type benchRecord struct {
+		Cache        string `json:"cache"`         // e.g., the cache key in CacheCases
+		CaseName     string `json:"case_name"`     // e.g., "tc.scenario" or the sub-bench name
+		Param        uint64 `json:"param"`         // each pm in tc.parameters
+		StringLength int    `json:"string_length"` // each strlen in tc.stringLength
+		GasUsedFirst uint64 `json:"gas_used_first_tx"`
+		N            int    `json:"b_n"`
+		NsPerOp      int64  `json:"ns_per_op"`
+	}
+
+	// We'll accumulate records for *all* sub-benchmarks here
+	var allResults []benchRecord
+
+	// We'll print the JSON after everything finishes
+	b.Cleanup(func() {
+		data, _ := json.MarshalIndent(allResults, "", "  ")
+		fmt.Println(string(data))
+	})
+
 	for cache, cacheSize := range CacheCases {
 		for name, tc := range ExecuteCases {
 			for _, pm := range tc.parameters {
 				for _, strlen := range tc.stringLength {
-					b.Run(fmt.Sprintf(
+
+					// Define the sub-benchmark name
+					subBenchName := fmt.Sprintf(
 						"%s - %s (param: %d, strlen: %d)",
 						cache,
 						name,
 						pm,
 						strlen,
-					), func(b *testing.B) {
-						owasmVM, compiledCode, req := InitOwasmTestEnv(b, cacheSize, tc.scenario, pm, strlen)
+					)
 
-						b.ResetTimer()
-						b.StopTimer()
+					b.Run(subBenchName, func(subB *testing.B) {
+						// We'll measure the total elapsed time for subB.N iterations
+						startTime := time.Now()
 
-						// call execute on new env
-						for i := 0; i < b.N; i++ {
+						// Capture gas used in the first iteration
+						var gasUsedFirstTx uint64
+
+						// Construct or initialize everything just once outside the main loop
+						owasmVM, compiledCode, req := InitOwasmTestEnv(subB, cacheSize, tc.scenario, pm, strlen)
+
+						subB.ResetTimer()
+						subB.StopTimer()
+
+						// Perform subB.N iterations
+						for i := 0; i < subB.N; i++ {
+							// Build environment
 							env := oracletypes.NewExecuteEnv(
 								req,
 								GenOracleReports(),
@@ -236,21 +269,39 @@ func BenchmarkOwasmVMExecute(b *testing.B) {
 								int64(GetSpanSize()),
 							)
 
-							b.StartTimer()
+							// Start timing the critical part
+							subB.StartTimer()
 							res, err := owasmVM.Execute(
 								compiledCode,
 								oraclekeeper.ConvertToOwasmGas(ExecuteGasLimit),
 								env,
 							)
-							b.StopTimer()
+							subB.StopTimer()
+
 							if i == 0 {
 								if err != nil {
 									fmt.Println("\tEndblock Error:", err.Error())
 								} else {
 									fmt.Println("\tOwasm Gas used:", res.GasUsed)
+									gasUsedFirstTx = res.GasUsed
 								}
 							}
 						}
+
+						// Manually measure total time and compute approximate ns/op
+						totalElapsed := time.Since(startTime).Nanoseconds()
+						nsPerOp := totalElapsed / int64(subB.N)
+
+						// Save a record for this sub-benchmark
+						allResults = append(allResults, benchRecord{
+							Cache:        cache,
+							CaseName:     name, // or use subBenchName if you like
+							Param:        pm,
+							StringLength: strlen,
+							GasUsedFirst: gasUsedFirstTx,
+							N:            subB.N,
+							NsPerOp:      nsPerOp,
+						})
 					})
 				}
 			}
@@ -327,90 +378,143 @@ func BenchmarkBlockOracleMsgRequestData(b *testing.B) {
 
 // BenchmarkBlockOracleMsgReportData benchmarks MsgReportData of oracle module
 func BenchmarkBlockOracleMsgReportData(b *testing.B) {
+	// 1) Define a struct to hold the data we want in JSON.
+	type benchRecord struct {
+		Scenario     string `json:"scenario"`      // "name" from ExecuteCases
+		Param        uint64 `json:"param"`         // pm
+		StringLength int    `json:"string_length"` // strlen
+		ReqPerBlock  int    `json:"req_per_block"`
+		GasUsedFirst uint64 `json:"gas_used_first_tx"`
+		B_N          int    `json:"b_n"`
+		NsPerOp      int64  `json:"ns_per_op"`
+	}
+
+	// 2) We'll accumulate results in this slice. We'll print them in a Cleanup callback.
+	var allResults []benchRecord
+
+	// 3) Schedule one-time cleanup to print JSON after all sub-benchmarks complete.
+	b.Cleanup(func() {
+		data, _ := json.MarshalIndent(allResults, "", "  ")
+		fmt.Println(string(data))
+	})
+
+	// Loop over your test configurations
 	for name, tc := range ExecuteCases {
 		for _, pm := range tc.parameters {
 			for _, strlen := range tc.stringLength {
 				for _, reqPerBlock := range []int{1, 5, 10, 20} {
-					b.Run(
-						fmt.Sprintf(
-							"%s (param: %d, strlen: %d) - %d requests/block",
-							name,
-							pm,
-							strlen,
-							reqPerBlock,
-						),
-						func(b *testing.B) {
-							b.ResetTimer()
-							b.StopTimer()
 
-							for i := 0; i < b.N; i++ {
-								ba := InitializeBenchmarkApp(b, BlockMaxGas)
+					// Build a sub-benchmark name
+					subBenchName := fmt.Sprintf(
+						"%s (param: %d, strlen: %d) - %d requests/block",
+						name, pm, strlen, reqPerBlock,
+					)
 
-								// add request
-								txs := GenSequenceOfTxs(
-									ba.TxEncoder,
-									ba.TxConfig,
-									GenMsgRequestData(
-										ba.Sender,
-										ba.Oid,
-										ba.Did,
-										tc.scenario,
-										pm,
-										strlen,
-										10000,
-										ExecuteGasLimit,
-									),
+					b.Run(subBenchName, func(subB *testing.B) {
+						// We'll store the gas used on the very first iteration
+						var gasUsed uint64
+
+						// subB.N is how many times the benchmark runner calls this loop
+						for i := 0; i < subB.N; i++ {
+							subB.StopTimer()
+
+							ba := InitializeBenchmarkApp(subB, BlockMaxGas)
+
+							// Generate requests
+							txs := GenSequenceOfTxs(
+								ba.TxEncoder,
+								ba.TxConfig,
+								GenMsgRequestData(
 									ba.Sender,
-									reqPerBlock,
-								)
+									ba.Oid,
+									ba.Did,
+									tc.scenario,
+									pm,
+									strlen,
+									10000,
+									ExecuteGasLimit,
+								),
+								ba.Sender,
+								reqPerBlock,
+							)
 
-								_, err := ba.FinalizeBlock(
-									&abci.RequestFinalizeBlock{
-										Txs:    txs,
-										Height: ba.LastBlockHeight() + 1,
-										Time:   ba.Ctx.BlockTime(),
-									},
-								)
-								require.NoError(b, err)
+							subB.StartTimer()
+							// Finalize block with the "requests"
+							res, err := ba.FinalizeBlock(
+								&abci.RequestFinalizeBlock{
+									Txs:    txs,
+									Height: ba.LastBlockHeight() + 1,
+									Time:   ba.Ctx.BlockTime(),
+								},
+							)
+							subB.StopTimer()
+							require.NoError(subB, err)
 
-								_, err = ba.Commit()
-								require.NoError(b, err)
-
-								// get pending requests
-								pendingRequests := ba.GetAllPendingRequests(ba.Validator)
-
-								// create msg report data
-								tx := GenSequenceOfTxs(
-									ba.TxEncoder,
-									ba.TxConfig,
-									ba.GenMsgReportData(ba.Validator, pendingRequests.RequestIDs),
-									ba.Validator,
-									1,
-								)[0]
-
-								b.StartTimer()
-
-								res, err := ba.FinalizeBlock(
-									&abci.RequestFinalizeBlock{
-										Txs:    [][]byte{tx},
-										Height: ba.LastBlockHeight() + 1,
-										Time:   ba.Ctx.BlockTime(),
-									},
-								)
-								b.StopTimer()
-
-								require.NoError(b, err)
-
-								if i == 0 {
-									if res.TxResults[len(res.TxResults)-1].Code != 0 {
-										fmt.Println("\tDeliver Error:", res.TxResults[0].Log)
-									} else {
-										fmt.Println("\tCosmos Gas used:", res.TxResults[0].GasUsed)
-									}
+							for _, tx := range res.TxResults {
+								if tx.Code != 0 {
+									fmt.Println("\tDeliver Error:", tx.Log)
+								} else {
+									fmt.Println("\tCosmos Gas used:", tx.GasUsed)
+									gasUsed += uint64(tx.GasUsed)
 								}
 							}
-						},
-					)
+
+							_, err = ba.Commit()
+							require.NoError(subB, err)
+
+							// Gather pending requests
+							pendingRequests := ba.GetAllPendingRequests(ba.Validator)
+
+							// Create msg report data
+							tx := GenSequenceOfTxs(
+								ba.TxEncoder,
+								ba.TxConfig,
+								ba.GenMsgReportData(ba.Validator, pendingRequests.RequestIDs),
+								ba.Validator,
+								1,
+							)[0]
+
+							// Start the timer for the part we want to measure
+							subB.StartTimer()
+
+							// Finalize block with "report data"
+							res, err = ba.FinalizeBlock(
+								&abci.RequestFinalizeBlock{
+									Txs:    [][]byte{tx},
+									Height: ba.LastBlockHeight() + 1,
+									Time:   ba.Ctx.BlockTime(),
+								},
+							)
+							subB.StopTimer()
+
+							require.NoError(subB, err)
+
+							// If this is the first iteration, capture gas usage
+							for _, tx := range res.TxResults {
+								if tx.Code != 0 {
+									fmt.Println("\tDeliver Error:", tx.Log)
+								} else {
+									fmt.Println("\tCosmos Gas used:", tx.GasUsed)
+									gasUsed += uint64(tx.GasUsed)
+								}
+							}
+						}
+
+						// Manually measure total time for this sub-benchmark
+						// totalNs := time.Since(startTime).Nanoseconds()
+						// nsPerOp := totalNs / int64(subB.N)
+
+						// Append one record to allResults
+						allResults = append(allResults, benchRecord{
+							Scenario:     name,
+							Param:        pm,
+							StringLength: strlen,
+							ReqPerBlock:  reqPerBlock,
+							GasUsedFirst: gasUsed / uint64(subB.N),
+							B_N:          subB.N,
+							NsPerOp:      int64(subB.Elapsed()) / int64(subB.N),
+						})
+					})
 				}
 			}
 		}

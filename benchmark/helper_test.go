@@ -49,6 +49,20 @@ func GetBenchmarkWasm() ([]byte, error) {
 	return oCode, err
 }
 
+func GenMsgBankSend(
+	sender *Account,
+	receiver *Account,
+	amount int64,
+) []sdk.Msg {
+	msg := banktypes.MsgSend{
+		FromAddress: sender.Address.String(),
+		ToAddress:   receiver.Address.String(),
+		Amount:      sdk.Coins{sdk.NewInt64Coin("uband", amount)},
+	}
+
+	return []sdk.Msg{&msg}
+}
+
 func GenMsgRequestData(
 	sender *Account,
 	oracleScriptID uint64,
@@ -227,7 +241,7 @@ func GenSequenceOfTxs(
 
 	for i := 0; i < numTxs; i++ {
 		tx, _ := bandtesting.GenSignedMockTx(
-			rand.New(rand.NewSource(time.Now().UnixNano())),
+			rand.New(rand.NewSource(0)), // fixed seed for repeatable benchmark
 			txConfig,
 			msgs,
 			sdk.Coins{sdk.NewInt64Coin("uband", 1)},

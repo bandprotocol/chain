@@ -1,6 +1,7 @@
 package benchmark
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"sort"
@@ -54,69 +55,127 @@ func BenchmarkSortMap(b *testing.B) {
 	}
 }
 
-// benchmark test for delivering MsgSubmitSignalPrices
 func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
-	b.ResetTimer()
-	b.StopTimer()
+	// We'll accumulate results for all sub-benchmarks here.
+	var allResults []struct {
+		Name           string `json:"sub_bench_name"`
+		Vals           int    `json:"vals"`
+		Feeds          uint64 `json:"feeds"`
+		Prices         int    `json:"prices"`
+		GasUsedFirstTx uint64 `json:"gas_used_first_tx"`
+		N              int    `json:"b_n"`
+		NsPerOp        int64  `json:"ns_per_op"`
+	}
 
-	for i := 0; i < b.N; i++ {
-		ba := InitializeBenchmarkApp(b, -1)
+	// Schedule a one-time cleanup that runs after ALL sub-benchmarks finish
+	b.Cleanup(func() {
+		// Convert allResults to JSON
+		data, _ := json.MarshalIndent(allResults, "", "  ")
+		fmt.Println(string(data))
+	})
 
-		params, err := ba.StakingKeeper.GetParams(ba.Ctx)
-		require.NoError(b, err)
+	numValsList := []int{1, 10, 50, 90}
+	numFeedsList := []uint64{1, 10, 100, 300, 1000}
+	numPricesList := []int{1, 10, 100, 300, 1000}
 
-		numVals := params.MaxValidators - 5 // some validators are already activated
+	for _, numVals := range numValsList {
+		for _, numFeeds := range numFeedsList {
+			for _, numPrices := range numPricesList {
+				// Skip invalid cases where numPrices > numFeeds
+				if uint64(numPrices) > numFeeds {
+					continue
+				}
 
-		vals, err := generateValidators(ba, int(numVals))
-		require.NoError(b, err)
+				// Name the sub-benchmark to reflect the current configuration
+				name := fmt.Sprintf("Vals_%d_Feeds_%d_Prices_%d", numVals, numFeeds, numPrices)
 
-		err = setupFeeds(ba, 300)
-		require.NoError(b, err)
+				b.Run(name, func(subB *testing.B) {
+					var gasUsedFirstTx uint64
 
-		err = setupValidatorPriceList(ba, vals)
-		require.NoError(b, err)
+					for i := 0; i < subB.N; i++ {
+						// Stop timer during setup so it doesn't affect ns/op measurement.
+						subB.StopTimer()
 
-		txs := [][]byte{}
-		for _, val := range vals {
-			tx := GenSequenceOfTxs(
-				ba.TxEncoder,
-				ba.TxConfig,
-				GenMsgSubmitSignalPrices(
-					val,
-					ba.FeedsKeeper.GetCurrentFeeds(ba.Ctx).Feeds,
-					ba.Ctx.BlockTime().Unix(),
-				),
-				val,
-				1,
-			)[0]
+						ba := InitializeBenchmarkApp(subB, -1)
 
-			txs = append(txs, tx)
-		}
+						vals, err := generateValidators(ba, numVals)
+						require.NoError(subB, err)
 
-		b.StartTimer()
+						err = setupFeeds(ba, numFeeds)
+						require.NoError(subB, err)
 
-		res, err := ba.FinalizeBlock(
-			&abci.RequestFinalizeBlock{
-				Txs:    txs,
-				Height: ba.LastBlockHeight() + 1,
-				Time:   ba.Ctx.BlockTime(),
-			},
-		)
-		b.StopTimer()
+						err = setupValidatorPriceList(ba, vals)
+						require.NoError(subB, err)
 
-		require.NoError(b, err)
-		for _, tx := range res.TxResults {
-			require.Equal(b, uint32(0), tx.Code)
-		}
+						// Gather feeds and pick numPrices
+						allFeeds := ba.FeedsKeeper.GetCurrentFeeds(ba.Ctx).Feeds
+						selectedFeeds := allFeeds[:numPrices]
 
-		_, err = ba.Commit()
-		require.NoError(b, err)
+						// Create transactions
+						txs := make([][]byte, 0, len(vals))
+						for _, val := range vals {
+							msg := GenMsgSubmitSignalPrices(val, selectedFeeds, ba.Ctx.BlockTime().Unix())
+							tx := GenSequenceOfTxs(
+								ba.TxEncoder,
+								ba.TxConfig,
+								msg,
+								val,
+								1, // sequence
+							)[0]
+							txs = append(txs, tx)
+						}
 
-		if i == 0 {
-			if res.TxResults[len(res.TxResults)-1].Code != 0 {
-				fmt.Println("\tDeliver Error:", res.TxResults[0].Log)
-			} else {
-				fmt.Println("\tCosmos Gas used:", res.TxResults[0].GasUsed)
+						// Start timer for the core operation
+						subB.StartTimer()
+
+						// Finalize block
+						res, err := ba.FinalizeBlock(&abci.RequestFinalizeBlock{
+							Txs:    txs,
+							Height: ba.LastBlockHeight() + 1,
+							Time:   ba.Ctx.BlockTime(),
+						})
+						subB.StopTimer()
+
+						require.NoError(subB, err)
+						for _, txRes := range res.TxResults {
+							require.Equal(subB, uint32(0), txRes.Code,
+								"Tx failed for %s; Log: %s", name, txRes.Log)
+						}
+
+						_, err = ba.Commit()
+						require.NoError(subB, err)
+
+						// Capture gas usage for the *first iteration only*
+						if i == 0 && len(res.TxResults) > 0 {
+							gasUsedFirstTx = uint64(res.TxResults[0].GasUsed)
+							// Optionally print it:
+							// fmt.Printf("[%s] - Gas used first tx: %d\n", name, gasUsedFirstTx)
+						}
+					}
+
+					// Manually compute total elapsed time and approximate NsPerOp
+					// totalElapsedNs := time.Since(startTime).Nanoseconds()
+					// nsPerOp := totalElapsedNs / int64(subB.N)
+
+					// Add a record to allResults
+					allResults = append(allResults, struct {
+						Name           string `json:"sub_bench_name"`
+						Vals           int    `json:"vals"`
+						Feeds          uint64 `json:"feeds"`
+						Prices         int    `json:"prices"`
+						GasUsedFirstTx uint64 `json:"gas_used_first_tx"`
+						N              int    `json:"b_n"`
+						NsPerOp        int64  `json:"ns_per_op"`
+					}{
+						Name:           name,
+						Vals:           numVals,
+						Feeds:          numFeeds,
+						Prices:         numPrices,
+						GasUsedFirstTx: gasUsedFirstTx,
+						N:              subB.N,
+						NsPerOp:        int64(subB.Elapsed()) / int64(subB.N),
+					})
+				})
 			}
 		}
 	}
