@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand"
+	"os"
 	"sort"
 	"testing"
 
@@ -72,6 +73,14 @@ func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 		// Convert allResults to JSON
 		data, _ := json.MarshalIndent(allResults, "", "  ")
 		fmt.Println(string(data))
+
+		err := os.WriteFile("feeds_submit_bench.json", data, 0o644)
+		if err != nil {
+			// If writing to the file fails, we at least log the error
+			b.Logf("Error writing feeds_submit_bench.json: %v", err)
+		} else {
+			b.Logf("Wrote %d benchmark results to feeds_submit_bench.json", len(allResults))
+		}
 	})
 
 	numValsList := []int{1, 10, 50, 90}

@@ -3,6 +3,7 @@ package benchmark
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"testing"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -29,6 +30,14 @@ func BenchmarkBankSend(b *testing.B) {
 	b.Cleanup(func() {
 		data, _ := json.MarshalIndent(allResults, "", "  ")
 		fmt.Println(string(data))
+
+		err := os.WriteFile("bank_send_bench.json", data, 0o644)
+		if err != nil {
+			// If writing to the file fails, we at least log the error
+			b.Logf("Error writing bank_send_bench.json: %v", err)
+		} else {
+			b.Logf("Wrote %d benchmark results to bank_send_bench.json", len(allResults))
+		}
 	})
 
 	// Example parameter sets:
@@ -124,6 +133,14 @@ func BenchmarkEmptyBlock(b *testing.B) {
 	b.Cleanup(func() {
 		data, _ := json.MarshalIndent(allResults, "", "  ")
 		fmt.Println(string(data))
+
+		err := os.WriteFile("empty_block_bench.json", data, 0o644)
+		if err != nil {
+			// If writing to the file fails, we at least log the error
+			b.Logf("Error writing empty_block_bench.json: %v", err)
+		} else {
+			b.Logf("Wrote %d benchmark results to empty_block_bench.json", len(allResults))
+		}
 	})
 
 	// Give a name to the sub-benchmark
