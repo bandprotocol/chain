@@ -113,7 +113,6 @@ func (s *Sender) sendMsgs(key *keyring.Record, msgs []sdk.Msg) {
 
 	metrics.ObserveSubmitTxTime(time.Since(since).Seconds())
 	metrics.IncSubmitTxSuccessCount()
-
 }
 
 // Stop stops the Sender worker.
