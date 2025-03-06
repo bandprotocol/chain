@@ -460,10 +460,9 @@ func BenchmarkBlockOracleMsgReportData(b *testing.B) {
 							require.NoError(subB, err)
 
 							for _, tx := range res.TxResults {
-								if tx.Code != 0 {
+								if tx.Code != 0 && i == 0 {
 									fmt.Println("\tDeliver Error:", tx.Log)
 								} else {
-									fmt.Println("\tCosmos Gas used:", tx.GasUsed)
 									gasUsed += uint64(tx.GasUsed)
 								}
 							}

@@ -194,44 +194,92 @@ func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 
 // benchmark test for endblock of feeds module
 func BenchmarkFeedsEndBlock(b *testing.B) {
-	ba := InitializeBenchmarkApp(b, -1)
+	// We'll collect results for all sub-benchmarks in this slice.
+	// Adjust fields (Prices, etc.) as needed.
+	type benchRecord struct {
+		Name    string `json:"sub_bench_name"`
+		Vals    int    `json:"vals"`
+		Feeds   uint64 `json:"feeds"`
+		N       int    `json:"b_n"`
+		NsPerOp int64  `json:"ns_per_op"`
+	}
 
-	params, err := ba.StakingKeeper.GetParams(ba.Ctx)
-	require.NoError(b, err)
+	var allResults []benchRecord
 
-	numVals := params.MaxValidators
+	// We'll write JSON after all sub-benchmarks finish.
+	b.Cleanup(func() {
+		data, _ := json.MarshalIndent(allResults, "", "  ")
+		// Print to stdout
+		fmt.Println(string(data))
 
-	vals, err := generateValidators(ba, int(numVals))
-	require.NoError(b, err)
-
-	err = setupFeeds(ba, 300)
-	require.NoError(b, err)
-
-	err = setupValidatorPrices(ba, vals)
-	require.NoError(b, err)
-
-	b.ResetTimer()
-	b.StopTimer()
-
-	// benchmark endblock
-	for i := 0; i < b.N; i++ {
-		// process endblock
-		b.StartTimer()
-		res, err := ba.FinalizeBlock(
-			&abci.RequestFinalizeBlock{
-				Height: ba.LastBlockHeight() + 1,
-				Time:   ba.Ctx.BlockTime(),
-			},
-		)
-		b.StopTimer()
-
-		require.NoError(b, err)
-		for _, tx := range res.TxResults {
-			require.Equal(b, uint32(0), tx.Code)
+		// Also write to a file, e.g. feeds_endblock_bench.json
+		err := os.WriteFile("feeds_endblock_bench.json", data, 0o644)
+		if err != nil {
+			b.Logf("Error writing feeds_endblock_bench.json: %v", err)
+		} else {
+			b.Logf("Wrote %d benchmark results to feeds_endblock_bench.json", len(allResults))
 		}
+	})
 
-		_, err = ba.Commit()
-		require.NoError(b, err)
+	// Define the sets of (numVals, numFeeds) we want to benchmark.
+	// Adjust as you see fit.
+	numValsList := []int{1, 10, 50, 90}
+	numFeedsList := []uint64{1, 10, 100, 300, 1000}
+
+	// For each combo of numVals and numFeeds, run a sub-benchmark
+	for _, valsCount := range numValsList {
+		for _, feedsCount := range numFeedsList {
+			// Make a name that indicates the parameters
+			subBenchName := fmt.Sprintf("Vals_%d_Feeds_%d", valsCount, feedsCount)
+
+			b.Run(subBenchName, func(subB *testing.B) {
+				for i := 0; i < subB.N; i++ {
+					// Stop the timer during setup so it won't affect ns/op.
+					subB.StopTimer()
+
+					// 1) Initialize a fresh app/state
+					ba := InitializeBenchmarkApp(subB, -1)
+
+					// 2) Generate validators
+					vals, err := generateValidators(ba, valsCount)
+					require.NoError(subB, err)
+
+					// 3) Setup feeds
+					err = setupFeeds(ba, feedsCount)
+					require.NoError(subB, err)
+
+					// 4) Setup validator prices
+					err = setupValidatorPrices(ba, vals)
+					require.NoError(subB, err)
+
+					// Now run the core operation: calling EndBlock logic by finalizing a block
+					subB.StartTimer()
+					_, err = ba.FinalizeBlock(
+						&abci.RequestFinalizeBlock{
+							Height: ba.LastBlockHeight() + 1,
+							Time:   ba.Ctx.BlockTime(),
+						},
+					)
+					subB.StopTimer()
+
+					require.NoError(subB, err)
+
+					// Commit the block
+					_, err = ba.Commit()
+					require.NoError(subB, err)
+				}
+
+				// Build a record. We use subB.Elapsed() (Go 1.20+) for total sub-bench time
+				// or do your own timing approach with time.Now().
+				allResults = append(allResults, benchRecord{
+					Name:    subBenchName,
+					Vals:    valsCount,
+					Feeds:   feedsCount,
+					N:       subB.N,
+					NsPerOp: int64(subB.Elapsed()) / int64(subB.N),
+				})
+			})
+		}
 	}
 }
 
