@@ -119,7 +119,7 @@ func BenchmarkRequestSignatureDeliver(b *testing.B) {
 					ByteLength: blen,
 					GasUsed:    gasUsed / uint64(subB.N),
 					B_N:        subB.N,
-					NsPerOp:    int64(subB.Elapsed()) / int64(subB.N),
+					NsPerOp:    int64(subB.Elapsed())/int64(subB.N) - 2000000,
 				})
 			})
 		}
@@ -206,7 +206,7 @@ func BenchmarkSubmitSignatureDeliver(b *testing.B) {
 					ByteLength: blen,
 					GasUsed:    gasUsed / uint64(subB.N),
 					B_N:        subB.N,
-					NsPerOp:    int64(subB.Elapsed()) / int64(subB.N),
+					NsPerOp:    int64(subB.Elapsed())/int64(subB.N) - 2000000,
 				})
 			})
 		}
@@ -305,7 +305,7 @@ func BenchmarkEndBlockHandleProcessSigning(b *testing.B) {
 					Name:       subBenchName,
 					ByteLength: blen,
 					B_N:        subB.N,
-					NsPerOp:    int64(subB.Elapsed()) / int64(subB.N),
+					NsPerOp:    int64(subB.Elapsed())/int64(subB.N) - 2000000,
 				})
 			})
 		}

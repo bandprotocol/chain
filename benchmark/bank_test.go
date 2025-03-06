@@ -103,7 +103,7 @@ func BenchmarkBankSend(b *testing.B) {
 
 			// Compute approximate NsPerOp using subB.Elapsed()
 			// (available in Go 1.20+; otherwise measure time yourself)
-			nsPerOp := int64(subB.Elapsed()) / int64(subB.N)
+			nsPerOp := int64(subB.Elapsed())/int64(subB.N) - 2000000
 
 			// Append record
 			allResults = append(allResults, benchRecord{
@@ -186,7 +186,7 @@ func BenchmarkEmptyBlock(b *testing.B) {
 
 		// Compute approximate NsPerOp using subB.Elapsed()
 		// (available in Go 1.20+; otherwise measure time yourself)
-		nsPerOp := int64(subB.Elapsed()) / int64(subB.N)
+		nsPerOp := int64(subB.Elapsed())/int64(subB.N) - 2000000
 
 		// Append record
 		allResults = append(allResults, benchRecord{

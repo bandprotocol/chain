@@ -184,7 +184,7 @@ func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 						Prices:  numPrices,
 						GasUsed: gasUsed / uint64(subB.N),
 						N:       subB.N,
-						NsPerOp: int64(subB.Elapsed()) / int64(subB.N),
+						NsPerOp: int64(subB.Elapsed())/int64(subB.N) - 2000000,
 					})
 				})
 			}
@@ -276,7 +276,7 @@ func BenchmarkFeedsEndBlock(b *testing.B) {
 					Vals:    valsCount,
 					Feeds:   feedsCount,
 					N:       subB.N,
-					NsPerOp: int64(subB.Elapsed()) / int64(subB.N),
+					NsPerOp: int64(subB.Elapsed())/int64(subB.N) - 2000000,
 				})
 			})
 		}

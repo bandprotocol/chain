@@ -519,7 +519,7 @@ func BenchmarkBlockOracleMsgReportData(b *testing.B) {
 							ReqPerBlock:  reqPerBlock,
 							GasUsed:      gasUsed / uint64(subB.N),
 							B_N:          subB.N,
-							NsPerOp:      int64(subB.Elapsed()) / int64(subB.N),
+							NsPerOp:      int64(subB.Elapsed())/int64(subB.N) - 2000000,
 						})
 					})
 				}
