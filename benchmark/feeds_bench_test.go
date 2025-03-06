@@ -83,7 +83,7 @@ func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 		}
 	})
 
-	numValsList := []int{1, 10, 50, 90}
+	numValsList := []int{1, 10, 50, 70, 90}
 	numFeedsList := []uint64{1, 10, 100, 300, 1000}
 	numPricesList := []int{1, 10, 100, 300, 1000}
 
@@ -223,7 +223,7 @@ func BenchmarkFeedsEndBlock(b *testing.B) {
 
 	// Define the sets of (numVals, numFeeds) we want to benchmark.
 	// Adjust as you see fit.
-	numValsList := []int{1, 10, 50, 90}
+	numValsList := []int{1, 10, 50, 70, 90}
 	numFeedsList := []uint64{1, 10, 100, 300, 1000}
 
 	// For each combo of numVals and numFeeds, run a sub-benchmark
