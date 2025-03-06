@@ -83,6 +83,13 @@
           table:
             name: feeds_voter_signals
             schema: public
+    - name: interchain_accounts
+      using:
+        foreign_key_constraint_on:
+          column: account_id
+          table:
+            name: interchain_accounts
+            schema: public
     - name: proposals
       using:
         foreign_key_constraint_on:
@@ -167,6 +174,13 @@
           table:
             name: unbonding_delegations
             schema: public
+    - name: validators
+      using:
+        foreign_key_constraint_on:
+          column: account_id
+          table:
+            name: validators
+            schema: public
     - name: votes
       using:
         foreign_key_constraint_on:
@@ -184,12 +198,12 @@
     - name: proposal
       using:
         foreign_key_constraint_on: proposal_id
-    - name: tss_group_by_incoming_tss_group_id
-      using:
-        foreign_key_constraint_on: incoming_tss_group_id
     - name: tss_group_by_current_tss_group_id
       using:
         foreign_key_constraint_on: current_tss_group_id
+    - name: tss_group_by_incoming_tss_group_id
+      using:
+        foreign_key_constraint_on: incoming_tss_group_id
     - name: tss_signing
       using:
         foreign_key_constraint_on: tss_signing_id
@@ -223,12 +237,12 @@
     - name: account
       using:
         foreign_key_constraint_on: account_id
-    - name: tss_signing_by_incoming_group_tss_signing_id
-      using:
-        foreign_key_constraint_on: incoming_group_tss_signing_id
     - name: tss_signing_by_current_group_tss_signing_id
       using:
         foreign_key_constraint_on: current_group_tss_signing_id
+    - name: tss_signing_by_incoming_group_tss_signing_id
+      using:
+        foreign_key_constraint_on: incoming_group_tss_signing_id
   array_relationships:
     - name: requests
       using:
@@ -501,6 +515,9 @@
     name: feeds_validator_prices
     schema: public
   object_relationships:
+    - name: transaction
+      using:
+        foreign_key_constraint_on: transaction_id
     - name: validator
       using:
         foreign_key_constraint_on: validator_id
@@ -651,6 +668,13 @@
             name: bandtss_group_transitions
             schema: public
   array_relationships:
+    - name: bandtss_group_transitions
+      using:
+        foreign_key_constraint_on:
+          column: proposal_id
+          table:
+            name: bandtss_group_transitions
+            schema: public
     - name: bandtss_historical_current_groups
       using:
         foreign_key_constraint_on:
@@ -906,6 +930,13 @@
           table:
             name: feeds_signal_prices_txs
             schema: public
+    - name: feeds_validator_prices
+      using:
+        foreign_key_constraint_on:
+          column: transaction_id
+          table:
+            name: feeds_validator_prices
+            schema: public
     - name: incoming_packets
       using:
         foreign_key_constraint_on:
@@ -948,6 +979,13 @@
           table:
             name: restake_locks
             schema: public
+    - name: tunnel_historical_deposits
+      using:
+        foreign_key_constraint_on:
+          column: transaction_id
+          table:
+            name: tunnel_historical_deposits
+            schema: public
     - name: votes
       using:
         foreign_key_constraint_on:
@@ -982,17 +1020,17 @@
     name: tss_groups
     schema: public
   array_relationships:
-    - name: bandtss_group_transitions_by_incoming_tss_group_id
-      using:
-        foreign_key_constraint_on:
-          column: incoming_tss_group_id
-          table:
-            name: bandtss_group_transitions
-            schema: public
     - name: bandtss_group_transitions_by_current_tss_group_id
       using:
         foreign_key_constraint_on:
           column: current_tss_group_id
+          table:
+            name: bandtss_group_transitions
+            schema: public
+    - name: bandtss_group_transitions_by_incoming_tss_group_id
+      using:
+        foreign_key_constraint_on:
+          column: incoming_tss_group_id
           table:
             name: bandtss_group_transitions
             schema: public
@@ -1063,13 +1101,6 @@
       using:
         foreign_key_constraint_on: tss_group_id
   array_relationships:
-    - name: bandtss_signings_by_incoming_group_tss_signing_id
-      using:
-        foreign_key_constraint_on:
-          column: incoming_group_tss_signing_id
-          table:
-            name: bandtss_signings
-            schema: public
     - name: bandtss_group_transitions
       using:
         foreign_key_constraint_on:
@@ -1081,6 +1112,13 @@
       using:
         foreign_key_constraint_on:
           column: current_group_tss_signing_id
+          table:
+            name: bandtss_signings
+            schema: public
+    - name: bandtss_signings_by_incoming_group_tss_signing_id
+      using:
+        foreign_key_constraint_on:
+          column: incoming_group_tss_signing_id
           table:
             name: bandtss_signings
             schema: public
@@ -1295,17 +1333,17 @@
           table:
             name: historical_bonded_token_on_validators
             schema: public
-    - name: redelegations_by_validator_src_id
-      using:
-        foreign_key_constraint_on:
-          column: validator_src_id
-          table:
-            name: redelegations
-            schema: public
     - name: redelegations_by_validator_dst_id
       using:
         foreign_key_constraint_on:
           column: validator_dst_id
+          table:
+            name: redelegations
+            schema: public
+    - name: redelegations_by_validator_src_id
+      using:
+        foreign_key_constraint_on:
+          column: validator_src_id
           table:
             name: redelegations
             schema: public
