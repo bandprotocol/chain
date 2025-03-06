@@ -14,7 +14,7 @@ BandChain - Decentralized Data Delivery Network<br/><br/>
 <a href="https://goreportcard.com/badge/github.com/bandprotocol/chain">
     <img src="https://goreportcard.com/badge/github.com/bandprotocol/chain">
 </a>
-<a href="https://github.com/bandprotocol/chain/workflows/Tests/badge.svg">
+<a href="https://github.com/bandprotocol/chain/actions/workflows/ci.yaml">
     <img src="https://github.com/bandprotocol/chain/workflows/Tests/badge.svg">
 </a>
 
@@ -96,7 +96,7 @@ sudo ln -s /opt/homebrew/lib/libgmp.10.dylib /usr/local/lib/
 - Block Explorers:
   - Mainnet:
     - [Cosmoscan Mainnet](https://cosmoscan.io)
-    - [Big Dipper](https://band.bigdipper.live/)
+    - [Big Dipper](https://bigdipper.live)
   - Testnet:
     - [CosmoScan Testnet](https://laozi-testnet6.cosmoscan.io)
 
