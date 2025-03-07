@@ -61,41 +61,40 @@ func BenchmarkRequestSignatureDeliver(b *testing.B) {
 			subBenchName := fmt.Sprintf("%s (byte_length: %d)", name, blen)
 
 			b.Run(subBenchName, func(subB *testing.B) {
-				// Setup the chain once outside the loop (if you want a fresh chain each iteration, move inside)
-				ba := InitializeBenchmarkApp(subB, -1)
-				ba.SetupTSSGroup()
-
-				msg := MockByte(blen)
-				txs := GenSequenceOfTxs(
-					ba.TxEncoder,
-					ba.TxConfig,
-					GenMsgRequestSignature(
-						ba.Sender,
-						tsstypes.NewTextSignatureOrder(msg),
-						tc.feeLimit,
-					),
-					ba.Sender,
-					subB.N,
-				)
-
-				// Finalize an empty block first if needed
-				res, err := ba.FinalizeBlock(
-					&abci.RequestFinalizeBlock{Height: ba.LastBlockHeight() + 1, Hash: ba.LastCommitID().Hash},
-				)
-				require.NoError(subB, err)
-
-				for _, tx := range res.TxResults {
-					require.Equal(subB, uint32(0), tx.Code)
-				}
-
-				// Measure time
-				subB.ResetTimer()
-				subB.StopTimer()
-
 				var gasUsed uint64
 
 				for i := 0; i < subB.N; i++ {
-					tx, err := ba.TxDecoder(txs[i])
+					ba := InitializeBenchmarkApp(subB, -1)
+					ba.SetupTSSGroup()
+
+					msg := MockByte(blen)
+					txs := GenSequenceOfTxs(
+						ba.TxEncoder,
+						ba.TxConfig,
+						GenMsgRequestSignature(
+							ba.Sender,
+							tsstypes.NewTextSignatureOrder(msg),
+							tc.feeLimit,
+						),
+						ba.Sender,
+						subB.N,
+					)
+
+					// Finalize an empty block first if needed
+					res, err := ba.FinalizeBlock(
+						&abci.RequestFinalizeBlock{Height: ba.LastBlockHeight() + 1, Hash: ba.LastCommitID().Hash},
+					)
+					require.NoError(subB, err)
+
+					for _, tx := range res.TxResults {
+						require.Equal(subB, uint32(0), tx.Code)
+					}
+
+					// Measure time
+					subB.ResetTimer()
+					subB.StopTimer()
+
+					tx, err := ba.TxDecoder(txs[0])
 					require.NoError(subB, err)
 
 					// Start timing only for the critical part
@@ -103,12 +102,10 @@ func BenchmarkRequestSignatureDeliver(b *testing.B) {
 					gasInfo, _, err := ba.SimDeliver(ba.TxEncoder, tx)
 					subB.StopTimer()
 
-					if i == 0 {
-						if err != nil {
-							fmt.Println("\tDeliver Error:", err.Error())
-						} else {
-							fmt.Println("\tCosmos Gas used:", gasInfo.GasUsed)
-						}
+					if err != nil {
+						fmt.Println("\tDeliver Error:", err.Error())
+					} else {
+						fmt.Println("\tCosmos Gas used:", gasInfo.GasUsed)
 					}
 					gasUsed += gasInfo.GasUsed
 				}
@@ -154,27 +151,27 @@ func BenchmarkSubmitSignatureDeliver(b *testing.B) {
 			subBenchName := fmt.Sprintf("%s (byte_length: %d)", name, blen)
 
 			b.Run(subBenchName, func(subB *testing.B) {
-				ba := InitializeBenchmarkApp(subB, -1)
-				ba.SetupTSSGroup()
-
-				// Optionally finalize an initial empty block
-				res, err := ba.FinalizeBlock(
-					&abci.RequestFinalizeBlock{Height: ba.LastBlockHeight() + 1, Hash: ba.LastCommitID().Hash},
-				)
-				require.NoError(subB, err)
-
-				for _, tx := range res.TxResults {
-					require.Equal(subB, uint32(0), tx.Code)
-				}
-
-				subB.ResetTimer()
-				subB.StopTimer()
-
-				msg := MockByte(blen)
 				var gasUsed uint64
 
 				// We'll run subB.N times
 				for i := 0; i < subB.N; i++ {
+					ba := InitializeBenchmarkApp(subB, -1)
+					ba.SetupTSSGroup()
+
+					// Optionally finalize an initial empty block
+					res, err := ba.FinalizeBlock(
+						&abci.RequestFinalizeBlock{Height: ba.LastBlockHeight() + 1, Hash: ba.LastCommitID().Hash},
+					)
+					require.NoError(subB, err)
+
+					for _, tx := range res.TxResults {
+						require.Equal(subB, uint32(0), tx.Code)
+					}
+
+					subB.ResetTimer()
+					subB.StopTimer()
+
+					msg := MockByte(blen)
 					// gather the group ID
 					gid := ba.BandtssKeeper.GetCurrentGroup(ba.Ctx).GroupID
 					require.NotZero(subB, gid)
@@ -191,13 +188,12 @@ func BenchmarkSubmitSignatureDeliver(b *testing.B) {
 					gasInfo, _, err := ba.SimDeliver(ba.TxEncoder, txs[0])
 					subB.StopTimer()
 
-					if i == 0 {
-						if err != nil {
-							fmt.Println("\tDeliver Error:", err.Error())
-						} else {
-							fmt.Println("\tCosmos Gas used:", gasInfo.GasUsed)
-						}
+					if err != nil {
+						fmt.Println("\tDeliver Error:", err.Error())
+					} else {
+						fmt.Println("\tCosmos Gas used:", gasInfo.GasUsed)
 					}
+
 					gasUsed += gasInfo.GasUsed
 				}
 
