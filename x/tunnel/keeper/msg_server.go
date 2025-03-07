@@ -49,13 +49,13 @@ func (k msgServer) CreateTunnel(
 		return nil, err
 	}
 
+	// isIBCRoute is true if the route is IBCRoute
+	var isIBCRoute bool
+
 	route, err := msg.GetRouteValue()
 	if err != nil {
 		return nil, err
 	}
-
-	// isIBCRoute is true if the route is IBCRoute
-	var isIBCRoute bool
 
 	// validate the route based on the route type
 	switch r := route.(type) {
@@ -140,6 +140,8 @@ func (k msgServer) UpdateRoute(
 		if !found {
 			return nil, types.ErrInvalidChannelID
 		}
+		tunnel.Route = msg.Route
+	case *types.RouterRoute:
 		tunnel.Route = msg.Route
 
 	default:
