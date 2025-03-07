@@ -64,6 +64,8 @@ func BenchmarkRequestSignatureDeliver(b *testing.B) {
 				var gasUsed uint64
 
 				for i := 0; i < subB.N; i++ {
+					subB.StopTimer()
+
 					ba := InitializeBenchmarkApp(subB, -1)
 					ba.SetupTSSGroup()
 
@@ -89,10 +91,6 @@ func BenchmarkRequestSignatureDeliver(b *testing.B) {
 					for _, tx := range res.TxResults {
 						require.Equal(subB, uint32(0), tx.Code)
 					}
-
-					// Measure time
-					subB.ResetTimer()
-					subB.StopTimer()
 
 					tx, err := ba.TxDecoder(txs[0])
 					require.NoError(subB, err)
@@ -155,6 +153,8 @@ func BenchmarkSubmitSignatureDeliver(b *testing.B) {
 
 				// We'll run subB.N times
 				for i := 0; i < subB.N; i++ {
+					subB.StopTimer()
+
 					ba := InitializeBenchmarkApp(subB, -1)
 					ba.SetupTSSGroup()
 
@@ -167,9 +167,6 @@ func BenchmarkSubmitSignatureDeliver(b *testing.B) {
 					for _, tx := range res.TxResults {
 						require.Equal(subB, uint32(0), tx.Code)
 					}
-
-					subB.ResetTimer()
-					subB.StopTimer()
 
 					msg := MockByte(blen)
 					// gather the group ID
