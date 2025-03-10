@@ -22,7 +22,7 @@ func TestAddFile(t *testing.T) {
 		}
 	}()
 
-	f := filecache.New(dir)
+	f := filecache.New(dir, 0)
 	filename := f.AddFile([]byte("HELLO_WORLD"))
 	require.Equal(t, filename, "6f9b514093848217355d76365df1f54f42bdfd5f4e5f54a654c46b493d162c39")
 
@@ -46,7 +46,7 @@ func TestMustGetFileOK(t *testing.T) {
 		}
 	}()
 
-	f := filecache.New(dir)
+	f := filecache.New(dir, 0)
 	filename := f.AddFile([]byte("BAND"))
 	require.Equal(t, filename, "52f1b54ce34b64a02f9946b29f670a12933152b1122514ea969a91c211aa32fc")
 
@@ -66,7 +66,7 @@ func TestGetFileOK(t *testing.T) {
 		}
 	}()
 
-	f := filecache.New(dir)
+	f := filecache.New(dir, 0)
 	filename := f.AddFile([]byte("BAND"))
 	require.Equal(t, filename, "52f1b54ce34b64a02f9946b29f670a12933152b1122514ea969a91c211aa32fc")
 
@@ -87,7 +87,7 @@ func TestMustGetFileNotExist(t *testing.T) {
 		}
 	}()
 
-	f := filecache.New(dir)
+	f := filecache.New(dir, 0)
 	require.Panics(t, func() {
 		_ = f.MustGetFile("52f1b54ce34b64a02f9946b29f670a12933152b1122514ea969a91c211aa32fc")
 	})
@@ -105,7 +105,7 @@ func TestGetFileNotExist(t *testing.T) {
 		}
 	}()
 
-	f := filecache.New(dir)
+	f := filecache.New(dir, 0)
 	_, err = f.GetFile("52f1b54ce34b64a02f9946b29f670a12933152b1122514ea969a91c211aa32fc")
 	require.Error(t, err)
 }
@@ -122,7 +122,7 @@ func TestMustGetFileGoodContent(t *testing.T) {
 		}
 	}()
 
-	f := filecache.New(dir)
+	f := filecache.New(dir, 0)
 	filename := "b20727a9b7cc4198d8785b0ef1fa4c774eb9a360e1563dd4f095ddc7af02bd55" // Correct
 	filepath := filepath.Join(dir, filename)
 	err = os.WriteFile(filepath, []byte("NOT_LIKE_THIS"), 0o600)
@@ -144,7 +144,7 @@ func TestGetFileGoodContent(t *testing.T) {
 		}
 	}()
 
-	f := filecache.New(dir)
+	f := filecache.New(dir, 0)
 	filename := "b20727a9b7cc4198d8785b0ef1fa4c774eb9a360e1563dd4f095ddc7af02bd55" // Correct
 	filepath := filepath.Join(dir, filename)
 	err = os.WriteFile(filepath, []byte("NOT_LIKE_THIS"), 0o600)
@@ -167,7 +167,7 @@ func TestMustGetFileBadContent(t *testing.T) {
 		}
 	}()
 
-	f := filecache.New(dir)
+	f := filecache.New(dir, 0)
 	filename := "b20727a9b7cc4198d8785b0ef1fa4c774eb9a360e1563dd4f095ddc7af02bd56" // Not correct
 	filepath := filepath.Join(dir, filename)
 	err = os.WriteFile(filepath, []byte("NOT_LIKE_THIS"), 0o600)
@@ -190,7 +190,7 @@ func TesGetFileBadContent(t *testing.T) {
 		}
 	}()
 
-	f := filecache.New(dir)
+	f := filecache.New(dir, 0)
 	filename := "b20727a9b7cc4198d8785b0ef1fa4c774eb9a360e1563dd4f095ddc7af02bd56" // Not correct
 	filepath := filepath.Join(dir, filename)
 	err = os.WriteFile(filepath, []byte("NOT_LIKE_THIS"), 0o600)
@@ -212,7 +212,7 @@ func TestMustGetFileInconsistentContent(t *testing.T) {
 		}
 	}()
 
-	f := filecache.New(dir)
+	f := filecache.New(dir, 0)
 	filename := "b20727a9b7cc4198d8785b0ef1fa4c774eb9a360e1563dd4f095ddc7af02bd55"
 	filepath := filepath.Join(dir, filename)
 	err = os.WriteFile(filepath, []byte("INCONSISTENT"), 0o600) // Not consistent with name
@@ -234,7 +234,7 @@ func TestGetFileInconsistentContent(t *testing.T) {
 		}
 	}()
 
-	f := filecache.New(dir)
+	f := filecache.New(dir, 0)
 	filename := "b20727a9b7cc4198d8785b0ef1fa4c774eb9a360e1563dd4f095ddc7af02bd55"
 	filepath := filepath.Join(dir, filename)
 	err = os.WriteFile(filepath, []byte("INCONSISTENT"), 0o600) // Not consistent with name
