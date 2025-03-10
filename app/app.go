@@ -53,6 +53,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/bandprotocol/chain/v3/app/keepers"
+	"github.com/bandprotocol/chain/v3/app/mempool"
 	"github.com/bandprotocol/chain/v3/app/upgrades"
 	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3"
 	nodeservice "github.com/bandprotocol/chain/v3/client/grpc/node"
@@ -253,6 +254,14 @@ func NewBandApp(
 
 	app.sm.RegisterStoreDecoders()
 
+	feedsLane, tssLane, oracleLane, defaultLane := CreateLanes(app)
+	bandLanes := []*mempool.Lane{feedsLane, tssLane, oracleLane, defaultLane}
+
+	// create Band mempool
+	bandMempool := mempool.NewMempool(app.Logger(), bandLanes)
+	// set the mempool
+	app.SetMempool(bandMempool)
+
 	// Initialize stores.
 	app.MountKVStores(app.GetKVStoreKey())
 	app.MountTransientStores(app.GetTransientStoreKey())
@@ -276,11 +285,19 @@ func NewBandApp(
 			IBCKeeper:       app.IBCKeeper,
 			StakingKeeper:   app.StakingKeeper,
 			GlobalfeeKeeper: &app.GlobalFeeKeeper,
+			Lanes:           []*mempool.Lane{feedsLane, tssLane, oracleLane}, // every lane except default lane
 		},
 	)
 	if err != nil {
 		panic(fmt.Errorf("failed to create ante handler: %s", err))
 	}
+
+	// proposal handler
+	proposalHandler := mempool.NewProposalHandler(app.Logger(), txConfig.TxDecoder(), bandMempool)
+
+	// set the Prepare / ProcessProposal Handlers on the app to be the `LanedMempool`'s
+	app.SetPrepareProposal(proposalHandler.PrepareProposalHandler())
+	app.SetProcessProposal(proposalHandler.ProcessProposalHandler())
 
 	postHandler, err := NewPostHandler(
 		PostHandlerOptions{},
