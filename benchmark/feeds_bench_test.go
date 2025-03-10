@@ -187,7 +187,7 @@ func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 						Prices:     numPrices,
 						MinGasUsed: minGasUsed,
 						B_N:        subB.N,
-						MinNsPerOp: minNs - 2000000,
+						MinNsPerOp: minNs - 1700000,
 					})
 				})
 			}
@@ -301,7 +301,7 @@ func BenchmarkFeedsEndBlock(b *testing.B) {
 					Vals:       valsCount,
 					Feeds:      feedsCount,
 					B_N:        subB.N,
-					MinNsPerOp: minNs - 2000000,
+					MinNsPerOp: minNs - 1700000,
 				})
 			})
 		}

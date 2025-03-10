@@ -335,7 +335,7 @@ func BenchmarkEndBlockHandleProcessSigning(b *testing.B) {
 					Name:       subBenchName,
 					ByteLength: blen,
 					B_N:        subB.N,
-					MinNsPerOp: minNs - 2000000,
+					MinNsPerOp: minNs - 1700000,
 				})
 			})
 		}

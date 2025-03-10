@@ -517,7 +517,7 @@ func BenchmarkBlockOracleMsgReportData(b *testing.B) {
 							ReqPerBlock:  reqPerBlock,
 							MinGasUsed:   minGasUsed,
 							B_N:          subB.N,
-							MinNsPerOp:   minNs - 2000000,
+							MinNsPerOp:   minNs - 1700000,
 						})
 					})
 				}
