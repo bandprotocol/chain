@@ -385,9 +385,11 @@ func BenchmarkBlockOracleMsgReportData(b *testing.B) {
 		Param        uint64 `json:"param"`         // pm
 		StringLength int    `json:"string_length"` // strlen
 		ReqPerBlock  int    `json:"req_per_block"`
-		GasUsed      uint64 `json:"gas_used"`
-		B_N          int    `json:"b_n"`
-		NsPerOp      int64  `json:"ns_per_op"`
+
+		// We'll record the MIN gas usage and MIN time among subB.N iterations
+		MinGasUsed uint64 `json:"min_gas_used"`
+		B_N        int    `json:"b_n"`
+		MinNsPerOp int64  `json:"min_ns_per_op"`
 	}
 
 	// 2) We'll accumulate results in this slice. We'll print them in a Cleanup callback.
@@ -400,7 +402,6 @@ func BenchmarkBlockOracleMsgReportData(b *testing.B) {
 
 		err := os.WriteFile("oracle_report_bench.json", data, 0o644)
 		if err != nil {
-			// If writing to the file fails, we at least log the error
 			b.Logf("Error writing oracle_report_bench.json: %v", err)
 		} else {
 			b.Logf("Wrote %d benchmark results to oracle_report_bench.json", len(allResults))
@@ -420,11 +421,13 @@ func BenchmarkBlockOracleMsgReportData(b *testing.B) {
 					)
 
 					b.Run(subBenchName, func(subB *testing.B) {
-						// We'll store the gas used on the very first iteration
-						var gasUsed uint64
+						// Track the minimum gas usage and min iteration time
+						var minGasUsed uint64 = ^uint64(0) // 0xFFFFFFFF... "max" for comparison
+						var minNs int64 = (1 << 63) - 1    // = math.MaxInt64
 
-						// subB.N is how many times the benchmark runner calls this loop
 						for i := 0; i < subB.N; i++ {
+							// Start fresh for each iteration
+							subB.ResetTimer()
 							subB.StopTimer()
 
 							ba := InitializeBenchmarkApp(subB, BlockMaxGas)
@@ -447,24 +450,21 @@ func BenchmarkBlockOracleMsgReportData(b *testing.B) {
 								reqPerBlock,
 							)
 
+							// Start measuring the "requests" finalization
 							subB.StartTimer()
-							// Finalize block with the "requests"
-							res, err := ba.FinalizeBlock(
-								&abci.RequestFinalizeBlock{
-									Txs:    txs,
-									Height: ba.LastBlockHeight() + 1,
-									Time:   ba.Ctx.BlockTime(),
-								},
-							)
+							res, err := ba.FinalizeBlock(&abci.RequestFinalizeBlock{
+								Txs:    txs,
+								Height: ba.LastBlockHeight() + 1,
+								Time:   ba.Ctx.BlockTime(),
+							})
 							subB.StopTimer()
 							require.NoError(subB, err)
 
+							// Sum the gas usage for this iteration’s "requests" block
+							var iterationGas uint64
 							for _, tx := range res.TxResults {
-								if tx.Code != 0 && i == 0 {
-									fmt.Println("\tDeliver Error:", tx.Log)
-								} else {
-									gasUsed += uint64(tx.GasUsed)
-								}
+								iterationGas += uint64(tx.GasUsed)
+								require.Equal(subB, uint32(0), tx.Code, "Deliver Error: %s", tx.Log)
 							}
 
 							_, err = ba.Commit()
@@ -482,44 +482,42 @@ func BenchmarkBlockOracleMsgReportData(b *testing.B) {
 								1,
 							)[0]
 
-							// Start the timer for the part we want to measure
+							// Measure "report data" finalization
 							subB.StartTimer()
-
-							// Finalize block with "report data"
-							res, err = ba.FinalizeBlock(
-								&abci.RequestFinalizeBlock{
-									Txs:    [][]byte{tx},
-									Height: ba.LastBlockHeight() + 1,
-									Time:   ba.Ctx.BlockTime(),
-								},
-							)
+							res, err = ba.FinalizeBlock(&abci.RequestFinalizeBlock{
+								Txs:    [][]byte{tx},
+								Height: ba.LastBlockHeight() + 1,
+								Time:   ba.Ctx.BlockTime(),
+							})
 							subB.StopTimer()
-
 							require.NoError(subB, err)
 
-							// If this is the first iteration, capture gas usage
 							for _, tx := range res.TxResults {
-								if tx.Code != 0 && i == 0 {
-									fmt.Println("\tDeliver Error:", tx.Log)
-								} else {
-									gasUsed += uint64(tx.GasUsed)
-								}
+								iterationGas += uint64(tx.GasUsed)
+								require.Equal(subB, uint32(0), tx.Code, "Deliver Error: %s", tx.Log)
+							}
+
+							// If this iteration's total gas is smaller, store it
+							if iterationGas < minGasUsed {
+								minGasUsed = iterationGas
+							}
+
+							// Check final time
+							iterationNs := int64(subB.Elapsed())
+							if iterationNs < minNs {
+								minNs = iterationNs
 							}
 						}
 
-						// Manually measure total time for this sub-benchmark
-						// totalNs := time.Since(startTime).Nanoseconds()
-						// nsPerOp := totalNs / int64(subB.N)
-
-						// Append one record to allResults
+						// Append the min results for this sub-benchmark
 						allResults = append(allResults, benchRecord{
 							Scenario:     name,
 							Param:        pm,
 							StringLength: strlen,
 							ReqPerBlock:  reqPerBlock,
-							GasUsed:      gasUsed / uint64(subB.N),
+							MinGasUsed:   minGasUsed,
 							B_N:          subB.N,
-							NsPerOp:      int64(subB.Elapsed())/int64(subB.N) - 2000000,
+							MinNsPerOp:   minNs - 2000000,
 						})
 					})
 				}

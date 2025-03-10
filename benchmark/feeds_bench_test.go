@@ -58,25 +58,25 @@ func BenchmarkSortMap(b *testing.B) {
 
 func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 	// We'll accumulate results for all sub-benchmarks here.
-	var allResults []struct {
-		Name    string `json:"sub_bench_name"`
-		Vals    int    `json:"vals"`
-		Feeds   uint64 `json:"feeds"`
-		Prices  int    `json:"prices"`
-		GasUsed uint64 `json:"gas_used_first_tx"`
-		N       int    `json:"b_n"`
-		NsPerOp int64  `json:"ns_per_op"`
+	type benchRecord struct {
+		Name       string `json:"sub_bench_name"`
+		Vals       int    `json:"vals"`
+		Feeds      uint64 `json:"feeds"`
+		Prices     int    `json:"prices"`
+		MinGasUsed uint64 `json:"min_gas_used"`
+		B_N        int    `json:"b_n"`
+		MinNsPerOp int64  `json:"min_ns_per_op"`
 	}
 
-	// Schedule a one-time cleanup that runs after ALL sub-benchmarks finish
+	var allResults []benchRecord
+
+	// Once all sub-benchmarks finish, print & save the JSON.
 	b.Cleanup(func() {
-		// Convert allResults to JSON
 		data, _ := json.MarshalIndent(allResults, "", "  ")
 		fmt.Println(string(data))
 
 		err := os.WriteFile("feeds_submit_bench.json", data, 0o644)
 		if err != nil {
-			// If writing to the file fails, we at least log the error
 			b.Logf("Error writing feeds_submit_bench.json: %v", err)
 		} else {
 			b.Logf("Wrote %d benchmark results to feeds_submit_bench.json", len(allResults))
@@ -95,16 +95,23 @@ func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 					continue
 				}
 
-				// Name the sub-benchmark to reflect the current configuration
+				// Name each sub-benchmark
 				name := fmt.Sprintf("Vals_%d_Feeds_%d_Prices_%d", numVals, numFeeds, numPrices)
 
 				b.Run(name, func(subB *testing.B) {
-					var gasUsed uint64
+					// Track MIN gas usage and MIN iteration time (ns) among all subB.N runs
+					// Initialize them to "largest possible" so the first real measurement is kept.
+					var minGasUsed uint64 = ^uint64(0) // 0xFFFF... to track minimum
+					var minNs int64 = (1 << 63) - 1    // = math.MaxInt64
 
 					for i := 0; i < subB.N; i++ {
-						// Stop timer during setup so it doesn't affect ns/op measurement.
+						// This zeroes out the sub-benchmark's timing stats, so each sub-benchmark
+						// measures only its own loops.
+						subB.ResetTimer()
+						// StopTimer while we do heavy setup (not counted in iteration time).
 						subB.StopTimer()
 
+						// 1) Re-initialize everything
 						ba := InitializeBenchmarkApp(subB, -1)
 
 						vals, err := generateValidators(ba, numVals)
@@ -116,11 +123,11 @@ func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 						err = setupValidatorPriceList(ba, vals)
 						require.NoError(subB, err)
 
-						// Gather feeds and pick numPrices
+						// Gather feeds & pick numPrices
 						allFeeds := ba.FeedsKeeper.GetCurrentFeeds(ba.Ctx).Feeds
 						selectedFeeds := allFeeds[:numPrices]
 
-						// Create transactions
+						// Build TXs
 						txs := make([][]byte, 0, len(vals))
 						for _, val := range vals {
 							msg := GenMsgSubmitSignalPrices(val, selectedFeeds, ba.Ctx.BlockTime().Unix())
@@ -129,20 +136,22 @@ func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 								ba.TxConfig,
 								msg,
 								val,
-								1, // sequence
+								1,
 							)[0]
 							txs = append(txs, tx)
 						}
 
-						// Start timer for the core operation
+						// 2) StartTimer for the core operation
 						subB.StartTimer()
 
-						// Finalize block
+						// Finalize block with those TXs
 						res, err := ba.FinalizeBlock(&abci.RequestFinalizeBlock{
 							Txs:    txs,
 							Height: ba.LastBlockHeight() + 1,
 							Time:   ba.Ctx.BlockTime(),
 						})
+
+						// Stop the timer to exclude any post-op checks from iteration time
 						subB.StopTimer()
 
 						require.NoError(subB, err)
@@ -154,37 +163,31 @@ func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 						_, err = ba.Commit()
 						require.NoError(subB, err)
 
-						// Capture gas usage for the *first iteration only*
-						for _, tx := range res.TxResults {
-							if tx.Code != 0 && i == 0 {
-								fmt.Println("\tDeliver Error:", tx.Log)
-							} else {
-								gasUsed += uint64(tx.GasUsed)
-							}
+						// if this iteration took less time, keep it
+						if int64(subB.Elapsed()) < minNs {
+							minNs = int64(subB.Elapsed())
+						}
+
+						// Sum the gas for this iteration
+						var iterationGas uint64
+						for _, txRes := range res.TxResults {
+							iterationGas += uint64(txRes.GasUsed)
+						}
+						// If this iteration used less gas, keep it
+						if iterationGas < minGasUsed {
+							minGasUsed = iterationGas
 						}
 					}
 
-					// Manually compute total elapsed time and approximate NsPerOp
-					// totalElapsedNs := time.Since(startTime).Nanoseconds()
-					// nsPerOp := totalElapsedNs / int64(subB.N)
-
-					// Add a record to allResults
-					allResults = append(allResults, struct {
-						Name    string `json:"sub_bench_name"`
-						Vals    int    `json:"vals"`
-						Feeds   uint64 `json:"feeds"`
-						Prices  int    `json:"prices"`
-						GasUsed uint64 `json:"gas_used_first_tx"`
-						N       int    `json:"b_n"`
-						NsPerOp int64  `json:"ns_per_op"`
-					}{
-						Name:    name,
-						Vals:    numVals,
-						Feeds:   numFeeds,
-						Prices:  numPrices,
-						GasUsed: gasUsed / uint64(subB.N),
-						N:       subB.N,
-						NsPerOp: int64(subB.Elapsed())/int64(subB.N) - 2000000,
+					// After subB.N iterations, record the sub-benchmark's minimums
+					allResults = append(allResults, benchRecord{
+						Name:       name,
+						Vals:       numVals,
+						Feeds:      numFeeds,
+						Prices:     numPrices,
+						MinGasUsed: minGasUsed,
+						B_N:        subB.N,
+						MinNsPerOp: minNs - 2000000,
 					})
 				})
 			}
@@ -195,13 +198,13 @@ func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 // benchmark test for endblock of feeds module
 func BenchmarkFeedsEndBlock(b *testing.B) {
 	// We'll collect results for all sub-benchmarks in this slice.
-	// Adjust fields (Prices, etc.) as needed.
 	type benchRecord struct {
-		Name    string `json:"sub_bench_name"`
-		Vals    int    `json:"vals"`
-		Feeds   uint64 `json:"feeds"`
-		N       int    `json:"b_n"`
-		NsPerOp int64  `json:"ns_per_op"`
+		Name       string `json:"sub_bench_name"`
+		Vals       int    `json:"vals"`
+		Feeds      uint64 `json:"feeds"`
+		MinGasUsed uint64 `json:"min_gas_used"`
+		B_N        int    `json:"b_n"`
+		MinNsPerOp int64  `json:"min_ns_per_op"`
 	}
 
 	var allResults []benchRecord
@@ -222,61 +225,91 @@ func BenchmarkFeedsEndBlock(b *testing.B) {
 	})
 
 	// Define the sets of (numVals, numFeeds) we want to benchmark.
-	// Adjust as you see fit.
 	numValsList := []int{1, 10, 50, 70, 90}
 	numFeedsList := []uint64{1, 10, 100, 300, 1000}
 
 	// For each combo of numVals and numFeeds, run a sub-benchmark
 	for _, valsCount := range numValsList {
 		for _, feedsCount := range numFeedsList {
+
 			// Make a name that indicates the parameters
 			subBenchName := fmt.Sprintf("Vals_%d_Feeds_%d", valsCount, feedsCount)
 
 			b.Run(subBenchName, func(subB *testing.B) {
+				// Track the MIN gas usage & MIN iteration time across subB.N runs
+				var minGasUsed uint64 = ^uint64(0) // 0xFFFFFFFF... for “largest possible”
+				var minNs int64 = (1 << 63) - 1    // = math.MaxInt64
+
 				for i := 0; i < subB.N; i++ {
-					// Stop the timer during setup so it won't affect ns/op.
+					// Each iteration we do:
+					// 1) subB.ResetTimer() to ensure we only measure *this iteration*
+					// 2) subB.StopTimer() while doing heavy setup
+					// 3) subB.StartTimer() just for the block finalization (the end-block logic)
+					// 4) subB.StopTimer() again afterward, so we can measure iteration time
+
+					// Step 1: Reset the timer stats for each iteration
+					subB.ResetTimer()
 					subB.StopTimer()
 
-					// 1) Initialize a fresh app/state
+					// --- Heavy Setup ---
 					ba := InitializeBenchmarkApp(subB, -1)
 
-					// 2) Generate validators
+					// Generate validators
 					vals, err := generateValidators(ba, valsCount)
 					require.NoError(subB, err)
 
-					// 3) Setup feeds
+					// Setup feeds
 					err = setupFeeds(ba, feedsCount)
 					require.NoError(subB, err)
 
-					// 4) Setup validator prices
+					// Setup validator prices
 					err = setupValidatorPrices(ba, vals)
 					require.NoError(subB, err)
 
-					// Now run the core operation: calling EndBlock logic by finalizing a block
+					// Step 2: Start measuring the end-block
 					subB.StartTimer()
-					_, err = ba.FinalizeBlock(
+
+					// Finalize block (triggers end-block logic)
+					res, err := ba.FinalizeBlock(
 						&abci.RequestFinalizeBlock{
 							Height: ba.LastBlockHeight() + 1,
 							Time:   ba.Ctx.BlockTime(),
 						},
 					)
+
 					subB.StopTimer()
 
 					require.NoError(subB, err)
 
+					// If your end-block has any TxResults (unusual), sum their gas
+					var iterationGas uint64
+					for _, txr := range res.TxResults {
+						iterationGas += uint64(txr.GasUsed)
+						require.Equal(subB, uint32(0), txr.Code)
+					}
+					if iterationGas < minGasUsed {
+						minGasUsed = iterationGas
+					}
+
 					// Commit the block
 					_, err = ba.Commit()
 					require.NoError(subB, err)
+
+					// If this iteration took less time, keep it
+					iterationTimeNs := int64(subB.Elapsed())
+					if iterationTimeNs < minNs {
+						minNs = iterationTimeNs
+					}
 				}
 
-				// Build a record. We use subB.Elapsed() (Go 1.20+) for total sub-bench time
-				// or do your own timing approach with time.Now().
+				// Build a record with the “best” iteration metrics
 				allResults = append(allResults, benchRecord{
-					Name:    subBenchName,
-					Vals:    valsCount,
-					Feeds:   feedsCount,
-					N:       subB.N,
-					NsPerOp: int64(subB.Elapsed())/int64(subB.N) - 2000000,
+					Name:       subBenchName,
+					Vals:       valsCount,
+					Feeds:      feedsCount,
+					MinGasUsed: minGasUsed,
+					B_N:        subB.N,
+					MinNsPerOp: minNs - 2000000,
 				})
 			})
 		}

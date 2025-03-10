@@ -33,9 +33,9 @@ func BenchmarkRequestSignatureDeliver(b *testing.B) {
 	type benchRecord struct {
 		Name       string `json:"sub_bench_name"` // e.g. "request_signature (byte_length: 200)"
 		ByteLength int    `json:"byte_length"`
-		GasUsed    uint64 `json:"gas_used"`
+		MinGasUsed uint64 `json:"min_gas_used"`
 		B_N        int    `json:"b_n"`
-		NsPerOp    int64  `json:"ns_per_op"`
+		MinNsPerOp int64  `json:"min_ns_per_op"`
 	}
 
 	var allResults []benchRecord
@@ -61,11 +61,16 @@ func BenchmarkRequestSignatureDeliver(b *testing.B) {
 			subBenchName := fmt.Sprintf("%s (byte_length: %d)", name, blen)
 
 			b.Run(subBenchName, func(subB *testing.B) {
-				var gasUsed uint64
+				// Track min gas usage and min iteration time
+				var minGasUsed uint64 = ^uint64(0) // largest possible => 0xFFFFFFFF...
+				var minNs int64 = (1 << 63) - 1    // math.MaxInt64
 
 				for i := 0; i < subB.N; i++ {
+					// Reset timing for this iteration
+					subB.ResetTimer()
 					subB.StopTimer()
 
+					// Setup
 					ba := InitializeBenchmarkApp(subB, -1)
 					ba.SetupTSSGroup()
 
@@ -79,42 +84,52 @@ func BenchmarkRequestSignatureDeliver(b *testing.B) {
 							tc.feeLimit,
 						),
 						ba.Sender,
-						subB.N,
+						1, // We'll only deliver one TX per iteration
 					)
 
-					// Finalize an empty block first if needed
-					res, err := ba.FinalizeBlock(
-						&abci.RequestFinalizeBlock{Height: ba.LastBlockHeight() + 1, Hash: ba.LastCommitID().Hash},
-					)
+					// Optionally finalize an empty block
+					res, err := ba.FinalizeBlock(&abci.RequestFinalizeBlock{
+						Height: ba.LastBlockHeight() + 1,
+						Hash:   ba.LastCommitID().Hash,
+					})
 					require.NoError(subB, err)
-
 					for _, tx := range res.TxResults {
 						require.Equal(subB, uint32(0), tx.Code)
 					}
 
-					tx, err := ba.TxDecoder(txs[0])
+					// Decode the TX
+					theTx, err := ba.TxDecoder(txs[0])
 					require.NoError(subB, err)
 
-					// Start timing only for the critical part
+					// Start measuring for the critical operation
 					subB.StartTimer()
-					gasInfo, _, err := ba.SimDeliver(ba.TxEncoder, tx)
+					gasInfo, _, err := ba.SimDeliver(ba.TxEncoder, theTx)
 					subB.StopTimer()
 
 					if err != nil {
 						fmt.Println("\tDeliver Error:", err.Error())
-					} else {
-						fmt.Println("\tCosmos Gas used:", gasInfo.GasUsed)
 					}
-					gasUsed += gasInfo.GasUsed
+
+					// Compare iteration’s gas usage to minGasUsed
+					iterationGas := gasInfo.GasUsed
+					if iterationGas < minGasUsed {
+						minGasUsed = iterationGas
+					}
+
+					// Compare iteration time (subB.Elapsed()) to minNs
+					iterationNs := int64(subB.Elapsed())
+					if iterationNs < minNs {
+						minNs = iterationNs
+					}
 				}
 
-				// Build one record
+				// Build one record with the "best" iteration
 				allResults = append(allResults, benchRecord{
 					Name:       subBenchName,
 					ByteLength: blen,
-					GasUsed:    gasUsed / uint64(subB.N),
+					MinGasUsed: minGasUsed,
 					B_N:        subB.N,
-					NsPerOp:    int64(subB.Elapsed()) / int64(subB.N),
+					MinNsPerOp: minNs,
 				})
 			})
 		}
@@ -123,11 +138,11 @@ func BenchmarkRequestSignatureDeliver(b *testing.B) {
 
 func BenchmarkSubmitSignatureDeliver(b *testing.B) {
 	type benchRecord struct {
-		Name       string `json:"sub_bench_name"` // e.g. "request_signature (byte_length: 200)"
+		Name       string `json:"sub_bench_name"`
 		ByteLength int    `json:"byte_length"`
-		GasUsed    uint64 `json:"gas_used"`
+		MinGasUsed uint64 `json:"min_gas_used"`
 		B_N        int    `json:"b_n"`
-		NsPerOp    int64  `json:"ns_per_op"`
+		MinNsPerOp int64  `json:"min_ns_per_op"`
 	}
 
 	var allResults []benchRecord
@@ -149,21 +164,22 @@ func BenchmarkSubmitSignatureDeliver(b *testing.B) {
 			subBenchName := fmt.Sprintf("%s (byte_length: %d)", name, blen)
 
 			b.Run(subBenchName, func(subB *testing.B) {
-				var gasUsed uint64
+				var minGasUsed uint64 = ^uint64(0)
+				var minNs int64 = (1 << 63) - 1
 
-				// We'll run subB.N times
 				for i := 0; i < subB.N; i++ {
+					subB.ResetTimer()
 					subB.StopTimer()
 
 					ba := InitializeBenchmarkApp(subB, -1)
 					ba.SetupTSSGroup()
 
 					// Optionally finalize an initial empty block
-					res, err := ba.FinalizeBlock(
-						&abci.RequestFinalizeBlock{Height: ba.LastBlockHeight() + 1, Hash: ba.LastCommitID().Hash},
-					)
+					res, err := ba.FinalizeBlock(&abci.RequestFinalizeBlock{
+						Height: ba.LastBlockHeight() + 1,
+						Hash:   ba.LastCommitID().Hash,
+					})
 					require.NoError(subB, err)
-
 					for _, tx := range res.TxResults {
 						require.Equal(subB, uint32(0), tx.Code)
 					}
@@ -173,7 +189,7 @@ func BenchmarkSubmitSignatureDeliver(b *testing.B) {
 					gid := ba.BandtssKeeper.GetCurrentGroup(ba.Ctx).GroupID
 					require.NotZero(subB, gid)
 
-					// generate tx
+					// generate one TX
 					txs := ba.HandleGenPendingSignTxs(
 						gid,
 						tsstypes.NewTextSignatureOrder(msg),
@@ -187,19 +203,27 @@ func BenchmarkSubmitSignatureDeliver(b *testing.B) {
 
 					if err != nil {
 						fmt.Println("\tDeliver Error:", err.Error())
-					} else {
-						fmt.Println("\tCosmos Gas used:", gasInfo.GasUsed)
 					}
 
-					gasUsed += gasInfo.GasUsed
+					// Track min gas usage
+					iterationGas := gasInfo.GasUsed
+					if iterationGas < minGasUsed {
+						minGasUsed = iterationGas
+					}
+
+					// Track min iteration time
+					iterationNs := int64(subB.Elapsed())
+					if iterationNs < minNs {
+						minNs = iterationNs
+					}
 				}
 
 				allResults = append(allResults, benchRecord{
 					Name:       subBenchName,
 					ByteLength: blen,
-					GasUsed:    gasUsed / uint64(subB.N),
+					MinGasUsed: minGasUsed,
 					B_N:        subB.N,
-					NsPerOp:    int64(subB.Elapsed()) / int64(subB.N),
+					MinNsPerOp: minNs,
 				})
 			})
 		}
@@ -210,16 +234,21 @@ func BenchmarkEndBlockHandleProcessSigning(b *testing.B) {
 	type benchRecord struct {
 		Name       string `json:"sub_bench_name"` // e.g. "request_signature (byte_length: 200)"
 		ByteLength int    `json:"byte_length"`
-		B_N        int    `json:"b_n"`
-		NsPerOp    int64  `json:"ns_per_op"`
+
+		// We track only the minimum time, not gas
+		B_N        int   `json:"b_n"`
+		MinNsPerOp int64 `json:"min_ns_per_op"`
 	}
 
 	var allResults []benchRecord
 
+	// Print/write JSON after all sub-benchmarks complete
 	b.Cleanup(func() {
 		data, _ := json.MarshalIndent(allResults, "", "  ")
+		// Print JSON to stdout
 		fmt.Println(string(data))
 
+		// Write JSON to a file
 		err := os.WriteFile("endblock_sig_bench.json", data, 0o644)
 		if err != nil {
 			b.Logf("Error writing endblock_sig_bench.json: %v", err)
@@ -233,23 +262,26 @@ func BenchmarkEndBlockHandleProcessSigning(b *testing.B) {
 			subBenchName := fmt.Sprintf("%s (byte_length: %d)", name, blen)
 
 			b.Run(subBenchName, func(subB *testing.B) {
-				ba := InitializeBenchmarkApp(subB, -1)
-				ba.SetupTSSGroup()
-
-				subB.ResetTimer()
-				subB.StopTimer()
-
-				msg := MockByte(blen)
+				// We only track min iteration time, ignoring gas
+				var minNs int64 = (1 << 63) - 1 // math.MaxInt64 sentinel
 
 				for i := 0; i < subB.N; i++ {
+					// Reset the timer for each iteration
+					subB.ResetTimer()
+					subB.StopTimer()
+
+					// Setup
+					ba := InitializeBenchmarkApp(subB, -1)
+					ba.SetupTSSGroup()
+
+					msg := MockByte(blen)
+
 					// finalize a block (end block)
-					res, err := ba.FinalizeBlock(
-						&abci.RequestFinalizeBlock{
-							Height: ba.LastBlockHeight() + 1,
-							Hash:   ba.LastCommitID().Hash,
-							Time:   time.Now(),
-						},
-					)
+					res, err := ba.FinalizeBlock(&abci.RequestFinalizeBlock{
+						Height: ba.LastBlockHeight() + 1,
+						Hash:   ba.LastCommitID().Hash,
+						Time:   time.Now(),
+					})
 					require.NoError(subB, err)
 
 					gid := ba.BandtssKeeper.GetCurrentGroup(ba.Ctx).GroupID
@@ -271,8 +303,8 @@ func BenchmarkEndBlockHandleProcessSigning(b *testing.B) {
 						ba.AddDEs(sdk.MustAccAddressFromBech32(m.Address))
 					}
 
+					// Start timer only for the final block that triggers end-block logic
 					subB.StartTimer()
-					// finalize next block, which triggers end-block logic
 					res2, err := ba.FinalizeBlock(&abci.RequestFinalizeBlock{
 						Height: ba.LastBlockHeight() + 1,
 						Time:   time.Now(),
@@ -281,7 +313,7 @@ func BenchmarkEndBlockHandleProcessSigning(b *testing.B) {
 
 					require.NoError(subB, err)
 
-					// check TX results
+					// check TX results from both blocks
 					for _, txr := range res.TxResults {
 						require.Equal(subB, uint32(0), txr.Code)
 					}
@@ -291,14 +323,19 @@ func BenchmarkEndBlockHandleProcessSigning(b *testing.B) {
 
 					_, err = ba.Commit()
 					require.NoError(subB, err)
+
+					// If this iteration time is smaller, keep it
+					iterationNs := int64(subB.Elapsed())
+					if iterationNs < minNs {
+						minNs = iterationNs
+					}
 				}
 
-				// Append a record
 				allResults = append(allResults, benchRecord{
 					Name:       subBenchName,
 					ByteLength: blen,
 					B_N:        subB.N,
-					NsPerOp:    int64(subB.Elapsed())/int64(subB.N) - 2000000,
+					MinNsPerOp: minNs - 2000000,
 				})
 			})
 		}
