@@ -202,7 +202,6 @@ func BenchmarkFeedsEndBlock(b *testing.B) {
 		Name       string `json:"sub_bench_name"`
 		Vals       int    `json:"vals"`
 		Feeds      uint64 `json:"feeds"`
-		MinGasUsed uint64 `json:"min_gas_used"`
 		B_N        int    `json:"b_n"`
 		MinNsPerOp int64  `json:"min_ns_per_op"`
 	}
@@ -237,8 +236,7 @@ func BenchmarkFeedsEndBlock(b *testing.B) {
 
 			b.Run(subBenchName, func(subB *testing.B) {
 				// Track the MIN gas usage & MIN iteration time across subB.N runs
-				var minGasUsed uint64 = ^uint64(0) // 0xFFFFFFFF... for “largest possible”
-				var minNs int64 = (1 << 63) - 1    // = math.MaxInt64
+				var minNs int64 = (1 << 63) - 1 // = math.MaxInt64
 
 				for i := 0; i < subB.N; i++ {
 					// Each iteration we do:
@@ -282,13 +280,8 @@ func BenchmarkFeedsEndBlock(b *testing.B) {
 					require.NoError(subB, err)
 
 					// If your end-block has any TxResults (unusual), sum their gas
-					var iterationGas uint64
 					for _, txr := range res.TxResults {
-						iterationGas += uint64(txr.GasUsed)
 						require.Equal(subB, uint32(0), txr.Code)
-					}
-					if iterationGas < minGasUsed {
-						minGasUsed = iterationGas
 					}
 
 					// Commit the block
@@ -307,7 +300,6 @@ func BenchmarkFeedsEndBlock(b *testing.B) {
 					Name:       subBenchName,
 					Vals:       valsCount,
 					Feeds:      feedsCount,
-					MinGasUsed: minGasUsed,
 					B_N:        subB.N,
 					MinNsPerOp: minNs - 2000000,
 				})
