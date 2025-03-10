@@ -33,11 +33,13 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&TSSRoute{}, "tunnel/TSSRoute", nil)
 	cdc.RegisterConcrete(&IBCRoute{}, "tunnel/IBCRoute", nil)
 	cdc.RegisterConcrete(&IBCHookRoute{}, "tunnel/IBCHookRoute", nil)
+	cdc.RegisterConcrete(&AxelarRoute{}, "tunnel/AxelarRoute", nil)
 
 	cdc.RegisterInterface((*PacketReceiptI)(nil), nil)
 	cdc.RegisterConcrete(&TSSPacketReceipt{}, "tunnel/TSSPacketReceipt", nil)
 	cdc.RegisterConcrete(&IBCPacketReceipt{}, "tunnel/IBCPacketReceipt", nil)
 	cdc.RegisterConcrete(&IBCHookPacketReceipt{}, "tunnel/IBCHookPacketReceipt", nil)
+	cdc.RegisterConcrete(&AxelarPacketReceipt{}, "tunnel/AxelarPacketReceipt", nil)
 
 	cdc.RegisterConcrete(Params{}, "tunnel/Params", nil)
 }
@@ -64,6 +66,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&TSSRoute{},
 		&IBCRoute{},
 		&IBCHookRoute{},
+		&AxelarRoute{},
 	)
 
 	registry.RegisterInterface(
@@ -72,6 +75,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&TSSPacketReceipt{},
 		&IBCPacketReceipt{},
 		&IBCHookPacketReceipt{},
+		&AxelarPacketReceipt{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
