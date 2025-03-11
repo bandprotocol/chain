@@ -70,8 +70,6 @@ func (s *Signing) handleABCIEvents(abciEvents []abci.Event) {
 
 			for _, event := range events {
 				go s.handleSigning(event.SigningID)
-
-				metrics.IncIncomingSigningCount()
 			}
 		}
 	}
@@ -91,6 +89,7 @@ func (s *Signing) handleSigning(sid tss.SigningID) {
 		// set signing failure count for group id 0 if signing request is not found
 		gid := uint64(0)
 		metrics.IncProcessSigningFailureCount(gid)
+		metrics.IncIncomingSigningCount(gid)
 		return
 	}
 
@@ -109,8 +108,10 @@ func (s *Signing) handleSigning(sid tss.SigningID) {
 		logger.Error(":cold_sweat: Failed to find group in store: %s", err)
 
 		metrics.IncProcessSigningFailureCount(uint64(signing.GroupID))
+		metrics.IncIncomingSigningCount(uint64(signing.GroupID))
 		return
 	}
+	metrics.IncIncomingSigningCount(uint64(signing.GroupID))
 
 	// Get private keys of DE
 	privDE, err := s.context.Store.GetDE(types.DE{

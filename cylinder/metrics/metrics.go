@@ -42,7 +42,7 @@ type PrometheusMetrics struct {
 	DECountUsedGauge    prometheus.Gauge
 
 	// signing metrics
-	IncomingSigningCount       prometheus.Counter
+	IncomingSigningCount       *prometheus.CounterVec
 	ProcessSigningSuccessCount *prometheus.CounterVec
 	ProcessSigningFailureCount *prometheus.CounterVec
 	ProcessSigningTime         *prometheus.SummaryVec
@@ -201,10 +201,10 @@ func SetDECountUsedGauge(value float64) {
 	})
 }
 
-// IncIncomingSigningCount increments the count of incoming signing requests.
-func IncIncomingSigningCount() {
+// IncIncomingSigningCount increments the count of incoming signing requests for a specific group.
+func IncIncomingSigningCount(groupID uint64) {
 	updateMetrics(func() {
-		metrics.IncomingSigningCount.Inc()
+		metrics.IncomingSigningCount.WithLabelValues(fmt.Sprintf("%d", groupID)).Inc()
 	})
 }
 
@@ -344,10 +344,10 @@ func InitPrometheusMetrics() {
 			Name: "de_count_used_gauge",
 			Help: "Number of DE count used",
 		}),
-		IncomingSigningCount: promauto.NewCounter(prometheus.CounterOpts{
+		IncomingSigningCount: promauto.NewCounterVec(prometheus.CounterOpts{
 			Name: "incoming_signing_count",
 			Help: "Number of incoming signing requests",
-		}),
+		}, signingLabels),
 		ProcessSigningSuccessCount: promauto.NewCounterVec(prometheus.CounterOpts{
 			Name: "process_signing_success_count",
 			Help: "Number of successful process signing",
