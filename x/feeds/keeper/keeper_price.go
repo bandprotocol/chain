@@ -296,6 +296,8 @@ func CheckMissReport(
 	deadlineBlock := lastUpdateBlock + gracePeriod/types.ExpectedBlockTime
 
 	log += "-----------------------------------" + "\n"
+	log += "valInfo.Address: " + valInfo.Address.String() + "\n"
+	log += "-----------------------------------" + "\n"
 	log += "feed.Interval: " + strconv.FormatInt(feed.Interval, 10) + "\n"
 	log += "lastUpdateTimestamp: " + strconv.FormatInt(lastUpdateTimestamp, 10) + "\n"
 	log += "lastUpdateBlock: " + strconv.FormatInt(lastUpdateBlock, 10) + "\n"
