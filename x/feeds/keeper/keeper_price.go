@@ -178,6 +178,7 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) error {
 		return err
 	}
 	powerQuorum := totalBondedToken.Mul(priceQuorum).TruncateInt()
+	fmt.Println("*****")
 	// calculate prices for each feed
 	for _, feed := range currentFeeds.Feeds {
 		var validatorPriceInfos []types.ValidatorPriceInfo
