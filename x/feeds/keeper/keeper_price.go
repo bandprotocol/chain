@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+	"strconv"
 	"time"
 
 	dbm "github.com/cosmos/cosmos-db"
@@ -183,7 +185,7 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) error {
 			valPrice := allValidatorPrices[valInfo.Address.String()][feed.SignalID]
 
 			// check for miss report
-			missReport := CheckMissReport(
+			missReport, log := CheckMissReport(
 				feed,
 				currentFeeds.LastUpdateTimestamp,
 				currentFeeds.LastUpdateBlock,
@@ -194,6 +196,7 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) error {
 				gracePeriod,
 			)
 			if missReport {
+				fmt.Println(log)
 				k.oracleKeeper.MissReport(ctx, valInfo.Address, ctx.BlockTime())
 			}
 
@@ -283,33 +286,70 @@ func CheckMissReport(
 	blockTime time.Time,
 	blockHeight int64,
 	gracePeriod int64,
-) bool {
+) (bool, string) {
+	var log string
+	var missReport bool
 	// Calculate the deadline time and block height for the validator to report.
 	// During the grace period, if the block time exceeds ExpectedBlockTime, it will be capped at ExpectedBlockTime.
 	// This prevents validator deactivation due to slower block times, as long as the block height remains within the threshold.
 	deadlineTime := lastUpdateTimestamp + gracePeriod
 	deadlineBlock := lastUpdateBlock + gracePeriod/types.ExpectedBlockTime
 
+	log += "-----------------------------------" + "\n"
+	log += "feed.Interval: " + strconv.FormatInt(feed.Interval, 10) + "\n"
+	log += "lastUpdateTimestamp: " + strconv.FormatInt(lastUpdateTimestamp, 10) + "\n"
+	log += "lastUpdateBlock: " + strconv.FormatInt(lastUpdateBlock, 10) + "\n"
+	log += "valPrice.Timestamp: " + strconv.FormatInt(valPrice.Timestamp, 10) + "\n"
+	log += "valInfo.Status.Since: " + strconv.FormatInt(valInfo.Status.Since.Unix(), 10) + "\n"
+	log += "blockTime: " + strconv.FormatInt(blockTime.Unix(), 10) + "\n"
+	log += "blockHeight: " + strconv.FormatInt(blockHeight, 10) + "\n"
+	log += "gracePeriod: " + strconv.FormatInt(gracePeriod, 10) + "\n"
+	log += "deadlineTime: " + strconv.FormatInt(deadlineTime, 10) + "\n"
+	log += "deadlineBlock: " + strconv.FormatInt(deadlineBlock, 10) + "\n"
+	log += "-----------------------------------" + "\n"
+
 	// Extend deadline if the validator just became active.
 	if valInfo.Status.Since.Unix()+gracePeriod > deadlineTime {
 		deadlineTime = valInfo.Status.Since.Unix() + gracePeriod
+
+		log += "valInfo.Status.Since.Unix()+gracePeriod > deadlineTime" + "\n"
+		log += "deadlineTime: " + strconv.FormatInt(deadlineTime, 10) + "\n"
 	}
 
 	// Extend deadline if the validator has a valid price within the feed interval.
 	if valPrice.SignalPriceStatus != types.SIGNAL_PRICE_STATUS_UNSPECIFIED {
+		log += "valPrice.SignalPriceStatus != types.SIGNAL_PRICE_STATUS_UNSPECIFIED" + "\n"
 		// Extend deadline time based on the price timestamp.
 		if valPrice.Timestamp+feed.Interval > deadlineTime {
 			deadlineTime = valPrice.Timestamp + feed.Interval
+
+			log += "valPrice.Timestamp+feed.Interval > deadlineTime" + "\n"
+			log += "deadlineTime: " + strconv.FormatInt(deadlineTime, 10) + "\n"
 		}
 
 		// Extend deadline block based on the price block height.
 		if valPrice.BlockHeight+feed.Interval/types.ExpectedBlockTime > deadlineBlock {
 			deadlineBlock = valPrice.BlockHeight + feed.Interval/types.ExpectedBlockTime
+
+			log += "valPrice.BlockHeight+feed.Interval/types.ExpectedBlockTime > deadlineBlock" + "\n"
+			log += "deadlineBlock: " + strconv.FormatInt(deadlineBlock, 10) + "\n"
 		}
 	}
 
+	log += "-----------------------------------" + "\n"
+
 	// Determine if the validator has missed the report based on the deadline time and block height.
-	return deadlineTime < blockTime.Unix() && deadlineBlock < blockHeight
+	missReport = deadlineTime < blockTime.Unix() && deadlineBlock < blockHeight
+
+	log += "missReport: " + strconv.FormatBool(missReport) + "\n"
+	log += "deadlineTime" + strconv.FormatInt(deadlineTime, 10) + "\n"
+	log += "blockTime.Unix(): " + strconv.FormatInt(blockTime.Unix(), 10) + "\n"
+	log += "deadlineBlock: " + strconv.FormatInt(deadlineBlock, 10) + "\n"
+	log += "blockHeight: " + strconv.FormatInt(blockHeight, 10) + "\n"
+	log += "deadlineTime < blockTime.Unix(): " + strconv.FormatBool(deadlineTime < blockTime.Unix()) + "\n"
+	log += "deadlineBlock < blockHeight: " + strconv.FormatBool(deadlineBlock < blockHeight) + "\n"
+	log += "-----------------------------------" + "\n"
+	return missReport, log
 }
 
 // checkHavePrice checks if a validator has a price feed within interval range.
