@@ -197,6 +197,7 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) error {
 				gracePeriod,
 			)
 			if missReport {
+				fmt.Println("+++++++++ miss report")
 				fmt.Println(log)
 				k.oracleKeeper.MissReport(ctx, valInfo.Address, ctx.BlockTime())
 			}

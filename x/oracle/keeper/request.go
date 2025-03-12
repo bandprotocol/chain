@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -76,6 +77,8 @@ func (k Keeper) ProcessExpiredRequests(ctx sdk.Context) {
 		for _, val := range req.RequestedValidators {
 			v, _ := sdk.ValAddressFromBech32(val)
 			if !k.HasReport(ctx, currentReqID, v) {
+				fmt.Println("##########")
+				fmt.Println("MissReport by Oracle:", v)
 				k.MissReport(ctx, v, time.Unix(req.RequestTime, 0))
 			}
 		}
