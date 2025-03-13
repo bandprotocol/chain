@@ -9,6 +9,7 @@ import (
 	"github.com/bandprotocol/chain/v3/hooks/common"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 func (h *Hook) handleMsgGrant(msg *authz.MsgGrant, detail common.JsDict) {
@@ -80,6 +81,7 @@ func (h *Hook) handleMsgExec(
 			h.handleMsgReportData(ctx, txHash, msg, grantee)
 		case *feedstypes.MsgSubmitSignalPrices:
 			h.handleFeedsMsgSubmitSignalPrices(ctx, txHash, msg, grantee)
+		case *tsstypes.MsgSubmitSignature, *tsstypes.MsgSubmitDEs:
 		default:
 			// add signers for this message into the transaction
 			signers, _, err := h.cdc.GetMsgV1Signers(msg)
