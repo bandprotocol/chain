@@ -61,7 +61,7 @@ func RunCmd(ctx *context.Context) *cobra.Command {
 	cmd.Flags().Uint64(flagDistrStartPct, 50, "The starting percentage for the distribution offset range.")
 	cmd.Flags().Uint64(flagDistrOffsetPct, 30, "The offset percentage range from the starting distribution.")
 	cmd.Flags().String(flagBothan, "", "The Bothan URL to connect to.")
-	cmd.Flags().String(flagBothanTimeout, "10s", "The timeout duration for Bothan requests.")
+	cmd.Flags().String(flagBothanTimeout, "3s", "The timeout duration for Bothan requests.")
 	cmd.Flags().String(flagLogLevel, "info", "The application's log level.")
 	cmd.Flags().String(flagUpdaterQueryInterval, "1m", "The interval for updater querying chain.")
 
