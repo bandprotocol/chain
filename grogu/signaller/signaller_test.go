@@ -11,6 +11,7 @@ import (
 
 	"cosmossdk.io/log"
 
+	comet "github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/bothan/v1"
@@ -19,8 +20,6 @@ import (
 	"github.com/bandprotocol/chain/v3/grogu/submitter"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 	feeds "github.com/bandprotocol/chain/v3/x/feeds/types"
-
-	comet "github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 )
 
 type SignallerTestSuite struct {

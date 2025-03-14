@@ -6,7 +6,6 @@ import (
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
 
 	"github.com/cosmos/cosmos-sdk/client"
-
 	comet "github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 )
 
