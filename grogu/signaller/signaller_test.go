@@ -20,7 +20,6 @@ import (
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 	feeds "github.com/bandprotocol/chain/v3/x/feeds/types"
 
-	types1 "github.com/cometbft/cometbft/proto/tendermint/types"
 	comet "github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 )
 
@@ -98,14 +97,14 @@ func (s *SignallerTestSuite) SetupTest() {
 	mockCometClient := testutil.NewMockCometQuerier(ctrl)
 	mockCometClient.EXPECT().GetLatestBlock().
 		DoAndReturn(func() (*comet.GetLatestBlockResponse, error) {
-			header := types1.Header{
+			header := comet.Header{
 				Time: time.Unix(0, 0),
 			}
-			block := &types1.Block{
+			block := &comet.Block{
 				Header: header,
 			}
 			return &comet.GetLatestBlockResponse{
-				Block: block,
+				SdkBlock: block,
 			}, nil
 		}).
 		AnyTimes()

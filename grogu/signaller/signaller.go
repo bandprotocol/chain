@@ -165,7 +165,7 @@ func (s *Signaller) updateBlockTime() bool {
 		return false
 	}
 
-	s.blockTime = resp.Block.Header.Time.Unix()
+	s.blockTime = resp.SdkBlock.Header.Time.Unix()
 
 	return true
 }
