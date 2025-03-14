@@ -19,6 +19,9 @@ import (
 	"github.com/bandprotocol/chain/v3/grogu/submitter"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 	feeds "github.com/bandprotocol/chain/v3/x/feeds/types"
+
+	types1 "github.com/cometbft/cometbft/proto/tendermint/types"
+	comet "github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 )
 
 type SignallerTestSuite struct {
@@ -92,6 +95,21 @@ func (s *SignallerTestSuite) SetupTest() {
 		}, nil).
 		AnyTimes()
 
+	mockCometClient := testutil.NewMockCometQuerier(ctrl)
+	mockCometClient.EXPECT().GetLatestBlock().
+		DoAndReturn(func() (*comet.GetLatestBlockResponse, error) {
+			header := types1.Header{
+				Time: time.Unix(0, 0),
+			}
+			block := &types1.Block{
+				Header: header,
+			}
+			return &comet.GetLatestBlockResponse{
+				Block: block,
+			}, nil
+		}).
+		AnyTimes()
+
 	// Create submit channel
 	submitCh := make(chan submitter.SignalPriceSubmission, 300)
 
@@ -105,6 +123,7 @@ func (s *SignallerTestSuite) SetupTest() {
 	// Create signaller instance
 	s.Signaller = New(
 		mockFeedQuerier,
+		mockCometClient,
 		mockBothanClient,
 		time.Second,
 		submitCh,
