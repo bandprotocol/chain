@@ -498,7 +498,7 @@ func (m *IBCHookMsg) GetReceivePacket() *IBCHookPacket {
 type IBCHookWasm struct {
 	// contract is destination contract address
 	Contract string `protobuf:"bytes,1,opt,name=contract,proto3" json:"contract,omitempty"`
-	// ibc_hook_msg is the IBC hook message
+	// msg is the IBC hook message
 	Msg *IBCHookMsg `protobuf:"bytes,2,opt,name=msg,proto3" json:"msg,omitempty"`
 }
 
