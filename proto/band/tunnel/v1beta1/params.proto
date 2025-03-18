@@ -30,5 +30,5 @@ message Params {
   string router_ibc_channel = 8 [(gogoproto.customname) = "RouterIBCChannel"];
   // router_integration_contract specifies the address of the Router integration contract on the Router chain
   // that the tunnel module will interact with.
-  string router_integration_contract = 9 [(gogoproto.customname) = "RouterIntegrationContract"];
+  string router_integration_contract = 9;
 }
