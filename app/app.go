@@ -254,8 +254,8 @@ func NewBandApp(
 
 	app.sm.RegisterStoreDecoders()
 
-	feedsLane, tssLane, oracleLane, defaultLane := CreateLanes(app)
-	bandLanes := []*mempool.Lane{feedsLane, tssLane, oracleLane, defaultLane}
+	feedsLane, tssLane, oracleReportLane, oracleRequestLane, defaultLane := CreateLanes(app)
+	bandLanes := []*mempool.Lane{feedsLane, tssLane, oracleReportLane, oracleRequestLane, defaultLane}
 
 	// create Band mempool
 	bandMempool := mempool.NewMempool(app.Logger(), bandLanes)
@@ -285,7 +285,7 @@ func NewBandApp(
 			IBCKeeper:       app.IBCKeeper,
 			StakingKeeper:   app.StakingKeeper,
 			GlobalfeeKeeper: &app.GlobalFeeKeeper,
-			Lanes:           []*mempool.Lane{feedsLane, tssLane, oracleLane}, // every lane except default lane
+			Lanes:           []*mempool.Lane{feedsLane, tssLane, oracleReportLane}, // every lane except default lane
 		},
 	)
 	if err != nil {
