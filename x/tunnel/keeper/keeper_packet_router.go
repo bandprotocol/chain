@@ -31,7 +31,7 @@ func (k Keeper) SendRouterPacket(
 	routerIntegrationContract := params.RouterIntegrationContract
 
 	// mint coin to the fee payer
-	err = k.MintIBCHookCoinToAccount(ctx, packet.TunnelID, feePayer)
+	err = k.MintIBCHookCoinToAccount(ctx, packet.TunnelID, feePayer, types.HookTransferAmount)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (k Keeper) SendRouterPacket(
 	msg := ibctransfertypes.NewMsgTransfer(
 		ibctransfertypes.PortID,
 		routerIBCChannel,
-		sdk.NewInt64Coin(types.FormatHookDenomIdentifier(packet.TunnelID), types.HookTransferAmount),
+		sdk.NewInt64Coin(types.FormatHookDenomIdentifier(packet.TunnelID), int64(types.HookTransferAmount)),
 		feePayer.String(),
 		routerIntegrationContract,
 		clienttypes.ZeroHeight(),

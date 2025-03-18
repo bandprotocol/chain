@@ -29,7 +29,7 @@ func (s *KeeperTestSuite) TestSendRouterPacket() {
 	interval := uint64(60)
 	feePayer := sdk.AccAddress([]byte("feePayer"))
 	hookCoins := sdk.NewCoins(
-		sdk.NewInt64Coin(types.FormatHookDenomIdentifier(tunnelID), types.HookTransferAmount),
+		sdk.NewInt64Coin(types.FormatHookDenomIdentifier(tunnelID), int64(types.HookTransferAmount)),
 	)
 
 	s.transferKeeper.EXPECT().
