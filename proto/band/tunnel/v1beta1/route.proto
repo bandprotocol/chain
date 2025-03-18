@@ -125,34 +125,31 @@ message RouterPacketReceipt {
   uint64 sequence = 1;
 }
 
-// RouterPacket represents the IBC packet payload for the Router packet.
-message RouterPacket {
-  // dest_chain_id is the destination chain ID
-  string dest_chain_id = 1 [(gogoproto.customname) = "DestChainID"];
-  // dest_contract_address is the destination contract address
-  string dest_contract_address = 2;
-  // gas_limit is the destination gas limit
-  uint64 gas_limit = 3;
-  // payload is the payload of the packet
-  string payload = 4;
-}
-
-// RouterMsg represents the message structure of the Router message.
-message RouterMsg {
-  // receive_band_data is the function name on the destination contract
-  RouterPacket receive_band_data = 1;
-}
-
-// RouterWasm represents the WASM contract and its associated message.
-message RouterWasm {
-  // contract is destination contract address
-  string contract = 1;
-  // msg is the Router message
-  RouterMsg msg = 2;
-}
-
-// RouterMemo is the type for a Router memo
+// RouterMemo is the type for a data packet that will be stringtify to be a memo of IBC packet
 message RouterMemo {
-  // wasm is the wasm memo struct for Router
-  RouterWasm wasm = 1;
+  // Payload defines target contract and detail of function call (msg).
+  message Payload {
+    // Msg defines function name (`receive_band_data`) and a type of function arguments.
+    message Msg {
+      // ReceiveBandDataArgs represents the arguments of `receive_band_data` function
+      message ReceiveBandDataArgs {
+        // dest_chain_id is the destination chain ID
+        string dest_chain_id = 1 [(gogoproto.customname) = "DestChainID"];
+        // dest_contract_address is the destination contract address
+        string dest_contract_address = 2;
+        // gas_limit is the destination gas limit
+        uint64 gas_limit = 3;
+        // payload is the payload of the packet
+        string payload = 4;
+      }
+      // receive_band_data is the function name on the destination contract
+      ReceiveBandDataArgs receive_band_data = 1 [(gogoproto.nullable) = false];
+    }
+    // contract is destination contract address
+    string contract = 1;
+    // msg is the Router message
+    Msg msg = 2 [(gogoproto.nullable) = false];
+  }
+  // wasm is the payload for calling detination contract
+  Payload wasm = 1 [(gogoproto.nullable) = false];
 }

@@ -15,10 +15,10 @@ func NewRouterMemo(
 	payload string,
 ) RouterMemo {
 	return RouterMemo{
-		Wasm: &RouterWasm{
+		Wasm: RouterMemo_Payload{
 			Contract: contract,
-			Msg: &RouterMsg{
-				ReceiveBandData: &RouterPacket{
+			Msg: RouterMemo_Payload_Msg{
+				ReceiveBandData: RouterMemo_Payload_Msg_ReceiveBandDataArgs{
 					DestChainID:         destinationChainID,
 					DestContractAddress: destinationContractAddress,
 					GasLimit:            gasLimit,
