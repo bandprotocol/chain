@@ -24,6 +24,7 @@ import (
 	"github.com/bandprotocol/chain/v3/grogu/querier"
 	"github.com/bandprotocol/chain/v3/grogu/signaller"
 	"github.com/bandprotocol/chain/v3/grogu/submitter"
+	"github.com/bandprotocol/chain/v3/grogu/telemetry"
 	"github.com/bandprotocol/chain/v3/grogu/updater"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 )
@@ -40,6 +41,7 @@ const (
 	flagDistrOffsetPct       = "distribution-offset-pct"
 	flagLogLevel             = "log-level"
 	flagUpdaterQueryInterval = "updater-query-interval"
+	flagMetricsListenAddr    = "metrics-listen-addr"
 )
 
 func RunCmd(ctx *context.Context) *cobra.Command {
@@ -64,6 +66,7 @@ func RunCmd(ctx *context.Context) *cobra.Command {
 	cmd.Flags().String(flagBothanTimeout, "10s", "The timeout duration for Bothan requests.")
 	cmd.Flags().String(flagLogLevel, "info", "The application's log level.")
 	cmd.Flags().String(flagUpdaterQueryInterval, "1m", "The interval for updater querying chain.")
+	cmd.Flags().String(flagMetricsListenAddr, "", "address to use for metrics server.")
 
 	_ = viper.BindPFlag(flagValidator, cmd.Flags().Lookup(flagValidator))
 	_ = viper.BindPFlag(flagNodes, cmd.Flags().Lookup(flagNodes))
@@ -90,6 +93,20 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 			return err
 		}
 		l := logger.NewLogger(allowLevel)
+
+		// Parse metric listen address from flag; if empty, use config value
+		metricListenAddr, err := cmd.Flags().GetString(flagMetricsListenAddr)
+		if err != nil {
+			return err
+		}
+		if metricListenAddr == "" {
+			metricListenAddr = ctx.Config.MetricsListenAddr
+		}
+
+		// Start metrics server if address is provided
+		if metricListenAddr != "" {
+			go telemetry.StartServer(l, metricListenAddr)
+		}
 
 		// Split Node URIs and create RPC clients
 		clientCtx, err := client.GetClientQueryContext(cmd)
