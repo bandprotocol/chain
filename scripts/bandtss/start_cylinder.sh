@@ -65,4 +65,4 @@ bandd tx tss add-grantees $(cylinder keys list -a --home $HOME_PATH) --gas-price
 sleep 6
 
 # run cylinder
-cylinder run --home $HOME_PATH
+cylinder run --metrics-listen-addr :8080 --home $HOME_PATH 
