@@ -41,7 +41,7 @@ const (
 	flagDistrOffsetPct       = "distribution-offset-pct"
 	flagLogLevel             = "log-level"
 	flagUpdaterQueryInterval = "updater-query-interval"
-	flagTelemetryAddr        = "telemetry-addr"
+	flagMetricsListenAddr    = "metrics-listen-addr"
 )
 
 func RunCmd(ctx *context.Context) *cobra.Command {
@@ -66,7 +66,7 @@ func RunCmd(ctx *context.Context) *cobra.Command {
 	cmd.Flags().String(flagBothanTimeout, "10s", "The timeout duration for Bothan requests.")
 	cmd.Flags().String(flagLogLevel, "info", "The application's log level.")
 	cmd.Flags().String(flagUpdaterQueryInterval, "1m", "The interval for updater querying chain.")
-	cmd.Flags().String(flagTelemetryAddr, "", "address to use for metrics server.")
+	cmd.Flags().String(flagMetricsListenAddr, "", "address to use for metrics server.")
 
 	_ = viper.BindPFlag(flagValidator, cmd.Flags().Lookup(flagValidator))
 	_ = viper.BindPFlag(flagNodes, cmd.Flags().Lookup(flagNodes))
@@ -94,14 +94,18 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 		}
 		l := logger.NewLogger(allowLevel)
 
-		// Parse telemetry address
-		telemetryAddr, err := cmd.Flags().GetString(flagTelemetryAddr)
+		// Parse metric listen address from flag; if empty, use config value
+		metricListenAddr, err := cmd.Flags().GetString(flagMetricsListenAddr)
 		if err != nil {
 			return err
 		}
+		if metricListenAddr == "" {
+			metricListenAddr = ctx.Config.MetricsListenAddr
+		}
 
-		if telemetryAddr != "" {
-			go telemetry.StartServer(l, telemetryAddr)
+		// Start metrics server if address is provided
+		if metricListenAddr != "" {
+			go telemetry.StartServer(l, metricListenAddr)
 		}
 
 		// Split Node URIs and create RPC clients
