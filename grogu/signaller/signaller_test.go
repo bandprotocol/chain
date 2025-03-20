@@ -11,6 +11,7 @@ import (
 
 	"cosmossdk.io/log"
 
+	comet "github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/bothan/v1"
@@ -92,6 +93,21 @@ func (s *SignallerTestSuite) SetupTest() {
 		}, nil).
 		AnyTimes()
 
+	mockCometClient := testutil.NewMockCometQuerier(ctrl)
+	mockCometClient.EXPECT().GetLatestBlock().
+		DoAndReturn(func() (*comet.GetLatestBlockResponse, error) {
+			header := comet.Header{
+				Time: time.Unix(0, 0),
+			}
+			block := &comet.Block{
+				Header: header,
+			}
+			return &comet.GetLatestBlockResponse{
+				SdkBlock: block,
+			}, nil
+		}).
+		AnyTimes()
+
 	// Create submit channel
 	submitCh := make(chan submitter.SignalPriceSubmission, 300)
 
@@ -105,6 +121,7 @@ func (s *SignallerTestSuite) SetupTest() {
 	// Create signaller instance
 	s.Signaller = New(
 		mockFeedQuerier,
+		mockCometClient,
 		mockBothanClient,
 		time.Second,
 		submitCh,
