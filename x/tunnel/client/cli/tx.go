@@ -59,7 +59,7 @@ func GetTxCmdCreateTunnel() *cobra.Command {
 
 func GetTxCmdCreateTSSTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "tss [destination-chain-id] [destination-contract-address] [encoder] [initial-deposit] [interval] [signalDeviations-json-file]",
+		Use:   "tss [destination-chain-id] [destination-contract-address] [encoder] [initial-deposit] [interval] [signal-deviations-json-file]",
 		Short: "Create a new TSS tunnel",
 		Args:  cobra.ExactArgs(6),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -115,7 +115,7 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 
 func GetTxCmdCreateIBCTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "ibc [initial-deposit] [interval] [signalInfos-json-file]",
+		Use:   "ibc [initial-deposit] [interval] [signal-deviations-json-file]",
 		Short: "Create a new IBC tunnel",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -134,13 +134,13 @@ func GetTxCmdCreateIBCTunnel() *cobra.Command {
 				return err
 			}
 
-			signalInfos, err := parseSignalDeviations(args[2])
+			signalDeviations, err := parseSignalDeviations(args[2])
 			if err != nil {
 				return err
 			}
 
 			msg, err := types.NewMsgCreateIBCTunnel(
-				signalInfos.ToSignalDeviations(),
+				signalDeviations.ToSignalDeviations(),
 				interval,
 				initialDeposit,
 				clientCtx.GetFromAddress().String(),
@@ -159,7 +159,7 @@ func GetTxCmdCreateIBCTunnel() *cobra.Command {
 
 func GetTxCmdCreateIBCHookTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "ibc-hook [channel-id] [destination-contract-address] [initial-deposit] [interval] [signalInfos-json-file]",
+		Use:   "ibc-hook [channel-id] [destination-contract-address] [initial-deposit] [interval] [signal-deviations-json-file]",
 		Short: "Create a new IBC hook tunnel",
 		Args:  cobra.ExactArgs(5),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -181,13 +181,13 @@ func GetTxCmdCreateIBCHookTunnel() *cobra.Command {
 				return err
 			}
 
-			signalInfos, err := parseSignalDeviations(args[4])
+			signalDeviations, err := parseSignalDeviations(args[4])
 			if err != nil {
 				return err
 			}
 
 			msg, err := types.NewMsgCreateIBCHookTunnel(
-				signalInfos.ToSignalDeviations(),
+				signalDeviations.ToSignalDeviations(),
 				interval,
 				channelID,
 				destinationContractAddress,
