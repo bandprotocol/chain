@@ -1,8 +1,6 @@
 package types
 
 import (
-	"fmt"
-
 	"github.com/ethereum/go-ethereum/accounts/abi"
 
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
@@ -53,34 +51,11 @@ func NewPacketABI(
 
 // EncodingPacketABI encodes the packet to abi message
 func EncodingPacketABI(p Packet) ([]byte, error) {
-	var signalPrices []feedstypes.RelayPrice
-
-	for _, sp := range p.Prices {
-		sid, err := stringToBytes32(sp.SignalID)
-		if err != nil {
-			return nil, err
-		}
-
-		signalPrices = append(signalPrices, feedstypes.RelayPrice{
-			SignalID: sid,
-			Price:    sp.Price,
-		})
+	relayPrices, err := feedstypes.ToRelayPrices(p.Prices)
+	if err != nil {
+		return nil, err
 	}
 
-	abiPacket := NewPacketABI(p.TunnelID, p.Sequence, signalPrices, p.CreatedAt)
+	abiPacket := NewPacketABI(p.TunnelID, p.Sequence, relayPrices, p.CreatedAt)
 	return packetArgs.Pack(&abiPacket)
-}
-
-// stringToBytes32 converts a string to a fixed size byte array. If the string is longer than
-// 32 bytes, it will return an error. If the string is shorter than 32 bytes,
-// it will be padded with 0s at the beginning.
-func stringToBytes32(str string) ([32]byte, error) {
-	maxLen := len(str)
-	if maxLen > 32 {
-		return [32]byte{}, fmt.Errorf("string is longer than 32 bytes")
-	}
-
-	var byteArray [32]byte
-	copy(byteArray[32-maxLen:], str[:maxLen])
-	return byteArray, nil
 }
