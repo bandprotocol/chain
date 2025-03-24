@@ -251,13 +251,13 @@ func (s *Signaller) filterAndPrepareSignalPrices(
 
 	signalPrices := make([]types.SignalPrice, 0, len(signalIDs))
 	conversionErrorCnt := 0
-	invalidPriceCnt := 0
+	signalNotFoundCnt := 0
 	nonUrgentUnavailablePriceCnt := 0
 
 	for _, signalID := range signalIDs {
 		price, ok := pricesMap[signalID]
 		if !ok {
-			conversionErrorCnt++
+			signalNotFoundCnt++
 			s.logger.Debug("[Signaller] price not found for signal ID: %s", signalID)
 			continue
 		}
@@ -270,7 +270,6 @@ func (s *Signaller) filterAndPrepareSignalPrices(
 		}
 
 		if !s.isPriceValid(signalPrice, currentTime) {
-			invalidPriceCnt++
 			continue
 		}
 
@@ -284,7 +283,7 @@ func (s *Signaller) filterAndPrepareSignalPrices(
 	}
 
 	telemetry.SetConversionErrorSignals(conversionErrorCnt)
-	telemetry.SetInvalidSignals(invalidPriceCnt)
+	telemetry.SetSignalNotFound(signalNotFoundCnt)
 	telemetry.SetNonUrgentUnavailablePriceSignals(nonUrgentUnavailablePriceCnt)
 
 	return signalPrices

@@ -14,7 +14,6 @@ var (
 	// CylinderCollector stores the Cylinder collector instance.
 	collector *CylinderCollector
 
-	updateSignalPriceStatusMu    = sync.Mutex{}
 	updateSignalPriceTimestampMu = sync.Mutex{}
 )
 
@@ -39,7 +38,7 @@ type CylinderCollector struct {
 	QuerySignalPricesDuration          prometheus.Summary
 	NonPendingSignalsGauge             prometheus.Gauge
 	ConversionErrorSignalsGauge        prometheus.Gauge
-	InvalidSignalsGauge                prometheus.Gauge
+	SignalNotFoundGauge                prometheus.Gauge
 	NonUrgentUnavailableSignalIDsGauge prometheus.Gauge
 	FilteredSignalingIDsGauge          prometheus.Gauge
 	SignalPriceStatusGauge             prometheus.GaugeVec
@@ -159,13 +158,13 @@ func SetConversionErrorSignals(count int) {
 	collector.ConversionErrorSignalsGauge.Set(float64(count))
 }
 
-// SetInvalidSignals sets the number of invalid signal in the round.
-func SetInvalidSignals(count int) {
+// SetSignalNotFound sets the number of signal ID that not being found from the list.
+func SetSignalNotFound(count int) {
 	if collector == nil {
 		return
 	}
 
-	collector.InvalidSignalsGauge.Set(float64(count))
+	collector.SignalNotFoundGauge.Set(float64(count))
 }
 
 // SetNonUrgentUnavailablePriceSignals sets the number of non-urgent signal in the round.
@@ -191,9 +190,6 @@ func SetSignalPriceStatuses(newSignalPrices []feedstypes.SignalPrice) {
 	if collector == nil {
 		return
 	}
-
-	updateSignalPriceStatusMu.Lock()
-	defer updateSignalPriceStatusMu.Unlock()
 
 	for _, signal := range newSignalPrices {
 		if oldStatus, ok := collector.SignalPriceStatus[signal.SignalID]; ok {
@@ -333,9 +329,9 @@ func NewCylinderCollector() *CylinderCollector {
 		Name: "grogu_conversion_error_signal_ids",
 		Help: "number of signal IDs that failed to convert to signal prices in the signaling round",
 	})
-	invalidSignalsGauge := registerer.NewGauge(prometheus.GaugeOpts{
-		Name: "grogu_invalid_signal_ids",
-		Help: "number of signal IDs that the signal price is invalid in the signaling round",
+	signalNotFoundGauge := registerer.NewGauge(prometheus.GaugeOpts{
+		Name: "grogu_signal_not_found",
+		Help: "number of signal IDs that aren't found from the price list",
 	})
 	nonUrgentUnavailableSignalIDsGauge := registerer.NewGauge(prometheus.GaugeOpts{
 		Name: "grogu_non_urgent_unavailable_signal_ids",
@@ -407,7 +403,7 @@ func NewCylinderCollector() *CylinderCollector {
 		QuerySignalPricesDuration:          querySignalPricesDuration,
 		NonPendingSignalsGauge:             nonPendingSignalsGauge,
 		ConversionErrorSignalsGauge:        conversionErrorSignalsGauge,
-		InvalidSignalsGauge:                invalidSignalsGauge,
+		SignalNotFoundGauge:                signalNotFoundGauge,
 		NonUrgentUnavailableSignalIDsGauge: nonUrgentUnavailableSignalIDsGauge,
 		FilteredSignalingIDsGauge:          filteredSignalingIDsGauge,
 		SignalPriceStatusGauge:             signalPriceStatusGauge,
@@ -436,7 +432,7 @@ func (c CylinderCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.QuerySignalPricesDuration.Desc()
 	ch <- c.NonPendingSignalsGauge.Desc()
 	ch <- c.ConversionErrorSignalsGauge.Desc()
-	ch <- c.InvalidSignalsGauge.Desc()
+	ch <- c.SignalNotFoundGauge.Desc()
 	ch <- c.NonUrgentUnavailableSignalIDsGauge.Desc()
 	ch <- c.FilteredSignalingIDsGauge.Desc()
 	c.SignalPriceStatusGauge.Describe(ch)
@@ -466,7 +462,7 @@ func (c CylinderCollector) Collect(ch chan<- prometheus.Metric) {
 	ch <- c.QuerySignalPricesDuration
 	ch <- c.NonPendingSignalsGauge
 	ch <- c.ConversionErrorSignalsGauge
-	ch <- c.InvalidSignalsGauge
+	ch <- c.SignalNotFoundGauge
 	ch <- c.NonUrgentUnavailableSignalIDsGauge
 	ch <- c.FilteredSignalingIDsGauge
 	c.SignalPriceStatusGauge.Collect(ch)
