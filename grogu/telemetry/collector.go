@@ -11,14 +11,14 @@ import (
 )
 
 var (
-	// CylinderCollector stores the Cylinder collector instance.
-	collector *CylinderCollector
+	// GroguCollector stores the Cylinder collector instance.
+	collector *GroguCollector
 
 	updateSignalPriceTimestampMu = sync.Mutex{}
 )
 
 // Metrics is the metrics struct.
-type CylinderCollector struct {
+type GroguCollector struct {
 	Registry                 *prometheus.Registry
 	SignalPriceStatus        map[string]feedstypes.SignalPriceStatus
 	SignalPriceStatusCount   map[feedstypes.SignalPriceStatus]int
@@ -272,8 +272,8 @@ func ObserveSignalPriceUpdateInterval(signalPrices []feedstypes.SignalPrice) {
 	}
 }
 
-// NewCylinderCollector creates a new cylinder collector instance.
-func NewCylinderCollector() *CylinderCollector {
+// NewGroguCollector creates a new cylinder collector instance.
+func NewGroguCollector() *GroguCollector {
 	registry := prometheus.NewRegistry()
 	registerer := promauto.With(registry)
 
@@ -387,7 +387,7 @@ func NewCylinderCollector() *CylinderCollector {
 		},
 	}, []string{"signal_id"})
 
-	return &CylinderCollector{
+	return &GroguCollector{
 		Registry:                           registry,
 		SignalPriceStatus:                  make(map[string]feedstypes.SignalPriceStatus),
 		SignalPriceStatusCount:             make(map[feedstypes.SignalPriceStatus]int),
@@ -417,7 +417,7 @@ func NewCylinderCollector() *CylinderCollector {
 }
 
 // Describe sends the descriptors of each metric to the provided channel.
-func (c CylinderCollector) Describe(ch chan<- *prometheus.Desc) {
+func (c GroguCollector) Describe(ch chan<- *prometheus.Desc) {
 	// description for updater
 	ch <- c.UpdatingRegistryCount.Desc()
 	ch <- c.UpdateRegistryFailedCount.Desc()
@@ -447,7 +447,7 @@ func (c CylinderCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 // Collect sends the metric values for each metric related to the Cylinder collector to the provided channel.
-func (c CylinderCollector) Collect(ch chan<- prometheus.Metric) {
+func (c GroguCollector) Collect(ch chan<- prometheus.Metric) {
 	// collector for updater
 	ch <- c.UpdatingRegistryCount
 	ch <- c.UpdateRegistryFailedCount

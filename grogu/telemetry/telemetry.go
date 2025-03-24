@@ -15,7 +15,7 @@ import (
 // The server will be forcefully shut down when ctx finishes.
 func StartServer(l *logger.Logger, metricsListenAddr string) {
 	// Initialize the global collector
-	collector = NewCylinderCollector()
+	collector = NewGroguCollector()
 	prometheus.MustRegister(collector)
 
 	// Serve default prometheus metrics
