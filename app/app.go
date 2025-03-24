@@ -285,7 +285,7 @@ func NewBandApp(
 			IBCKeeper:       app.IBCKeeper,
 			StakingKeeper:   app.StakingKeeper,
 			GlobalfeeKeeper: &app.GlobalFeeKeeper,
-			Lanes:           []*mempool.Lane{feedsLane, tssLane, oracleReportLane}, // every lane except default lane
+			Lanes:           []*mempool.Lane{feedsLane, tssLane, oracleReportLane}, // only lanes that are gas free
 		},
 	)
 	if err != nil {

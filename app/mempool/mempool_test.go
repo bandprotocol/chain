@@ -534,8 +534,8 @@ func (s *MempoolTestSuite) TestDependencyBlockLane() {
 		math.LegacyMustNewDecFromStr("0.5"),
 		math.LegacyMustNewDecFromStr("0.5"),
 		sdkmempool.DefaultPriorityMempool(),
-		func(exceeded bool) {
-			DependentLane.SetIsBlocked(exceeded)
+		func(isFilled bool) {
+			DependentLane.SetIsBlocked(isFilled)
 		},
 	)
 
@@ -546,7 +546,7 @@ func (s *MempoolTestSuite) TestDependencyBlockLane() {
 		lanes,
 	)
 
-	tx1, err := CreateBankSendTx(
+	bankTx1, err := CreateBankSendTx(
 		s.encodingConfig.TxConfig,
 		s.accounts[0],
 		0,
@@ -556,7 +556,7 @@ func (s *MempoolTestSuite) TestDependencyBlockLane() {
 	)
 	s.Require().NoError(err)
 
-	tx3, err := CreateMixedTx(
+	MixedTx1, err := CreateMixedTx(
 		s.encodingConfig.TxConfig,
 		s.accounts[2],
 		0,
@@ -567,8 +567,8 @@ func (s *MempoolTestSuite) TestDependencyBlockLane() {
 	s.Require().NoError(err)
 
 	// Insert in reverse order to ensure ordering is correct
-	s.Require().NoError(mem.Insert(s.ctx, tx3))
-	s.Require().NoError(mem.Insert(s.ctx, tx1))
+	s.Require().NoError(mem.Insert(s.ctx, MixedTx1))
+	s.Require().NoError(mem.Insert(s.ctx, bankTx1))
 
 	proposal := NewProposal(
 		log.NewTestLogger(s.T()),
@@ -580,11 +580,11 @@ func (s *MempoolTestSuite) TestDependencyBlockLane() {
 	s.Require().NoError(err)
 	s.Require().NotNil(result)
 
-	expectedIncludedTxs := s.getTxBytes(tx1, tx3)
+	expectedIncludedTxs := s.getTxBytes(bankTx1, MixedTx1)
 	s.Require().Equal(2, len(result.Txs))
 	s.Require().Equal(expectedIncludedTxs, result.Txs)
 
-	tx2, err := CreateBankSendTx(
+	bankTx2, err := CreateBankSendTx(
 		s.encodingConfig.TxConfig,
 		s.accounts[1],
 		0,
@@ -594,7 +594,7 @@ func (s *MempoolTestSuite) TestDependencyBlockLane() {
 	)
 	s.Require().NoError(err)
 
-	s.Require().NoError(mem.Insert(s.ctx, tx2))
+	s.Require().NoError(mem.Insert(s.ctx, bankTx2))
 
 	proposal = NewProposal(
 		log.NewTestLogger(s.T()),
@@ -606,7 +606,7 @@ func (s *MempoolTestSuite) TestDependencyBlockLane() {
 	s.Require().NoError(err)
 	s.Require().NotNil(result)
 
-	expectedIncludedTxs = s.getTxBytes(tx1, tx2)
+	expectedIncludedTxs = s.getTxBytes(bankTx1, bankTx2)
 	s.Require().Equal(2, len(result.Txs))
 	s.Require().Equal(expectedIncludedTxs, result.Txs)
 }

@@ -32,8 +32,8 @@ type Lane struct {
 	// currently in this lane's mempool.
 	txIndex map[string]struct{}
 
-	// OnExceed is a callback function that is called when the lane exceeds its limit.
-	OnExceed func(exceeded bool)
+	// OnFilled is a callback function that is called when the lane exceeds its limit.
+	OnFilled func(isFilled bool)
 
 	isBlocked bool
 }
@@ -48,7 +48,7 @@ func NewLane(
 	maxTransactionSpace math.LegacyDec,
 	maxLaneSpace math.LegacyDec,
 	laneMempool sdkmempool.Mempool,
-	onExceed func(exceeded bool),
+	onFilled func(isFilled bool),
 ) *Lane {
 	return &Lane{
 		Logger:              logger,
@@ -59,7 +59,7 @@ func NewLane(
 		MaxTransactionSpace: maxTransactionSpace,
 		MaxLaneSpace:        maxLaneSpace,
 		laneMempool:         laneMempool,
-		OnExceed:            onExceed,
+		OnFilled:            onFilled,
 
 		// Initialize the txIndex.
 		txIndex: make(map[string]struct{}),
@@ -131,10 +131,9 @@ func (l *Lane) FillProposal(
 	transactionLimit = proposal.GetLimit(l.MaxTransactionSpace)
 	laneLimit = proposal.GetLimit(l.MaxLaneSpace)
 
-	isExceeded := false
+	isFilled := false
 
 	if l.isBlocked {
-		iterator = l.laneMempool.Select(ctx, nil)
 		return
 	}
 
@@ -185,11 +184,11 @@ func (l *Lane) FillProposal(
 	}
 
 	if laneLimit.IsReachedBy(blockUsed) {
-		isExceeded = true
+		isFilled = true
 	}
 
-	if l.OnExceed != nil {
-		l.OnExceed(isExceeded)
+	if l.OnFilled != nil {
+		l.OnFilled(isFilled)
 	}
 
 	return
