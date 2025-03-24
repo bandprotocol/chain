@@ -47,6 +47,9 @@ type Config struct {
 
 	// UpdaterQueryInterval is the interval for updater querying chain.
 	UpdaterQueryInterval string `mapstructure:"updater-query-interval"`
+
+	// MetricsListenAddr is an address to use for metrics server
+	MetricsListenAddr string `mapstructure:"metrics-listen-addr"`
 }
 
 // Context holds the runtime context for the application.
