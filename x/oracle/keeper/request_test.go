@@ -54,7 +54,7 @@ func (suite *KeeperTestSuite) TestHasRequest() {
 			0,
 			0,
 			bandtesting.FeePayer.Address.String(),
-			bandtesting.Coins100000000uband,
+			bandtesting.Coins100band,
 		),
 	)
 	require.True(k.HasRequest(ctx, 42))
@@ -82,7 +82,7 @@ func (suite *KeeperTestSuite) TestDeleteRequest() {
 			0,
 			0,
 			bandtesting.FeePayer.Address.String(),
-			bandtesting.Coins100000000uband,
+			bandtesting.Coins100band,
 		),
 	)
 	require.True(k.HasRequest(ctx, 42))
@@ -117,7 +117,7 @@ func (suite *KeeperTestSuite) TestSetterGetterRequest() {
 		0,
 		0,
 		bandtesting.FeePayer.Address.String(),
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 	)
 	req2 := types.NewRequest(
 		2,
@@ -132,7 +132,7 @@ func (suite *KeeperTestSuite) TestSetterGetterRequest() {
 		0,
 		0,
 		bandtesting.FeePayer.Address.String(),
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 	)
 	// Sets id 42 with request 1 and id 42 with request 2.
 	k.SetRequest(ctx, 42, req1)
@@ -195,7 +195,7 @@ func (suite *KeeperTestSuite) TestAddDataSourceBasic() {
 			0,
 			0,
 			bandtesting.FeePayer.Address.String(),
-			bandtesting.Coins100000000uband,
+			bandtesting.Coins100band,
 		),
 	)
 	require.Equal(id, types.RequestID(1))
@@ -215,7 +215,7 @@ func (suite *KeeperTestSuite) TestAddDataSourceBasic() {
 			0,
 			0,
 			bandtesting.FeePayer.Address.String(),
-			bandtesting.Coins100000000uband,
+			bandtesting.Coins100band,
 		),
 	)
 	require.Equal(id, types.RequestID(2))
