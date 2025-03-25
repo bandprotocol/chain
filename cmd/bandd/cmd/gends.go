@@ -35,7 +35,7 @@ func AddGenesisDataSourceCmd(defaultNodeHome string) *cobra.Command {
 
 			config.SetRoot(clientCtx.HomeDir)
 
-			f := filecache.New(filepath.Join(defaultNodeHome, "files"))
+			f := filecache.New(filepath.Join(defaultNodeHome, "files"), 0)
 			data, err := os.ReadFile(args[3])
 			if err != nil {
 				return err

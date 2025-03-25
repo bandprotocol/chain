@@ -13,12 +13,16 @@ type Cache struct {
 }
 
 // New creates and returns a new file-backed data caching instance.
-func New(basePath string) Cache {
+// If cacheSizeBytes is 0, it defaults to 32MB.
+func New(basePath string, cacheSizeBytes int64) Cache {
+	if cacheSizeBytes <= 0 {
+		cacheSizeBytes = 32 * 1024 * 1024 // Default to 32MB
+	}
 	return Cache{
 		fileCache: diskv.New(diskv.Options{
 			BasePath:     basePath,
 			Transform:    func(s string) []string { return []string{} },
-			CacheSizeMax: 32 * 1024 * 1024, // 32MB TODO: Make this configurable
+			CacheSizeMax: cacheSizeBytes,
 		}),
 	}
 }
