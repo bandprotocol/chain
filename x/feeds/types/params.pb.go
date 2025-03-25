@@ -26,7 +26,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Params is the data structure that keeps the parameters of the feeds module.
 type Params struct {
-	// admin is the address of the admin that is allowed to perform operations on modules.
+	// admin is the address of the admin that is allowed to update reference source config on modules.
 	Admin string `protobuf:"bytes,1,opt,name=admin,proto3" json:"admin,omitempty"`
 	// allowable_block_time_discrepancy is the allowed discrepancy (in seconds) between validator price timestamp and
 	// block_time.
@@ -53,7 +53,7 @@ type Params struct {
 	CurrentFeedsUpdateInterval int64 `protobuf:"varint,11,opt,name=current_feeds_update_interval,json=currentFeedsUpdateInterval,proto3" json:"current_feeds_update_interval,omitempty"`
 	// price_quorum is the minimum percentage of power that needs to be reached for a price to be processed.
 	PriceQuorum string `protobuf:"bytes,12,opt,name=price_quorum,json=priceQuorum,proto3" json:"price_quorum,omitempty"`
-	// MaxSignalIDsPerSigning is the maximum number of signals allowed in a single tss signing request.
+	// max_signal_ids_per_signing is the maximum number of signals allowed in a single tss signing request.
 	MaxSignalIDsPerSigning uint64 `protobuf:"varint,13,opt,name=max_signal_ids_per_signing,json=maxSignalIdsPerSigning,proto3" json:"max_signal_ids_per_signing,omitempty"`
 }
 
