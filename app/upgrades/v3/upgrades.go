@@ -117,6 +117,14 @@ func CreateUpgradeHandler(
 		}
 		keepers.ICAHostKeeper.SetParams(ctx, hostParams)
 
+		oracleParams := keepers.OracleKeeper.GetParams(ctx)
+		oracleParams.MaxCalldataSize = 512
+		oracleParams.MaxReportDataSize = 512
+		err = keepers.OracleKeeper.SetParams(ctx, oracleParams)
+		if err != nil {
+			return nil, err
+		}
+
 		vm, err := mm.RunMigrations(ctx, configurator, fromVM)
 		if err != nil {
 			return nil, err
