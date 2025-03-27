@@ -10,7 +10,7 @@ const (
 	// genesis file. See comments in types.proto for explanation for each parameter.
 	DefaultMaxRawRequestCount      = uint64(16)
 	DefaultMaxAskCount             = uint64(16)
-	DefaultMaxCalldataSize         = uint64(256) // 256B
+	DefaultMaxCalldataSize         = uint64(512) // 512B
 	DefaultMaxReportDataSize       = uint64(512) // 512B
 	DefaultExpirationBlockCount    = uint64(100)
 	DefaultBaseRequestGas          = uint64(50000)
