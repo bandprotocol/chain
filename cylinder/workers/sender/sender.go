@@ -1,12 +1,15 @@
 package sender
 
 import (
+	"time"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v3/cylinder"
 	"github.com/bandprotocol/chain/v3/cylinder/client"
 	"github.com/bandprotocol/chain/v3/cylinder/context"
+	"github.com/bandprotocol/chain/v3/cylinder/metrics"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 )
 
@@ -51,9 +54,17 @@ func New(ctx *context.Context) (*Sender, error) {
 func (s *Sender) Start() {
 	s.logger.Info("start")
 
-	for key := range s.freeKeys {
+	for {
+		// since is used to measure the time for waiting for free keys
+		since := time.Now()
+
+		key := <-s.freeKeys
+		metrics.ObserveWaitingSenderTime(time.Since(since).Seconds())
+
 		msgs := s.collectMsgs()
 		go s.sendMsgs(key, msgs)
+
+		metrics.AddSubmittingTxCount(float64(len(msgs)))
 	}
 }
 
@@ -78,6 +89,9 @@ func (s *Sender) sendMsgs(key *keyring.Record, msgs []sdk.Msg) {
 		s.freeKeys <- key
 	}()
 
+	// since is used to measure the time for sending messages
+	since := time.Now()
+
 	logger := s.logger.With("msgs", GetMsgDetails(msgs...))
 
 	logger.Info(":e-mail: Sending transaction attempt")
@@ -85,13 +99,20 @@ func (s *Sender) sendMsgs(key *keyring.Record, msgs []sdk.Msg) {
 	res, err := s.client.BroadcastAndConfirm(logger, key, msgs)
 	if err != nil {
 		logger.Error(":anxious_face_with_sweat: Cannot send messages with error: %s", err)
+
+		metrics.IncSubmitTxFailedCount()
 		return
 	} else if res.Code != 0 {
 		logger.Error(":anxious_face_with_sweat: Cannot send messages with error code: codespace: %s, code: %d", res.Codespace, res.Code)
+
+		metrics.IncSubmitTxFailedCount()
 		return
 	}
 
 	logger.Info(":smiling_face_with_sunglasses: Successfully broadcast tx with hash: %s", res.TxHash)
+
+	metrics.ObserveSubmitTxTime(time.Since(since).Seconds())
+	metrics.IncSubmitTxSuccessCount()
 }
 
 // Stop stops the Sender worker.
