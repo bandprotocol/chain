@@ -52,12 +52,17 @@ func (s proofServer) Proof(ctx context.Context, req *ProofRequest) (*ProofRespon
 	cliCtx := s.clientCtx
 	// Set the height in the client context to the requested height
 	cliCtx.Height = req.Height
-	height := &cliCtx.Height
 
-	// If the height is 0, set the pointer to nil
+	// If the height is 0, set the height to the latest block height - 1
 	if cliCtx.Height == 0 {
-		height = nil
+		status, err := cliCtx.Client.Status(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		cliCtx.Height = status.SyncInfo.LatestBlockHeight - 1
 	}
+
+	height := &cliCtx.Height
 
 	// Convert the request ID to the appropriate type
 	requestID := types.RequestID(req.RequestId)
@@ -65,6 +70,11 @@ func (s proofServer) Proof(ctx context.Context, req *ProofRequest) (*ProofRespon
 	commit, err := cliCtx.Client.Commit(context.Background(), height)
 	if err != nil {
 		return nil, err
+	}
+
+	// Check if the commit is canonical, else return an error
+	if !commit.CanonicalCommit {
+		return nil, fmt.Errorf("commit is not canonical")
 	}
 
 	// Get the proofs for the requested id and height
