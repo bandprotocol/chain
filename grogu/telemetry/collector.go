@@ -25,31 +25,31 @@ type GroguCollector struct {
 	SignalPriceLatestUpdated map[string]int
 
 	// Updater metrics
-	UpdatingRegistryCount      prometheus.Counter
-	UpdateRegistryFailedCount  prometheus.Counter
-	UpdateRegistrySuccessCount prometheus.Counter
+	UpdatingRegistryCount      prometheus.Counter // a counter for Bothan registry update.
+	UpdateRegistryFailedCount  prometheus.Counter // a counter for an unsuccessful Bothan registry update.
+	UpdateRegistrySuccessCount prometheus.Counter // a counter for successful Bothan registry update.
 
 	// Signaler metrics
-	ValidatorStatusGauge               prometheus.Gauge
-	ProcessingSignalCount              prometheus.Counter
-	ProcessSignalSkippedCount          prometheus.Counter
-	ProcessSignalFailedCount           prometheus.Counter
-	ProcessSignalSuccessCount          prometheus.Counter
-	QuerySignalPricesDuration          prometheus.Summary
-	NonPendingSignalsGauge             prometheus.Gauge
-	ConversionErrorSignalsGauge        prometheus.Gauge
-	SignalNotFoundGauge                prometheus.Gauge
-	NonUrgentUnavailableSignalIDsGauge prometheus.Gauge
-	FilteredSignalingIDsGauge          prometheus.Gauge
-	SignalPriceStatusGauge             prometheus.GaugeVec
+	ValidatorStatusGauge               prometheus.Gauge    // a gauge for the current validator status.
+	ProcessingSignalCount              prometheus.Counter  // a counter for the number of processing signal round.
+	ProcessSignalSkippedCount          prometheus.Counter  // a counter for the number of skipped processing signal round.
+	ProcessSignalFailedCount           prometheus.Counter  // a counter for the number of failed processing signal round.
+	ProcessSignalSuccessCount          prometheus.Counter  // a counter for the number of successful processing signal round.
+	QuerySignalPricesDuration          prometheus.Summary  // a summary for the time being consumed for querying signal price from Bothan server.
+	NonPendingSignalsGauge             prometheus.Gauge    // a gauge for current signal in the round.
+	ConversionErrorSignalsGauge        prometheus.Gauge    // a gauge for the number of signal that failed to convert the result from Bothan server in the round.
+	SignalNotFoundGauge                prometheus.Gauge    // a gauge for the number of signal ID that not being found from the list.
+	NonUrgentUnavailableSignalIDsGauge prometheus.Gauge    // a gauge for the number of non-urgent signal in the round.
+	FilteredSignalingIDsGauge          prometheus.Gauge    // a gauge for the number of signal that should be submitted to BandChain in the round.
+	SignalPriceStatusGauge             prometheus.GaugeVec // a gauge for the number of signal per its status (every signals).
 
 	// Submitter metrics
-	SubmittingTxCount     prometheus.Counter
-	SubmitTxFailedCount   prometheus.Counter
-	SubmitTxSuccessCount  prometheus.Counter
-	SubmitTxDuration      prometheus.Summary
-	WaitingSenderDuration prometheus.Summary
-	UpdatedSignalInterval prometheus.SummaryVec
+	SubmittingTxCount     prometheus.Counter    // a counter for the number of submitting transaction process.
+	SubmitTxFailedCount   prometheus.Counter    // a counter for the number of failed submitting transaction process.
+	SubmitTxSuccessCount  prometheus.Counter    // a counter for the number of success submitting transaction process.
+	SubmitTxDuration      prometheus.Summary    // a summary for the time being consumed for submitting a transaction to the BandChain.
+	WaitingSenderDuration prometheus.Summary    // a summary for the time being consumed for waiting available sender.
+	UpdatedSignalInterval prometheus.SummaryVec // a summary for the time interval between the last two updates of the same signal price.
 }
 
 // IncrementUpdatingRegistry increments the number of sending a Bothan's registry update request.
