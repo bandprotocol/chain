@@ -195,14 +195,3 @@ func finalizeV1(ctx sdk.Context, k *Keeper, foundCode map[string]bool) error {
 	}
 	return nil
 }
-
-func max(arr ...int64) int64 {
-	var maximum int64 = 0
-	for _, value := range arr {
-		if value > maximum {
-			maximum = value
-		}
-	}
-
-	return maximum
-}

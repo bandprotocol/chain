@@ -23,10 +23,7 @@ func ConvertToOwasmGas(cosmos uint64) uint64 {
 // GetSpanSize return maximum value between MaxReportDataSize and MaxCallDataSize
 func (k Keeper) GetSpanSize(ctx sdk.Context) uint64 {
 	params := k.GetParams(ctx)
-	if params.MaxReportDataSize > params.MaxCalldataSize {
-		return params.MaxReportDataSize
-	}
-	return params.MaxCalldataSize
+	return max(params.MaxReportDataSize, params.MaxCalldataSize)
 }
 
 // GetRandomValidators returns a pseudorandom subset of active validators. Each validator has
