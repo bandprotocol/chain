@@ -405,7 +405,7 @@ func StartServer(ctx context.Context, logger *logger.Logger, metricsListenAddr s
 	ln, err := net.Listen("tcp", metricsListenAddr)
 	if err != nil {
 		logger.Error(
-			"Failed to start metrics server you can change the address and port using metrics-listen-addr config setting or --metrics-listen-flag",
+			"Failed to start metrics server you can change the address and port using metrics-listen-addr config setting or --metrics-listen-addr flag",
 		)
 
 		return fmt.Errorf("failed to listen on metrics address %q: %w", metricsListenAddr, err)
