@@ -359,8 +359,5 @@ func GenOracleReports() []oracletypes.Report {
 }
 
 func GetSpanSize() uint64 {
-	if oracletypes.DefaultMaxReportDataSize > oracletypes.DefaultMaxCalldataSize {
-		return oracletypes.DefaultMaxReportDataSize
-	}
-	return oracletypes.DefaultMaxCalldataSize
+	return max(oracletypes.DefaultMaxReportDataSize, oracletypes.DefaultMaxCalldataSize)
 }
