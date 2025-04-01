@@ -1,6 +1,7 @@
 package oracle
 
 import (
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v3/x/oracle/keeper"
@@ -9,12 +10,16 @@ import (
 
 // BeginBlocker re-calculates and saves the rolling seed value based on block hashes.
 func BeginBlocker(ctx sdk.Context, k keeper.Keeper) error {
+	defer telemetry.ModuleMeasureSince(types.ModuleName, telemetry.Now(), telemetry.MetricKeyBeginBlocker)
+
 	// Reward a portion of block rewards (inflation + tx fee) to active oracle validators.
 	return k.AllocateTokens(ctx, ctx.VoteInfos())
 }
 
 // EndBlocker cleans up the state during end block. See comment in the implementation!
 func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
+	defer telemetry.ModuleMeasureSince(types.ModuleName, telemetry.Now(), telemetry.MetricKeyEndBlocker)
+
 	// Loops through all requests in the resolvable list to resolve all of them!
 	for _, reqID := range k.GetPendingResolveList(ctx) {
 		k.ResolveRequest(ctx, reqID)

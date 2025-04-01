@@ -21,6 +21,7 @@ const (
 
 type Signaller struct {
 	feedQuerier  FeedQuerier
+	cometQuerier CometQuerier
 	bothanClient BothanClient
 	// How often to check for signal changes
 	interval         time.Duration
@@ -35,10 +36,12 @@ type Signaller struct {
 	signalIDToFeed           map[string]types.FeedWithDeviation
 	signalIDToValidatorPrice map[string]types.ValidatorPrice
 	params                   *types.Params
+	blockTime                int64
 }
 
 func New(
 	feedQuerier FeedQuerier,
+	cometQuerier CometQuerier,
 	bothanClient BothanClient,
 	interval time.Duration,
 	submitCh chan<- submitter.SignalPriceSubmission,
@@ -50,6 +53,7 @@ func New(
 ) *Signaller {
 	return &Signaller{
 		feedQuerier:                  feedQuerier,
+		cometQuerier:                 cometQuerier,
 		bothanClient:                 bothanClient,
 		interval:                     interval,
 		submitCh:                     submitCh,
@@ -91,7 +95,7 @@ func (s *Signaller) Start() {
 }
 
 func (s *Signaller) updateInternalVariables() bool {
-	resultCh := make(chan bool, 3)
+	resultCh := make(chan bool, 4)
 	var wg sync.WaitGroup
 
 	updater := func(f func() bool) {
@@ -99,10 +103,11 @@ func (s *Signaller) updateInternalVariables() bool {
 		resultCh <- f()
 	}
 
-	wg.Add(3)
+	wg.Add(4)
 	go updater(s.updateParams)
 	go updater(s.updateFeedMap)
 	go updater(s.updateValidatorPriceMap)
+	go updater(s.updateBlockTime)
 	wg.Wait()
 	close(resultCh)
 
@@ -156,8 +161,20 @@ func (s *Signaller) updateValidatorPriceMap() bool {
 	return true
 }
 
+func (s *Signaller) updateBlockTime() bool {
+	resp, err := s.cometQuerier.GetLatestBlock()
+	if err != nil {
+		s.logger.Error("[Signaller] failed to query latest block: %v", err)
+		return false
+	}
+
+	s.blockTime = resp.SdkBlock.Header.Time.Unix()
+
+	return true
+}
+
 func (s *Signaller) execute() {
-	now := time.Now()
+	latestBlockTime := time.Unix(s.blockTime, 0)
 
 	telemetry.IncrementProcessingSignal()
 	s.logger.Debug("[Signaller] starting signal process")
@@ -187,7 +204,7 @@ func (s *Signaller) execute() {
 
 	s.logger.Debug("[Signaller] filtering prices")
 
-	signalPrices := s.filterAndPrepareSignalPrices(prices, nonPendingSignalIDs, now)
+	signalPrices := s.filterAndPrepareSignalPrices(prices, nonPendingSignalIDs, latestBlockTime)
 	telemetry.SetFilteredSignalIDs(len(signalPrices))
 	if len(signalPrices) == 0 {
 		telemetry.IncrementProcessSignalSkipped()
