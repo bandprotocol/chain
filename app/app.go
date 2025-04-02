@@ -295,7 +295,7 @@ func NewBandApp(
 				FeedsSubmitSignalPriceTxMatchHandler(app.appCodec, &app.AuthzKeeper, feedsMsgServer),
 				TssTxMatchHandler(app.appCodec, &app.AuthzKeeper, &app.BandtssKeeper, tssMsgServer),
 				oracleReportTxMatchHandler(app.appCodec, &app.AuthzKeeper, oracleMsgServer),
-			}, // every lane except default lane
+			},
 		},
 	)
 	if err != nil {

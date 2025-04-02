@@ -22,6 +22,7 @@ func FeedsLaneMatchHandler(
 	authzKeeper *authzkeeper.Keeper,
 ) func(sdk.Context, sdk.Tx) bool {
 	return func(ctx sdk.Context, tx sdk.Tx) bool {
+		// Feeds lane only matches fee-less transactions
 		gasTx, ok := tx.(sdk.FeeTx)
 		if !ok {
 			return false
@@ -100,6 +101,7 @@ func TssLaneMatchHandler(
 	bandtssKeeper *bandtsskeeper.Keeper,
 ) func(sdk.Context, sdk.Tx) bool {
 	return func(ctx sdk.Context, tx sdk.Tx) bool {
+		// TSS lane only matches fee-less transactions
 		gasTx, ok := tx.(sdk.FeeTx)
 		if !ok {
 			return false
@@ -199,6 +201,7 @@ func oracleLaneMatchHandler(
 	authzKeeper *authzkeeper.Keeper,
 ) func(sdk.Context, sdk.Tx) bool {
 	return func(ctx sdk.Context, tx sdk.Tx) bool {
+		// Oracle lane only matches fee-less transactions
 		gasTx, ok := tx.(sdk.FeeTx)
 		if !ok {
 			return false
