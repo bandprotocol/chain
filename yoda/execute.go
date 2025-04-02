@@ -23,7 +23,7 @@ import (
 
 func signAndBroadcast(
 	c *Context, key *keyring.Record, msgs []sdk.Msg, gasLimit uint64, memo string,
-) (string, error) {
+) (*sdk.TxResponse, error) {
 	clientCtx := client.Context{
 		Client:            c.client,
 		Codec:             c.encodingConfig.Codec,
@@ -33,7 +33,7 @@ func signAndBroadcast(
 	}
 	acc, err := queryAccount(clientCtx, key)
 	if err != nil {
-		return "", fmt.Errorf("unable to get account: %w", err)
+		return nil, fmt.Errorf("unable to get account: %w", err)
 	}
 
 	txf := tx.Factory{}.
@@ -49,36 +49,36 @@ func signAndBroadcast(
 
 	address, err := key.GetAddress()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	execMsg := authz.NewMsgExec(address, msgs)
 
 	txb, err := txf.BuildUnsignedTx(&execMsg)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	err = tx.Sign(context.Background(), txf, key.Name, txb, true)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	txBytes, err := clientCtx.TxConfig.TxEncoder()(txb.GetTx())
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	// broadcast to a Tendermint node
 	res, err := clientCtx.BroadcastTx(txBytes)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	// out, err := txBldr.WithKeybase(keybase).BuildAndSign(key.GetName(), ckeys.DefaultKeyPass, msgs)
 	// if err != nil {
-	// 	return "", fmt.Errorf("Failed to build tx with error: %s", err.Error())
+	// 	return nil, fmt.Errorf("Failed to build tx with error: %s", err.Error())
 	// }
-	return res.TxHash, nil
+	return res, nil
 }
 
 func queryAccount(clientCtx client.Context, key *keyring.Record) (client.Account, error) {
@@ -144,15 +144,29 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 		l.Info(":e-mail: Sending report transaction attempt: (%d/%d)", sendAttempt, c.maxTry)
 		for broadcastTry := uint64(1); broadcastTry <= c.maxTry; broadcastTry++ {
 			l.Info(":writing_hand: Try to sign and broadcast report transaction(%d/%d)", broadcastTry, c.maxTry)
-			hash, err := signAndBroadcast(c, key, msgs, gasLimit, memo)
+			txResp, err := signAndBroadcast(c, key, msgs, gasLimit, memo)
 			if err != nil {
 				// Use info level because this error can happen and retry process can solve this error.
 				l.Info(":warning: %s", err.Error())
 				time.Sleep(c.rpcPollInterval)
 				continue
 			}
+
+			// if the transaction is out of gas, increase the gas adjustment
+			if txResp.Codespace == sdkerrors.RootCodespace && txResp.Code == sdkerrors.ErrOutOfGas.ABCICode() {
+				gasLimit = gasLimit * 110 / 100
+				l.Info(
+					":fuel_pump: Tx(%s) is out of gas and will be rebroadcasted with %d gas",
+					txResp.TxHash,
+					gasLimit,
+				)
+				continue
+			} else if txResp.Code != 0 {
+				l.Error(":exploding_head: Tx returned nonzero code %d with log %s, tx hash: %s", c, txResp.Code, txResp.RawLog, txResp.TxHash)
+				continue
+			}
 			// Transaction passed CheckTx process and wait to include in block.
-			txHash = hash
+			txHash = txResp.TxHash
 			break
 		}
 		if txHash == "" {
@@ -163,26 +177,26 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 	FindTx:
 		for start := time.Now(); time.Since(start) < c.broadcastTimeout; {
 			time.Sleep(c.rpcPollInterval)
-			txRes, err := authtx.QueryTx(clientCtx, txHash)
+			txResp, err := authtx.QueryTx(clientCtx, txHash)
 			if err != nil {
 				l.Debug(":warning: Failed to query tx with error: %s", err.Error())
 				continue
 			}
 
-			if txRes.Code == 0 {
+			if txResp.Code == 0 {
 				l.Info(":smiling_face_with_sunglasses: Successfully broadcast tx with hash: %s", txHash)
 				c.updateSubmittedCount(int64(len(reports)))
 				return
 			}
-			if txRes.Codespace == sdkerrors.RootCodespace &&
-				txRes.Code == sdkerrors.ErrOutOfGas.ABCICode() {
+			if txResp.Codespace == sdkerrors.RootCodespace &&
+				txResp.Code == sdkerrors.ErrOutOfGas.ABCICode() {
 				// Increase gas limit and try to broadcast again
 				gasLimit = gasLimit * 110 / 100
 				l.Info(":fuel_pump: Tx(%s) is out of gas and will be rebroadcasted with %d gas", txHash, gasLimit)
 				txFound = true
 				break FindTx
 			} else {
-				l.Error(":exploding_head: Tx returned nonzero code %d with log %s, tx hash: %s", c, txRes.Code, txRes.RawLog, txRes.TxHash)
+				l.Error(":exploding_head: Tx returned nonzero code %d with log %s, tx hash: %s", c, txResp.Code, txResp.RawLog, txResp.TxHash)
 				return
 			}
 		}
