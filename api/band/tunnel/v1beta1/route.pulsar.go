@@ -2413,6 +2413,2698 @@ func (x *fastReflection_TunnelPricesPacketData) ProtoMethods() *protoiface.Metho
 	}
 }
 
+var (
+	md_IBCHookRoute                              protoreflect.MessageDescriptor
+	fd_IBCHookRoute_channel_id                   protoreflect.FieldDescriptor
+	fd_IBCHookRoute_destination_contract_address protoreflect.FieldDescriptor
+)
+
+func init() {
+	file_band_tunnel_v1beta1_route_proto_init()
+	md_IBCHookRoute = File_band_tunnel_v1beta1_route_proto.Messages().ByName("IBCHookRoute")
+	fd_IBCHookRoute_channel_id = md_IBCHookRoute.Fields().ByName("channel_id")
+	fd_IBCHookRoute_destination_contract_address = md_IBCHookRoute.Fields().ByName("destination_contract_address")
+}
+
+var _ protoreflect.Message = (*fastReflection_IBCHookRoute)(nil)
+
+type fastReflection_IBCHookRoute IBCHookRoute
+
+func (x *IBCHookRoute) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_IBCHookRoute)(x)
+}
+
+func (x *IBCHookRoute) slowProtoReflect() protoreflect.Message {
+	mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_IBCHookRoute_messageType fastReflection_IBCHookRoute_messageType
+var _ protoreflect.MessageType = fastReflection_IBCHookRoute_messageType{}
+
+type fastReflection_IBCHookRoute_messageType struct{}
+
+func (x fastReflection_IBCHookRoute_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_IBCHookRoute)(nil)
+}
+func (x fastReflection_IBCHookRoute_messageType) New() protoreflect.Message {
+	return new(fastReflection_IBCHookRoute)
+}
+func (x fastReflection_IBCHookRoute_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_IBCHookRoute
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_IBCHookRoute) Descriptor() protoreflect.MessageDescriptor {
+	return md_IBCHookRoute
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_IBCHookRoute) Type() protoreflect.MessageType {
+	return _fastReflection_IBCHookRoute_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_IBCHookRoute) New() protoreflect.Message {
+	return new(fastReflection_IBCHookRoute)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_IBCHookRoute) Interface() protoreflect.ProtoMessage {
+	return (*IBCHookRoute)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_IBCHookRoute) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if x.ChannelId != "" {
+		value := protoreflect.ValueOfString(x.ChannelId)
+		if !f(fd_IBCHookRoute_channel_id, value) {
+			return
+		}
+	}
+	if x.DestinationContractAddress != "" {
+		value := protoreflect.ValueOfString(x.DestinationContractAddress)
+		if !f(fd_IBCHookRoute_destination_contract_address, value) {
+			return
+		}
+	}
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_IBCHookRoute) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookRoute.channel_id":
+		return x.ChannelId != ""
+	case "band.tunnel.v1beta1.IBCHookRoute.destination_contract_address":
+		return x.DestinationContractAddress != ""
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookRoute"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookRoute does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_IBCHookRoute) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookRoute.channel_id":
+		x.ChannelId = ""
+	case "band.tunnel.v1beta1.IBCHookRoute.destination_contract_address":
+		x.DestinationContractAddress = ""
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookRoute"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookRoute does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_IBCHookRoute) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	case "band.tunnel.v1beta1.IBCHookRoute.channel_id":
+		value := x.ChannelId
+		return protoreflect.ValueOfString(value)
+	case "band.tunnel.v1beta1.IBCHookRoute.destination_contract_address":
+		value := x.DestinationContractAddress
+		return protoreflect.ValueOfString(value)
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookRoute"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookRoute does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_IBCHookRoute) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookRoute.channel_id":
+		x.ChannelId = value.Interface().(string)
+	case "band.tunnel.v1beta1.IBCHookRoute.destination_contract_address":
+		x.DestinationContractAddress = value.Interface().(string)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookRoute"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookRoute does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_IBCHookRoute) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookRoute.channel_id":
+		panic(fmt.Errorf("field channel_id of message band.tunnel.v1beta1.IBCHookRoute is not mutable"))
+	case "band.tunnel.v1beta1.IBCHookRoute.destination_contract_address":
+		panic(fmt.Errorf("field destination_contract_address of message band.tunnel.v1beta1.IBCHookRoute is not mutable"))
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookRoute"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookRoute does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_IBCHookRoute) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookRoute.channel_id":
+		return protoreflect.ValueOfString("")
+	case "band.tunnel.v1beta1.IBCHookRoute.destination_contract_address":
+		return protoreflect.ValueOfString("")
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookRoute"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookRoute does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_IBCHookRoute) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.IBCHookRoute", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_IBCHookRoute) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_IBCHookRoute) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_IBCHookRoute) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_IBCHookRoute) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*IBCHookRoute)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		l = len(x.ChannelId)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		l = len(x.DestinationContractAddress)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*IBCHookRoute)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if len(x.DestinationContractAddress) > 0 {
+			i -= len(x.DestinationContractAddress)
+			copy(dAtA[i:], x.DestinationContractAddress)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.DestinationContractAddress)))
+			i--
+			dAtA[i] = 0x12
+		}
+		if len(x.ChannelId) > 0 {
+			i -= len(x.ChannelId)
+			copy(dAtA[i:], x.ChannelId)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.ChannelId)))
+			i--
+			dAtA[i] = 0xa
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*IBCHookRoute)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: IBCHookRoute: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: IBCHookRoute: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			case 1:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ChannelId", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.ChannelId = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
+			case 2:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field DestinationContractAddress", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.DestinationContractAddress = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
+var (
+	md_IBCHookPacketReceipt          protoreflect.MessageDescriptor
+	fd_IBCHookPacketReceipt_sequence protoreflect.FieldDescriptor
+)
+
+func init() {
+	file_band_tunnel_v1beta1_route_proto_init()
+	md_IBCHookPacketReceipt = File_band_tunnel_v1beta1_route_proto.Messages().ByName("IBCHookPacketReceipt")
+	fd_IBCHookPacketReceipt_sequence = md_IBCHookPacketReceipt.Fields().ByName("sequence")
+}
+
+var _ protoreflect.Message = (*fastReflection_IBCHookPacketReceipt)(nil)
+
+type fastReflection_IBCHookPacketReceipt IBCHookPacketReceipt
+
+func (x *IBCHookPacketReceipt) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_IBCHookPacketReceipt)(x)
+}
+
+func (x *IBCHookPacketReceipt) slowProtoReflect() protoreflect.Message {
+	mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_IBCHookPacketReceipt_messageType fastReflection_IBCHookPacketReceipt_messageType
+var _ protoreflect.MessageType = fastReflection_IBCHookPacketReceipt_messageType{}
+
+type fastReflection_IBCHookPacketReceipt_messageType struct{}
+
+func (x fastReflection_IBCHookPacketReceipt_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_IBCHookPacketReceipt)(nil)
+}
+func (x fastReflection_IBCHookPacketReceipt_messageType) New() protoreflect.Message {
+	return new(fastReflection_IBCHookPacketReceipt)
+}
+func (x fastReflection_IBCHookPacketReceipt_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_IBCHookPacketReceipt
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_IBCHookPacketReceipt) Descriptor() protoreflect.MessageDescriptor {
+	return md_IBCHookPacketReceipt
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_IBCHookPacketReceipt) Type() protoreflect.MessageType {
+	return _fastReflection_IBCHookPacketReceipt_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_IBCHookPacketReceipt) New() protoreflect.Message {
+	return new(fastReflection_IBCHookPacketReceipt)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_IBCHookPacketReceipt) Interface() protoreflect.ProtoMessage {
+	return (*IBCHookPacketReceipt)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_IBCHookPacketReceipt) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if x.Sequence != uint64(0) {
+		value := protoreflect.ValueOfUint64(x.Sequence)
+		if !f(fd_IBCHookPacketReceipt_sequence, value) {
+			return
+		}
+	}
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_IBCHookPacketReceipt) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookPacketReceipt.sequence":
+		return x.Sequence != uint64(0)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookPacketReceipt"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookPacketReceipt does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_IBCHookPacketReceipt) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookPacketReceipt.sequence":
+		x.Sequence = uint64(0)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookPacketReceipt"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookPacketReceipt does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_IBCHookPacketReceipt) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	case "band.tunnel.v1beta1.IBCHookPacketReceipt.sequence":
+		value := x.Sequence
+		return protoreflect.ValueOfUint64(value)
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookPacketReceipt"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookPacketReceipt does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_IBCHookPacketReceipt) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookPacketReceipt.sequence":
+		x.Sequence = value.Uint()
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookPacketReceipt"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookPacketReceipt does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_IBCHookPacketReceipt) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookPacketReceipt.sequence":
+		panic(fmt.Errorf("field sequence of message band.tunnel.v1beta1.IBCHookPacketReceipt is not mutable"))
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookPacketReceipt"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookPacketReceipt does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_IBCHookPacketReceipt) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookPacketReceipt.sequence":
+		return protoreflect.ValueOfUint64(uint64(0))
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookPacketReceipt"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookPacketReceipt does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_IBCHookPacketReceipt) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.IBCHookPacketReceipt", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_IBCHookPacketReceipt) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_IBCHookPacketReceipt) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_IBCHookPacketReceipt) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_IBCHookPacketReceipt) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*IBCHookPacketReceipt)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		if x.Sequence != 0 {
+			n += 1 + runtime.Sov(uint64(x.Sequence))
+		}
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*IBCHookPacketReceipt)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if x.Sequence != 0 {
+			i = runtime.EncodeVarint(dAtA, i, uint64(x.Sequence))
+			i--
+			dAtA[i] = 0x8
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*IBCHookPacketReceipt)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: IBCHookPacketReceipt: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: IBCHookPacketReceipt: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			case 1:
+				if wireType != 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Sequence", wireType)
+				}
+				x.Sequence = 0
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					x.Sequence |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
+var (
+	md_IBCHookMemo      protoreflect.MessageDescriptor
+	fd_IBCHookMemo_wasm protoreflect.FieldDescriptor
+)
+
+func init() {
+	file_band_tunnel_v1beta1_route_proto_init()
+	md_IBCHookMemo = File_band_tunnel_v1beta1_route_proto.Messages().ByName("IBCHookMemo")
+	fd_IBCHookMemo_wasm = md_IBCHookMemo.Fields().ByName("wasm")
+}
+
+var _ protoreflect.Message = (*fastReflection_IBCHookMemo)(nil)
+
+type fastReflection_IBCHookMemo IBCHookMemo
+
+func (x *IBCHookMemo) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_IBCHookMemo)(x)
+}
+
+func (x *IBCHookMemo) slowProtoReflect() protoreflect.Message {
+	mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_IBCHookMemo_messageType fastReflection_IBCHookMemo_messageType
+var _ protoreflect.MessageType = fastReflection_IBCHookMemo_messageType{}
+
+type fastReflection_IBCHookMemo_messageType struct{}
+
+func (x fastReflection_IBCHookMemo_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_IBCHookMemo)(nil)
+}
+func (x fastReflection_IBCHookMemo_messageType) New() protoreflect.Message {
+	return new(fastReflection_IBCHookMemo)
+}
+func (x fastReflection_IBCHookMemo_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_IBCHookMemo
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_IBCHookMemo) Descriptor() protoreflect.MessageDescriptor {
+	return md_IBCHookMemo
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_IBCHookMemo) Type() protoreflect.MessageType {
+	return _fastReflection_IBCHookMemo_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_IBCHookMemo) New() protoreflect.Message {
+	return new(fastReflection_IBCHookMemo)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_IBCHookMemo) Interface() protoreflect.ProtoMessage {
+	return (*IBCHookMemo)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_IBCHookMemo) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if x.Wasm != nil {
+		value := protoreflect.ValueOfMessage(x.Wasm.ProtoReflect())
+		if !f(fd_IBCHookMemo_wasm, value) {
+			return
+		}
+	}
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_IBCHookMemo) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookMemo.wasm":
+		return x.Wasm != nil
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookMemo"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookMemo does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_IBCHookMemo) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookMemo.wasm":
+		x.Wasm = nil
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookMemo"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookMemo does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_IBCHookMemo) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	case "band.tunnel.v1beta1.IBCHookMemo.wasm":
+		value := x.Wasm
+		return protoreflect.ValueOfMessage(value.ProtoReflect())
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookMemo"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookMemo does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_IBCHookMemo) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookMemo.wasm":
+		x.Wasm = value.Message().Interface().(*IBCHookMemo_Payload)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookMemo"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookMemo does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_IBCHookMemo) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookMemo.wasm":
+		if x.Wasm == nil {
+			x.Wasm = new(IBCHookMemo_Payload)
+		}
+		return protoreflect.ValueOfMessage(x.Wasm.ProtoReflect())
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookMemo"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookMemo does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_IBCHookMemo) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookMemo.wasm":
+		m := new(IBCHookMemo_Payload)
+		return protoreflect.ValueOfMessage(m.ProtoReflect())
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookMemo"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookMemo does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_IBCHookMemo) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.IBCHookMemo", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_IBCHookMemo) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_IBCHookMemo) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_IBCHookMemo) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_IBCHookMemo) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*IBCHookMemo)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		if x.Wasm != nil {
+			l = options.Size(x.Wasm)
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*IBCHookMemo)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if x.Wasm != nil {
+			encoded, err := options.Marshal(x.Wasm)
+			if err != nil {
+				return protoiface.MarshalOutput{
+					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+					Buf:               input.Buf,
+				}, err
+			}
+			i -= len(encoded)
+			copy(dAtA[i:], encoded)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
+			i--
+			dAtA[i] = 0xa
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*IBCHookMemo)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: IBCHookMemo: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: IBCHookMemo: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			case 1:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Wasm", wireType)
+				}
+				var msglen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					msglen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if msglen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + msglen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if x.Wasm == nil {
+					x.Wasm = &IBCHookMemo_Payload{}
+				}
+				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.Wasm); err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				iNdEx = postIndex
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
+var (
+	md_IBCHookMemo_Payload          protoreflect.MessageDescriptor
+	fd_IBCHookMemo_Payload_contract protoreflect.FieldDescriptor
+	fd_IBCHookMemo_Payload_msg      protoreflect.FieldDescriptor
+)
+
+func init() {
+	file_band_tunnel_v1beta1_route_proto_init()
+	md_IBCHookMemo_Payload = File_band_tunnel_v1beta1_route_proto.Messages().ByName("IBCHookMemo").Messages().ByName("Payload")
+	fd_IBCHookMemo_Payload_contract = md_IBCHookMemo_Payload.Fields().ByName("contract")
+	fd_IBCHookMemo_Payload_msg = md_IBCHookMemo_Payload.Fields().ByName("msg")
+}
+
+var _ protoreflect.Message = (*fastReflection_IBCHookMemo_Payload)(nil)
+
+type fastReflection_IBCHookMemo_Payload IBCHookMemo_Payload
+
+func (x *IBCHookMemo_Payload) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_IBCHookMemo_Payload)(x)
+}
+
+func (x *IBCHookMemo_Payload) slowProtoReflect() protoreflect.Message {
+	mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_IBCHookMemo_Payload_messageType fastReflection_IBCHookMemo_Payload_messageType
+var _ protoreflect.MessageType = fastReflection_IBCHookMemo_Payload_messageType{}
+
+type fastReflection_IBCHookMemo_Payload_messageType struct{}
+
+func (x fastReflection_IBCHookMemo_Payload_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_IBCHookMemo_Payload)(nil)
+}
+func (x fastReflection_IBCHookMemo_Payload_messageType) New() protoreflect.Message {
+	return new(fastReflection_IBCHookMemo_Payload)
+}
+func (x fastReflection_IBCHookMemo_Payload_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_IBCHookMemo_Payload
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_IBCHookMemo_Payload) Descriptor() protoreflect.MessageDescriptor {
+	return md_IBCHookMemo_Payload
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_IBCHookMemo_Payload) Type() protoreflect.MessageType {
+	return _fastReflection_IBCHookMemo_Payload_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_IBCHookMemo_Payload) New() protoreflect.Message {
+	return new(fastReflection_IBCHookMemo_Payload)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_IBCHookMemo_Payload) Interface() protoreflect.ProtoMessage {
+	return (*IBCHookMemo_Payload)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_IBCHookMemo_Payload) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if x.Contract != "" {
+		value := protoreflect.ValueOfString(x.Contract)
+		if !f(fd_IBCHookMemo_Payload_contract, value) {
+			return
+		}
+	}
+	if x.Msg != nil {
+		value := protoreflect.ValueOfMessage(x.Msg.ProtoReflect())
+		if !f(fd_IBCHookMemo_Payload_msg, value) {
+			return
+		}
+	}
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_IBCHookMemo_Payload) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookMemo.Payload.contract":
+		return x.Contract != ""
+	case "band.tunnel.v1beta1.IBCHookMemo.Payload.msg":
+		return x.Msg != nil
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookMemo.Payload"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookMemo.Payload does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_IBCHookMemo_Payload) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookMemo.Payload.contract":
+		x.Contract = ""
+	case "band.tunnel.v1beta1.IBCHookMemo.Payload.msg":
+		x.Msg = nil
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookMemo.Payload"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookMemo.Payload does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_IBCHookMemo_Payload) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	case "band.tunnel.v1beta1.IBCHookMemo.Payload.contract":
+		value := x.Contract
+		return protoreflect.ValueOfString(value)
+	case "band.tunnel.v1beta1.IBCHookMemo.Payload.msg":
+		value := x.Msg
+		return protoreflect.ValueOfMessage(value.ProtoReflect())
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookMemo.Payload"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookMemo.Payload does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_IBCHookMemo_Payload) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookMemo.Payload.contract":
+		x.Contract = value.Interface().(string)
+	case "band.tunnel.v1beta1.IBCHookMemo.Payload.msg":
+		x.Msg = value.Message().Interface().(*IBCHookMemo_Payload_Msg)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookMemo.Payload"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookMemo.Payload does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_IBCHookMemo_Payload) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookMemo.Payload.msg":
+		if x.Msg == nil {
+			x.Msg = new(IBCHookMemo_Payload_Msg)
+		}
+		return protoreflect.ValueOfMessage(x.Msg.ProtoReflect())
+	case "band.tunnel.v1beta1.IBCHookMemo.Payload.contract":
+		panic(fmt.Errorf("field contract of message band.tunnel.v1beta1.IBCHookMemo.Payload is not mutable"))
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookMemo.Payload"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookMemo.Payload does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_IBCHookMemo_Payload) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookMemo.Payload.contract":
+		return protoreflect.ValueOfString("")
+	case "band.tunnel.v1beta1.IBCHookMemo.Payload.msg":
+		m := new(IBCHookMemo_Payload_Msg)
+		return protoreflect.ValueOfMessage(m.ProtoReflect())
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookMemo.Payload"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookMemo.Payload does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_IBCHookMemo_Payload) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.IBCHookMemo.Payload", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_IBCHookMemo_Payload) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_IBCHookMemo_Payload) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_IBCHookMemo_Payload) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_IBCHookMemo_Payload) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*IBCHookMemo_Payload)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		l = len(x.Contract)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.Msg != nil {
+			l = options.Size(x.Msg)
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*IBCHookMemo_Payload)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if x.Msg != nil {
+			encoded, err := options.Marshal(x.Msg)
+			if err != nil {
+				return protoiface.MarshalOutput{
+					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+					Buf:               input.Buf,
+				}, err
+			}
+			i -= len(encoded)
+			copy(dAtA[i:], encoded)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
+			i--
+			dAtA[i] = 0x12
+		}
+		if len(x.Contract) > 0 {
+			i -= len(x.Contract)
+			copy(dAtA[i:], x.Contract)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.Contract)))
+			i--
+			dAtA[i] = 0xa
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*IBCHookMemo_Payload)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: IBCHookMemo_Payload: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: IBCHookMemo_Payload: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			case 1:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Contract", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.Contract = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
+			case 2:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Msg", wireType)
+				}
+				var msglen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					msglen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if msglen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + msglen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if x.Msg == nil {
+					x.Msg = &IBCHookMemo_Payload_Msg{}
+				}
+				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.Msg); err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				iNdEx = postIndex
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
+var (
+	md_IBCHookMemo_Payload_Msg                protoreflect.MessageDescriptor
+	fd_IBCHookMemo_Payload_Msg_receive_packet protoreflect.FieldDescriptor
+)
+
+func init() {
+	file_band_tunnel_v1beta1_route_proto_init()
+	md_IBCHookMemo_Payload_Msg = File_band_tunnel_v1beta1_route_proto.Messages().ByName("IBCHookMemo").Messages().ByName("Payload").Messages().ByName("Msg")
+	fd_IBCHookMemo_Payload_Msg_receive_packet = md_IBCHookMemo_Payload_Msg.Fields().ByName("receive_packet")
+}
+
+var _ protoreflect.Message = (*fastReflection_IBCHookMemo_Payload_Msg)(nil)
+
+type fastReflection_IBCHookMemo_Payload_Msg IBCHookMemo_Payload_Msg
+
+func (x *IBCHookMemo_Payload_Msg) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_IBCHookMemo_Payload_Msg)(x)
+}
+
+func (x *IBCHookMemo_Payload_Msg) slowProtoReflect() protoreflect.Message {
+	mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[9]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_IBCHookMemo_Payload_Msg_messageType fastReflection_IBCHookMemo_Payload_Msg_messageType
+var _ protoreflect.MessageType = fastReflection_IBCHookMemo_Payload_Msg_messageType{}
+
+type fastReflection_IBCHookMemo_Payload_Msg_messageType struct{}
+
+func (x fastReflection_IBCHookMemo_Payload_Msg_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_IBCHookMemo_Payload_Msg)(nil)
+}
+func (x fastReflection_IBCHookMemo_Payload_Msg_messageType) New() protoreflect.Message {
+	return new(fastReflection_IBCHookMemo_Payload_Msg)
+}
+func (x fastReflection_IBCHookMemo_Payload_Msg_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_IBCHookMemo_Payload_Msg
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_IBCHookMemo_Payload_Msg) Descriptor() protoreflect.MessageDescriptor {
+	return md_IBCHookMemo_Payload_Msg
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_IBCHookMemo_Payload_Msg) Type() protoreflect.MessageType {
+	return _fastReflection_IBCHookMemo_Payload_Msg_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_IBCHookMemo_Payload_Msg) New() protoreflect.Message {
+	return new(fastReflection_IBCHookMemo_Payload_Msg)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_IBCHookMemo_Payload_Msg) Interface() protoreflect.ProtoMessage {
+	return (*IBCHookMemo_Payload_Msg)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_IBCHookMemo_Payload_Msg) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if x.ReceivePacket != nil {
+		value := protoreflect.ValueOfMessage(x.ReceivePacket.ProtoReflect())
+		if !f(fd_IBCHookMemo_Payload_Msg_receive_packet, value) {
+			return
+		}
+	}
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_IBCHookMemo_Payload_Msg) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.receive_packet":
+		return x.ReceivePacket != nil
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookMemo.Payload.Msg"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookMemo.Payload.Msg does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_IBCHookMemo_Payload_Msg) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.receive_packet":
+		x.ReceivePacket = nil
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookMemo.Payload.Msg"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookMemo.Payload.Msg does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_IBCHookMemo_Payload_Msg) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	case "band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.receive_packet":
+		value := x.ReceivePacket
+		return protoreflect.ValueOfMessage(value.ProtoReflect())
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookMemo.Payload.Msg"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookMemo.Payload.Msg does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_IBCHookMemo_Payload_Msg) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.receive_packet":
+		x.ReceivePacket = value.Message().Interface().(*IBCHookMemo_Payload_Msg_ReceivePacket)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookMemo.Payload.Msg"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookMemo.Payload.Msg does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_IBCHookMemo_Payload_Msg) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.receive_packet":
+		if x.ReceivePacket == nil {
+			x.ReceivePacket = new(IBCHookMemo_Payload_Msg_ReceivePacket)
+		}
+		return protoreflect.ValueOfMessage(x.ReceivePacket.ProtoReflect())
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookMemo.Payload.Msg"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookMemo.Payload.Msg does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_IBCHookMemo_Payload_Msg) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.receive_packet":
+		m := new(IBCHookMemo_Payload_Msg_ReceivePacket)
+		return protoreflect.ValueOfMessage(m.ProtoReflect())
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookMemo.Payload.Msg"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookMemo.Payload.Msg does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_IBCHookMemo_Payload_Msg) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.IBCHookMemo.Payload.Msg", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_IBCHookMemo_Payload_Msg) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_IBCHookMemo_Payload_Msg) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_IBCHookMemo_Payload_Msg) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_IBCHookMemo_Payload_Msg) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*IBCHookMemo_Payload_Msg)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		if x.ReceivePacket != nil {
+			l = options.Size(x.ReceivePacket)
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*IBCHookMemo_Payload_Msg)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if x.ReceivePacket != nil {
+			encoded, err := options.Marshal(x.ReceivePacket)
+			if err != nil {
+				return protoiface.MarshalOutput{
+					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+					Buf:               input.Buf,
+				}, err
+			}
+			i -= len(encoded)
+			copy(dAtA[i:], encoded)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
+			i--
+			dAtA[i] = 0xa
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*IBCHookMemo_Payload_Msg)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: IBCHookMemo_Payload_Msg: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: IBCHookMemo_Payload_Msg: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			case 1:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ReceivePacket", wireType)
+				}
+				var msglen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					msglen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if msglen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + msglen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if x.ReceivePacket == nil {
+					x.ReceivePacket = &IBCHookMemo_Payload_Msg_ReceivePacket{}
+				}
+				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.ReceivePacket); err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				iNdEx = postIndex
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
+var (
+	md_IBCHookMemo_Payload_Msg_ReceivePacket        protoreflect.MessageDescriptor
+	fd_IBCHookMemo_Payload_Msg_ReceivePacket_packet protoreflect.FieldDescriptor
+)
+
+func init() {
+	file_band_tunnel_v1beta1_route_proto_init()
+	md_IBCHookMemo_Payload_Msg_ReceivePacket = File_band_tunnel_v1beta1_route_proto.Messages().ByName("IBCHookMemo").Messages().ByName("Payload").Messages().ByName("Msg").Messages().ByName("ReceivePacket")
+	fd_IBCHookMemo_Payload_Msg_ReceivePacket_packet = md_IBCHookMemo_Payload_Msg_ReceivePacket.Fields().ByName("packet")
+}
+
+var _ protoreflect.Message = (*fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket)(nil)
+
+type fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket IBCHookMemo_Payload_Msg_ReceivePacket
+
+func (x *IBCHookMemo_Payload_Msg_ReceivePacket) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket)(x)
+}
+
+func (x *IBCHookMemo_Payload_Msg_ReceivePacket) slowProtoReflect() protoreflect.Message {
+	mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[10]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket_messageType fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket_messageType
+var _ protoreflect.MessageType = fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket_messageType{}
+
+type fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket_messageType struct{}
+
+func (x fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket)(nil)
+}
+func (x fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket_messageType) New() protoreflect.Message {
+	return new(fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket)
+}
+func (x fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_IBCHookMemo_Payload_Msg_ReceivePacket
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket) Descriptor() protoreflect.MessageDescriptor {
+	return md_IBCHookMemo_Payload_Msg_ReceivePacket
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket) Type() protoreflect.MessageType {
+	return _fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket) New() protoreflect.Message {
+	return new(fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket) Interface() protoreflect.ProtoMessage {
+	return (*IBCHookMemo_Payload_Msg_ReceivePacket)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if x.Packet != nil {
+		value := protoreflect.ValueOfMessage(x.Packet.ProtoReflect())
+		if !f(fd_IBCHookMemo_Payload_Msg_ReceivePacket_packet, value) {
+			return
+		}
+	}
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.ReceivePacket.packet":
+		return x.Packet != nil
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.ReceivePacket"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.ReceivePacket does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.ReceivePacket.packet":
+		x.Packet = nil
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.ReceivePacket"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.ReceivePacket does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	case "band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.ReceivePacket.packet":
+		value := x.Packet
+		return protoreflect.ValueOfMessage(value.ProtoReflect())
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.ReceivePacket"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.ReceivePacket does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.ReceivePacket.packet":
+		x.Packet = value.Message().Interface().(*TunnelPricesPacketData)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.ReceivePacket"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.ReceivePacket does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.ReceivePacket.packet":
+		if x.Packet == nil {
+			x.Packet = new(TunnelPricesPacketData)
+		}
+		return protoreflect.ValueOfMessage(x.Packet.ProtoReflect())
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.ReceivePacket"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.ReceivePacket does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.ReceivePacket.packet":
+		m := new(TunnelPricesPacketData)
+		return protoreflect.ValueOfMessage(m.ProtoReflect())
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.ReceivePacket"))
+		}
+		panic(fmt.Errorf("message band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.ReceivePacket does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.ReceivePacket", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_IBCHookMemo_Payload_Msg_ReceivePacket) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*IBCHookMemo_Payload_Msg_ReceivePacket)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		if x.Packet != nil {
+			l = options.Size(x.Packet)
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*IBCHookMemo_Payload_Msg_ReceivePacket)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if x.Packet != nil {
+			encoded, err := options.Marshal(x.Packet)
+			if err != nil {
+				return protoiface.MarshalOutput{
+					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+					Buf:               input.Buf,
+				}, err
+			}
+			i -= len(encoded)
+			copy(dAtA[i:], encoded)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
+			i--
+			dAtA[i] = 0xa
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*IBCHookMemo_Payload_Msg_ReceivePacket)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: IBCHookMemo_Payload_Msg_ReceivePacket: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: IBCHookMemo_Payload_Msg_ReceivePacket: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			case 1:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Packet", wireType)
+				}
+				var msglen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					msglen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if msglen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + msglen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if x.Packet == nil {
+					x.Packet = &TunnelPricesPacketData{}
+				}
+				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.Packet); err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				iNdEx = postIndex
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
 // Code generated by protoc-gen-go. DO NOT EDIT.
 // versions:
 // 	protoc-gen-go v1.27.0
@@ -2656,6 +5348,246 @@ func (x *TunnelPricesPacketData) GetCreatedAt() int64 {
 	return 0
 }
 
+// IBCHookRoute is the type for an IBC hook route
+type IBCHookRoute struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// channel_id is the IBC channel ID
+	ChannelId string `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	// destination_contract_address is the destination contract address
+	DestinationContractAddress string `protobuf:"bytes,2,opt,name=destination_contract_address,json=destinationContractAddress,proto3" json:"destination_contract_address,omitempty"`
+}
+
+func (x *IBCHookRoute) Reset() {
+	*x = IBCHookRoute{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *IBCHookRoute) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IBCHookRoute) ProtoMessage() {}
+
+// Deprecated: Use IBCHookRoute.ProtoReflect.Descriptor instead.
+func (*IBCHookRoute) Descriptor() ([]byte, []int) {
+	return file_band_tunnel_v1beta1_route_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *IBCHookRoute) GetChannelId() string {
+	if x != nil {
+		return x.ChannelId
+	}
+	return ""
+}
+
+func (x *IBCHookRoute) GetDestinationContractAddress() string {
+	if x != nil {
+		return x.DestinationContractAddress
+	}
+	return ""
+}
+
+// IBCHookPacketReceipt represents a receipt for a IBC hook packet and implements the PacketReceiptI interface.
+type IBCHookPacketReceipt struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// sequence is representing the sequence of the IBC packet.
+	Sequence uint64 `protobuf:"varint,1,opt,name=sequence,proto3" json:"sequence,omitempty"`
+}
+
+func (x *IBCHookPacketReceipt) Reset() {
+	*x = IBCHookPacketReceipt{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *IBCHookPacketReceipt) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IBCHookPacketReceipt) ProtoMessage() {}
+
+// Deprecated: Use IBCHookPacketReceipt.ProtoReflect.Descriptor instead.
+func (*IBCHookPacketReceipt) Descriptor() ([]byte, []int) {
+	return file_band_tunnel_v1beta1_route_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *IBCHookPacketReceipt) GetSequence() uint64 {
+	if x != nil {
+		return x.Sequence
+	}
+	return 0
+}
+
+// IBCHookMemo is the type for a data packet that will be stringtify to be a memo of IBC hook packet
+type IBCHookMemo struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// wasm is the payload for calling detination contract
+	Wasm *IBCHookMemo_Payload `protobuf:"bytes,1,opt,name=wasm,proto3" json:"wasm,omitempty"`
+}
+
+func (x *IBCHookMemo) Reset() {
+	*x = IBCHookMemo{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *IBCHookMemo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IBCHookMemo) ProtoMessage() {}
+
+// Deprecated: Use IBCHookMemo.ProtoReflect.Descriptor instead.
+func (*IBCHookMemo) Descriptor() ([]byte, []int) {
+	return file_band_tunnel_v1beta1_route_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *IBCHookMemo) GetWasm() *IBCHookMemo_Payload {
+	if x != nil {
+		return x.Wasm
+	}
+	return nil
+}
+
+// Payload defines target contract and detail of function call (msg).
+type IBCHookMemo_Payload struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// contract is destination contract address
+	Contract string `protobuf:"bytes,1,opt,name=contract,proto3" json:"contract,omitempty"`
+	// msg is the ibc hook message
+	Msg *IBCHookMemo_Payload_Msg `protobuf:"bytes,2,opt,name=msg,proto3" json:"msg,omitempty"`
+}
+
+func (x *IBCHookMemo_Payload) Reset() {
+	*x = IBCHookMemo_Payload{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *IBCHookMemo_Payload) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IBCHookMemo_Payload) ProtoMessage() {}
+
+// Deprecated: Use IBCHookMemo_Payload.ProtoReflect.Descriptor instead.
+func (*IBCHookMemo_Payload) Descriptor() ([]byte, []int) {
+	return file_band_tunnel_v1beta1_route_proto_rawDescGZIP(), []int{7, 0}
+}
+
+func (x *IBCHookMemo_Payload) GetContract() string {
+	if x != nil {
+		return x.Contract
+	}
+	return ""
+}
+
+func (x *IBCHookMemo_Payload) GetMsg() *IBCHookMemo_Payload_Msg {
+	if x != nil {
+		return x.Msg
+	}
+	return nil
+}
+
+// Msg defines function name (`receive_packet`) and a type of function arguments.
+type IBCHookMemo_Payload_Msg struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// receive_packet is the function name on the destination contract
+	ReceivePacket *IBCHookMemo_Payload_Msg_ReceivePacket `protobuf:"bytes,1,opt,name=receive_packet,json=receivePacket,proto3" json:"receive_packet,omitempty"`
+}
+
+func (x *IBCHookMemo_Payload_Msg) Reset() {
+	*x = IBCHookMemo_Payload_Msg{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[9]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *IBCHookMemo_Payload_Msg) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IBCHookMemo_Payload_Msg) ProtoMessage() {}
+
+// Deprecated: Use IBCHookMemo_Payload_Msg.ProtoReflect.Descriptor instead.
+func (*IBCHookMemo_Payload_Msg) Descriptor() ([]byte, []int) {
+	return file_band_tunnel_v1beta1_route_proto_rawDescGZIP(), []int{7, 0, 0}
+}
+
+func (x *IBCHookMemo_Payload_Msg) GetReceivePacket() *IBCHookMemo_Payload_Msg_ReceivePacket {
+	if x != nil {
+		return x.ReceivePacket
+	}
+	return nil
+}
+
+// ReceivePacket represents the arguments of `receive_packet` function
+type IBCHookMemo_Payload_Msg_ReceivePacket struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// packet represents the data packet
+	Packet *TunnelPricesPacketData `protobuf:"bytes,1,opt,name=packet,proto3" json:"packet,omitempty"`
+}
+
+func (x *IBCHookMemo_Payload_Msg_ReceivePacket) Reset() {
+	*x = IBCHookMemo_Payload_Msg_ReceivePacket{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[10]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *IBCHookMemo_Payload_Msg_ReceivePacket) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IBCHookMemo_Payload_Msg_ReceivePacket) ProtoMessage() {}
+
+// Deprecated: Use IBCHookMemo_Payload_Msg_ReceivePacket.ProtoReflect.Descriptor instead.
+func (*IBCHookMemo_Payload_Msg_ReceivePacket) Descriptor() ([]byte, []int) {
+	return file_band_tunnel_v1beta1_route_proto_rawDescGZIP(), []int{7, 0, 0, 0}
+}
+
+func (x *IBCHookMemo_Payload_Msg_ReceivePacket) GetPacket() *TunnelPricesPacketData {
+	if x != nil {
+		return x.Packet
+	}
+	return nil
+}
+
 var File_band_tunnel_v1beta1_route_proto protoreflect.FileDescriptor
 
 var file_band_tunnel_v1beta1_route_proto_rawDesc = []byte{
@@ -2712,22 +5644,60 @@ var file_band_tunnel_v1beta1_route_proto_rawDesc = []byte{
 	0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x72, 0x69, 0x63,
 	0x65, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x06, 0x70, 0x72, 0x69, 0x63, 0x65, 0x73, 0x12,
 	0x1d, 0x0a, 0x0a, 0x63, 0x72, 0x65, 0x61, 0x74, 0x65, 0x64, 0x5f, 0x61, 0x74, 0x18, 0x04, 0x20,
-	0x01, 0x28, 0x03, 0x52, 0x09, 0x63, 0x72, 0x65, 0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x42, 0xdf,
-	0x01, 0x0a, 0x17, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e,
-	0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42, 0x0a, 0x52, 0x6f, 0x75, 0x74,
-	0x65, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x46, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62,
-	0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f,
-	0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x62,
-	0x61, 0x6e, 0x64, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74,
-	0x61, 0x31, 0x3b, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
-	0xa2, 0x02, 0x03, 0x42, 0x54, 0x58, 0xaa, 0x02, 0x13, 0x42, 0x61, 0x6e, 0x64, 0x2e, 0x54, 0x75,
-	0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xca, 0x02, 0x13, 0x42,
-	0x61, 0x6e, 0x64, 0x5c, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74,
-	0x61, 0x31, 0xe2, 0x02, 0x1f, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
-	0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61,
-	0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x15, 0x42, 0x61, 0x6e, 0x64, 0x3a, 0x3a, 0x54, 0x75, 0x6e,
-	0x6e, 0x65, 0x6c, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa8, 0xe2, 0x1e, 0x01,
-	0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x01, 0x28, 0x03, 0x52, 0x09, 0x63, 0x72, 0x65, 0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x22, 0x8a,
+	0x01, 0x0a, 0x0c, 0x49, 0x42, 0x43, 0x48, 0x6f, 0x6f, 0x6b, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x12,
+	0x2c, 0x0a, 0x0a, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x09, 0x42, 0x0d, 0xe2, 0xde, 0x1f, 0x09, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c,
+	0x49, 0x44, 0x52, 0x09, 0x63, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64, 0x12, 0x40, 0x0a,
+	0x1c, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x63, 0x6f, 0x6e,
+	0x74, 0x72, 0x61, 0x63, 0x74, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x02, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x1a, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e,
+	0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x3a,
+	0x0a, 0xca, 0xb4, 0x2d, 0x06, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x49, 0x22, 0x46, 0x0a, 0x14, 0x49,
+	0x42, 0x43, 0x48, 0x6f, 0x6f, 0x6b, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x52, 0x65, 0x63, 0x65,
+	0x69, 0x70, 0x74, 0x12, 0x1a, 0x0a, 0x08, 0x73, 0x65, 0x71, 0x75, 0x65, 0x6e, 0x63, 0x65, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x08, 0x73, 0x65, 0x71, 0x75, 0x65, 0x6e, 0x63, 0x65, 0x3a,
+	0x12, 0xca, 0xb4, 0x2d, 0x0e, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x43, 0x6f, 0x6e, 0x74, 0x65,
+	0x6e, 0x74, 0x49, 0x22, 0x8c, 0x03, 0x0a, 0x0b, 0x49, 0x42, 0x43, 0x48, 0x6f, 0x6f, 0x6b, 0x4d,
+	0x65, 0x6d, 0x6f, 0x12, 0x42, 0x0a, 0x04, 0x77, 0x61, 0x73, 0x6d, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x0b, 0x32, 0x28, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e,
+	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x49, 0x42, 0x43, 0x48, 0x6f, 0x6f, 0x6b, 0x4d,
+	0x65, 0x6d, 0x6f, 0x2e, 0x50, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x42, 0x04, 0xc8, 0xde, 0x1f,
+	0x00, 0x52, 0x04, 0x77, 0x61, 0x73, 0x6d, 0x1a, 0xb8, 0x02, 0x0a, 0x07, 0x50, 0x61, 0x79, 0x6c,
+	0x6f, 0x61, 0x64, 0x12, 0x1a, 0x0a, 0x08, 0x63, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x63, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x12,
+	0x44, 0x0a, 0x03, 0x6d, 0x73, 0x67, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x2c, 0x2e, 0x62,
+	0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
+	0x61, 0x31, 0x2e, 0x49, 0x42, 0x43, 0x48, 0x6f, 0x6f, 0x6b, 0x4d, 0x65, 0x6d, 0x6f, 0x2e, 0x50,
+	0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x2e, 0x4d, 0x73, 0x67, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00,
+	0x52, 0x03, 0x6d, 0x73, 0x67, 0x1a, 0xca, 0x01, 0x0a, 0x03, 0x4d, 0x73, 0x67, 0x12, 0x67, 0x0a,
+	0x0e, 0x72, 0x65, 0x63, 0x65, 0x69, 0x76, 0x65, 0x5f, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x3a, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e,
+	0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x49, 0x42, 0x43, 0x48,
+	0x6f, 0x6f, 0x6b, 0x4d, 0x65, 0x6d, 0x6f, 0x2e, 0x50, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x2e,
+	0x4d, 0x73, 0x67, 0x2e, 0x52, 0x65, 0x63, 0x65, 0x69, 0x76, 0x65, 0x50, 0x61, 0x63, 0x6b, 0x65,
+	0x74, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x0d, 0x72, 0x65, 0x63, 0x65, 0x69, 0x76, 0x65,
+	0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x1a, 0x5a, 0x0a, 0x0d, 0x52, 0x65, 0x63, 0x65, 0x69, 0x76,
+	0x65, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x12, 0x49, 0x0a, 0x06, 0x70, 0x61, 0x63, 0x6b, 0x65,
+	0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x2b, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74,
+	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x54, 0x75,
+	0x6e, 0x6e, 0x65, 0x6c, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74,
+	0x44, 0x61, 0x74, 0x61, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x06, 0x70, 0x61, 0x63, 0x6b,
+	0x65, 0x74, 0x42, 0xdf, 0x01, 0x0a, 0x17, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e,
+	0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42, 0x0a,
+	0x52, 0x6f, 0x75, 0x74, 0x65, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x46, 0x67, 0x69,
+	0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x61,
+	0x70, 0x69, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76,
+	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x3b, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x76, 0x31, 0x62,
+	0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x42, 0x54, 0x58, 0xaa, 0x02, 0x13, 0x42, 0x61, 0x6e,
+	0x64, 0x2e, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
+	0xca, 0x02, 0x13, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5c, 0x56,
+	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xe2, 0x02, 0x1f, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x54, 0x75,
+	0x6e, 0x6e, 0x65, 0x6c, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x5c, 0x47, 0x50, 0x42,
+	0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x15, 0x42, 0x61, 0x6e, 0x64, 0x3a,
+	0x3a, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
+	0xa8, 0xe2, 0x1e, 0x01, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -2742,24 +5712,34 @@ func file_band_tunnel_v1beta1_route_proto_rawDescGZIP() []byte {
 	return file_band_tunnel_v1beta1_route_proto_rawDescData
 }
 
-var file_band_tunnel_v1beta1_route_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_band_tunnel_v1beta1_route_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_band_tunnel_v1beta1_route_proto_goTypes = []interface{}{
-	(*TSSRoute)(nil),               // 0: band.tunnel.v1beta1.TSSRoute
-	(*TSSPacketReceipt)(nil),       // 1: band.tunnel.v1beta1.TSSPacketReceipt
-	(*IBCRoute)(nil),               // 2: band.tunnel.v1beta1.IBCRoute
-	(*IBCPacketReceipt)(nil),       // 3: band.tunnel.v1beta1.IBCPacketReceipt
-	(*TunnelPricesPacketData)(nil), // 4: band.tunnel.v1beta1.TunnelPricesPacketData
-	(v1beta1.Encoder)(0),           // 5: band.feeds.v1beta1.Encoder
-	(*v1beta1.Price)(nil),          // 6: band.feeds.v1beta1.Price
+	(*TSSRoute)(nil),                              // 0: band.tunnel.v1beta1.TSSRoute
+	(*TSSPacketReceipt)(nil),                      // 1: band.tunnel.v1beta1.TSSPacketReceipt
+	(*IBCRoute)(nil),                              // 2: band.tunnel.v1beta1.IBCRoute
+	(*IBCPacketReceipt)(nil),                      // 3: band.tunnel.v1beta1.IBCPacketReceipt
+	(*TunnelPricesPacketData)(nil),                // 4: band.tunnel.v1beta1.TunnelPricesPacketData
+	(*IBCHookRoute)(nil),                          // 5: band.tunnel.v1beta1.IBCHookRoute
+	(*IBCHookPacketReceipt)(nil),                  // 6: band.tunnel.v1beta1.IBCHookPacketReceipt
+	(*IBCHookMemo)(nil),                           // 7: band.tunnel.v1beta1.IBCHookMemo
+	(*IBCHookMemo_Payload)(nil),                   // 8: band.tunnel.v1beta1.IBCHookMemo.Payload
+	(*IBCHookMemo_Payload_Msg)(nil),               // 9: band.tunnel.v1beta1.IBCHookMemo.Payload.Msg
+	(*IBCHookMemo_Payload_Msg_ReceivePacket)(nil), // 10: band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.ReceivePacket
+	(v1beta1.Encoder)(0),                          // 11: band.feeds.v1beta1.Encoder
+	(*v1beta1.Price)(nil),                         // 12: band.feeds.v1beta1.Price
 }
 var file_band_tunnel_v1beta1_route_proto_depIdxs = []int32{
-	5, // 0: band.tunnel.v1beta1.TSSRoute.encoder:type_name -> band.feeds.v1beta1.Encoder
-	6, // 1: band.tunnel.v1beta1.TunnelPricesPacketData.prices:type_name -> band.feeds.v1beta1.Price
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	11, // 0: band.tunnel.v1beta1.TSSRoute.encoder:type_name -> band.feeds.v1beta1.Encoder
+	12, // 1: band.tunnel.v1beta1.TunnelPricesPacketData.prices:type_name -> band.feeds.v1beta1.Price
+	8,  // 2: band.tunnel.v1beta1.IBCHookMemo.wasm:type_name -> band.tunnel.v1beta1.IBCHookMemo.Payload
+	9,  // 3: band.tunnel.v1beta1.IBCHookMemo.Payload.msg:type_name -> band.tunnel.v1beta1.IBCHookMemo.Payload.Msg
+	10, // 4: band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.receive_packet:type_name -> band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.ReceivePacket
+	4,  // 5: band.tunnel.v1beta1.IBCHookMemo.Payload.Msg.ReceivePacket.packet:type_name -> band.tunnel.v1beta1.TunnelPricesPacketData
+	6,  // [6:6] is the sub-list for method output_type
+	6,  // [6:6] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_band_tunnel_v1beta1_route_proto_init() }
@@ -2828,6 +5808,78 @@ func file_band_tunnel_v1beta1_route_proto_init() {
 				return nil
 			}
 		}
+		file_band_tunnel_v1beta1_route_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*IBCHookRoute); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_band_tunnel_v1beta1_route_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*IBCHookPacketReceipt); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_band_tunnel_v1beta1_route_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*IBCHookMemo); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_band_tunnel_v1beta1_route_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*IBCHookMemo_Payload); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_band_tunnel_v1beta1_route_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*IBCHookMemo_Payload_Msg); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_band_tunnel_v1beta1_route_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*IBCHookMemo_Payload_Msg_ReceivePacket); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -2835,7 +5887,7 @@ func file_band_tunnel_v1beta1_route_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_band_tunnel_v1beta1_route_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
