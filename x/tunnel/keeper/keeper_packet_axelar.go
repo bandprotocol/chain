@@ -23,7 +23,7 @@ func (k Keeper) SendAxelarPacket(
 	params := k.GetParams(ctx)
 	ibcChannel := params.AxelarIBCChannel
 	feeRecipient := params.AxelarFeeRecipient
-	gmpAccount := params.AxelarGmpAccount
+	gmpAccount := params.AxelarGMPAccount
 
 	// encode packet to abi format
 	payload, err := types.EncodingPacketABI(packet)

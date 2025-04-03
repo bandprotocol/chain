@@ -19,7 +19,7 @@ var (
 	DefaultMaxSignals         = uint64(25)
 	DefaultBasePacketFee      = sdk.NewCoins(sdk.NewInt64Coin("uband", 500))
 	DefaultAxelarIBCChannel   = ""
-	DefaultAxelarGmpAccount   = "axelar1dv4u5k73pzqrxlzujxg3qp8kvc3pje7jtdvu72npnt5zhq05ejcsn5qme5"
+	DefaultAxelarGMPAccount   = "axelar1dv4u5k73pzqrxlzujxg3qp8kvc3pje7jtdvu72npnt5zhq05ejcsn5qme5"
 	DefaultAxelarFeeRecipient = ""
 )
 
@@ -33,7 +33,7 @@ func NewParams(
 	maxSignals uint64,
 	basePacketFee sdk.Coins,
 	axelarIBCChannel string,
-	axelarGmpAccount string,
+	axelarGMPAccount string,
 	axelarFeeRecipient string,
 ) Params {
 	return Params{
@@ -45,7 +45,7 @@ func NewParams(
 		MaxSignals:         maxSignals,
 		BasePacketFee:      basePacketFee,
 		AxelarIBCChannel:   axelarIBCChannel,
-		AxelarGmpAccount:   axelarGmpAccount,
+		AxelarGMPAccount:   axelarGMPAccount,
 		AxelarFeeRecipient: axelarFeeRecipient,
 	}
 }
@@ -61,7 +61,7 @@ func DefaultParams() Params {
 		DefaultMaxSignals,
 		DefaultBasePacketFee,
 		DefaultAxelarIBCChannel,
-		DefaultAxelarGmpAccount,
+		DefaultAxelarGMPAccount,
 		DefaultAxelarFeeRecipient,
 	)
 }
