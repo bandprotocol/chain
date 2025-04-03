@@ -186,7 +186,7 @@ func getActivatingGroupIDs(clientCtx client.Context) ([]tss.GroupID, error) {
 	if err != nil {
 		return nil, err
 	}
-	penaltyExpiryTime := status.SyncInfo.LatestBlockTime.Add(-penaltyDuration)
+	latestBlockTime := status.SyncInfo.LatestBlockTime
 
 	groupTypeText := []string{"current group", "incoming group"}
 
@@ -199,7 +199,7 @@ func getActivatingGroupIDs(clientCtx client.Context) ([]tss.GroupID, error) {
 			displayedText = "skip; not belong to this group"
 		} else if info.IsActive {
 			displayedText = "skip; member is already active"
-		} else if info.Since.After(penaltyExpiryTime) {
+		} else if info.Since.Add(penaltyDuration).After(latestBlockTime) {
 			displayedText = "skip; penalty not expired"
 		} else {
 			activatingGroupIDs = append(activatingGroupIDs, info.GroupID)
