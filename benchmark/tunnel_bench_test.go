@@ -53,10 +53,12 @@ func testBenchmarkTunnel(numTunnels, numSignals, maxSignals int, encoder feedsty
 		require.NotEqual(b, feedstypes.ENCODER_UNSPECIFIED, encoder)
 
 		ba := InitializeBenchmarkApp(b, -1)
+		ba.SetupTSSGroup()
 
 		// set minDeposit to 1
 		params := ba.TunnelKeeper.GetParams(ba.Ctx)
 		params.MinDeposit = sdk.NewCoins(sdk.NewInt64Coin("uband", 1))
+		params.MaxSignals = uint64(maxSignals)
 		err := ba.TunnelKeeper.SetParams(ba.Ctx, params)
 		require.NoError(b, err)
 
@@ -75,7 +77,12 @@ func testBenchmarkTunnel(numTunnels, numSignals, maxSignals int, encoder feedsty
 				signalDeviations = append(signalDeviations, globalSignalDeviations[signalIdx[j]])
 			}
 
-			err := createNewTunnel(ba, &types.TSSRoute{Encoder: encoder}, signalDeviations, 1000)
+			err := createNewTunnel(
+				ba,
+				&types.TSSRoute{Encoder: encoder, DestinationChainID: "test", DestinationContractAddress: "0x01"},
+				signalDeviations,
+				1000,
+			)
 			require.NoError(b, err)
 		}
 
@@ -101,8 +108,9 @@ func testBenchmarkTunnel(numTunnels, numSignals, maxSignals int, encoder feedsty
 					Time:   time.Now(),
 				},
 			)
-			require.NoError(b, err)
 			b.StopTimer()
+
+			require.NoError(b, err)
 
 			_, err = ba.Commit()
 			require.NoError(b, err)

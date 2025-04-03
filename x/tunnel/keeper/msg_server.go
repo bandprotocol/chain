@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+
 	sdkerrors "cosmossdk.io/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -52,11 +54,20 @@ func (k msgServer) CreateTunnel(
 		return nil, err
 	}
 
-	// Check channel id in ibc route should be empty
-	ibcRoute, isIBCRoute := route.(*types.IBCRoute)
-	if isIBCRoute {
-		if ibcRoute.ChannelID != "" {
+	// isIBCRoute is true if the route is IBCRoute
+	var isIBCRoute bool
+
+	// validate the route based on the route type
+	switch r := route.(type) {
+	case *types.IBCRoute:
+		if r.ChannelID != "" {
 			return nil, types.ErrInvalidRoute.Wrap("channel id should be set after create tunnel")
+		}
+		isIBCRoute = true
+	case *types.IBCHookRoute:
+		_, found := k.channelKeeper.GetChannel(ctx, ibctransfertypes.PortID, r.ChannelID)
+		if !found {
+			return nil, types.ErrInvalidChannelID
 		}
 	}
 
@@ -72,7 +83,7 @@ func (k msgServer) CreateTunnel(
 		return nil, err
 	}
 
-	// Bind ibc port for the new tunnel
+	// bind ibc port for the tunnel if the route is IBCRoute
 	if isIBCRoute {
 		_, err = k.ensureIBCPort(ctx, tunnel.ID)
 		if err != nil {
@@ -80,7 +91,7 @@ func (k msgServer) CreateTunnel(
 		}
 	}
 
-	// Deposit the initial deposit to the tunnel
+	// deposit the initial deposit to the tunnel
 	if !msg.InitialDeposit.IsZero() {
 		if err := k.Keeper.DepositToTunnel(ctx, tunnel.ID, creator, msg.InitialDeposit); err != nil {
 			return nil, err
@@ -120,6 +131,12 @@ func (k msgServer) UpdateRoute(
 	switch r := route.(type) {
 	case *types.IBCRoute:
 		_, found := k.channelKeeper.GetChannel(ctx, PortIDForTunnel(msg.TunnelID), r.ChannelID)
+		if !found {
+			return nil, types.ErrInvalidChannelID
+		}
+		tunnel.Route = msg.Route
+	case *types.IBCHookRoute:
+		_, found := k.channelKeeper.GetChannel(ctx, ibctransfertypes.PortID, r.ChannelID)
 		if !found {
 			return nil, types.ErrInvalidChannelID
 		}
