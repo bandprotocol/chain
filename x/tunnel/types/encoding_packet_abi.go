@@ -51,28 +51,11 @@ func NewPacketABI(
 
 // EncodingPacketABI encodes the packet to abi message
 func EncodingPacketABI(p Packet) ([]byte, error) {
-	var signalPrices []feedstypes.RelayPrice
-	for _, sp := range p.Prices {
-		signalPrices = append(signalPrices, feedstypes.RelayPrice{
-			SignalID: stringToBytes32(sp.SignalID),
-			Price:    sp.Price,
-		})
+	relayPrices, err := feedstypes.ToRelayPrices(p.Prices)
+	if err != nil {
+		return nil, err
 	}
 
-	abiPacket := NewPacketABI(p.TunnelID, p.Sequence, signalPrices, p.CreatedAt)
+	abiPacket := NewPacketABI(p.TunnelID, p.Sequence, relayPrices, p.CreatedAt)
 	return packetArgs.Pack(&abiPacket)
-}
-
-// stringToBytes32 converts a string to a fixed size byte array. If the string is longer than
-// 32 bytes, it will be truncated to the first 32 bytes. If the string is shorter than 32 bytes,
-// it will be padded with 0s at the beginning.
-func stringToBytes32(str string) [32]byte {
-	maxLen := len(str)
-	if maxLen > 32 {
-		maxLen = 32
-	}
-
-	var byteArray [32]byte
-	copy(byteArray[32-maxLen:], str[:maxLen])
-	return byteArray
 }
