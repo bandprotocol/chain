@@ -299,9 +299,9 @@ func InitOwasmTestEnv(
 			Value:        parameter,
 			Text:         strings.Repeat("#", stringLength),
 		}), []sdk.ValAddress{[]byte{}}, 1,
-		1, time.Now(), "", nil, nil, ExecuteGasLimit, 0,
+		1, time.Unix(1000000, 0), "", nil, nil, ExecuteGasLimit, 0,
 		bandtesting.FeePayer.Address.String(),
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 	)
 
 	return owasmVM, compiledCode, req
@@ -359,8 +359,5 @@ func GenOracleReports() []oracletypes.Report {
 }
 
 func GetSpanSize() uint64 {
-	if oracletypes.DefaultMaxReportDataSize > oracletypes.DefaultMaxCalldataSize {
-		return oracletypes.DefaultMaxReportDataSize
-	}
-	return oracletypes.DefaultMaxCalldataSize
+	return max(oracletypes.DefaultMaxReportDataSize, oracletypes.DefaultMaxCalldataSize)
 }

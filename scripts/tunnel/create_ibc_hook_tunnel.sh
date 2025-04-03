@@ -1,0 +1,1 @@
+bandd tx tunnel create-tunnel ibc-hook channel-0 osmo1hsj6zc68xh4ydpt57mkynye7frhx5ndzdqhkcl88k4duyfgzqc9qf8gxdx 1000000000uband 60 ./scripts/tunnel/signal_deviations.json --from requester --keyring-backend test --gas-prices 0.0025uband -y --chain-id bandchain

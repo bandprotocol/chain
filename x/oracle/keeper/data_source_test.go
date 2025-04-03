@@ -20,7 +20,7 @@ func (suite *KeeperTestSuite) TestHasDataSource() {
 		basicName,
 		basicDesc,
 		basicFilename,
-		coinsZero,
+		bandtesting.CoinsZero,
 		types.KeyExpirationBlockCount,
 	))
 	require.True(k.HasDataSource(ctx, 42))
@@ -41,7 +41,7 @@ func (suite *KeeperTestSuite) TestSetterGetterDataSource() {
 		"NAME1",
 		"DESCRIPTION1",
 		"filename1",
-		emptyCoins,
+		bandtesting.EmptyCoins,
 		treasury,
 	)
 	dataSource2 := types.NewDataSource(
@@ -49,7 +49,7 @@ func (suite *KeeperTestSuite) TestSetterGetterDataSource() {
 		"NAME2",
 		"DESCRIPTION2",
 		"filename2",
-		emptyCoins,
+		bandtesting.EmptyCoins,
 		treasury,
 	)
 	// Sets id 42 with data soure 1 and id 42 with data source 2.
@@ -83,7 +83,7 @@ func (suite *KeeperTestSuite) TestAddDataSourceEditDataSourceBasic() {
 		"NAME1",
 		"DESCRIPTION1",
 		"FILENAME1",
-		emptyCoins,
+		bandtesting.EmptyCoins,
 		treasury,
 	)
 	dataSource2 := types.NewDataSource(
@@ -91,7 +91,7 @@ func (suite *KeeperTestSuite) TestAddDataSourceEditDataSourceBasic() {
 		"NAME2",
 		"DESCRIPTION2",
 		"FILENAME2",
-		emptyCoins,
+		bandtesting.EmptyCoins,
 		treasury,
 	)
 	// Adds a new data source to the store. We should be able to retrieve it back.
@@ -104,7 +104,7 @@ func (suite *KeeperTestSuite) TestAddDataSourceEditDataSourceBasic() {
 	require.NoError(err)
 	// Edits the data source. We should get the updated data source.
 	k.MustEditDataSource(ctx, id, types.NewDataSource(
-		owner, dataSource2.Name, dataSource2.Description, dataSource2.Filename, emptyCoins, treasury,
+		owner, dataSource2.Name, dataSource2.Description, dataSource2.Filename, bandtesting.EmptyCoins, treasury,
 	))
 	require.NotEqual(dataSource1, k.MustGetDataSource(ctx, id))
 	require.Equal(dataSource2, k.MustGetDataSource(ctx, id))
@@ -121,7 +121,7 @@ func (suite *KeeperTestSuite) TestEditDataSourceDoNotModify() {
 		"NAME1",
 		"DESCRIPTION1",
 		"FILENAME1",
-		emptyCoins,
+		bandtesting.EmptyCoins,
 		treasury,
 	)
 	dataSource2 := types.NewDataSource(
@@ -129,7 +129,7 @@ func (suite *KeeperTestSuite) TestEditDataSourceDoNotModify() {
 		types.DoNotModify,
 		types.DoNotModify,
 		"FILENAME2",
-		emptyCoins,
+		bandtesting.EmptyCoins,
 		treasury,
 	)
 	// Adds a new data source to the store. We should be able to retrieve it back.
@@ -164,7 +164,7 @@ func (suite *KeeperTestSuite) TestAddDataSourceDataSourceMustReturnCorrectID() {
 			basicName,
 			basicDesc,
 			basicFilename,
-			emptyCoins,
+			bandtesting.EmptyCoins,
 			treasury,
 		),
 	)
@@ -177,7 +177,7 @@ func (suite *KeeperTestSuite) TestAddDataSourceDataSourceMustReturnCorrectID() {
 			basicName,
 			basicDesc,
 			basicFilename,
-			emptyCoins,
+			bandtesting.EmptyCoins,
 			treasury,
 		),
 	)
@@ -197,7 +197,7 @@ func (suite *KeeperTestSuite) TestEditDataSourceNonExistentDataSource() {
 			basicName,
 			basicDesc,
 			basicFilename,
-			emptyCoins,
+			bandtesting.EmptyCoins,
 			treasury,
 		))
 	})
