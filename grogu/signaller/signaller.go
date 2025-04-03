@@ -212,11 +212,10 @@ func (s *Signaller) execute() {
 		return
 	}
 
-	telemetry.SetSignalPriceStatuses(signalPrices)
-
 	s.logger.Debug("[Signaller] submitting prices: %v", signalPrices)
 	s.submitPrices(signalPrices, uuid)
 
+	telemetry.SetSignalPriceStatuses(signalPrices)
 	telemetry.IncrementProcessSignalSuccess()
 }
 
