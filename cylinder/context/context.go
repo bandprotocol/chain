@@ -1,6 +1,7 @@
 package context
 
 import (
+	"fmt"
 	"path/filepath"
 	"time"
 
@@ -52,7 +53,8 @@ type Context struct {
 	ErrCh chan error
 	MsgCh chan sdk.Msg
 
-	Store *store.Store
+	DataDir string
+	Store   *store.Store
 }
 
 // NewContext creates a new instance of the Context.
@@ -64,13 +66,6 @@ func NewContext(
 	txConfig client.TxConfig,
 	interfaceRegistry types.InterfaceRegistry,
 ) (*Context, error) {
-	// Create the store
-	dataDir := filepath.Join(home, "data")
-	db, err := dbm.NewDB("cylinder", dbm.GoLevelDBBackend, dataDir)
-	if err != nil {
-		return nil, err
-	}
-
 	// Initialize the context
 	return &Context{
 		Config:            cfg,
@@ -81,7 +76,7 @@ func NewContext(
 		InterfaceRegistry: interfaceRegistry,
 		ErrCh:             make(chan error, 1),
 		MsgCh:             make(chan sdk.Msg, 1000),
-		Store:             store.NewStore(db),
+		DataDir:           filepath.Join(home, "data"),
 	}, nil
 }
 
@@ -93,4 +88,26 @@ func (ctx *Context) InitLog() error {
 
 	ctx.Logger = logger.NewLogger(allowLevel)
 	return nil
+}
+
+// WithGoLevelDB initializes the database of the context with GoLevelDB.
+func (ctx *Context) WithGoLevelDB() (*Context, error) {
+	db, err := dbm.NewDB("cylinder", dbm.GoLevelDBBackend, ctx.DataDir)
+	if err != nil {
+		return nil, fmt.Errorf("%w; possibly due to being run in another process", err)
+	}
+
+	return ctx.WithDB(db)
+}
+
+// WithDB sets the DB for the context.
+func (ctx *Context) WithDB(db dbm.DB) (*Context, error) {
+	if ctx.Store != nil {
+		if err := ctx.Store.DB.Close(); err != nil {
+			return nil, fmt.Errorf("failed to close the existing DB: %w", err)
+		}
+	}
+
+	ctx.Store = store.NewStore(db)
+	return ctx, nil
 }

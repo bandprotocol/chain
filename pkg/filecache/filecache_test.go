@@ -11,16 +11,7 @@ import (
 )
 
 func TestAddFile(t *testing.T) {
-	dir, err := os.MkdirTemp("", "filecache")
-	if err != nil {
-		panic(err)
-	}
-	defer func() {
-		err := os.RemoveAll(dir)
-		if err != nil {
-			panic(err)
-		}
-	}()
+	dir := t.TempDir()
 
 	f := filecache.New(dir)
 	filename := f.AddFile([]byte("HELLO_WORLD"))
@@ -35,16 +26,7 @@ func TestAddFile(t *testing.T) {
 }
 
 func TestMustGetFileOK(t *testing.T) {
-	dir, err := os.MkdirTemp("", "filecache")
-	if err != nil {
-		panic(err)
-	}
-	defer func() {
-		err := os.RemoveAll(dir)
-		if err != nil {
-			panic(err)
-		}
-	}()
+	dir := t.TempDir()
 
 	f := filecache.New(dir)
 	filename := f.AddFile([]byte("BAND"))
@@ -55,16 +37,7 @@ func TestMustGetFileOK(t *testing.T) {
 }
 
 func TestGetFileOK(t *testing.T) {
-	dir, err := os.MkdirTemp("", "filecache")
-	if err != nil {
-		panic(err)
-	}
-	defer func() {
-		err := os.RemoveAll(dir)
-		if err != nil {
-			panic(err)
-		}
-	}()
+	dir := t.TempDir()
 
 	f := filecache.New(dir)
 	filename := f.AddFile([]byte("BAND"))
@@ -76,16 +49,7 @@ func TestGetFileOK(t *testing.T) {
 }
 
 func TestMustGetFileNotExist(t *testing.T) {
-	dir, err := os.MkdirTemp("", "filecache")
-	if err != nil {
-		panic(err)
-	}
-	defer func() {
-		err := os.RemoveAll(dir)
-		if err != nil {
-			panic(err)
-		}
-	}()
+	dir := t.TempDir()
 
 	f := filecache.New(dir)
 	require.Panics(t, func() {
@@ -94,38 +58,20 @@ func TestMustGetFileNotExist(t *testing.T) {
 }
 
 func TestGetFileNotExist(t *testing.T) {
-	dir, err := os.MkdirTemp("", "filecache")
-	if err != nil {
-		panic(err)
-	}
-	defer func() {
-		err := os.RemoveAll(dir)
-		if err != nil {
-			panic(err)
-		}
-	}()
+	dir := t.TempDir()
 
 	f := filecache.New(dir)
-	_, err = f.GetFile("52f1b54ce34b64a02f9946b29f670a12933152b1122514ea969a91c211aa32fc")
+	_, err := f.GetFile("52f1b54ce34b64a02f9946b29f670a12933152b1122514ea969a91c211aa32fc")
 	require.Error(t, err)
 }
 
 func TestMustGetFileGoodContent(t *testing.T) {
-	dir, err := os.MkdirTemp("", "filecache")
-	if err != nil {
-		panic(err)
-	}
-	defer func() {
-		err := os.RemoveAll(dir)
-		if err != nil {
-			panic(err)
-		}
-	}()
+	dir := t.TempDir()
 
 	f := filecache.New(dir)
 	filename := "b20727a9b7cc4198d8785b0ef1fa4c774eb9a360e1563dd4f095ddc7af02bd55" // Correct
 	filepath := filepath.Join(dir, filename)
-	err = os.WriteFile(filepath, []byte("NOT_LIKE_THIS"), 0o600)
+	err := os.WriteFile(filepath, []byte("NOT_LIKE_THIS"), 0o600)
 	require.NoError(t, err)
 
 	content := f.MustGetFile(filename)
@@ -133,21 +79,12 @@ func TestMustGetFileGoodContent(t *testing.T) {
 }
 
 func TestGetFileGoodContent(t *testing.T) {
-	dir, err := os.MkdirTemp("", "filecache")
-	if err != nil {
-		panic(err)
-	}
-	defer func() {
-		err := os.RemoveAll(dir)
-		if err != nil {
-			panic(err)
-		}
-	}()
+	dir := t.TempDir()
 
 	f := filecache.New(dir)
 	filename := "b20727a9b7cc4198d8785b0ef1fa4c774eb9a360e1563dd4f095ddc7af02bd55" // Correct
 	filepath := filepath.Join(dir, filename)
-	err = os.WriteFile(filepath, []byte("NOT_LIKE_THIS"), 0o600)
+	err := os.WriteFile(filepath, []byte("NOT_LIKE_THIS"), 0o600)
 	require.NoError(t, err)
 
 	content, err := f.GetFile(filename)
@@ -156,21 +93,12 @@ func TestGetFileGoodContent(t *testing.T) {
 }
 
 func TestMustGetFileBadContent(t *testing.T) {
-	dir, err := os.MkdirTemp("", "filecache")
-	if err != nil {
-		panic(err)
-	}
-	defer func() {
-		err := os.RemoveAll(dir)
-		if err != nil {
-			panic(err)
-		}
-	}()
+	dir := t.TempDir()
 
 	f := filecache.New(dir)
 	filename := "b20727a9b7cc4198d8785b0ef1fa4c774eb9a360e1563dd4f095ddc7af02bd56" // Not correct
 	filepath := filepath.Join(dir, filename)
-	err = os.WriteFile(filepath, []byte("NOT_LIKE_THIS"), 0o600)
+	err := os.WriteFile(filepath, []byte("NOT_LIKE_THIS"), 0o600)
 	require.NoError(t, err)
 
 	require.Panics(t, func() {
@@ -179,21 +107,12 @@ func TestMustGetFileBadContent(t *testing.T) {
 }
 
 func TesGetFileBadContent(t *testing.T) {
-	dir, err := os.MkdirTemp("", "filecache")
-	if err != nil {
-		panic(err)
-	}
-	defer func() {
-		err := os.RemoveAll(dir)
-		if err != nil {
-			panic(err)
-		}
-	}()
+	dir := t.TempDir()
 
 	f := filecache.New(dir)
 	filename := "b20727a9b7cc4198d8785b0ef1fa4c774eb9a360e1563dd4f095ddc7af02bd56" // Not correct
 	filepath := filepath.Join(dir, filename)
-	err = os.WriteFile(filepath, []byte("NOT_LIKE_THIS"), 0o600)
+	err := os.WriteFile(filepath, []byte("NOT_LIKE_THIS"), 0o600)
 	require.NoError(t, err)
 
 	_, err = f.GetFile(filename)
@@ -201,21 +120,12 @@ func TesGetFileBadContent(t *testing.T) {
 }
 
 func TestMustGetFileInconsistentContent(t *testing.T) {
-	dir, err := os.MkdirTemp("", "filecache")
-	if err != nil {
-		panic(err)
-	}
-	defer func() {
-		err := os.RemoveAll(dir)
-		if err != nil {
-			panic(err)
-		}
-	}()
+	dir := t.TempDir()
 
 	f := filecache.New(dir)
 	filename := "b20727a9b7cc4198d8785b0ef1fa4c774eb9a360e1563dd4f095ddc7af02bd55"
 	filepath := filepath.Join(dir, filename)
-	err = os.WriteFile(filepath, []byte("INCONSISTENT"), 0o600) // Not consistent with name
+	err := os.WriteFile(filepath, []byte("INCONSISTENT"), 0o600) // Not consistent with name
 	require.NoError(t, err)
 	require.Panics(t, func() {
 		_ = f.MustGetFile(filename)
@@ -223,21 +133,12 @@ func TestMustGetFileInconsistentContent(t *testing.T) {
 }
 
 func TestGetFileInconsistentContent(t *testing.T) {
-	dir, err := os.MkdirTemp("", "filecache")
-	if err != nil {
-		panic(err)
-	}
-	defer func() {
-		err := os.RemoveAll(dir)
-		if err != nil {
-			panic(err)
-		}
-	}()
+	dir := t.TempDir()
 
 	f := filecache.New(dir)
 	filename := "b20727a9b7cc4198d8785b0ef1fa4c774eb9a360e1563dd4f095ddc7af02bd55"
 	filepath := filepath.Join(dir, filename)
-	err = os.WriteFile(filepath, []byte("INCONSISTENT"), 0o600) // Not consistent with name
+	err := os.WriteFile(filepath, []byte("INCONSISTENT"), 0o600) // Not consistent with name
 	require.NoError(t, err)
 	_, err = f.GetFile(filename)
 	require.Error(t, err)
