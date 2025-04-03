@@ -28,6 +28,7 @@ func StartServer(l *logger.Logger, metricsListenAddr string) {
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 
+	l.Info("Metrics server listening on address %s", metricsListenAddr)
 	if err := srv.ListenAndServe(); err != nil {
 		panic(err)
 	}
