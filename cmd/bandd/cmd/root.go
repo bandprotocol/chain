@@ -332,7 +332,12 @@ func (a appCreator) newApp(
 	chainID := cast.ToString(appOpts.Get(flags.FlagChainID))
 	if chainID == "" {
 		// fallback to genesis chain-id
-		genDocFile := filepath.Join(homeDir, cast.ToString(appOpts.Get("genesis_file")))
+		genesisPathCfg, _ := appOpts.Get("genesis_file").(string)
+		if genesisPathCfg == "" {
+			genesisPathCfg = filepath.Join("config", "genesis.json")
+		}
+
+		genDocFile := filepath.Join(homeDir, genesisPathCfg)
 		appGenesis, err := genutiltypes.AppGenesisFromFile(genDocFile)
 		if err != nil {
 			panic(err)

@@ -13,6 +13,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
 	oracletestutil "github.com/bandprotocol/chain/v3/x/oracle/testutil"
 	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
@@ -89,7 +90,9 @@ func (suite *KeeperTestSuite) TestAllocateTokensOneActive() {
 
 	oracletestutil.ChainGoMockCalls(
 		suite.authKeeper.EXPECT().GetModuleAccount(gomock.Any(), "fee_collector").Return(feeCollectorAcc),
-		suite.bankKeeper.EXPECT().GetAllBalances(gomock.Any(), feeCollectorAcc.GetAddress()).Return(coins1000000uband),
+		suite.bankKeeper.EXPECT().
+			GetAllBalances(gomock.Any(), feeCollectorAcc.GetAddress()).
+			Return(bandtesting.Coins1band),
 		suite.bankKeeper.EXPECT().
 			SendCoinsFromModuleToModule(gomock.Any(), "fee_collector", distrtypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("uband", 700000))),
 		suite.distrKeeper.EXPECT().GetCommunityTax(gomock.Any()).Return(math.LegacyNewDecWithPrec(2, 2), nil),
@@ -131,7 +134,9 @@ func (suite *KeeperTestSuite) TestAllocateTokensAllActive() {
 	suite.mockValidators()
 	oracletestutil.ChainGoMockCalls(
 		suite.authKeeper.EXPECT().GetModuleAccount(gomock.Any(), "fee_collector").Return(feeCollectorAcc),
-		suite.bankKeeper.EXPECT().GetAllBalances(gomock.Any(), feeCollectorAcc.GetAddress()).Return(coins1000000uband),
+		suite.bankKeeper.EXPECT().
+			GetAllBalances(gomock.Any(), feeCollectorAcc.GetAddress()).
+			Return(bandtesting.Coins1band),
 		suite.bankKeeper.EXPECT().
 			SendCoinsFromModuleToModule(gomock.Any(), "fee_collector", distrtypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("uband", 700000))),
 		suite.distrKeeper.EXPECT().GetCommunityTax(gomock.Any()).Return(math.LegacyNewDecWithPrec(2, 2), nil),
