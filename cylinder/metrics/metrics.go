@@ -270,15 +270,15 @@ func InitPrometheusMetrics() {
 
 	metrics = &PrometheusMetrics{
 		ProcessRound1SuccessCount: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: "process_round1_success_count",
+			Name: "cylinder_process_round1_success_count",
 			Help: "Number of successful process round 1",
 		}, roundLabels),
 		ProcessRound1FailureCount: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: "process_round1_failure_count",
+			Name: "cylinder_process_round1_failure_count",
 			Help: "Number of failed process round 1",
 		}, roundLabels),
 		ProcessRound1Time: promauto.NewSummaryVec(prometheus.SummaryOpts{
-			Name: "process_round1_time",
+			Name: "cylinder_process_round1_time",
 			Help: "Time taken to process round 1",
 			Objectives: map[float64]float64{
 				0.5:  0.05,
@@ -287,15 +287,15 @@ func InitPrometheusMetrics() {
 			},
 		}, roundLabels),
 		ProcessRound2SuccessCount: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: "process_round2_success_count",
+			Name: "cylinder_process_round2_success_count",
 			Help: "Number of successful process round 2",
 		}, roundLabels),
 		ProcessRound2FailureCount: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: "process_round2_failure_count",
+			Name: "cylinder_process_round2_failure_count",
 			Help: "Number of failed process round 2",
 		}, roundLabels),
 		ProcessRound2Time: promauto.NewSummaryVec(prometheus.SummaryOpts{
-			Name: "process_round2_time",
+			Name: "cylinder_process_round2_time",
 			Help: "Time taken to process round 2",
 			Objectives: map[float64]float64{
 				0.5:  0.05,
@@ -304,19 +304,19 @@ func InitPrometheusMetrics() {
 			},
 		}, roundLabels),
 		ProcessRound3ConfirmCount: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: "process_round3_confirm_count",
+			Name: "cylinder_process_round3_confirm_count",
 			Help: "Number of successful process round 3 confirm",
 		}, roundLabels),
 		ProcessRound3ComplainCount: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: "process_round3_complain_count",
+			Name: "cylinder_process_round3_complain_count",
 			Help: "Number of process round 3 complain",
 		}, roundLabels),
 		ProcessRound3FailureCount: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: "process_round3_failure_count",
+			Name: "cylinder_process_round3_failure_count",
 			Help: "Number of failed process round 3",
 		}, roundLabels),
 		ProcessRound3Time: promauto.NewSummaryVec(prometheus.SummaryOpts{
-			Name: "process_round3_time",
+			Name: "cylinder_process_round3_time",
 			Help: "Time taken to process round 3",
 			Objectives: map[float64]float64{
 				0.5:  0.05,
@@ -325,39 +325,39 @@ func InitPrometheusMetrics() {
 			},
 		}, roundLabels),
 		DKGLeftGauge: promauto.NewGauge(prometheus.GaugeOpts{
-			Name: "dkg_left_gauge",
+			Name: "cylinder_dkg_left_gauge",
 			Help: "Number of DKG left in the store",
 		}),
 		GroupCount: promauto.NewGauge(prometheus.GaugeOpts{
-			Name: "group_count",
+			Name: "cylinder_group_count",
 			Help: "Number of groups in the store",
 		}),
 		OnChinDELeftGauge: promauto.NewGauge(prometheus.GaugeOpts{
-			Name: "on_chain_de_left_gauge",
+			Name: "cylinder_on_chain_de_left_gauge",
 			Help: "Number of on-chain DE left",
 		}),
 		OffChainDELeftGauge: promauto.NewGauge(prometheus.GaugeOpts{
-			Name: "off_chain_de_left_gauge",
+			Name: "cylinder_off_chain_de_left_gauge",
 			Help: "Number of DE left in the store",
 		}),
 		DECountUsedGauge: promauto.NewGauge(prometheus.GaugeOpts{
-			Name: "de_count_used_gauge",
+			Name: "cylinder_de_count_used_gauge",
 			Help: "Number of DE count used",
 		}),
 		IncomingSigningCount: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: "incoming_signing_count",
+			Name: "cylinder_incoming_signing_count",
 			Help: "Number of incoming signing requests",
 		}, signingLabels),
 		ProcessSigningSuccessCount: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: "process_signing_success_count",
+			Name: "cylinder_process_signing_success_count",
 			Help: "Number of successful process signing",
 		}, signingLabels),
 		ProcessSigningFailureCount: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: "process_signing_failure_count",
+			Name: "cylinder_process_signing_failure_count",
 			Help: "Number of failed process signing",
 		}, signingLabels),
 		ProcessSigningTime: promauto.NewSummaryVec(prometheus.SummaryOpts{
-			Name: "process_signing_time",
+			Name: "cylinder_process_signing_time",
 			Help: "Time taken to process signing",
 			Objectives: map[float64]float64{
 				0.5:  0.05,
@@ -366,7 +366,7 @@ func InitPrometheusMetrics() {
 			},
 		}, signingLabels),
 		WaitingSenderTime: promauto.NewSummary(prometheus.SummaryOpts{
-			Name: "waiting_sender_time",
+			Name: "cylinder_waiting_sender_time",
 			Help: "Time taken to wait for a free key",
 			Objectives: map[float64]float64{
 				0.5:  0.05,
@@ -375,19 +375,19 @@ func InitPrometheusMetrics() {
 			},
 		}),
 		SubmittingTxCount: promauto.NewCounter(prometheus.CounterOpts{
-			Name: "submitting_tx_count",
+			Name: "cylinder_submitting_tx_count",
 			Help: "Number of submitting transactions",
 		}),
 		SubmitTxSuccessCount: promauto.NewCounter(prometheus.CounterOpts{
-			Name: "submit_tx_success_count",
+			Name: "cylinder_submit_tx_success_count",
 			Help: "Number of successful submit transactions",
 		}),
 		SubmitTxFailedCount: promauto.NewCounter(prometheus.CounterOpts{
-			Name: "submit_tx_failed_count",
+			Name: "cylinder_submit_tx_failed_count",
 			Help: "Number of failed submit transactions",
 		}),
 		SubmitTxTime: promauto.NewSummary(prometheus.SummaryOpts{
-			Name: "submit_tx_time",
+			Name: "cylinder_submit_tx_time",
 			Help: "Time taken to submit transactions",
 			Objectives: map[float64]float64{
 				0.5:  0.05,
