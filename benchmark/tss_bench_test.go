@@ -46,10 +46,14 @@ func BenchmarkRequestSignatureDeliver(b *testing.B) {
 					b.N,
 				)
 
-				_, err := ba.FinalizeBlock(
+				res, err := ba.FinalizeBlock(
 					&abci.RequestFinalizeBlock{Height: ba.LastBlockHeight() + 1, Hash: ba.LastCommitID().Hash},
 				)
 				require.NoError(b, err)
+
+				for _, tx := range res.TxResults {
+					require.Equal(b, uint32(0), tx.Code)
+				}
 
 				b.ResetTimer()
 				b.StopTimer()
@@ -83,10 +87,14 @@ func BenchmarkSubmitSignatureDeliver(b *testing.B) {
 				ba := InitializeBenchmarkApp(b, -1)
 				ba.SetupTSSGroup()
 
-				_, err := ba.FinalizeBlock(
+				res, err := ba.FinalizeBlock(
 					&abci.RequestFinalizeBlock{Height: ba.LastBlockHeight() + 1, Hash: ba.LastCommitID().Hash},
 				)
 				require.NoError(b, err)
+
+				for _, tx := range res.TxResults {
+					require.Equal(b, uint32(0), tx.Code)
+				}
 
 				b.ResetTimer()
 				b.StopTimer()
@@ -136,13 +144,17 @@ func BenchmarkEndBlockHandleProcessSigning(b *testing.B) {
 
 				// deliver MsgSubmitSignature to the block
 				for i := 0; i < b.N; i++ {
-					_, err := ba.FinalizeBlock(
+					res, err := ba.FinalizeBlock(
 						&abci.RequestFinalizeBlock{
 							Height: ba.LastBlockHeight() + 1,
 							Hash:   ba.LastCommitID().Hash,
 						},
 					)
 					require.NoError(b, err)
+
+					for _, tx := range res.TxResults {
+						require.Equal(b, uint32(0), tx.Code)
+					}
 
 					gid := ba.BandtssKeeper.GetCurrentGroup(ba.Ctx).GroupID
 					require.NotZero(b, gid)
@@ -172,6 +184,9 @@ func BenchmarkEndBlockHandleProcessSigning(b *testing.B) {
 					b.StopTimer()
 
 					require.NoError(b, err)
+					for _, tx := range res.TxResults {
+						require.Equal(b, uint32(0), tx.Code)
+					}
 
 					_, err = ba.Commit()
 					require.NoError(b, err)

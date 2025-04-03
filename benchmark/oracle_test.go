@@ -302,12 +302,12 @@ func BenchmarkBlockOracleMsgRequestData(b *testing.B) {
 									&abci.RequestFinalizeBlock{
 										Txs:    txs,
 										Height: ba.LastBlockHeight() + 1,
-										Time:   time.Now(),
+										Time:   ba.Ctx.BlockTime(),
 									},
 								)
-								require.NoError(b, err)
-
 								b.StopTimer()
+
+								require.NoError(b, err)
 
 								if i == 0 {
 									if res.TxResults[len(res.TxResults)-1].Code != 0 {
@@ -368,7 +368,7 @@ func BenchmarkBlockOracleMsgReportData(b *testing.B) {
 									&abci.RequestFinalizeBlock{
 										Txs:    txs,
 										Height: ba.LastBlockHeight() + 1,
-										Time:   time.Now(),
+										Time:   ba.Ctx.BlockTime(),
 									},
 								)
 								require.NoError(b, err)
@@ -394,12 +394,12 @@ func BenchmarkBlockOracleMsgReportData(b *testing.B) {
 									&abci.RequestFinalizeBlock{
 										Txs:    [][]byte{tx},
 										Height: ba.LastBlockHeight() + 1,
-										Time:   time.Now(),
+										Time:   ba.Ctx.BlockTime(),
 									},
 								)
-								require.NoError(b, err)
-
 								b.StopTimer()
+
+								require.NoError(b, err)
 
 								if i == 0 {
 									if res.TxResults[len(res.TxResults)-1].Code != 0 {

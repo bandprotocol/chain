@@ -1,8 +1,6 @@
 package keeper_test
 
 import (
-	"time"
-
 	"go.uber.org/mock/gomock"
 
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
@@ -25,12 +23,12 @@ func (s *KeeperTestSuite) TestSendIBCHookPacket() {
 		TunnelID:  tunnelID,
 		Sequence:  1,
 		Prices:    []feedstypes.Price{},
-		CreatedAt: time.Now().Unix(),
+		CreatedAt: 1730358471,
 	}
 	interval := uint64(60)
 	feePayer := sdk.AccAddress([]byte("feePayer"))
 	hookCoins := sdk.NewCoins(
-		sdk.NewInt64Coin(types.FormatHookDenomIdentifier(tunnelID), types.HookTransferAmount),
+		sdk.NewInt64Coin(types.FormatHookDenomIdentifier(tunnelID), int64(types.HookTransferAmount)),
 	)
 
 	expectedPacketReceipt := types.IBCHookPacketReceipt{
@@ -65,7 +63,7 @@ func (s *KeeperTestSuite) TestMintIBCHookCoinToAccount() {
 	tunnelID := uint64(1)
 	account := sdk.AccAddress([]byte("test_account"))
 	hookCoins := sdk.NewCoins(
-		sdk.NewInt64Coin(types.FormatHookDenomIdentifier(tunnelID), types.HookTransferAmount),
+		sdk.NewInt64Coin(types.FormatHookDenomIdentifier(tunnelID), int64(types.HookTransferAmount)),
 	)
 
 	s.bankKeeper.EXPECT().MintCoins(ctx, types.ModuleName, hookCoins).Return(nil)
@@ -74,6 +72,6 @@ func (s *KeeperTestSuite) TestMintIBCHookCoinToAccount() {
 		Return(nil)
 
 	// Mint coins to the account
-	err := k.MintIBCHookCoinToAccount(ctx, tunnelID, account)
+	err := k.MintIBCHookCoinToAccount(ctx, tunnelID, account, types.HookTransferAmount)
 	s.Require().NoError(err)
 }

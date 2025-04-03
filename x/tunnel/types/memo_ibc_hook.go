@@ -8,13 +8,13 @@ import (
 func NewIBCHookMemo(
 	contract string,
 	packet TunnelPricesPacketData,
-) *IBCHookMemo {
-	return &IBCHookMemo{
-		Wasm: &IBCHookWasm{
+) IBCHookMemo {
+	return IBCHookMemo{
+		Wasm: IBCHookMemo_Payload{
 			Contract: contract,
-			Msg: &IBCHookMsg{
-				ReceivePacket: &IBCHookPacket{
-					Packet: &packet,
+			Msg: IBCHookMemo_Payload_Msg{
+				ReceivePacket: IBCHookMemo_Payload_Msg_ReceivePacket{
+					Packet: packet,
 				},
 			},
 		},

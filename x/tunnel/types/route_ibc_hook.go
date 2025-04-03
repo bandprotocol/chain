@@ -10,7 +10,7 @@ var (
 	// HookDenomPrefix defines the prefix for the IBC hook denom
 	HookDenomPrefix = "tunnel-"
 	// HookTransferAmount defines the amount to transfer for the IBC hook
-	HookTransferAmount = int64(1)
+	HookTransferAmount = uint64(1)
 )
 
 // IBCRoute defines the IBC route for the tunnel module
