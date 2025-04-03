@@ -74,10 +74,7 @@ func signAndBroadcast(
 	if err != nil {
 		return nil, err
 	}
-	// out, err := txBldr.WithKeybase(keybase).BuildAndSign(key.GetName(), ckeys.DefaultKeyPass, msgs)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("Failed to build tx with error: %s", err.Error())
-	// }
+
 	return res, nil
 }
 
