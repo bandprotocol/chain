@@ -375,7 +375,7 @@ func NewAppKeeper(
 		runtime.ProvideCometInfoService(),
 	)
 
-	// If evidence needs to be handled for the app, set routes in Router here and seal
+	// If evidence needs to be handled for the app, set routes in router here and seal
 	appKeepers.EvidenceKeeper = *evidenceKeeper
 	// GlobalFeeKeeper
 	appKeepers.GlobalFeeKeeper = globalfeekeeper.NewKeeper(

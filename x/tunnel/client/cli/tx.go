@@ -209,7 +209,7 @@ func GetTxCmdCreateIBCHookTunnel() *cobra.Command {
 
 func GetTxCmdCreateRouterTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "router [destination-chain-id] [destination-contract-address] [destination-gas-limit] [initial-deposit] [interval] [signalDeviations-json-file]",
+		Use:   "router [destination-chain-id] [destination-contract-address] [destination-gas-limit] [initial-deposit] [interval] [signal-deviations-json-file]",
 		Short: "Create a new Router tunnel",
 		Args:  cobra.ExactArgs(6),
 		RunE: func(cmd *cobra.Command, args []string) error {
