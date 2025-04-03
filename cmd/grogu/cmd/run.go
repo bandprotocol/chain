@@ -105,7 +105,7 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 
 		// Start metrics server if address is provided
 		if metricListenAddr != "" {
-			ctx.Logger.Info("Metrics server is enabled at %s", metricListenAddr)
+			l.Info("Metrics server is enabled at %s", metricListenAddr)
 			go telemetry.StartServer(l, metricListenAddr)
 		}
 
