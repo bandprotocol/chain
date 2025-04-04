@@ -1,14 +1,11 @@
 package feechecker
 
 import (
-	"math"
-
 	sdkmath "cosmossdk.io/math"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
@@ -17,7 +14,6 @@ import (
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/globalfee/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
-	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 	tsskeeper "github.com/bandprotocol/chain/v3/x/tss/keeper"
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
@@ -89,11 +85,6 @@ func (fc FeeChecker) CheckTxFee(
 		return feeCoins, priority, nil
 	}
 
-	// Check if this tx should be free or not
-	if fc.IsBypassMinFeeTx(ctx, tx) {
-		return sdk.Coins{}, int64(math.MaxInt64), nil
-	}
-
 	minGasPrices := getMinGasPrices(ctx)
 	globalMinGasPrices, err := fc.GetGlobalMinGasPrices(ctx)
 	if err != nil {
@@ -123,106 +114,6 @@ func (fc FeeChecker) CheckTxFee(
 	}
 
 	return feeCoins, priority, nil
-}
-
-// IsBypassMinFeeTx checks whether tx is min fee bypassable.
-func (fc FeeChecker) IsBypassMinFeeTx(ctx sdk.Context, tx sdk.Tx) bool {
-	newCtx, _ := ctx.CacheContext()
-
-	// Check if all messages are free
-	for _, msg := range tx.GetMsgs() {
-		if !fc.IsBypassMinFeeMsg(newCtx, msg) {
-			return false
-		}
-	}
-
-	return true
-}
-
-// IsBypassMinFeeMsg checks whether msg is min fee bypassable.
-func (fc FeeChecker) IsBypassMinFeeMsg(ctx sdk.Context, msg sdk.Msg) bool {
-	switch msg := msg.(type) {
-	case *oracletypes.MsgReportData:
-		if err := checkValidMsgReport(ctx, fc.OracleKeeper, msg); err != nil {
-			return false
-		}
-	case *feedstypes.MsgSubmitSignalPrices:
-		if _, err := fc.FeedsMsgServer.SubmitSignalPrices(ctx, msg); err != nil {
-			return false
-		}
-	case *tsstypes.MsgSubmitDKGRound1:
-		if _, err := fc.TSSMsgServer.SubmitDKGRound1(ctx, msg); err != nil {
-			return false
-		}
-	case *tsstypes.MsgSubmitDKGRound2:
-		if _, err := fc.TSSMsgServer.SubmitDKGRound2(ctx, msg); err != nil {
-			return false
-		}
-	case *tsstypes.MsgConfirm:
-		if _, err := fc.TSSMsgServer.Confirm(ctx, msg); err != nil {
-			return false
-		}
-	case *tsstypes.MsgComplain:
-		if _, err := fc.TSSMsgServer.Complain(ctx, msg); err != nil {
-			return false
-		}
-	case *tsstypes.MsgSubmitDEs:
-		acc, err := sdk.AccAddressFromBech32(msg.Sender)
-		if err != nil {
-			return false
-		}
-
-		currentGroupID := fc.BandtssKeeper.GetCurrentGroup(ctx).GroupID
-		incomingGroupID := fc.BandtssKeeper.GetIncomingGroupID(ctx)
-		if !fc.BandtssKeeper.HasMember(ctx, acc, currentGroupID) &&
-			!fc.BandtssKeeper.HasMember(ctx, acc, incomingGroupID) {
-			return false
-		}
-
-		if _, err := fc.TSSMsgServer.SubmitDEs(ctx, msg); err != nil {
-			return false
-		}
-	case *tsstypes.MsgSubmitSignature:
-		if _, err := fc.TSSMsgServer.SubmitSignature(ctx, msg); err != nil {
-			return false
-		}
-	case *authz.MsgExec:
-		msgs, err := msg.GetMessages()
-		if err != nil {
-			return false
-		}
-
-		grantee, err := sdk.AccAddressFromBech32(msg.Grantee)
-		if err != nil {
-			return false
-		}
-
-		for _, m := range msgs {
-			signers, _, err := fc.cdc.GetMsgV1Signers(m)
-			if err != nil {
-				return false
-			}
-			// Check if this grantee have authorization for the message.
-			cap, _ := fc.AuthzKeeper.GetAuthorization(
-				ctx,
-				grantee,
-				sdk.AccAddress(signers[0]),
-				sdk.MsgTypeURL(m),
-			)
-			if cap == nil {
-				return false
-			}
-
-			// Check if this message should be free or not.
-			if !fc.IsBypassMinFeeMsg(ctx, m) {
-				return false
-			}
-		}
-	default:
-		return false
-	}
-
-	return true
 }
 
 // GetGlobalMinGasPrices returns global min gas prices
