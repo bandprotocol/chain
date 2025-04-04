@@ -266,6 +266,8 @@ github.com/aws/aws-sdk-go v1.44.122/go.mod h1:y4AeaBuwd2Lk+GepC1E9v0qOiTws0MIWAX
 github.com/aws/aws-sdk-go v1.44.224 h1:09CiaaF35nRmxrzWZ2uRq5v6Ghg/d2RiPjZnSgtt+RQ=
 github.com/aws/aws-sdk-go v1.44.224/go.mod h1:aVsgQcEevwlmQ7qHE9I3h+dtQgpqhFB+i8Phjh7fkwI=
 github.com/aws/aws-sdk-go-v2 v0.18.0/go.mod h1:JWVYvqSMppoMJC0x5wdwiImzgXTI9FuZwxzkQq9wy+g=
+github.com/axelarnetwork/utils v0.0.0-20230706045331-b7aacc1f4a2f h1:Q0Qh79MuZ/PWKzytqU8/4dt+S2QemdYYPXkjwp/i4l0=
+github.com/axelarnetwork/utils v0.0.0-20230706045331-b7aacc1f4a2f/go.mod h1:7N7/Qo5WOm8HnwCtWvQs7T5QQLwVoLU/v+KkMLrvxiA=
 github.com/bandprotocol/bothan/bothan-api/client/go-client v0.0.1-alpha.6 h1:xq2Pf48GQwxxzNFt7URfzDKIJL2ITC5lbMluG0g0H3M=
 github.com/bandprotocol/bothan/bothan-api/client/go-client v0.0.1-alpha.6/go.mod h1:Qt5LDLwrFhLDQbLVBRd/yKyf2CNzHJlT+F+DEhnyqVE=
 github.com/bandprotocol/go-owasm v0.3.1 h1:L38qAEmb0KyTICHBHJaBoo6yy5+BlbOzQeQ+ioUV5Uw=
