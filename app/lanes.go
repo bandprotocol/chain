@@ -278,9 +278,9 @@ func DefaultLaneMatchHandler() func(sdk.Context, sdk.Tx) bool {
 
 // CreateLanes creates the lanes for the Band mempool.
 func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleLane, defaultLane *mempool.Lane) {
-	// 1. Create the signer extractor. This is used to extract the expected signers from
+	// Create the signer extractor. This is used to extract the expected signers from
 	// a transaction. Each lane can have a different signer extractor if needed.
-	signerAdapter := sdkmempool.NewDefaultSignerExtractionAdapter()
+	signerExtractor := sdkmempool.NewDefaultSignerExtractionAdapter()
 
 	feedsMsgServer := feedskeeper.NewMsgServerImpl(app.FeedsKeeper)
 	tssMsgServer := tsskeeper.NewMsgServerImpl(app.TSSKeeper)
@@ -289,7 +289,7 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleLane, defaultLane *mem
 	feedsLane = mempool.NewLane(
 		app.Logger(),
 		app.txConfig.TxEncoder(),
-		signerAdapter,
+		signerExtractor,
 		"feedsLane",
 		FeedsLaneMatchHandler(app.appCodec, &app.AuthzKeeper, feedsMsgServer),
 		math.LegacyMustNewDecFromStr("0.05"),
@@ -300,7 +300,7 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleLane, defaultLane *mem
 	tssLane = mempool.NewLane(
 		app.Logger(),
 		app.txConfig.TxEncoder(),
-		signerAdapter,
+		signerExtractor,
 		"tssLane",
 		TssLaneMatchHandler(app.appCodec, &app.AuthzKeeper, &app.BandtssKeeper, tssMsgServer),
 		math.LegacyMustNewDecFromStr("0.05"),
@@ -311,7 +311,7 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleLane, defaultLane *mem
 	oracleLane = mempool.NewLane(
 		app.Logger(),
 		app.txConfig.TxEncoder(),
-		signerAdapter,
+		signerExtractor,
 		"oracleLane",
 		oracleLaneMatchHandler(app.appCodec, &app.AuthzKeeper, oracleMsgServer),
 		math.LegacyMustNewDecFromStr("0.05"),
@@ -322,7 +322,7 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleLane, defaultLane *mem
 	defaultLane = mempool.NewLane(
 		app.Logger(),
 		app.txConfig.TxEncoder(),
-		signerAdapter,
+		signerExtractor,
 		"defaultLane",
 		DefaultLaneMatchHandler(),
 		math.LegacyMustNewDecFromStr("0.3"),

@@ -146,12 +146,12 @@ func (s *MempoolTestSuite) setBlockParams(maxGasLimit, maxBlockSize int64) {
 // -----------------------------------------------------------------------------
 
 func (s *MempoolTestSuite) newMempool() *Mempool {
-	signerAdapter := sdkmempool.NewDefaultSignerExtractionAdapter()
+	signerExtractor := sdkmempool.NewDefaultSignerExtractionAdapter()
 
 	BankSendLane := NewLane(
 		log.NewTestLogger(s.T()),
 		s.encodingConfig.TxConfig.TxEncoder(),
-		signerAdapter,
+		signerExtractor,
 		"bankSend",
 		isBankSendTx,
 		math.LegacyMustNewDecFromStr("0.2"),
@@ -162,7 +162,7 @@ func (s *MempoolTestSuite) newMempool() *Mempool {
 	DelegateLane := NewLane(
 		log.NewTestLogger(s.T()),
 		s.encodingConfig.TxConfig.TxEncoder(),
-		signerAdapter,
+		signerExtractor,
 		"delegate",
 		isDelegateTx,
 		math.LegacyMustNewDecFromStr("0.2"),
@@ -173,7 +173,7 @@ func (s *MempoolTestSuite) newMempool() *Mempool {
 	OtherLane := NewLane(
 		log.NewTestLogger(s.T()),
 		s.encodingConfig.TxConfig.TxEncoder(),
-		signerAdapter,
+		signerExtractor,
 		"other",
 		isOtherTx,
 		math.LegacyMustNewDecFromStr("0.4"),

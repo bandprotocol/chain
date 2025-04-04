@@ -170,7 +170,6 @@ func (l *Lane) FillProposal(
 		}
 
 		// Add the transaction to the proposal.
-		// TODO: check if the transaction cannot be added here, it should also cannot be added afterward.
 		if err := proposal.Add(txInfo); err != nil {
 			l.logger.Info(
 				"failed to add tx to proposal",
@@ -257,7 +256,6 @@ func (l *Lane) GetTxInfo(tx sdk.Tx) (TxWithInfo, error) {
 		return TxWithInfo{}, fmt.Errorf("failed to encode transaction: %w", err)
 	}
 
-	// TODO: Add an adapter to lanes so that this can be flexible to support EVM, etc.
 	gasTx, ok := tx.(sdk.FeeTx)
 	if !ok {
 		return TxWithInfo{}, fmt.Errorf("failed to cast transaction to gas tx")
@@ -268,11 +266,11 @@ func (l *Lane) GetTxInfo(tx sdk.Tx) (TxWithInfo, error) {
 		return TxWithInfo{}, err
 	}
 
-	BlockSpace := NewBlockSpace(int64(len(txBytes)), gasTx.GetGas())
+	blockSpace := NewBlockSpace(int64(len(txBytes)), gasTx.GetGas())
 
 	return TxWithInfo{
 		Hash:       strings.ToUpper(hex.EncodeToString(comettypes.Tx(txBytes).Hash())),
-		BlockSpace: BlockSpace,
+		BlockSpace: blockSpace,
 		TxBytes:    txBytes,
 		Signers:    signers,
 	}, nil

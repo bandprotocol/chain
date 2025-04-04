@@ -2,17 +2,18 @@ package mempool
 
 import (
 	"fmt"
+	"math"
 
 	comettypes "github.com/cometbft/cometbft/types"
 
 	"cosmossdk.io/log"
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // MaxUint64 is the maximum value of a uint64.
-const MaxUint64 = 1<<64 - 1
+const MaxUint64 = math.MaxUint64
 
 // Proposal represents a block proposal under construction.
 type Proposal struct {
@@ -71,7 +72,7 @@ func (p *Proposal) Add(txInfo TxWithInfo) error {
 }
 
 // GetLimit returns the maximum block space available for a given ratio.
-func (p *Proposal) GetLimit(ratio math.LegacyDec) BlockSpace {
+func (p *Proposal) GetLimit(ratio sdkmath.LegacyDec) BlockSpace {
 	// In the case where the ratio is zero, we return the max tx bytes remaining.
 	if ratio.IsZero() {
 		return p.maxBlockSpace.Sub(p.totalBlockSpace)

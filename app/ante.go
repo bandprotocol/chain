@@ -139,15 +139,15 @@ func NewIgnoreDecorator(decorator sdk.AnteDecorator, lanes ...*mempool.Lane) *Ig
 // AnteHandle implements the sdk.AnteDecorator interface. If the transaction belongs to
 // one of the lanes, the next AnteHandler is called. Otherwise, the decorator's AnteHandler
 // is called.
-func (sd IgnoreDecorator) AnteHandle(
+func (ig IgnoreDecorator) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
 ) (sdk.Context, error) {
 	cacheCtx, _ := ctx.CacheContext()
-	for _, lane := range sd.lanes {
+	for _, lane := range ig.lanes {
 		if lane.Match(cacheCtx, tx) {
 			return next(ctx, tx, simulate)
 		}
 	}
 
-	return sd.decorator.AnteHandle(ctx, tx, simulate, next)
+	return ig.decorator.AnteHandle(ctx, tx, simulate, next)
 }
