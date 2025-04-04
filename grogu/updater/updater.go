@@ -6,6 +6,7 @@ import (
 
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
 
+	"github.com/bandprotocol/chain/v3/grogu/telemetry"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 )
 
@@ -68,12 +69,17 @@ func (u *Updater) checkAndUpdateBothan() {
 		return
 	}
 
+	// Increment the update registry count metric
+	telemetry.IncrementUpdatingRegistry()
 	u.logger.Info("[Updater] chain and Bothan config mismatch detected, updating registry")
+
 	err = u.bothanClient.UpdateRegistry(rfc.RegistryIPFSHash, rfc.RegistryVersion)
 	if err != nil {
+		telemetry.IncrementUpdateRegistryFailed()
 		u.logger.Error("[Updater] failed to update registry: %v", err)
 		return
 	}
 
+	telemetry.IncrementUpdateRegistrySuccess()
 	u.logger.Info("[Updater] successfully updated registry with IPFS hash: %s", rfc.RegistryIPFSHash)
 }
