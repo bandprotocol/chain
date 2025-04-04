@@ -1,6 +1,8 @@
 package context
 
 import (
+	"time"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 
 	"github.com/bandprotocol/chain/v3/app/params"
@@ -19,10 +21,10 @@ type Config struct {
 	ChainID string `mapstructure:"chain-id"`
 
 	// BroadcastTimeout is the duration Grogu will wait for a transaction commit.
-	BroadcastTimeout string `mapstructure:"broadcast-timeout"`
+	BroadcastTimeout time.Duration `mapstructure:"broadcast-timeout"`
 
 	// RPCPollInterval is the duration between RPC polls.
-	RPCPollInterval string `mapstructure:"rpc-poll-interval"`
+	RPCPollInterval time.Duration `mapstructure:"rpc-poll-interval"`
 
 	// MaxTry is the maximum number of attempts to submit a transaction.
 	MaxTry uint64 `mapstructure:"max-try"`
@@ -40,13 +42,13 @@ type Config struct {
 	Bothan string `mapstructure:"bothan"`
 
 	// BothanTimeout is the timeout duration for Bothan requests.
-	BothanTimeout string `mapstructure:"bothan-timeout"`
+	BothanTimeout time.Duration `mapstructure:"bothan-timeout"`
 
 	// LogLevel is the level of logging for the logger.
 	LogLevel string `mapstructure:"log-level"`
 
 	// UpdaterQueryInterval is the interval for updater querying chain.
-	UpdaterQueryInterval string `mapstructure:"updater-query-interval"`
+	UpdaterQueryInterval time.Duration `mapstructure:"updater-query-interval"`
 
 	// MetricsListenAddr is an address to use for metrics server
 	MetricsListenAddr string `mapstructure:"metrics-listen-addr"`
@@ -59,4 +61,20 @@ type Context struct {
 	Logger         *logger.Logger
 	Home           string
 	EncodingConfig params.EncodingConfig
+}
+
+func New(
+	cfg Config,
+	kr keyring.Keyring,
+	logger *logger.Logger,
+	home string,
+	encodingConfig params.EncodingConfig,
+) *Context {
+	return &Context{
+		Config:         cfg,
+		Keyring:        kr,
+		Logger:         logger,
+		Home:           home,
+		EncodingConfig: encodingConfig,
+	}
 }
