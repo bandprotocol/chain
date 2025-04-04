@@ -81,6 +81,7 @@ func RunCmd(ctx *context.Context) *cobra.Command {
 	_ = viper.BindPFlag(flagBothanTimeout, cmd.Flags().Lookup(flagBothanTimeout))
 	_ = viper.BindPFlag(flagLogLevel, cmd.Flags().Lookup(flagLogLevel))
 	_ = viper.BindPFlag(flagUpdaterQueryInterval, cmd.Flags().Lookup(flagUpdaterQueryInterval))
+	_ = viper.BindPFlag(flagMetricsListenAddr, cmd.Flags().Lookup(flagMetricsListenAddr))
 
 	return cmd
 }
@@ -94,18 +95,9 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 		}
 		l := logger.NewLogger(allowLevel)
 
-		// Parse metric listen address from flag; if empty, use config value
-		metricListenAddr, err := cmd.Flags().GetString(flagMetricsListenAddr)
-		if err != nil {
-			return err
-		}
-		if metricListenAddr == "" {
-			metricListenAddr = ctx.Config.MetricsListenAddr
-		}
-
 		// Start metrics server if address is provided
-		if metricListenAddr != "" {
-			go telemetry.StartServer(l, metricListenAddr)
+		if ctx.Config.MetricsListenAddr != "" {
+			go telemetry.StartServer(l, ctx.Config.MetricsListenAddr)
 		}
 
 		// Split Node URIs and create RPC clients
