@@ -11,7 +11,6 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	"github.com/bandprotocol/chain/v3/app/mempool"
 	bandtsskeeper "github.com/bandprotocol/chain/v3/x/bandtss/keeper"
 	feedskeeper "github.com/bandprotocol/chain/v3/x/feeds/keeper"
 	"github.com/bandprotocol/chain/v3/x/globalfee/feechecker"
@@ -33,7 +32,7 @@ type HandlerOptions struct {
 	TSSKeeper       *tsskeeper.Keeper
 	BandtssKeeper   *bandtsskeeper.Keeper
 	FeedsKeeper     *feedskeeper.Keeper
-	Lanes           []*mempool.Lane
+	MatchFns        []func(sdk.Context, sdk.Tx) bool
 }
 
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
@@ -107,7 +106,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 				options.FeegrantKeeper,
 				options.TxFeeChecker,
 			),
-			options.Lanes...,
+			options.MatchFns...,
 		),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
@@ -125,14 +124,14 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 // for the AnteDecorator to be ignored for specified lanes.
 type IgnoreDecorator struct {
 	decorator sdk.AnteDecorator
-	lanes     []*mempool.Lane
+	matchFns  []func(sdk.Context, sdk.Tx) bool
 }
 
 // NewIgnoreDecorator returns a new IgnoreDecorator instance.
-func NewIgnoreDecorator(decorator sdk.AnteDecorator, lanes ...*mempool.Lane) *IgnoreDecorator {
+func NewIgnoreDecorator(decorator sdk.AnteDecorator, matchFns ...func(sdk.Context, sdk.Tx) bool) *IgnoreDecorator {
 	return &IgnoreDecorator{
 		decorator: decorator,
-		lanes:     lanes,
+		matchFns:  matchFns,
 	}
 }
 
@@ -142,9 +141,14 @@ func NewIgnoreDecorator(decorator sdk.AnteDecorator, lanes ...*mempool.Lane) *Ig
 func (sd IgnoreDecorator) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
 ) (sdk.Context, error) {
+	// IgnoreDecorator is only used for check tx.
+	if !ctx.IsCheckTx() {
+		return sd.decorator.AnteHandle(ctx, tx, simulate, next)
+	}
+
 	cacheCtx, _ := ctx.CacheContext()
-	for _, lane := range sd.lanes {
-		if lane.Match(cacheCtx, tx) {
+	for _, matchFn := range sd.matchFns {
+		if matchFn(cacheCtx, tx) {
 			return next(ctx, tx, simulate)
 		}
 	}
