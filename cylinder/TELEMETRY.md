@@ -77,7 +77,7 @@ Cylinder provides a pre-built Grafana Dashboard to visualize TSS signing metrics
 
 ### Dashboard Link
 
-[Cylinder Grafana Dashboard #23071](https://grafana.com/grafana/dashboards/23071-cylinder/)
+[Cylinder Grafana Dashboard #23071](https://grafana.com/grafana/dashboards/23184-cylinder/)
 
 ## Metrics Server Configuration
 
