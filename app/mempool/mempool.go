@@ -171,3 +171,21 @@ func (m *Mempool) removeTxsFromLanes(txsToRemove [][]sdk.Tx) {
 		}
 	}
 }
+
+// Contains returns true if the transaction is contained in any of the lanes.
+func (m *Mempool) Contains(tx sdk.Tx) (contains bool) {
+	defer func() {
+		if r := recover(); r != nil {
+			m.logger.Error("panic in Contains", "err", r)
+			contains = false
+		}
+	}()
+
+	for _, lane := range m.lanes {
+		if lane.Contains(tx) {
+			return true
+		}
+	}
+
+	return false
+}
