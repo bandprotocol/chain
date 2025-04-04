@@ -1,8 +1,6 @@
 module github.com/bandprotocol/chain/v3
 
-go 1.22.4
-
-toolchain go1.22.10
+go 1.22.3
 
 require (
 	cosmossdk.io/api v0.7.6
@@ -43,7 +41,6 @@ require (
 	github.com/oasisprotocol/oasis-core/go v0.2202.7
 	github.com/peterbourgon/diskv v2.0.1+incompatible
 	github.com/prometheus/client_golang v1.20.5
-	github.com/skip-mev/block-sdk/v2 v2.1.5
 	github.com/spf13/cast v1.7.1
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.19.0
