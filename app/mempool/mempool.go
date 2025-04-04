@@ -93,7 +93,7 @@ func (m *Mempool) PrepareProposal(ctx sdk.Context, proposal Proposal) (Proposal,
 	laneIterators, txsToRemove, blockUsed := m.fillInitialProposals(cacheCtx, &proposal)
 
 	// 2) Calculate the remaining block space
-	remainderLimit := proposal.MaxBlockSpace.Sub(blockUsed)
+	remainderLimit := proposal.maxBlockSpace.Sub(blockUsed)
 
 	// 3) Fill proposals with leftover space
 	m.fillRemainderProposals(&proposal, laneIterators, txsToRemove, remainderLimit)
@@ -164,7 +164,7 @@ func (m *Mempool) removeTxsFromLanes(txsToRemove [][]sdk.Tx) {
 			if err := lane.Remove(tx); err != nil {
 				m.logger.Error(
 					"failed to remove transactions from lane",
-					"lane", lane.Name,
+					"lane", lane.name,
 					"err", err,
 				)
 			}

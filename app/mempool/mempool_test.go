@@ -237,7 +237,7 @@ func (s *MempoolTestSuite) TestNoTransactions() {
 	result, err := mem.PrepareProposal(s.ctx, proposal)
 	s.Require().NoError(err)
 	s.Require().NotNil(result)
-	s.Require().Equal(0, len(result.Txs))
+	s.Require().Equal(0, len(result.txs))
 }
 
 // TestSingleBankTx ensures a single bank tx is included
@@ -266,8 +266,8 @@ func (s *MempoolTestSuite) TestSingleBankTx() {
 	s.Require().NotNil(result)
 
 	expectedIncludedTxs := s.getTxBytes(tx)
-	s.Require().Equal(1, len(result.Txs))
-	s.Require().Equal(expectedIncludedTxs, result.Txs)
+	s.Require().Equal(1, len(result.txs))
+	s.Require().Equal(expectedIncludedTxs, result.txs)
 }
 
 // TestOneTxPerLane checks a single transaction in each lane type
@@ -319,8 +319,8 @@ func (s *MempoolTestSuite) TestOneTxPerLane() {
 	s.Require().NotNil(result)
 
 	expectedIncludedTxs := s.getTxBytes(tx1, tx2, tx3)
-	s.Require().Equal(3, len(result.Txs))
-	s.Require().Equal(expectedIncludedTxs, result.Txs)
+	s.Require().Equal(3, len(result.txs))
+	s.Require().Equal(expectedIncludedTxs, result.txs)
 }
 
 // TestTxOverLimit checks if a tx over the block limit is rejected
@@ -347,7 +347,7 @@ func (s *MempoolTestSuite) TestTxOverLimit() {
 	result, err := mem.PrepareProposal(s.ctx, proposal)
 	s.Require().NoError(err)
 
-	s.Require().Equal(0, len(result.Txs))
+	s.Require().Equal(0, len(result.txs))
 
 	// Ensure the tx is removed
 	for _, lane := range mem.lanes {
@@ -427,8 +427,8 @@ func (s *MempoolTestSuite) TestTxsOverGasLimit() {
 
 	// should not contain the otherTx1
 	expectedIncludedTxs := s.getTxBytes(bankTx1, bankTx2, delegateTx1, delegateTx2)
-	s.Require().Equal(4, len(result.Txs))
-	s.Require().Equal(expectedIncludedTxs, result.Txs)
+	s.Require().Equal(4, len(result.txs))
+	s.Require().Equal(expectedIncludedTxs, result.txs)
 }
 
 // TestFillUpLeftOverSpace checks if the proposal fills up the remaining space
@@ -503,8 +503,8 @@ func (s *MempoolTestSuite) TestFillUpLeftOverSpace() {
 
 	// should contain bankTx3 as the last tx
 	expectedIncludedTxs := s.getTxBytes(bankTx1, bankTx2, delegateTx1, delegateTx2, bankTx3)
-	s.Require().Equal(5, len(result.Txs))
-	s.Require().Equal(expectedIncludedTxs, result.Txs)
+	s.Require().Equal(5, len(result.txs))
+	s.Require().Equal(expectedIncludedTxs, result.txs)
 }
 
 // -----------------------------------------------------------------------------

@@ -67,14 +67,14 @@ func (h *ProposalHandler) PrepareProposalHandler() sdk.PrepareProposalHandler {
 
 		h.logger.Info(
 			"prepared proposal",
-			"num_txs", len(finalProposal.Txs),
-			"total_block_space", finalProposal.TotalBlockSpace.String(),
-			"max_block_space", finalProposal.MaxBlockSpace.String(),
+			"num_txs", len(finalProposal.txs),
+			"total_block_space", finalProposal.totalBlockSpace.String(),
+			"max_block_space", finalProposal.maxBlockSpace.String(),
 			"height", req.Height,
 		)
 
 		return &abci.ResponsePrepareProposal{
-			Txs: finalProposal.Txs,
+			Txs: finalProposal.txs,
 		}, nil
 	}
 }
