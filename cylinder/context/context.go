@@ -36,6 +36,7 @@ type Config struct {
 	GasAdjustStep      float64       `mapstructure:"gas-adjust-step"`      // The increment step of gad adjustment
 	RandomSecret       tss.Scalar    `mapstructure:"random-secret"`        // The secret value that is used for random D,E
 	CheckingDEInterval time.Duration `mapstructure:"checking-de-interval"` // The interval for updating DE
+	MetricsListenAddr  string        `mapstructure:"metrics-listen-addr"`  // Address to use for metrics server
 }
 
 // Context holds the context information for the Cylinder process.
