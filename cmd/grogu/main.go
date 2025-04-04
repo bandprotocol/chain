@@ -99,7 +99,7 @@ func createPersistentPreRunE(rootCmd *cobra.Command, ctx *context.Context) func(
 			Amino:             tempApplication.LegacyAmino(),
 		}
 
-		keyring, err := keyring.New("band", keyring.BackendTest, home, nil, tempApplication.AppCodec())
+		kr, err := keyring.New("band", keyring.BackendTest, home, nil, tempApplication.AppCodec())
 		if err != nil {
 			return err
 		}
@@ -114,7 +114,7 @@ func createPersistentPreRunE(rootCmd *cobra.Command, ctx *context.Context) func(
 			return err
 		}
 
-		*ctx = *context.New(*cfg, keyring, logger, home, encodingConfig)
+		*ctx = *context.New(*cfg, kr, logger, home, encodingConfig)
 		return nil
 	}
 }
@@ -126,11 +126,11 @@ func initConfig(homePath string) (*context.Config, error) {
 	// If the config file cannot be read, only cmd flags will be used.
 	_ = viper.ReadInConfig()
 
-	var cfg *context.Config
+	var cfg context.Config
 	if err := viper.Unmarshal(&cfg); err != nil {
 		return nil, err
 	}
-	return cfg, nil
+	return &cfg, nil
 }
 
 // InitLog initializes the logger for the context.
