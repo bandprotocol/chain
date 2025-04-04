@@ -124,7 +124,7 @@ func (m *Mempool) fillInitialProposals(
 
 	for i, lane := range m.lanes {
 		blockUsed, iterator, txs := lane.FillProposal(ctx, proposal)
-		totalBlockUsed.IncreaseBy(blockUsed)
+		totalBlockUsed = totalBlockUsed.Add(blockUsed)
 
 		laneIterators[i] = iterator
 		txsToRemove[i] = txs
@@ -149,7 +149,7 @@ func (m *Mempool) fillRemainderProposals(
 		)
 
 		// Decrement the remainder for subsequent lanes
-		remainderLimit.DecreaseBy(blockUsed)
+		remainderLimit = remainderLimit.Sub(blockUsed)
 
 		// Append any newly removed transactions to be removed
 		txsToRemove[i] = append(txsToRemove[i], removedTxs...)

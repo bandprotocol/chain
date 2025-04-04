@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"strings"
+	"sync"
 
 	comettypes "github.com/cometbft/cometbft/types"
 
@@ -31,6 +32,9 @@ type Lane struct {
 	// txIndex holds the uppercase hex-encoded hash for every transaction
 	// currently in this lane's mempool.
 	txIndex map[string]struct{}
+
+	// Add mutex for thread safety
+	mtx sync.RWMutex
 }
 
 // NewLane is a constructor for a lane.
@@ -66,6 +70,9 @@ func (l *Lane) Insert(ctx context.Context, tx sdk.Tx) error {
 		return err
 	}
 
+	l.mtx.Lock()
+	defer l.mtx.Unlock()
+
 	if err = l.laneMempool.Insert(ctx, tx); err != nil {
 		return err
 	}
@@ -86,11 +93,13 @@ func (l *Lane) Remove(tx sdk.Tx) error {
 		return err
 	}
 
+	l.mtx.Lock()
+	defer l.mtx.Unlock()
+
 	if err = l.laneMempool.Remove(tx); err != nil {
 		return err
 	}
 
-	// Remove it from the local index
 	delete(l.txIndex, txInfo.Hash)
 	return nil
 }
@@ -101,6 +110,9 @@ func (l *Lane) Contains(tx sdk.Tx) bool {
 	if err != nil {
 		return false
 	}
+
+	l.mtx.RLock()
+	defer l.mtx.RUnlock()
 
 	_, exists := l.txIndex[txInfo.Hash]
 	return exists
@@ -165,7 +177,7 @@ func (l *Lane) FillProposal(
 			break
 		}
 
-		blockUsed.IncreaseBy(txInfo.BlockSpace)
+		blockUsed = blockUsed.Add(txInfo.BlockSpace)
 	}
 
 	return
@@ -225,7 +237,7 @@ func (l *Lane) FillProposalBy(
 		}
 
 		// Update the total size and gas.
-		blockUsed.IncreaseBy(txInfo.BlockSpace)
+		blockUsed = blockUsed.Add(txInfo.BlockSpace)
 	}
 
 	return

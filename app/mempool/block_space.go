@@ -43,30 +43,6 @@ func (bs BlockSpace) IsExceededBy(other BlockSpace) bool {
 
 // --- Math Methods ---
 
-// IncreaseBy increases this BlockSpace by another BlockSpace's size/gas.
-func (bs *BlockSpace) IncreaseBy(other BlockSpace) {
-	bs.txBytes += other.txBytes
-	bs.gas += other.gas
-}
-
-// DecreaseBy decreases this BlockSpace by another BlockSpace's size/gas.
-// Ensures txBytes and gas never go below zero.
-func (bs *BlockSpace) DecreaseBy(other BlockSpace) {
-	// Decrease txBytes
-	if other.txBytes > bs.txBytes {
-		bs.txBytes = 0
-	} else {
-		bs.txBytes -= other.txBytes
-	}
-
-	// Decrease gas
-	if other.gas > bs.gas {
-		bs.gas = 0
-	} else {
-		bs.gas -= other.gas
-	}
-}
-
 // Sub returns the difference between this BlockSpace and another BlockSpace.
 // Ensures txBytes and gas never go below zero.
 func (bs BlockSpace) Sub(other BlockSpace) BlockSpace {
