@@ -22,6 +22,7 @@ import (
 	"github.com/bandprotocol/chain/v3/app/params"
 	"github.com/bandprotocol/chain/v3/cmd/grogu/cmd"
 	"github.com/bandprotocol/chain/v3/grogu/context"
+	"github.com/bandprotocol/chain/v3/pkg/logger"
 )
 
 func main() {
@@ -64,7 +65,6 @@ func createPersistentPreRunE(rootCmd *cobra.Command, ctx *context.Context) func(
 		if err != nil {
 			return err
 		}
-		ctx.Home = home
 
 		if err = os.MkdirAll(home, os.ModePerm); err != nil {
 			return err
@@ -92,31 +92,55 @@ func createPersistentPreRunE(rootCmd *cobra.Command, ctx *context.Context) func(
 			}
 		}()
 
-		ctx.EncodingConfig = params.EncodingConfig{
+		encodingConfig := params.EncodingConfig{
 			InterfaceRegistry: tempApplication.InterfaceRegistry(),
 			Codec:             tempApplication.AppCodec(),
 			TxConfig:          tempApplication.GetTxConfig(),
 			Amino:             tempApplication.LegacyAmino(),
 		}
 
-		ctx.Keyring, err = keyring.New("band", keyring.BackendTest, home, nil, tempApplication.AppCodec())
+		kr, err := keyring.New("band", keyring.BackendTest, home, nil, tempApplication.AppCodec())
 		if err != nil {
 			return err
 		}
 
-		return initConfig(ctx, rootCmd)
+		cfg, err := initConfig(home)
+		if err != nil {
+			return err
+		}
+
+		logger, err := initLogger(cfg.LogLevel)
+		if err != nil {
+			return err
+		}
+
+		*ctx = *context.New(*cfg, kr, logger, home, encodingConfig)
+		return nil
 	}
 }
 
-func initConfig(c *context.Context, _ *cobra.Command) error {
-	viper.SetConfigFile(path.Join(c.Home, "config.yaml"))
+// initConfig initializes the configuration from viper config file/flag.
+func initConfig(homePath string) (*context.Config, error) {
+	viper.SetConfigFile(path.Join(homePath, "config.yaml"))
 
 	// If the config file cannot be read, only cmd flags will be used.
 	_ = viper.ReadInConfig()
-	if err := viper.Unmarshal(&c.Config); err != nil {
-		return err
+
+	var cfg context.Config
+	if err := viper.Unmarshal(&cfg); err != nil {
+		return nil, err
 	}
-	return nil
+	return &cfg, nil
+}
+
+// InitLog initializes the logger for the context.
+func initLogger(logLevel string) (*logger.Logger, error) {
+	allowLevel, err := log.ParseLogLevel(logLevel)
+	if err != nil {
+		return nil, err
+	}
+
+	return logger.NewLogger(allowLevel), nil
 }
 
 func getDefaultHome() string {
