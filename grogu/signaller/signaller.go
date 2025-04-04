@@ -9,6 +9,7 @@ import (
 	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/bothan/v1"
 
 	"github.com/bandprotocol/chain/v3/grogu/submitter"
+	"github.com/bandprotocol/chain/v3/grogu/telemetry"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
@@ -76,6 +77,8 @@ func (s *Signaller) Start() {
 			s.logger.Error("[Signaller] failed to query valid validator: %v", err)
 			continue
 		}
+
+		telemetry.SetValidatorStatus(resp.Valid)
 
 		if !resp.Valid {
 			s.logger.Info("[Signaller] validator is not required to feed prices")
@@ -173,33 +176,47 @@ func (s *Signaller) updateBlockTime() bool {
 func (s *Signaller) execute() {
 	latestBlockTime := time.Unix(s.blockTime, 0)
 
+	telemetry.IncrementProcessingSignal()
 	s.logger.Debug("[Signaller] starting signal process")
 
 	s.logger.Debug("[Signaller] getting non-pending signal ids")
 	nonPendingSignalIDs := s.getNonPendingSignalIDs()
+	telemetry.SetNonPendingSignals(len(nonPendingSignalIDs))
+
 	if len(nonPendingSignalIDs) == 0 {
+		telemetry.IncrementProcessSignalSkipped()
 		s.logger.Debug("[Signaller] no signal ids to process")
 		return
 	}
 
 	s.logger.Debug("[Signaller] querying prices from bothan: %v", nonPendingSignalIDs)
+
+	since := time.Now()
 	res, err := s.bothanClient.GetPrices(nonPendingSignalIDs)
 	if err != nil {
+		telemetry.IncrementProcessSignalFailed()
 		s.logger.Error("[Signaller] failed to query prices from bothan: %v", err)
 		return
 	}
+	telemetry.ObserveQuerySignalPricesDuration(time.Since(since).Seconds())
 
 	prices, uuid := res.Prices, res.Uuid
 
 	s.logger.Debug("[Signaller] filtering prices")
+
 	signalPrices := s.filterAndPrepareSignalPrices(prices, nonPendingSignalIDs, latestBlockTime)
+	telemetry.SetFilteredSignalIDs(len(signalPrices))
 	if len(signalPrices) == 0 {
+		telemetry.IncrementProcessSignalSkipped()
 		s.logger.Debug("[Signaller] no prices to submit")
 		return
 	}
 
 	s.logger.Debug("[Signaller] submitting prices: %v", signalPrices)
 	s.submitPrices(signalPrices, uuid)
+
+	telemetry.SetSignalPriceStatuses(signalPrices)
+	telemetry.IncrementProcessSignalSuccess()
 }
 
 func (s *Signaller) submitPrices(prices []types.SignalPrice, uuid string) {
@@ -249,16 +266,21 @@ func (s *Signaller) filterAndPrepareSignalPrices(
 	})
 
 	signalPrices := make([]types.SignalPrice, 0, len(signalIDs))
+	conversionErrorCnt := 0
+	signalNotFoundCnt := 0
+	nonUrgentUnavailablePriceCnt := 0
 
 	for _, signalID := range signalIDs {
 		price, ok := pricesMap[signalID]
 		if !ok {
+			signalNotFoundCnt++
 			s.logger.Debug("[Signaller] price not found for signal ID: %s", signalID)
 			continue
 		}
 
 		signalPrice, err := convertPriceData(price)
 		if err != nil {
+			conversionErrorCnt++
 			s.logger.Debug("[Signaller] failed to parse price data: %v", err)
 			continue
 		}
@@ -268,12 +290,17 @@ func (s *Signaller) filterAndPrepareSignalPrices(
 		}
 
 		if s.isNonUrgentUnavailablePrices(signalPrice, currentTime.Unix()) {
+			nonUrgentUnavailablePriceCnt++
 			s.logger.Debug("[Signaller] non-urgent unavailable price: %v", signalPrice)
 			continue
 		}
 
 		signalPrices = append(signalPrices, signalPrice)
 	}
+
+	telemetry.SetConversionErrorSignals(conversionErrorCnt)
+	telemetry.SetSignalNotFound(signalNotFoundCnt)
+	telemetry.SetNonUrgentUnavailablePriceSignals(nonUrgentUnavailablePriceCnt)
 
 	return signalPrices
 }
