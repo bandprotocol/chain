@@ -31,6 +31,11 @@ type Lane struct {
 	// txIndex holds the uppercase hex-encoded hash for every transaction
 	// currently in this lane's mempool.
 	txIndex map[string]struct{}
+
+	// OnFilled is a callback function that is called when the lane exceeds its limit.
+	OnFilled func(isFilled bool)
+
+	isBlocked bool
 }
 
 // NewLane is a constructor for a lane.
@@ -43,6 +48,7 @@ func NewLane(
 	maxTransactionSpace math.LegacyDec,
 	maxLaneSpace math.LegacyDec,
 	laneMempool sdkmempool.Mempool,
+	onFilled func(isFilled bool),
 ) *Lane {
 	return &Lane{
 		Logger:              logger,
@@ -53,9 +59,12 @@ func NewLane(
 		MaxTransactionSpace: maxTransactionSpace,
 		MaxLaneSpace:        maxLaneSpace,
 		laneMempool:         laneMempool,
+		OnFilled:            onFilled,
 
 		// Initialize the txIndex.
 		txIndex: make(map[string]struct{}),
+
+		isBlocked: false,
 	}
 }
 
@@ -122,6 +131,12 @@ func (l *Lane) FillProposal(
 	transactionLimit = proposal.GetLimit(l.MaxTransactionSpace)
 	laneLimit = proposal.GetLimit(l.MaxLaneSpace)
 
+	isFilled := false
+
+	if l.isBlocked {
+		return
+	}
+
 	// Select all transactions in the mempool that are valid and not already in the
 	// partial proposal.
 	for iterator = l.laneMempool.Select(ctx, nil); iterator != nil; iterator = iterator.Next() {
@@ -168,6 +183,14 @@ func (l *Lane) FillProposal(
 		blockUsed.IncreaseBy(txInfo.BlockSpace)
 	}
 
+	if laneLimit.IsReachedBy(blockUsed) {
+		isFilled = true
+	}
+
+	if l.OnFilled != nil {
+		l.OnFilled(isFilled)
+	}
+
 	return
 }
 
@@ -181,6 +204,10 @@ func (l *Lane) FillProposalBy(
 ) (blockUsed BlockSpace, txsToRemove []sdk.Tx) {
 	// get the transaction limit for the lane.
 	transactionLimit := proposal.GetLimit(l.MaxTransactionSpace)
+
+	if l.isBlocked {
+		return
+	}
 
 	// Select all transactions in the mempool that are valid and not already in the
 	// partial proposal.
@@ -259,4 +286,9 @@ func (l *Lane) GetTxInfo(tx sdk.Tx) (TxWithInfo, error) {
 		TxBytes:    txBytes,
 		Signers:    signers,
 	}, nil
+}
+
+// SetIsBlocked sets the isBlocked flag to the given value.
+func (l *Lane) SetIsBlocked(isBlocked bool) {
+	l.isBlocked = isBlocked
 }
