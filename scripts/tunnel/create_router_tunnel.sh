@@ -1,0 +1,1 @@
+bandd tx tunnel create-tunnel router 17000 0x3a205Bff50E960f31DeCAEb2e3b5AA82928bA5c4 10000000 1000000000uband 1000 ./scripts/tunnel/signal_deviations.json --from requester --keyring-backend test --gas-prices 0.0025uband -y --chain-id bandchain
