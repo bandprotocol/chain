@@ -117,17 +117,19 @@ func (x *_Params_7_list) IsValid() bool {
 }
 
 var (
-	md_Params                      protoreflect.MessageDescriptor
-	fd_Params_min_deposit          protoreflect.FieldDescriptor
-	fd_Params_min_interval         protoreflect.FieldDescriptor
-	fd_Params_max_interval         protoreflect.FieldDescriptor
-	fd_Params_min_deviation_bps    protoreflect.FieldDescriptor
-	fd_Params_max_deviation_bps    protoreflect.FieldDescriptor
-	fd_Params_max_signals          protoreflect.FieldDescriptor
-	fd_Params_base_packet_fee      protoreflect.FieldDescriptor
-	fd_Params_axelar_ibc_channel   protoreflect.FieldDescriptor
-	fd_Params_axelar_gmp_account   protoreflect.FieldDescriptor
-	fd_Params_axelar_fee_recipient protoreflect.FieldDescriptor
+	md_Params                             protoreflect.MessageDescriptor
+	fd_Params_min_deposit                 protoreflect.FieldDescriptor
+	fd_Params_min_interval                protoreflect.FieldDescriptor
+	fd_Params_max_interval                protoreflect.FieldDescriptor
+	fd_Params_min_deviation_bps           protoreflect.FieldDescriptor
+	fd_Params_max_deviation_bps           protoreflect.FieldDescriptor
+	fd_Params_max_signals                 protoreflect.FieldDescriptor
+	fd_Params_base_packet_fee             protoreflect.FieldDescriptor
+	fd_Params_axelar_ibc_channel          protoreflect.FieldDescriptor
+	fd_Params_axelar_gmp_account          protoreflect.FieldDescriptor
+	fd_Params_axelar_fee_recipient        protoreflect.FieldDescriptor
+	fd_Params_router_ibc_channel          protoreflect.FieldDescriptor
+	fd_Params_router_integration_contract protoreflect.FieldDescriptor
 )
 
 func init() {
@@ -143,6 +145,8 @@ func init() {
 	fd_Params_axelar_ibc_channel = md_Params.Fields().ByName("axelar_ibc_channel")
 	fd_Params_axelar_gmp_account = md_Params.Fields().ByName("axelar_gmp_account")
 	fd_Params_axelar_fee_recipient = md_Params.Fields().ByName("axelar_fee_recipient")
+	fd_Params_router_ibc_channel = md_Params.Fields().ByName("router_ibc_channel")
+	fd_Params_router_integration_contract = md_Params.Fields().ByName("router_integration_contract")
 }
 
 var _ protoreflect.Message = (*fastReflection_Params)(nil)
@@ -270,6 +274,18 @@ func (x *fastReflection_Params) Range(f func(protoreflect.FieldDescriptor, proto
 			return
 		}
 	}
+	if x.RouterIbcChannel != "" {
+		value := protoreflect.ValueOfString(x.RouterIbcChannel)
+		if !f(fd_Params_router_ibc_channel, value) {
+			return
+		}
+	}
+	if x.RouterIntegrationContract != "" {
+		value := protoreflect.ValueOfString(x.RouterIntegrationContract)
+		if !f(fd_Params_router_integration_contract, value) {
+			return
+		}
+	}
 }
 
 // Has reports whether a field is populated.
@@ -305,6 +321,10 @@ func (x *fastReflection_Params) Has(fd protoreflect.FieldDescriptor) bool {
 		return x.AxelarGmpAccount != ""
 	case "band.tunnel.v1beta1.Params.axelar_fee_recipient":
 		return x.AxelarFeeRecipient != ""
+	case "band.tunnel.v1beta1.Params.router_ibc_channel":
+		return x.RouterIbcChannel != ""
+	case "band.tunnel.v1beta1.Params.router_integration_contract":
+		return x.RouterIntegrationContract != ""
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.Params"))
@@ -341,6 +361,10 @@ func (x *fastReflection_Params) Clear(fd protoreflect.FieldDescriptor) {
 		x.AxelarGmpAccount = ""
 	case "band.tunnel.v1beta1.Params.axelar_fee_recipient":
 		x.AxelarFeeRecipient = ""
+	case "band.tunnel.v1beta1.Params.router_ibc_channel":
+		x.RouterIbcChannel = ""
+	case "band.tunnel.v1beta1.Params.router_integration_contract":
+		x.RouterIntegrationContract = ""
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.Params"))
@@ -393,6 +417,12 @@ func (x *fastReflection_Params) Get(descriptor protoreflect.FieldDescriptor) pro
 	case "band.tunnel.v1beta1.Params.axelar_fee_recipient":
 		value := x.AxelarFeeRecipient
 		return protoreflect.ValueOfString(value)
+	case "band.tunnel.v1beta1.Params.router_ibc_channel":
+		value := x.RouterIbcChannel
+		return protoreflect.ValueOfString(value)
+	case "band.tunnel.v1beta1.Params.router_integration_contract":
+		value := x.RouterIntegrationContract
+		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.Params"))
@@ -437,6 +467,10 @@ func (x *fastReflection_Params) Set(fd protoreflect.FieldDescriptor, value proto
 		x.AxelarGmpAccount = value.Interface().(string)
 	case "band.tunnel.v1beta1.Params.axelar_fee_recipient":
 		x.AxelarFeeRecipient = value.Interface().(string)
+	case "band.tunnel.v1beta1.Params.router_ibc_channel":
+		x.RouterIbcChannel = value.Interface().(string)
+	case "band.tunnel.v1beta1.Params.router_integration_contract":
+		x.RouterIntegrationContract = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.Params"))
@@ -485,6 +519,10 @@ func (x *fastReflection_Params) Mutable(fd protoreflect.FieldDescriptor) protore
 		panic(fmt.Errorf("field axelar_gmp_account of message band.tunnel.v1beta1.Params is not mutable"))
 	case "band.tunnel.v1beta1.Params.axelar_fee_recipient":
 		panic(fmt.Errorf("field axelar_fee_recipient of message band.tunnel.v1beta1.Params is not mutable"))
+	case "band.tunnel.v1beta1.Params.router_ibc_channel":
+		panic(fmt.Errorf("field router_ibc_channel of message band.tunnel.v1beta1.Params is not mutable"))
+	case "band.tunnel.v1beta1.Params.router_integration_contract":
+		panic(fmt.Errorf("field router_integration_contract of message band.tunnel.v1beta1.Params is not mutable"))
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.Params"))
@@ -519,6 +557,10 @@ func (x *fastReflection_Params) NewField(fd protoreflect.FieldDescriptor) protor
 	case "band.tunnel.v1beta1.Params.axelar_gmp_account":
 		return protoreflect.ValueOfString("")
 	case "band.tunnel.v1beta1.Params.axelar_fee_recipient":
+		return protoreflect.ValueOfString("")
+	case "band.tunnel.v1beta1.Params.router_ibc_channel":
+		return protoreflect.ValueOfString("")
+	case "band.tunnel.v1beta1.Params.router_integration_contract":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
@@ -628,6 +670,14 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 		if l > 0 {
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
+		l = len(x.RouterIbcChannel)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		l = len(x.RouterIntegrationContract)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
 		if x.unknownFields != nil {
 			n += len(x.unknownFields)
 		}
@@ -656,6 +706,20 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 		if x.unknownFields != nil {
 			i -= len(x.unknownFields)
 			copy(dAtA[i:], x.unknownFields)
+		}
+		if len(x.RouterIntegrationContract) > 0 {
+			i -= len(x.RouterIntegrationContract)
+			copy(dAtA[i:], x.RouterIntegrationContract)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.RouterIntegrationContract)))
+			i--
+			dAtA[i] = 0x62
+		}
+		if len(x.RouterIbcChannel) > 0 {
+			i -= len(x.RouterIbcChannel)
+			copy(dAtA[i:], x.RouterIbcChannel)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.RouterIbcChannel)))
+			i--
+			dAtA[i] = 0x5a
 		}
 		if len(x.AxelarFeeRecipient) > 0 {
 			i -= len(x.AxelarFeeRecipient)
@@ -1043,6 +1107,70 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 				}
 				x.AxelarFeeRecipient = string(dAtA[iNdEx:postIndex])
 				iNdEx = postIndex
+			case 11:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field RouterIbcChannel", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.RouterIbcChannel = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
+			case 12:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field RouterIntegrationContract", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.RouterIntegrationContract = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
 			default:
 				iNdEx = preIndex
 				skippy, err := runtime.Skip(dAtA[iNdEx:])
@@ -1117,6 +1245,11 @@ type Params struct {
 	AxelarGmpAccount string `protobuf:"bytes,9,opt,name=axelar_gmp_account,json=axelarGmpAccount,proto3" json:"axelar_gmp_account,omitempty"`
 	// axelar_fee_recipient is the account address on axelar chain that receive fee from tunnel.
 	AxelarFeeRecipient string `protobuf:"bytes,10,opt,name=axelar_fee_recipient,json=axelarFeeRecipient,proto3" json:"axelar_fee_recipient,omitempty"`
+	// router_ibc_channel specifies the IBC channel used by the tunnel to communicate with the Router chain.
+	RouterIbcChannel string `protobuf:"bytes,11,opt,name=router_ibc_channel,json=routerIbcChannel,proto3" json:"router_ibc_channel,omitempty"`
+	// router_integration_contract specifies the address of the Router integration contract on the Router chain
+	// that the tunnel module will interact with.
+	RouterIntegrationContract string `protobuf:"bytes,12,opt,name=router_integration_contract,json=routerIntegrationContract,proto3" json:"router_integration_contract,omitempty"`
 }
 
 func (x *Params) Reset() {
@@ -1209,6 +1342,20 @@ func (x *Params) GetAxelarFeeRecipient() string {
 	return ""
 }
 
+func (x *Params) GetRouterIbcChannel() string {
+	if x != nil {
+		return x.RouterIbcChannel
+	}
+	return ""
+}
+
+func (x *Params) GetRouterIntegrationContract() string {
+	if x != nil {
+		return x.RouterIntegrationContract
+	}
+	return ""
+}
+
 var File_band_tunnel_v1beta1_params_proto protoreflect.FileDescriptor
 
 var file_band_tunnel_v1beta1_params_proto_rawDesc = []byte{
@@ -1218,7 +1365,7 @@ var file_band_tunnel_v1beta1_params_proto_rawDesc = []byte{
 	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x1a, 0x14, 0x67, 0x6f, 0x67, 0x6f, 0x70, 0x72, 0x6f,
 	0x74, 0x6f, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1e, 0x63,
 	0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x62, 0x61, 0x73, 0x65, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74,
-	0x61, 0x31, 0x2f, 0x63, 0x6f, 0x69, 0x6e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x94, 0x05,
+	0x61, 0x31, 0x2f, 0x63, 0x6f, 0x69, 0x6e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x98, 0x06,
 	0x0a, 0x06, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x6c, 0x0a, 0x0b, 0x6d, 0x69, 0x6e, 0x5f,
 	0x64, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x19, 0x2e,
 	0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x76, 0x31, 0x62, 0x65,
@@ -1259,22 +1406,30 @@ var file_band_tunnel_v1beta1_params_proto_rawDesc = []byte{
 	0x61, 0x72, 0x47, 0x6d, 0x70, 0x41, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x12, 0x30, 0x0a, 0x14,
 	0x61, 0x78, 0x65, 0x6c, 0x61, 0x72, 0x5f, 0x66, 0x65, 0x65, 0x5f, 0x72, 0x65, 0x63, 0x69, 0x70,
 	0x69, 0x65, 0x6e, 0x74, 0x18, 0x0a, 0x20, 0x01, 0x28, 0x09, 0x52, 0x12, 0x61, 0x78, 0x65, 0x6c,
-	0x61, 0x72, 0x46, 0x65, 0x65, 0x52, 0x65, 0x63, 0x69, 0x70, 0x69, 0x65, 0x6e, 0x74, 0x3a, 0x04,
-	0xe8, 0xa0, 0x1f, 0x01, 0x42, 0xdc, 0x01, 0x0a, 0x17, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e,
-	0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
-	0x42, 0x0b, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a,
-	0x46, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76,
-	0x33, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65,
-	0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x3b, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
-	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x42, 0x54, 0x58, 0xaa, 0x02, 0x13,
-	0x42, 0x61, 0x6e, 0x64, 0x2e, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x56, 0x31, 0x62, 0x65,
-	0x74, 0x61, 0x31, 0xca, 0x02, 0x13, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x54, 0x75, 0x6e, 0x6e, 0x65,
-	0x6c, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xe2, 0x02, 0x1f, 0x42, 0x61, 0x6e, 0x64,
-	0x5c, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x5c,
-	0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x15, 0x42, 0x61,
-	0x6e, 0x64, 0x3a, 0x3a, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x65,
-	0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x61, 0x72, 0x46, 0x65, 0x65, 0x52, 0x65, 0x63, 0x69, 0x70, 0x69, 0x65, 0x6e, 0x74, 0x12, 0x42,
+	0x0a, 0x12, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x72, 0x5f, 0x69, 0x62, 0x63, 0x5f, 0x63, 0x68, 0x61,
+	0x6e, 0x6e, 0x65, 0x6c, 0x18, 0x0b, 0x20, 0x01, 0x28, 0x09, 0x42, 0x14, 0xe2, 0xde, 0x1f, 0x10,
+	0x52, 0x6f, 0x75, 0x74, 0x65, 0x72, 0x49, 0x42, 0x43, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c,
+	0x52, 0x10, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x72, 0x49, 0x62, 0x63, 0x43, 0x68, 0x61, 0x6e, 0x6e,
+	0x65, 0x6c, 0x12, 0x3e, 0x0a, 0x1b, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x72, 0x5f, 0x69, 0x6e, 0x74,
+	0x65, 0x67, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x63, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63,
+	0x74, 0x18, 0x0c, 0x20, 0x01, 0x28, 0x09, 0x52, 0x19, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x72, 0x49,
+	0x6e, 0x74, 0x65, 0x67, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61,
+	0x63, 0x74, 0x3a, 0x04, 0xe8, 0xa0, 0x1f, 0x01, 0x42, 0xdc, 0x01, 0x0a, 0x17, 0x63, 0x6f, 0x6d,
+	0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62,
+	0x65, 0x74, 0x61, 0x31, 0x42, 0x0b, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x50, 0x72, 0x6f, 0x74,
+	0x6f, 0x50, 0x01, 0x5a, 0x46, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f,
+	0x62, 0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61,
+	0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x74,
+	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x3b, 0x74, 0x75,
+	0x6e, 0x6e, 0x65, 0x6c, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x42, 0x54,
+	0x58, 0xaa, 0x02, 0x13, 0x42, 0x61, 0x6e, 0x64, 0x2e, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e,
+	0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xca, 0x02, 0x13, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x54,
+	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xe2, 0x02, 0x1f,
+	0x42, 0x61, 0x6e, 0x64, 0x5c, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5c, 0x56, 0x31, 0x62, 0x65,
+	0x74, 0x61, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea,
+	0x02, 0x15, 0x42, 0x61, 0x6e, 0x64, 0x3a, 0x3a, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x3a, 0x3a,
+	0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (

@@ -42,9 +42,9 @@ type KeeperTestSuite struct {
 	bankKeeper     *testutil.MockBankKeeper
 	feedsKeeper    *testutil.MockFeedsKeeper
 	bandtssKeeper  *testutil.MockBandtssKeeper
-	channelKeeper  *testutil.MockChannelKeeper
 	icsWrapper     *testutil.MockICS4Wrapper
 	portKeeper     *testutil.MockPortKeeper
+	channelKeeper  *testutil.MockChannelKeeper
 	scopedKeeper   *testutil.MockScopedKeeper
 	transferKeeper *testutil.MockTransferKeeper
 
@@ -66,9 +66,9 @@ func (s *KeeperTestSuite) reset() {
 	bankKeeper := testutil.NewMockBankKeeper(ctrl)
 	feedsKeeper := testutil.NewMockFeedsKeeper(ctrl)
 	bandtssKeeper := testutil.NewMockBandtssKeeper(ctrl)
-	channelKeeper := testutil.NewMockChannelKeeper(ctrl)
 	icsWrapper := testutil.NewMockICS4Wrapper(ctrl)
 	portKeeper := testutil.NewMockPortKeeper(ctrl)
+	channelKeeper := testutil.NewMockChannelKeeper(ctrl)
 	scopedKeeper := testutil.NewMockScopedKeeper(ctrl)
 	transferKeeper := testutil.NewMockTransferKeeper(ctrl)
 
@@ -97,9 +97,9 @@ func (s *KeeperTestSuite) reset() {
 	s.bankKeeper = bankKeeper
 	s.feedsKeeper = feedsKeeper
 	s.bandtssKeeper = bandtssKeeper
-	s.channelKeeper = channelKeeper
 	s.icsWrapper = icsWrapper
 	s.portKeeper = portKeeper
+	s.channelKeeper = channelKeeper
 	s.scopedKeeper = scopedKeeper
 	s.transferKeeper = transferKeeper
 

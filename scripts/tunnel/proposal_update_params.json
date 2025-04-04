@@ -22,7 +22,9 @@
                 ],
                 "axelar_ibc_channel": "channel-0",
                 "axelar_gmp_account": "axelar1dv4u5k73pzqrxlzujxg3qp8kvc3pje7jtdvu72npnt5zhq05ejcsn5qme5",
-                "axelar_fee_recipient": "axelar1aythygn6z5thymj6tmzfwekzh05ewg3l7d6y89"
+                "axelar_fee_recipient": "axelar1aythygn6z5thymj6tmzfwekzh05ewg3l7d6y89",
+                "router_ibc_channel": "channel-0",
+                "router_integration_contract": "router1v8evlcrtu4peer2fk5tnkau3qd0r0vtn8ll86qep4sgp89t6l9fqkvsue6"
             },
             "authority": "band10d07y265gmmuvt4z0w9aw880jnsr700jrdn8wm"
         }
