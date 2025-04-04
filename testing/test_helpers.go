@@ -64,14 +64,16 @@ var (
 )
 
 var (
-	EmptyCoins          = sdk.Coins(nil)
-	Coins1uband         = sdk.NewCoins(sdk.NewInt64Coin("uband", 1))
-	Coins10uband        = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
-	Coins11uband        = sdk.NewCoins(sdk.NewInt64Coin("uband", 11))
-	Coins1000000uband   = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
-	Coins99999999uband  = sdk.NewCoins(sdk.NewInt64Coin("uband", 99999999))
-	Coins100000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
-	BadCoins            = []sdk.Coin{{Denom: "uband", Amount: math.NewInt(-1)}}
+	EmptyCoins         = sdk.Coins(nil)
+	CoinsZero          = sdk.NewCoins()
+	Coins1uband        = sdk.NewCoins(sdk.NewInt64Coin("uband", 1))
+	Coins10uband       = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
+	Coins11uband       = sdk.NewCoins(sdk.NewInt64Coin("uband", 11))
+	Coins1band         = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
+	Coins99999999uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 99999999))
+	Coins100band       = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
+	Coins1000000band   = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000000000))
+	BadCoins           = []sdk.Coin{{Denom: "uband", Amount: math.NewInt(-1)}}
 )
 
 const (
@@ -144,6 +146,7 @@ func CreateArbitraryAccount(r *rand.Rand) Account {
 func GenesisStateWithValSet(app *band.BandApp, dir string) band.GenesisState {
 	genAccs := []authtypes.GenesisAccount{
 		&authtypes.BaseAccount{Address: Owner.Address.String()},
+		&authtypes.BaseAccount{Address: Treasury.Address.String()},
 		&authtypes.BaseAccount{Address: FeePayer.Address.String()},
 		&authtypes.BaseAccount{Address: Alice.Address.String()},
 		&authtypes.BaseAccount{Address: Bob.Address.String()},
@@ -155,18 +158,16 @@ func GenesisStateWithValSet(app *band.BandApp, dir string) band.GenesisState {
 	}
 
 	balances := []banktypes.Balance{
-		{
-			Address: Owner.Address.String(),
-			Coins:   Coins1000000uband,
-		},
-		{Address: FeePayer.Address.String(), Coins: Coins100000000uband},
-		{Address: Alice.Address.String(), Coins: Coins1000000uband},
-		{Address: Bob.Address.String(), Coins: Coins1000000uband},
-		{Address: Carol.Address.String(), Coins: Coins1000000uband},
-		{Address: MissedValidator.Address.String(), Coins: Coins100000000uband},
-		{Address: Validators[0].Address.String(), Coins: Coins100000000uband},
-		{Address: Validators[1].Address.String(), Coins: Coins100000000uband},
-		{Address: Validators[2].Address.String(), Coins: Coins100000000uband},
+		{Address: Owner.Address.String(), Coins: Coins1band},
+		{Address: Treasury.Address.String(), Coins: Coins1000000band},
+		{Address: FeePayer.Address.String(), Coins: Coins100band},
+		{Address: Alice.Address.String(), Coins: Coins1band},
+		{Address: Bob.Address.String(), Coins: Coins1band},
+		{Address: Carol.Address.String(), Coins: Coins1band},
+		{Address: MissedValidator.Address.String(), Coins: Coins100band},
+		{Address: Validators[0].Address.String(), Coins: Coins100band},
+		{Address: Validators[1].Address.String(), Coins: Coins100band},
+		{Address: Validators[2].Address.String(), Coins: Coins100band},
 	}
 
 	genesisState := band.NewDefaultGenesisState(app.AppCodec())
@@ -176,7 +177,7 @@ func GenesisStateWithValSet(app *band.BandApp, dir string) band.GenesisState {
 	validators := make([]stakingtypes.Validator, 0, len(Validators))
 	signingInfos := make([]slashingtypes.SigningInfo, 0, len(Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(Validators))
-	bamt := []math.Int{Coins100000000uband[0].Amount, Coins1000000uband[0].Amount, Coins99999999uband[0].Amount}
+	bamt := []math.Int{Coins100band[0].Amount, Coins1band[0].Amount, Coins99999999uband[0].Amount}
 	for idx, val := range Validators {
 		pkAny, _ := codectypes.NewAnyWithValue(val.PubKey)
 		validator := stakingtypes.Validator{
@@ -272,7 +273,7 @@ func GenerateDataSources(homePath string) []oracletypes.DataSource {
 		idxStr := fmt.Sprintf("%d", idx+1)
 		hash := fc.AddFile([]byte("code" + idxStr))
 		DataSources = append(DataSources, oracletypes.NewDataSource(
-			Owner.Address, "name"+idxStr, "desc"+idxStr, hash, Coins1000000uband, Treasury.Address,
+			Owner.Address, "name"+idxStr, "desc"+idxStr, hash, Coins1band, Treasury.Address,
 		))
 	}
 	return DataSources[1:]

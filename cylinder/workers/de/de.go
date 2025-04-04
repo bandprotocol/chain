@@ -14,6 +14,7 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder"
 	"github.com/bandprotocol/chain/v3/cylinder/client"
 	"github.com/bandprotocol/chain/v3/cylinder/context"
+	"github.com/bandprotocol/chain/v3/cylinder/metrics"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
@@ -112,6 +113,8 @@ func (de *DE) deleteDE(pubDE types.DE) {
 		de.logger.Error(":cold_sweat: Failed to remove DE: %s", err)
 		return
 	}
+
+	metrics.DecOffChainDELeftGauge()
 }
 
 func (de *DE) getDECount() (uint64, error) {
@@ -161,6 +164,8 @@ func (de *DE) updateDE(numNewDE uint64) {
 			de.logger.Error(":cold_sweat: Failed to set new DE in the store: %s", err)
 			return
 		}
+
+		metrics.IncOffChainDELeftGauge()
 	}
 
 	// Send MsgDE
@@ -206,7 +211,11 @@ func (de *DE) intervalUpdateDE() error {
 	if deCount < 2*de.context.Config.MinDE {
 		de.updateDE(2*de.context.Config.MinDE - deCount)
 		de.cntUsed = 0
+
+		metrics.SetDECountUsedGauge(float64(de.cntUsed))
 	}
+
+	metrics.SetOnChainDELeftGauge(float64(deCount))
 
 	return nil
 }
@@ -254,6 +263,7 @@ func (de *DE) Start() {
 				de.updateDE(de.cntUsed)
 				de.cntUsed = 0
 			}
+			metrics.SetDECountUsedGauge(float64(de.cntUsed))
 		}
 	}
 }
