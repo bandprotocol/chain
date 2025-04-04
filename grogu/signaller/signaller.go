@@ -69,9 +69,10 @@ func New(
 }
 
 func (s *Signaller) Start() {
-	for {
-		time.Sleep(s.interval)
+	ticker := time.NewTicker(s.interval)
+	defer ticker.Stop()
 
+	for range ticker.C {
 		resp, err := s.feedQuerier.QueryValidValidator(s.valAddress)
 		if err != nil {
 			s.logger.Error("[Signaller] failed to query valid validator: %v", err)

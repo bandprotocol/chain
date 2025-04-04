@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 	"strings"
@@ -11,8 +12,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
-	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -26,7 +25,6 @@ import (
 	"github.com/bandprotocol/chain/v3/grogu/submitter"
 	"github.com/bandprotocol/chain/v3/grogu/telemetry"
 	"github.com/bandprotocol/chain/v3/grogu/updater"
-	"github.com/bandprotocol/chain/v3/pkg/logger"
 )
 
 const (
@@ -88,22 +86,15 @@ func RunCmd(ctx *context.Context) *cobra.Command {
 
 func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
-		// Initialize logger
-		allowLevel, err := log.ParseLogLevel(ctx.Config.LogLevel)
-		if err != nil {
-			return err
-		}
-		l := logger.NewLogger(allowLevel)
-
 		// Start metrics server if address is provided
 		if ctx.Config.MetricsListenAddr != "" {
-			go telemetry.StartServer(l, ctx.Config.MetricsListenAddr)
+			go telemetry.StartServer(ctx.Logger, ctx.Config.MetricsListenAddr)
 		}
 
 		// Split Node URIs and create RPC clients
 		clientCtx, err := client.GetClientQueryContext(cmd)
 		if err != nil {
-			return err
+			return fmt.Errorf("get client context error: %w", err)
 		}
 		clientCtx = clientCtx.WithKeyring(ctx.Keyring).
 			WithChainID(viper.GetString(flags.FlagChainID)).
@@ -112,7 +103,7 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 			WithTxConfig(ctx.EncodingConfig.TxConfig).
 			WithBroadcastMode(flags.BroadcastSync)
 
-		nodeURIs := strings.Split(viper.GetString(flagNodes), ",")
+		nodeURIs := strings.Split(ctx.Config.NodeURIs, ",")
 		clients, stopClients, err := createClients(nodeURIs)
 		if err != nil {
 			return err
@@ -129,13 +120,10 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 		txQuerier := querier.NewTxQuerier(clientCtx, clients)
 
 		// Setup Bothan service
-		timeout, err := time.ParseDuration(ctx.Config.BothanTimeout)
+		ctx.Logger.Info("Connecting to Bothan service at %s", ctx.Config.Bothan)
+		bothanService, err := bothanclient.NewGrpcClient(ctx.Config.Bothan, ctx.Config.BothanTimeout)
 		if err != nil {
-			return err
-		}
-		bothanService, err := bothanclient.NewGrpcClient(ctx.Config.Bothan, timeout)
-		if err != nil {
-			return err
+			return fmt.Errorf("initiate bothan service error: %w", err)
 		}
 
 		// Create submit channel
@@ -143,24 +131,6 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 
 		// Parse validator address
 		valAddr, err := sdk.ValAddressFromBech32(ctx.Config.Validator)
-		if err != nil {
-			return err
-		}
-
-		// Parse broadcast timeout
-		broadcastTimeout, err := time.ParseDuration(ctx.Config.BroadcastTimeout)
-		if err != nil {
-			return err
-		}
-
-		// Parse RPC poll interval
-		rpcPollInterval, err := time.ParseDuration(ctx.Config.RPCPollInterval)
-		if err != nil {
-			return err
-		}
-
-		// Parse Updater query interval
-		updaterQueryInterval, err := time.ParseDuration(ctx.Config.UpdaterQueryInterval)
 		if err != nil {
 			return err
 		}
@@ -175,7 +145,7 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 			bothanService,
 			time.Second,
 			submitSignalPriceCh,
-			l,
+			ctx.Logger,
 			valAddr,
 			&pendingSignalIDs,
 			ctx.Config.DistributionStartPercentage,
@@ -187,15 +157,15 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 			clientCtx,
 			clients,
 			bothanService,
-			l,
+			ctx.Logger,
 			submitSignalPriceCh,
 			authQuerier,
 			txQuerier,
 			valAddr,
 			&pendingSignalIDs,
-			broadcastTimeout,
+			ctx.Config.BroadcastTimeout,
 			ctx.Config.MaxTry,
-			rpcPollInterval,
+			ctx.Config.RPCPollInterval,
 			ctx.Config.GasPrices,
 		)
 		if err != nil {
@@ -213,8 +183,8 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 			feedQuerier,
 			bothanService,
 			clients,
-			l,
-			updaterQueryInterval,
+			ctx.Logger,
+			ctx.Config.UpdaterQueryInterval,
 		)
 
 		// Listen for termination signals for graceful shutdown
@@ -226,11 +196,11 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 		go signallerService.Start()
 		go submitterService.Start()
 
-		l.Info("Grogu has started")
+		ctx.Logger.Info("Grogu has started")
 
 		<-sigChan
-		l.Info("Received stop signal, shutting down")
-		l.Info("Grogu has stopped")
+		ctx.Logger.Info("Received stop signal, shutting down")
+		ctx.Logger.Info("Grogu has stopped")
 
 		return nil
 	}
