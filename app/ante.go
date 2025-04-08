@@ -145,11 +145,11 @@ func (ig IgnoreDecorator) AnteHandle(
 ) (sdk.Context, error) {
 	// IgnoreDecorator is only used for check tx.
 	if !ctx.IsCheckTx() {
-		return sd.decorator.AnteHandle(ctx, tx, simulate, next)
+		return ig.decorator.AnteHandle(ctx, tx, simulate, next)
 	}
 
 	cacheCtx, _ := ctx.CacheContext()
-	for _, matchFn := range sd.matchFns {
+	for _, matchFn := range ig.matchFns {
 		if matchFn(cacheCtx, tx) {
 			return next(ctx, tx, simulate)
 		}

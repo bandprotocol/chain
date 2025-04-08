@@ -61,28 +61,7 @@ func isMsgSubmitSignalPrices(
 			return false
 		}
 
-		grantee, err := sdk.AccAddressFromBech32(msg.Grantee)
-		if err != nil {
-			return false
-		}
-
 		for _, m := range msgs {
-			signers, _, err := cdc.GetMsgV1Signers(m)
-			if err != nil {
-				return false
-			}
-			// Check if this grantee have authorization for the message.
-			cap, _ := authzKeeper.GetAuthorization(
-				ctx,
-				grantee,
-				sdk.AccAddress(signers[0]),
-				sdk.MsgTypeURL(m),
-			)
-			if cap == nil {
-				return false
-			}
-
-			// Check if this message should be free or not.
 			if !isMsgSubmitSignalPrices(ctx, m, cdc, authzKeeper) {
 				return false
 			}
@@ -133,28 +112,12 @@ func isTssLaneMsg(
 	bandtssKeeper *bandtsskeeper.Keeper,
 ) bool {
 	switch msg := msg.(type) {
-	case *tsstypes.MsgSubmitDKGRound1:
-		return true
-	case *tsstypes.MsgSubmitDKGRound2:
-		return true
-	case *tsstypes.MsgConfirm:
-		return true
-	case *tsstypes.MsgComplain:
-		return true
-	case *tsstypes.MsgSubmitDEs:
-		acc, err := sdk.AccAddressFromBech32(msg.Sender)
-		if err != nil {
-			return false
-		}
-
-		currentGroupID := bandtssKeeper.GetCurrentGroup(ctx).GroupID
-		incomingGroupID := bandtssKeeper.GetIncomingGroupID(ctx)
-		if !bandtssKeeper.HasMember(ctx, acc, currentGroupID) &&
-			!bandtssKeeper.HasMember(ctx, acc, incomingGroupID) {
-			return false
-		}
-		return true
-	case *tsstypes.MsgSubmitSignature:
+	case *tsstypes.MsgSubmitDKGRound1,
+		*tsstypes.MsgSubmitDKGRound2,
+		*tsstypes.MsgConfirm,
+		*tsstypes.MsgComplain,
+		*tsstypes.MsgSubmitDEs,
+		*tsstypes.MsgSubmitSignature:
 		return true
 	case *authz.MsgExec:
 		msgs, err := msg.GetMessages()
@@ -162,28 +125,7 @@ func isTssLaneMsg(
 			return false
 		}
 
-		grantee, err := sdk.AccAddressFromBech32(msg.Grantee)
-		if err != nil {
-			return false
-		}
-
 		for _, m := range msgs {
-			signers, _, err := cdc.GetMsgV1Signers(m)
-			if err != nil {
-				return false
-			}
-			// Check if this grantee have authorization for the message.
-			cap, _ := authzKeeper.GetAuthorization(
-				ctx,
-				grantee,
-				sdk.AccAddress(signers[0]),
-				sdk.MsgTypeURL(m),
-			)
-			if cap == nil {
-				return false
-			}
-
-			// Check if this message should be free or not.
 			if !isTssLaneMsg(ctx, m, cdc, authzKeeper, bandtssKeeper) {
 				return false
 			}
@@ -240,28 +182,7 @@ func isMsgReportData(
 			return false
 		}
 
-		grantee, err := sdk.AccAddressFromBech32(msg.Grantee)
-		if err != nil {
-			return false
-		}
-
 		for _, m := range msgs {
-			signers, _, err := cdc.GetMsgV1Signers(m)
-			if err != nil {
-				return false
-			}
-			// Check if this grantee have authorization for the message.
-			cap, _ := authzKeeper.GetAuthorization(
-				ctx,
-				grantee,
-				sdk.AccAddress(signers[0]),
-				sdk.MsgTypeURL(m),
-			)
-			if cap == nil {
-				return false
-			}
-
-			// Check if this message should be free or not.
 			if !isMsgReportData(ctx, m, cdc, authzKeeper) {
 				return false
 			}
