@@ -23,16 +23,16 @@ import (
 // channel keeper.
 type HandlerOptions struct {
 	ante.HandlerOptions
-	Cdc             codec.Codec
-	AuthzKeeper     *authzkeeper.Keeper
-	OracleKeeper    *oraclekeeper.Keeper
-	IBCKeeper       *ibckeeper.Keeper
-	StakingKeeper   *stakingkeeper.Keeper
-	GlobalfeeKeeper *globalfeekeeper.Keeper
-	TSSKeeper       *tsskeeper.Keeper
-	BandtssKeeper   *bandtsskeeper.Keeper
-	FeedsKeeper     *feedskeeper.Keeper
-	MatchFns        []func(sdk.Context, sdk.Tx) bool
+	Cdc                     codec.Codec
+	AuthzKeeper             *authzkeeper.Keeper
+	OracleKeeper            *oraclekeeper.Keeper
+	IBCKeeper               *ibckeeper.Keeper
+	StakingKeeper           *stakingkeeper.Keeper
+	GlobalfeeKeeper         *globalfeekeeper.Keeper
+	TSSKeeper               *tsskeeper.Keeper
+	BandtssKeeper           *bandtsskeeper.Keeper
+	FeedsKeeper             *feedskeeper.Keeper
+	IgnoreDecoratorMatchFns []func(sdk.Context, sdk.Tx) bool
 }
 
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
@@ -106,7 +106,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 				options.FeegrantKeeper,
 				options.TxFeeChecker,
 			),
-			options.MatchFns...,
+			options.IgnoreDecoratorMatchFns...,
 		),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),

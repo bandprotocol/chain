@@ -291,7 +291,7 @@ func NewBandApp(
 			IBCKeeper:       app.IBCKeeper,
 			StakingKeeper:   app.StakingKeeper,
 			GlobalfeeKeeper: &app.GlobalFeeKeeper,
-			MatchFns: []func(sdk.Context, sdk.Tx) bool{
+			IgnoreDecoratorMatchFns: []func(sdk.Context, sdk.Tx) bool{
 				FeedsSubmitSignalPriceTxMatchHandler(app.appCodec, &app.AuthzKeeper, feedsMsgServer),
 				TssTxMatchHandler(app.appCodec, &app.AuthzKeeper, &app.BandtssKeeper, tssMsgServer),
 				oracleReportTxMatchHandler(app.appCodec, &app.AuthzKeeper, oracleMsgServer),
