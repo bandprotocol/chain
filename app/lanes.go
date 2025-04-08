@@ -19,8 +19,8 @@ import (
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-// FeedsLaneMatchHandler is a function that returns the match function for the Feeds lane.
-func FeedsLaneMatchHandler(
+// feedsLaneMatchHandler is a function that returns the match function for the Feeds lane.
+func feedsLaneMatchHandler(
 	cdc codec.Codec,
 	authzKeeper *authzkeeper.Keeper,
 	feedsMsgServer feedstypes.MsgServer,
@@ -91,8 +91,8 @@ func isValidMsgSubmitSignalPrices(
 	return true
 }
 
-// TssLaneMatchHandler is a function that returns the match function for the TSS lane.
-func TssLaneMatchHandler(
+// tssLaneMatchHandler is a function that returns the match function for the TSS lane.
+func tssLaneMatchHandler(
 	cdc codec.Codec,
 	authzKeeper *authzkeeper.Keeper,
 	bandtssKeeper *bandtsskeeper.Keeper,
@@ -291,7 +291,7 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleLane, defaultLane *mem
 		app.txConfig.TxEncoder(),
 		signerExtractor,
 		"feedsLane",
-		FeedsLaneMatchHandler(app.appCodec, &app.AuthzKeeper, feedsMsgServer),
+		feedsLaneMatchHandler(app.appCodec, &app.AuthzKeeper, feedsMsgServer),
 		math.LegacyMustNewDecFromStr("0.05"),
 		math.LegacyMustNewDecFromStr("0.3"),
 		sdkmempool.DefaultPriorityMempool(),
@@ -302,7 +302,7 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleLane, defaultLane *mem
 		app.txConfig.TxEncoder(),
 		signerExtractor,
 		"tssLane",
-		TssLaneMatchHandler(app.appCodec, &app.AuthzKeeper, &app.BandtssKeeper, tssMsgServer),
+		tssLaneMatchHandler(app.appCodec, &app.AuthzKeeper, &app.BandtssKeeper, tssMsgServer),
 		math.LegacyMustNewDecFromStr("0.05"),
 		math.LegacyMustNewDecFromStr("0.2"),
 		sdkmempool.DefaultPriorityMempool(),

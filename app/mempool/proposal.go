@@ -30,7 +30,7 @@ type Proposal struct {
 }
 
 // NewProposal returns a new empty proposal constrained by max block size and max gas limit.
-func NewProposal(logger log.Logger, maxBlockSize int64, maxGasLimit uint64) Proposal {
+func NewProposal(logger log.Logger, maxBlockSize uint64, maxGasLimit uint64) Proposal {
 	return Proposal{
 		logger:          logger,
 		txs:             make([][]byte, 0),
@@ -78,7 +78,7 @@ func (p *Proposal) GetLimit(ratio sdkmath.LegacyDec) BlockSpace {
 		return p.maxBlockSpace.Sub(p.totalBlockSpace)
 	}
 
-	return p.maxBlockSpace.MulDec(ratio)
+	return p.maxBlockSpace.Scale(ratio)
 }
 
 // GetBlockLimits retrieves the maximum block size and gas limit from context.

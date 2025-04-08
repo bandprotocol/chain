@@ -34,7 +34,7 @@ type Lane struct {
 	txIndex map[string]struct{}
 
 	// Add mutex for thread safety
-	mtx sync.RWMutex
+	mu sync.RWMutex
 }
 
 // NewLane is a constructor for a lane.
@@ -70,8 +70,8 @@ func (l *Lane) Insert(ctx context.Context, tx sdk.Tx) error {
 		return err
 	}
 
-	l.mtx.Lock()
-	defer l.mtx.Unlock()
+	l.mu.Lock()
+	defer l.mu.Unlock()
 
 	if err = l.laneMempool.Insert(ctx, tx); err != nil {
 		return err
@@ -93,8 +93,8 @@ func (l *Lane) Remove(tx sdk.Tx) error {
 		return err
 	}
 
-	l.mtx.Lock()
-	defer l.mtx.Unlock()
+	l.mu.Lock()
+	defer l.mu.Unlock()
 
 	if err = l.laneMempool.Remove(tx); err != nil {
 		return err
@@ -111,8 +111,8 @@ func (l *Lane) Contains(tx sdk.Tx) bool {
 		return false
 	}
 
-	l.mtx.RLock()
-	defer l.mtx.RUnlock()
+	l.mu.RLock()
+	defer l.mu.RUnlock()
 
 	_, exists := l.txIndex[txInfo.Hash]
 	return exists
@@ -123,7 +123,7 @@ func (l *Lane) Match(ctx sdk.Context, tx sdk.Tx) bool {
 	return l.matchFn(ctx, tx)
 }
 
-// FillProposal fills the proposal with transactions from the lane mempool with the its own limit.
+// FillProposal fills the proposal with transactions from the lane mempool with its own limit.
 // It returns the total size and gas of the transactions added to the proposal.
 // It also returns an iterator to the next transaction in the mempool and a list
 // of transactions that were removed from the lane mempool.
@@ -131,13 +131,9 @@ func (l *Lane) FillProposal(
 	ctx sdk.Context,
 	proposal *Proposal,
 ) (blockUsed BlockSpace, iterator sdkmempool.Iterator, txsToRemove []sdk.Tx) {
-	var (
-		transactionLimit BlockSpace
-		laneLimit        BlockSpace
-	)
 	// Get the transaction and lane limit for the lane.
-	transactionLimit = proposal.GetLimit(l.maxTransactionSpace)
-	laneLimit = proposal.GetLimit(l.maxLaneSpace)
+	transactionLimit := proposal.GetLimit(l.maxTransactionSpace)
+	laneLimit := proposal.GetLimit(l.maxLaneSpace)
 
 	// Select all transactions in the mempool that are valid and not already in the
 	// partial proposal.
@@ -187,10 +183,10 @@ func (l *Lane) FillProposal(
 	return
 }
 
-// FillProposalBy fills the proposal with transactions from the lane mempool with the given iterator and limit.
+// FillProposalByIterator fills the proposal with transactions from the lane mempool with the given iterator and limit.
 // It returns the total size and gas of the transactions added to the proposal.
 // It also returns a list of transactions that were removed from the lane mempool.
-func (l *Lane) FillProposalBy(
+func (l *Lane) FillProposalByIterator(
 	proposal *Proposal,
 	iterator sdkmempool.Iterator,
 	laneLimit BlockSpace,
@@ -198,8 +194,7 @@ func (l *Lane) FillProposalBy(
 	// get the transaction limit for the lane.
 	transactionLimit := proposal.GetLimit(l.maxTransactionSpace)
 
-	// Select all transactions in the mempool that are valid and not already in the
-	// partial proposal.
+	// Select all transactions in the mempool that are valid and not already in the partial proposal.
 	for ; iterator != nil; iterator = iterator.Next() {
 		// If the total size used or total gas used exceeds the limit, we break and do not attempt to include more txs.
 		// We can tolerate a few bytes/gas over the limit, since we limit the size of each transaction.
@@ -266,7 +261,7 @@ func (l *Lane) GetTxInfo(tx sdk.Tx) (TxWithInfo, error) {
 		return TxWithInfo{}, err
 	}
 
-	blockSpace := NewBlockSpace(int64(len(txBytes)), gasTx.GetGas())
+	blockSpace := NewBlockSpace(uint64(len(txBytes)), gasTx.GetGas())
 
 	return TxWithInfo{
 		Hash:       strings.ToUpper(hex.EncodeToString(comettypes.Tx(txBytes).Hash())),

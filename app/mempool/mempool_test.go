@@ -230,7 +230,7 @@ func (s *MempoolTestSuite) TestNoTransactions() {
 
 	proposal := NewProposal(
 		log.NewTestLogger(s.T()),
-		s.ctx.ConsensusParams().Block.MaxBytes,
+		uint64(s.ctx.ConsensusParams().Block.MaxBytes),
 		uint64(s.ctx.ConsensusParams().Block.MaxGas),
 	)
 
@@ -257,7 +257,7 @@ func (s *MempoolTestSuite) TestSingleBankTx() {
 
 	proposal := NewProposal(
 		log.NewTestLogger(s.T()),
-		s.ctx.ConsensusParams().Block.MaxBytes,
+		uint64(s.ctx.ConsensusParams().Block.MaxBytes),
 		uint64(s.ctx.ConsensusParams().Block.MaxGas),
 	)
 
@@ -310,7 +310,7 @@ func (s *MempoolTestSuite) TestOneTxPerLane() {
 
 	proposal := NewProposal(
 		log.NewTestLogger(s.T()),
-		s.ctx.ConsensusParams().Block.MaxBytes,
+		uint64(s.ctx.ConsensusParams().Block.MaxBytes),
 		uint64(s.ctx.ConsensusParams().Block.MaxGas),
 	)
 
@@ -340,7 +340,7 @@ func (s *MempoolTestSuite) TestTxOverLimit() {
 
 	proposal := NewProposal(
 		log.NewTestLogger(s.T()),
-		s.ctx.ConsensusParams().Block.MaxBytes,
+		uint64(s.ctx.ConsensusParams().Block.MaxBytes),
 		uint64(s.ctx.ConsensusParams().Block.MaxGas),
 	)
 
@@ -417,7 +417,7 @@ func (s *MempoolTestSuite) TestTxsOverGasLimit() {
 
 	proposal := NewProposal(
 		log.NewTestLogger(s.T()),
-		s.ctx.ConsensusParams().Block.MaxBytes,
+		uint64(s.ctx.ConsensusParams().Block.MaxBytes),
 		uint64(s.ctx.ConsensusParams().Block.MaxGas),
 	)
 
@@ -493,7 +493,7 @@ func (s *MempoolTestSuite) TestFillUpLeftOverSpace() {
 
 	proposal := NewProposal(
 		log.NewTestLogger(s.T()),
-		s.ctx.ConsensusParams().Block.MaxBytes,
+		uint64(s.ctx.ConsensusParams().Block.MaxBytes),
 		uint64(s.ctx.ConsensusParams().Block.MaxGas),
 	)
 

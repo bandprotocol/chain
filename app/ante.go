@@ -136,9 +136,11 @@ func NewIgnoreDecorator(decorator sdk.AnteDecorator, lanes ...*mempool.Lane) *Ig
 	}
 }
 
-// AnteHandle implements the sdk.AnteDecorator interface. If the transaction belongs to
-// one of the lanes, the next AnteHandler is called. Otherwise, the decorator's AnteHandler
-// is called.
+// NewIgnoreDecorator is a wrapper that implements the sdk.AnteDecorator interface,
+// providing two execution paths for processing transactions:
+//   - If a transaction matches one of the designated bypass lanes, it is forwarded
+//     directly to the next AnteHandler.
+//   - Otherwise, the transaction is processed using the embedded decorator’s AnteHandler.
 func (ig IgnoreDecorator) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
 ) (sdk.Context, error) {

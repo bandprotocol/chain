@@ -157,7 +157,7 @@ func (s *LaneTestSuite) TestLaneFillProposal() {
 	remainderLimit := proposal.maxBlockSpace.Sub(proposal.totalBlockSpace)
 
 	// Call FillProposalBy with the remainder limit and iterator from the previous call.
-	blockUsed, txsToRemove = lane.FillProposalBy(&proposal, iterator, remainderLimit)
+	blockUsed, txsToRemove = lane.FillProposalByIterator(&proposal, iterator, remainderLimit)
 
 	// We expect tx1, tx2, tx5, tx6, tx7, tx8 to be included in the proposal.
 	s.Require().Equal(int64(884), blockUsed.TxBytes())

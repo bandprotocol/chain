@@ -3,6 +3,7 @@ package mempool
 import (
 	"context"
 	"fmt"
+	"math"
 
 	"cosmossdk.io/log"
 
@@ -40,9 +41,9 @@ func (m *Mempool) Insert(ctx context.Context, tx sdk.Tx) (err error) {
 		}
 	}()
 
-	cacheSdkCtx, _ := sdk.UnwrapSDKContext(ctx).CacheContext()
+	cacheSDKCtx, _ := sdk.UnwrapSDKContext(ctx).CacheContext()
 	for _, lane := range m.lanes {
-		if lane.Match(cacheSdkCtx, tx) {
+		if lane.Match(cacheSDKCtx, tx) {
 			return lane.Insert(ctx, tx)
 		}
 	}
@@ -56,10 +57,16 @@ func (m *Mempool) Select(ctx context.Context, txs [][]byte) sdkmempool.Iterator 
 }
 
 // CountTx returns the total number of transactions across all lanes.
+// Returns math.MaxInt if the total count would overflow.
 func (m *Mempool) CountTx() int {
 	count := 0
 	for _, lane := range m.lanes {
-		count += lane.CountTx()
+		laneCount := lane.CountTx()
+		if laneCount > 0 && count > math.MaxInt-laneCount {
+			// If adding laneCount would cause overflow, return MaxInt
+			return math.MaxInt
+		}
+		count += laneCount
 	}
 	return count
 }
@@ -84,7 +91,7 @@ func (m *Mempool) Remove(tx sdk.Tx) (err error) {
 }
 
 // PrepareProposal divides the block gas limit among lanes (based on lane percentage),
-// then calls each lane’s FillProposal method. If leftover gas is important to you,
+// then calls each lane's FillProposal method. If leftover gas is important to you,
 // you can implement a second pass or distribute leftover to subsequent lanes, etc.
 func (m *Mempool) PrepareProposal(ctx sdk.Context, proposal Proposal) (Proposal, error) {
 	cacheCtx, _ := ctx.CacheContext()
@@ -142,7 +149,7 @@ func (m *Mempool) fillRemainderProposals(
 	remainderLimit BlockSpace,
 ) {
 	for i, lane := range m.lanes {
-		blockUsed, removedTxs := lane.FillProposalBy(
+		blockUsed, removedTxs := lane.FillProposalByIterator(
 			proposal,
 			laneIterators[i],
 			remainderLimit,
