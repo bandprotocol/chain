@@ -1,5 +1,5 @@
 import base64 as b64
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 import sqlalchemy as sa
 import enum
 
@@ -56,7 +56,7 @@ class CustomDateTime(sa.types.TypeDecorator):
     impl = sa.DateTime
 
     def process_bind_param(self, value, dialect):
-        return datetime.fromtimestamp(value / 1e9) if value != None else None
+        return datetime.fromtimestamp(value / 1e9, timezone.utc) if value is not None else None
 
 
 class CustomBase64(sa.types.TypeDecorator):
@@ -76,7 +76,7 @@ class CustomDate(sa.types.TypeDecorator):
     impl = sa.Date
 
     def process_bind_param(self, value, dialect):
-        dt = datetime.fromtimestamp(value / 1e9)
+        dt = datetime.fromtimestamp(value / 1e9, timezone.utc)
         return date(dt.year, dt.month, dt.day)
 
 
