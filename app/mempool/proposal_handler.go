@@ -11,15 +11,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-type (
-	// ProposalHandler wraps ABCI++ PrepareProposal/ProcessProposal for the Mempool.
-	ProposalHandler struct {
-		logger                   log.Logger
-		txDecoder                sdk.TxDecoder
-		Mempool                  *Mempool
-		useCustomProcessProposal bool
-	}
-)
+// ProposalHandler wraps ABCI++ PrepareProposal/ProcessProposal for the Mempool.
+type ProposalHandler struct {
+	logger                   log.Logger
+	txDecoder                sdk.TxDecoder
+	Mempool                  *Mempool
+	useCustomProcessProposal bool
+}
 
 // NewProposalHandler returns a new ABCI++ proposal handler for the Mempool.
 func NewProposalHandler(
@@ -55,26 +53,26 @@ func (h *ProposalHandler) PrepareProposalHandler() sdk.PrepareProposalHandler {
 
 		// Gather block limits
 		_, maxGasLimit := GetBlockLimits(ctx)
-		proposal := NewProposal(h.logger, req.MaxTxBytes, maxGasLimit)
+		proposal := NewProposal(h.logger, uint64(req.MaxTxBytes), maxGasLimit)
 
 		// Populate proposal from Mempool
 		finalProposal, err := h.Mempool.PrepareProposal(ctx, proposal)
 		if err != nil {
 			// If an error occurs, we can still return what we have or choose to return nothing
-			h.logger.Error("failed to prepare  proposal", "err", err)
+			h.logger.Error("failed to prepare proposal", "err", err)
 			return &abci.ResponsePrepareProposal{Txs: [][]byte{}}, err
 		}
 
 		h.logger.Info(
 			"prepared proposal",
-			"num_txs", len(finalProposal.Txs),
-			"total_block_space", finalProposal.TotalBlockSpace.String(),
-			"max_block_space", finalProposal.MaxBlockSpace.String(),
+			"num_txs", len(finalProposal.txs),
+			"total_block_space", finalProposal.totalBlockSpace.String(),
+			"max_block_space", finalProposal.maxBlockSpace.String(),
 			"height", req.Height,
 		)
 
 		return &abci.ResponsePrepareProposal{
-			Txs: finalProposal.Txs,
+			Txs: finalProposal.txs,
 		}, nil
 	}
 }

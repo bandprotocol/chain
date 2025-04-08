@@ -150,14 +150,14 @@ func (s *LaneTestSuite) TestLaneFillProposal() {
 
 	// The proposal should contain 2 transactions in Txs().
 	expectedIncludedTxs := s.getTxBytes(tx1, tx2)
-	s.Require().Equal(2, len(proposal.Txs), "two txs in the proposal")
-	s.Require().Equal(expectedIncludedTxs, proposal.Txs)
+	s.Require().Equal(2, len(proposal.txs), "two txs in the proposal")
+	s.Require().Equal(expectedIncludedTxs, proposal.txs)
 
 	// Calculate the remaining block space
-	remainderLimit := proposal.MaxBlockSpace.Sub(proposal.TotalBlockSpace)
+	remainderLimit := proposal.maxBlockSpace.Sub(proposal.totalBlockSpace)
 
 	// Call FillProposalBy with the remainder limit and iterator from the previous call.
-	blockUsed, txsToRemove = lane.FillProposalBy(&proposal, iterator, remainderLimit)
+	blockUsed, txsToRemove = lane.FillProposalByIterator(&proposal, iterator, remainderLimit)
 
 	// We expect tx1, tx2, tx5, tx6, tx7, tx8 to be included in the proposal.
 	s.Require().Equal(int64(884), blockUsed.TxBytes())
@@ -168,8 +168,8 @@ func (s *LaneTestSuite) TestLaneFillProposal() {
 
 	// The proposal should contain 2 transactions in Txs().
 	expectedIncludedTxs = s.getTxBytes(tx1, tx2, tx5, tx6, tx7, tx8)
-	s.Require().Equal(6, len(proposal.Txs), "two txs in the proposal")
-	s.Require().Equal(expectedIncludedTxs, proposal.Txs)
+	s.Require().Equal(6, len(proposal.txs), "two txs in the proposal")
+	s.Require().Equal(expectedIncludedTxs, proposal.txs)
 }
 
 // -----------------------------------------------------------------------------

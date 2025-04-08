@@ -16,8 +16,8 @@ import (
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-// FeedsLaneMatchHandler is a function that returns the match function for the Feeds lane.
-func FeedsLaneMatchHandler(
+// feedsLaneMatchHandler is a function that returns the match function for the Feeds lane.
+func feedsLaneMatchHandler(
 	cdc codec.Codec,
 	authzKeeper *authzkeeper.Keeper,
 ) func(sdk.Context, sdk.Tx) bool {
@@ -94,8 +94,8 @@ func isMsgSubmitSignalPrices(
 	return true
 }
 
-// TssLaneMatchHandler is a function that returns the match function for the TSS lane.
-func TssLaneMatchHandler(
+// tssLaneMatchHandler is a function that returns the match function for the TSS lane.
+func tssLaneMatchHandler(
 	cdc codec.Codec,
 	authzKeeper *authzkeeper.Keeper,
 	bandtssKeeper *bandtsskeeper.Keeper,
@@ -282,16 +282,16 @@ func DefaultLaneMatchHandler() func(sdk.Context, sdk.Tx) bool {
 
 // CreateLanes creates the lanes for the Band mempool.
 func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleLane, defaultLane *mempool.Lane) {
-	// 1. Create the signer extractor. This is used to extract the expected signers from
+	// Create the signer extractor. This is used to extract the expected signers from
 	// a transaction. Each lane can have a different signer extractor if needed.
-	signerAdapter := sdkmempool.NewDefaultSignerExtractionAdapter()
+	signerExtractor := sdkmempool.NewDefaultSignerExtractionAdapter()
 
 	feedsLane = mempool.NewLane(
 		app.Logger(),
 		app.txConfig.TxEncoder(),
-		signerAdapter,
+		signerExtractor,
 		"feedsLane",
-		FeedsLaneMatchHandler(app.appCodec, &app.AuthzKeeper),
+		feedsLaneMatchHandler(app.appCodec, &app.AuthzKeeper),
 		math.LegacyMustNewDecFromStr("0.05"),
 		math.LegacyMustNewDecFromStr("0.3"),
 		sdkmempool.DefaultPriorityMempool(),
@@ -300,9 +300,9 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleLane, defaultLane *mem
 	tssLane = mempool.NewLane(
 		app.Logger(),
 		app.txConfig.TxEncoder(),
-		signerAdapter,
+		signerExtractor,
 		"tssLane",
-		TssLaneMatchHandler(app.appCodec, &app.AuthzKeeper, &app.BandtssKeeper),
+		tssLaneMatchHandler(app.appCodec, &app.AuthzKeeper, &app.BandtssKeeper),
 		math.LegacyMustNewDecFromStr("0.05"),
 		math.LegacyMustNewDecFromStr("0.2"),
 		sdkmempool.DefaultPriorityMempool(),
@@ -311,7 +311,7 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleLane, defaultLane *mem
 	oracleLane = mempool.NewLane(
 		app.Logger(),
 		app.txConfig.TxEncoder(),
-		signerAdapter,
+		signerExtractor,
 		"oracleLane",
 		oracleLaneMatchHandler(app.appCodec, &app.AuthzKeeper),
 		math.LegacyMustNewDecFromStr("0.05"),
@@ -322,7 +322,7 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleLane, defaultLane *mem
 	defaultLane = mempool.NewLane(
 		app.Logger(),
 		app.txConfig.TxEncoder(),
-		signerAdapter,
+		signerExtractor,
 		"defaultLane",
 		DefaultLaneMatchHandler(),
 		math.LegacyMustNewDecFromStr("0.3"),

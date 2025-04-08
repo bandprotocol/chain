@@ -1,10 +1,5 @@
 package testdata
 
-import (
-	"crypto/sha256"
-	"encoding/hex"
-)
-
 // WasmExtra1 is an extra Owasm code to test creating or editing oracle scripts.
 var WasmExtra1 []byte = wat2wasm(`
 (module
@@ -29,15 +24,3 @@ var WasmExtra2 []byte = wat2wasm(`
 	(func $execute (export "execute") (type $t0))
 	(memory $memory (export "memory") 17))
 `)
-
-var (
-	WasmExtra1FileName string
-	WasmExtra2FileName string
-)
-
-func init() {
-	wasm1CompiledHash := sha256.Sum256(Compile(WasmExtra1))
-	wasm2CompiledHash := sha256.Sum256(Compile(WasmExtra2))
-	WasmExtra1FileName = hex.EncodeToString(wasm1CompiledHash[:])
-	WasmExtra2FileName = hex.EncodeToString(wasm2CompiledHash[:])
-}

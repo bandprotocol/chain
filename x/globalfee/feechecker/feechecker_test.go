@@ -131,7 +131,7 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 		0,
 		0,
 		bandtesting.FeePayer.Address.String(),
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 	)
 	suite.requestID = app.OracleKeeper.AddRequest(suite.ctx, req)
 

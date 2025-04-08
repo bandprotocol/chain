@@ -135,10 +135,12 @@ func NewIgnoreDecorator(decorator sdk.AnteDecorator, matchFns ...func(sdk.Contex
 	}
 }
 
-// AnteHandle implements the sdk.AnteDecorator interface. If the transaction belongs to
-// one of the lanes, the next AnteHandler is called. Otherwise, the decorator's AnteHandler
-// is called.
-func (sd IgnoreDecorator) AnteHandle(
+// NewIgnoreDecorator is a wrapper that implements the sdk.AnteDecorator interface,
+// providing two execution paths for processing transactions:
+//   - If a transaction matches one of the designated bypass lanes, it is forwarded
+//     directly to the next AnteHandler.
+//   - Otherwise, the transaction is processed using the embedded decorator’s AnteHandler.
+func (ig IgnoreDecorator) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
 ) (sdk.Context, error) {
 	// IgnoreDecorator is only used for check tx.
@@ -153,5 +155,5 @@ func (sd IgnoreDecorator) AnteHandle(
 		}
 	}
 
-	return sd.decorator.AnteHandle(ctx, tx, simulate, next)
+	return ig.decorator.AnteHandle(ctx, tx, simulate, next)
 }
