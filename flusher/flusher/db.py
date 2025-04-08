@@ -56,7 +56,7 @@ class CustomDateTime(sa.types.TypeDecorator):
     impl = sa.DateTime
 
     def process_bind_param(self, value, dialect):
-        return datetime.fromtimestamp(value / 1e9, timezone.utc) if value != None else None
+        return datetime.fromtimestamp(value / 1e9, timezone.utc) if value is not None else None
 
 
 class CustomBase64(sa.types.TypeDecorator):
