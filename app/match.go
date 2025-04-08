@@ -12,8 +12,8 @@ import (
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-// FeedsSubmitSignalPriceTxMatchHandler is a function that returns the match function for the Feeds SubmitSignalPriceTx.
-func FeedsSubmitSignalPriceTxMatchHandler(
+// feedsSubmitSignalPriceTxMatchHandler is a function that returns the match function for the Feeds SubmitSignalPriceTx.
+func feedsSubmitSignalPriceTxMatchHandler(
 	cdc codec.Codec,
 	authzKeeper *authzkeeper.Keeper,
 	feedsMsgServer feedstypes.MsgServer,
@@ -84,8 +84,8 @@ func isValidMsgSubmitSignalPrices(
 	return true
 }
 
-// TssTxMatchHandler is a function that returns the match function for the TSS Tx.
-func TssTxMatchHandler(
+// tssTxMatchHandler is a function that returns the match function for the TSS Tx.
+func tssTxMatchHandler(
 	cdc codec.Codec,
 	authzKeeper *authzkeeper.Keeper,
 	bandtssKeeper *bandtsskeeper.Keeper,
@@ -97,7 +97,7 @@ func TssTxMatchHandler(
 			return false
 		}
 		for _, msg := range msgs {
-			if !isValidTssTxMsg(ctx, msg, cdc, authzKeeper, bandtssKeeper, tssMsgServer) {
+			if !isValidTSSTxMsg(ctx, msg, cdc, authzKeeper, bandtssKeeper, tssMsgServer) {
 				return false
 			}
 		}
@@ -105,8 +105,8 @@ func TssTxMatchHandler(
 	}
 }
 
-// isValidTssTxMsg return true if the message is a valid for TSS Tx.
-func isValidTssTxMsg(
+// isValidTSSTxMsg return true if the message is a valid for TSS Tx.
+func isValidTSSTxMsg(
 	ctx sdk.Context,
 	msg sdk.Msg,
 	cdc codec.Codec,
@@ -179,7 +179,7 @@ func isValidTssTxMsg(
 			}
 
 			// Check if this message should be free or not.
-			if !isValidTssTxMsg(ctx, m, cdc, authzKeeper, bandtssKeeper, tssMsgServer) {
+			if !isValidTSSTxMsg(ctx, m, cdc, authzKeeper, bandtssKeeper, tssMsgServer) {
 				return false
 			}
 		}
