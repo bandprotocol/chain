@@ -142,7 +142,7 @@ func (s *LaneTestSuite) TestLaneFillProposal() {
 
 	// We expect tx1 and tx2 to be included in the proposal.
 	// Then the gas should be over the limit, so tx3 is yet to be considered.
-	s.Require().Equal(int64(440), blockUsed.TxBytes())
+	s.Require().Equal(uint64(440), blockUsed.TxBytes())
 	s.Require().Equal(uint64(40), blockUsed.Gas(), "20 gas from tx1 and 20 gas from tx2")
 	s.Require().NotNil(iterator)
 	s.Require().
@@ -160,7 +160,7 @@ func (s *LaneTestSuite) TestLaneFillProposal() {
 	blockUsed, txsToRemove = lane.FillProposalByIterator(&proposal, iterator, remainderLimit)
 
 	// We expect tx1, tx2, tx5, tx6, tx7, tx8 to be included in the proposal.
-	s.Require().Equal(int64(884), blockUsed.TxBytes())
+	s.Require().Equal(uint64(884), blockUsed.TxBytes())
 	s.Require().Equal(uint64(60), blockUsed.Gas())
 	s.Require().Equal([]sdk.Tx{tx3, tx4}, txsToRemove)
 	s.Require().
