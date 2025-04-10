@@ -534,8 +534,8 @@ func (s *MempoolTestSuite) TestDependencyBlockLane() {
 		math.LegacyMustNewDecFromStr("0.5"),
 		math.LegacyMustNewDecFromStr("0.5"),
 		sdkmempool.DefaultPriorityMempool(),
-		func(isFilled bool) {
-			DependentLane.SetIsBlocked(isFilled)
+		func(isLaneLimitExceeded bool) {
+			DependentLane.SetBlocked(isLaneLimitExceeded)
 		},
 	)
 
@@ -572,7 +572,7 @@ func (s *MempoolTestSuite) TestDependencyBlockLane() {
 
 	proposal := NewProposal(
 		log.NewTestLogger(s.T()),
-		s.ctx.ConsensusParams().Block.MaxBytes,
+		uint64(s.ctx.ConsensusParams().Block.MaxBytes),
 		uint64(s.ctx.ConsensusParams().Block.MaxGas),
 	)
 
@@ -581,8 +581,8 @@ func (s *MempoolTestSuite) TestDependencyBlockLane() {
 	s.Require().NotNil(result)
 
 	expectedIncludedTxs := s.getTxBytes(bankTx1, MixedTx1)
-	s.Require().Equal(2, len(result.Txs))
-	s.Require().Equal(expectedIncludedTxs, result.Txs)
+	s.Require().Equal(2, len(result.txs))
+	s.Require().Equal(expectedIncludedTxs, result.txs)
 
 	bankTx2, err := CreateBankSendTx(
 		s.encodingConfig.TxConfig,
@@ -598,7 +598,7 @@ func (s *MempoolTestSuite) TestDependencyBlockLane() {
 
 	proposal = NewProposal(
 		log.NewTestLogger(s.T()),
-		s.ctx.ConsensusParams().Block.MaxBytes,
+		uint64(s.ctx.ConsensusParams().Block.MaxBytes),
 		uint64(s.ctx.ConsensusParams().Block.MaxGas),
 	)
 
@@ -607,8 +607,8 @@ func (s *MempoolTestSuite) TestDependencyBlockLane() {
 	s.Require().NotNil(result)
 
 	expectedIncludedTxs = s.getTxBytes(bankTx1, bankTx2)
-	s.Require().Equal(2, len(result.Txs))
-	s.Require().Equal(expectedIncludedTxs, result.Txs)
+	s.Require().Equal(2, len(result.txs))
+	s.Require().Equal(expectedIncludedTxs, result.txs)
 }
 
 // -----------------------------------------------------------------------------

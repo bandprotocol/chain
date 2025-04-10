@@ -299,8 +299,8 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleReportLane, oracleRequ
 		math.LegacyMustNewDecFromStr("0.05"),
 		math.LegacyMustNewDecFromStr("0.2"),
 		sdkmempool.DefaultPriorityMempool(),
-		func(isFilled bool) {
-			oracleRequestLane.SetIsBlocked(isFilled)
+		func(isLaneLimitExceeded bool) {
+			oracleRequestLane.SetBlocked(isLaneLimitExceeded)
 		},
 	)
 

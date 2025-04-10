@@ -33,10 +33,10 @@ type Lane struct {
 	// currently in this lane's mempool.
 	txIndex map[string]struct{}
 
-	// OnFilled is a callback function that is called when the lane exceeds its limit.
-	OnFilled func(isFilled bool)
+	// handleLaneLimitCheck is a callback function that is called when the lane exceeds its limit.
+	handleLaneLimitCheck func(isLaneLimitExceeded bool)
 
-	isBlocked bool
+	blocked bool
 
 	// Add mutex for thread safety
 	mu sync.RWMutex
@@ -52,23 +52,23 @@ func NewLane(
 	maxTransactionSpace math.LegacyDec,
 	maxLaneSpace math.LegacyDec,
 	laneMempool sdkmempool.Mempool,
-	onFilled func(isFilled bool),
+	handleLaneLimitCheck func(isLaneLimitExceeded bool),
 ) *Lane {
 	return &Lane{
-		logger:              logger,
-		txEncoder:           txEncoder,
-		signerExtractor:     signerExtractor,
-		name:                name,
-		matchFn:             matchFn,
-		maxTransactionSpace: maxTransactionSpace,
-		maxLaneSpace:        maxLaneSpace,
-		laneMempool:         laneMempool,
-		OnFilled:            onFilled,
+		logger:               logger,
+		txEncoder:            txEncoder,
+		signerExtractor:      signerExtractor,
+		name:                 name,
+		matchFn:              matchFn,
+		maxTransactionSpace:  maxTransactionSpace,
+		maxLaneSpace:         maxLaneSpace,
+		laneMempool:          laneMempool,
+		handleLaneLimitCheck: handleLaneLimitCheck,
 
 		// Initialize the txIndex.
 		txIndex: make(map[string]struct{}),
 
-		isBlocked: false,
+		blocked: false,
 	}
 }
 
@@ -144,9 +144,9 @@ func (l *Lane) FillProposal(
 	transactionLimit := proposal.GetLimit(l.maxTransactionSpace)
 	laneLimit := proposal.GetLimit(l.maxLaneSpace)
 
-	isFilled := false
+	isLaneLimitExceeded := false
 
-	if l.isBlocked {
+	if l.blocked {
 		return
 	}
 
@@ -196,11 +196,11 @@ func (l *Lane) FillProposal(
 	}
 
 	if laneLimit.IsReachedBy(blockUsed) {
-		isFilled = true
+		isLaneLimitExceeded = true
 	}
 
-	if l.OnFilled != nil {
-		l.OnFilled(isFilled)
+	if l.handleLaneLimitCheck != nil {
+		l.handleLaneLimitCheck(isLaneLimitExceeded)
 	}
 
 	return
@@ -217,7 +217,7 @@ func (l *Lane) FillProposalByIterator(
 	// get the transaction limit for the lane.
 	transactionLimit := proposal.GetLimit(l.maxTransactionSpace)
 
-	if l.isBlocked {
+	if l.blocked {
 		return
 	}
 
@@ -298,7 +298,7 @@ func (l *Lane) GetTxInfo(tx sdk.Tx) (TxWithInfo, error) {
 	}, nil
 }
 
-// SetIsBlocked sets the isBlocked flag to the given value.
-func (l *Lane) SetIsBlocked(isBlocked bool) {
-	l.isBlocked = isBlocked
+// SetBlocked sets the blocked flag to the given value.
+func (l *Lane) SetBlocked(blocked bool) {
+	l.blocked = blocked
 }
