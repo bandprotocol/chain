@@ -529,10 +529,6 @@ func (app *BandApp) AutoCliOpts() autocli.AppOptions {
 	}
 }
 
-func isInvalidCheckTxExecution(resp *abci.ResponseCheckTx, checkTxErr error) bool {
-	return resp == nil || resp.Code != 0 || checkTxErr != nil
-}
-
 // CheckTx returns a CheckTx handler that wraps a given CheckTx handler and evicts txs that are not
 // in the app-side mempool on ReCheckTx.
 func (app *BandApp) CheckTx(req *abci.RequestCheckTx) (*abci.ResponseCheckTx, error) {
@@ -550,12 +546,12 @@ func (app *BandApp) CheckTx(req *abci.RequestCheckTx) (*abci.ResponseCheckTx, er
 
 	mempool := app.Mempool().(*mempool.Mempool)
 
-	isReCheck := req.Type == abci.CheckTxType_Recheck
+	isRecheck := req.Type == abci.CheckTxType_Recheck
 	txInMempool := mempool.Contains(tx)
 
 	// if the mode is ReCheck and the app's mempool does not contain the given tx, we fail
 	// immediately, to purge the tx from the comet mempool.
-	if isReCheck && !txInMempool {
+	if isRecheck && !txInMempool {
 		app.Logger().Debug(
 			"tx from comet mempool not found in app-side mempool",
 			"tx", tx,
@@ -588,9 +584,13 @@ func (app *BandApp) CheckTx(req *abci.RequestCheckTx) (*abci.ResponseCheckTx, er
 	res, checkTxError := app.BaseApp.CheckTx(req)
 	// if re-check fails for a transaction, we'll need to explicitly purge the tx from
 	// the app-side mempool
-	if isInvalidCheckTxExecution(res, checkTxError) && isReCheck && txInMempool {
+	if isInvalidCheckTxExecution(res, checkTxError) && isRecheck && txInMempool {
 		removeTx = true
 	}
 
 	return res, checkTxError
+}
+
+func isInvalidCheckTxExecution(resp *abci.ResponseCheckTx, checkTxErr error) bool {
+	return resp == nil || resp.Code != 0 || checkTxErr != nil
 }
