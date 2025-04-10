@@ -2,18 +2,19 @@ package mempool
 
 import (
 	"fmt"
+	"math"
 
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 )
 
 // BlockSpace defines the block space.
 type BlockSpace struct {
-	txBytes int64
+	txBytes uint64
 	gas     uint64
 }
 
 // NewBlockSpace returns a new block space.
-func NewBlockSpace(txBytes int64, gas uint64) BlockSpace {
+func NewBlockSpace(txBytes uint64, gas uint64) BlockSpace {
 	return BlockSpace{
 		txBytes: txBytes,
 		gas:     gas,
@@ -21,7 +22,7 @@ func NewBlockSpace(txBytes int64, gas uint64) BlockSpace {
 }
 
 // --- Getters ---
-func (bs BlockSpace) TxBytes() int64 {
+func (bs BlockSpace) TxBytes() uint64 {
 	return bs.txBytes
 }
 
@@ -43,47 +44,25 @@ func (bs BlockSpace) IsExceededBy(other BlockSpace) bool {
 
 // --- Math Methods ---
 
-// IncreaseBy increases this BlockSpace by another BlockSpace's size/gas.
-func (bs *BlockSpace) IncreaseBy(other BlockSpace) {
-	bs.txBytes += other.txBytes
-	bs.gas += other.gas
-}
-
-// DecreaseBy decreases this BlockSpace by another BlockSpace's size/gas.
-// Ensures txBytes and gas never go below zero.
-func (bs *BlockSpace) DecreaseBy(other BlockSpace) {
-	// Decrease txBytes
-	if other.txBytes > bs.txBytes {
-		bs.txBytes = 0
-	} else {
-		bs.txBytes -= other.txBytes
-	}
-
-	// Decrease gas
-	if other.gas > bs.gas {
-		bs.gas = 0
-	} else {
-		bs.gas -= other.gas
-	}
-}
-
 // Sub returns the difference between this BlockSpace and another BlockSpace.
 // Ensures txBytes and gas never go below zero.
 func (bs BlockSpace) Sub(other BlockSpace) BlockSpace {
+	var txBytes uint64
+	var gas uint64
+
 	// Calculate txBytes
-	txBytes := bs.txBytes - other.txBytes
-	if txBytes < 0 {
+	if other.txBytes > bs.txBytes {
 		txBytes = 0
+	} else {
+		txBytes = bs.txBytes - other.txBytes
 	}
 
 	// Calculate gas
 	if other.gas > bs.gas {
-		return BlockSpace{
-			txBytes: txBytes,
-			gas:     0,
-		}
+		gas = 0
+	} else {
+		gas = bs.gas - other.gas
 	}
-	gas := bs.gas - other.gas
 
 	return BlockSpace{
 		txBytes: txBytes,
@@ -93,17 +72,34 @@ func (bs BlockSpace) Sub(other BlockSpace) BlockSpace {
 
 // Add returns the sum of this BlockSpace and another BlockSpace.
 func (bs BlockSpace) Add(other BlockSpace) BlockSpace {
+	var txBytes uint64
+	var gas uint64
+
+	// Calculate txBytes
+	if bs.txBytes > math.MaxUint64-other.txBytes {
+		txBytes = math.MaxUint64
+	} else {
+		txBytes = bs.txBytes + other.txBytes
+	}
+
+	// Calculate gas
+	if bs.gas > math.MaxUint64-other.gas {
+		gas = math.MaxUint64
+	} else {
+		gas = bs.gas + other.gas
+	}
+
 	return BlockSpace{
-		txBytes: bs.txBytes + other.txBytes,
-		gas:     bs.gas + other.gas,
+		txBytes: txBytes,
+		gas:     gas,
 	}
 }
 
-// MulDec returns a new BlockSpace with txBytes and gas multiplied by a decimal.
-func (bs BlockSpace) MulDec(dec math.LegacyDec) BlockSpace {
+// Scale returns a new BlockSpace with txBytes and gas multiplied by a decimal.
+func (bs BlockSpace) Scale(dec sdkmath.LegacyDec) BlockSpace {
 	return BlockSpace{
-		txBytes: dec.MulInt64(bs.txBytes).TruncateInt().Int64(),
-		gas:     dec.MulInt(math.NewIntFromUint64(bs.gas)).TruncateInt().Uint64(),
+		txBytes: dec.MulInt(sdkmath.NewIntFromUint64(bs.txBytes)).TruncateInt().Uint64(),
+		gas:     dec.MulInt(sdkmath.NewIntFromUint64(bs.gas)).TruncateInt().Uint64(),
 	}
 }
 

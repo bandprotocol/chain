@@ -14,7 +14,6 @@ import (
 )
 
 const (
-	flagAll    = "all"
 	flagOutput = "output"
 )
 
@@ -39,10 +38,10 @@ func exportGroupsCmd(ctx *context.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "groups [public-key-1] [public-key-2] [public-key-3] [...]",
 		Short: "Export groups data",
+		Long:  "Export groups data by its public key, if no public key is provided, all groups will be exported",
 		Args:  cobra.MinimumNArgs(0),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			// get 'all' flag
-			all, err := cmd.Flags().GetBool(flagAll)
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			ctx, err = ctx.WithGoLevelDB()
 			if err != nil {
 				return err
 			}
@@ -54,8 +53,8 @@ func exportGroupsCmd(ctx *context.Context) *cobra.Command {
 			}
 
 			// get groups information
-			var groups []store.Group
-			if all {
+			groups := []store.Group{}
+			if len(args) == 0 {
 				groups, err = ctx.Store.GetAllGroups()
 				if err != nil {
 					return err
@@ -99,7 +98,6 @@ func exportGroupsCmd(ctx *context.Context) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().Bool(flagAll, false, "To get all groups")
 	cmd.Flags().String(flagOutput, "", "Specific output filename")
 
 	_ = cmd.MarkFlagRequired(flagOutput)
@@ -112,10 +110,10 @@ func exportDKGsCmd(ctx *context.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "dkgs [group-id-1] [group-id-2] [group-id-3] [...]",
 		Short: "Export DKGs data",
+		Long:  "Export DKGs data by group id. If not specify any group id, it will export all DKGs data",
 		Args:  cobra.MinimumNArgs(0),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			// get 'all' flag
-			all, err := cmd.Flags().GetBool(flagAll)
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			ctx, err = ctx.WithGoLevelDB()
 			if err != nil {
 				return err
 			}
@@ -128,7 +126,7 @@ func exportDKGsCmd(ctx *context.Context) *cobra.Command {
 
 			// get DKGs information
 			var dkgs []store.DKG
-			if all {
+			if len(args) == 0 {
 				dkgs, err = ctx.Store.GetAllDKGs()
 				if err != nil {
 					return err
@@ -172,7 +170,6 @@ func exportDKGsCmd(ctx *context.Context) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().Bool(flagAll, false, "To get all DKGs")
 	cmd.Flags().String(flagOutput, "", "Specific output filename")
 
 	_ = cmd.MarkFlagRequired(flagOutput)
@@ -186,7 +183,12 @@ func exportDEsCmd(ctx *context.Context) *cobra.Command {
 		Use:   "des",
 		Short: "Export DEs data",
 		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			ctx, err = ctx.WithGoLevelDB()
+			if err != nil {
+				return err
+			}
+
 			// get 'output' flag
 			output, err := cmd.Flags().GetString(flagOutput)
 			if err != nil {

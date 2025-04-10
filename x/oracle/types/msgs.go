@@ -378,7 +378,7 @@ func (m MsgActivate) ValidateBasic() error {
 	return nil
 }
 
-// NewMsgActivate creates a new MsgActivate instance
+// NewMsgUpdateParams creates a new MsgUpdateParams instance
 func NewMsgUpdateParams(authority string, params Params) *MsgUpdateParams {
 	return &MsgUpdateParams{
 		Authority: authority,

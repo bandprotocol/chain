@@ -56,13 +56,6 @@ var (
 	basicResult                  = []byte("BASIC_RESULT")
 	testDefaultPrepareGas uint64 = 40000
 	testDefaultExecuteGas uint64 = 300000
-
-	emptyCoins          = sdk.Coins(nil)
-	coinsZero           = sdk.NewCoins()
-	coins10uband        = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
-	coins20uband        = sdk.NewCoins(sdk.NewInt64Coin("uband", 20))
-	coins1000000uband   = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
-	coins100000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
 )
 
 type ValidatorWithValAddress struct {
@@ -94,7 +87,7 @@ func addSimpleDataSourceAndOracleScript(ctx sdk.Context, k keeper.Keeper, dir st
 				"name"+idxStr,
 				"desc"+idxStr,
 				"filename"+idxStr,
-				coins1000000uband,
+				bandtesting.Coins1band,
 				treasury,
 			),
 		)
@@ -135,6 +128,6 @@ func defaultRequest() types.Request {
 		0,
 		0,
 		bandtesting.FeePayer.Address.String(),
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 	)
 }
