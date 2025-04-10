@@ -48,7 +48,7 @@ func (m *Mempool) Insert(ctx context.Context, tx sdk.Tx) (err error) {
 		}
 	}
 
-	return nil
+	return
 }
 
 // Select returns a Mempool iterator (currently nil).
