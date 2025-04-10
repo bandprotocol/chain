@@ -265,7 +265,7 @@ func GetTxCmdCreateRouterTunnel() *cobra.Command {
 
 func GetTxCmdCreateAxelarTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "axelar [destination-chain-id] [destination-address] [axelar-fee] [initial-deposit] [interval] [signal-deviations-json-file]",
+		Use:   "axelar [destination-chain-id] [destination-contract-address] [axelar-fee] [initial-deposit] [interval] [signal-deviations-json-file]",
 		Short: "Create a new Axelar tunnel",
 		Args:  cobra.ExactArgs(6),
 		RunE: func(cmd *cobra.Command, args []string) error {
