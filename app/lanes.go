@@ -137,8 +137,8 @@ func isTssLaneMsg(
 	return true
 }
 
-// oracleLaneMatchHandler is a function that returns the match function for the oracle lane.
-func oracleLaneMatchHandler(
+// oracleReportLaneMatchHandler is a function that returns the match function for the oracle lane.
+func oracleReportLaneMatchHandler(
 	cdc codec.Codec,
 	authzKeeper *authzkeeper.Keeper,
 ) func(sdk.Context, sdk.Tx) bool {
@@ -194,6 +194,53 @@ func isMsgReportData(
 	return true
 }
 
+// oracleRequestLaneMatchHandler is a function that returns the match function for the oracle request lane.
+func oracleRequestLaneMatchHandler(
+	cdc codec.Codec,
+	authzKeeper *authzkeeper.Keeper,
+) func(sdk.Context, sdk.Tx) bool {
+	return func(ctx sdk.Context, tx sdk.Tx) bool {
+		msgs := tx.GetMsgs()
+		if len(msgs) == 0 {
+			return false
+		}
+		for _, msg := range msgs {
+			if !isMsgRequestData(ctx, msg, cdc, authzKeeper) {
+				return false
+			}
+		}
+		return true
+	}
+}
+
+// isValidMsgRequestData return true if the message is a valid oracle's MsgRequestData.
+func isMsgRequestData(
+	ctx sdk.Context,
+	msg sdk.Msg,
+	cdc codec.Codec,
+	authzKeeper *authzkeeper.Keeper,
+) bool {
+	switch msg := msg.(type) {
+	case *oracletypes.MsgRequestData:
+		return true
+	case *authz.MsgExec:
+		msgs, err := msg.GetMessages()
+		if err != nil {
+			return false
+		}
+
+		for _, m := range msgs {
+			if !isMsgRequestData(ctx, m, cdc, authzKeeper) {
+				return false
+			}
+		}
+	default:
+		return false
+	}
+
+	return true
+}
+
 // DefaultLaneMatchHandler is a function that returns the match function for the default lane.
 func DefaultLaneMatchHandler() func(sdk.Context, sdk.Tx) bool {
 	return func(_ sdk.Context, _ sdk.Tx) bool {
@@ -202,7 +249,7 @@ func DefaultLaneMatchHandler() func(sdk.Context, sdk.Tx) bool {
 }
 
 // CreateLanes creates the lanes for the Band mempool.
-func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleLane, defaultLane *mempool.Lane) {
+func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleReportLane, oracleRequestLane, defaultLane *mempool.Lane) {
 	// Create the signer extractor. This is used to extract the expected signers from
 	// a transaction. Each lane can have a different signer extractor if needed.
 	signerExtractor := sdkmempool.NewDefaultSignerExtractionAdapter()
@@ -213,9 +260,10 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleLane, defaultLane *mem
 		signerExtractor,
 		"feedsLane",
 		feedsLaneMatchHandler(app.appCodec, &app.AuthzKeeper),
-		math.LegacyMustNewDecFromStr("0.05"),
-		math.LegacyMustNewDecFromStr("0.3"),
+		math.LegacyMustNewDecFromStr("0.02"),
+		math.LegacyMustNewDecFromStr("0.5"),
 		sdkmempool.DefaultPriorityMempool(),
+		nil,
 	)
 
 	tssLane = mempool.NewLane(
@@ -224,20 +272,36 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleLane, defaultLane *mem
 		signerExtractor,
 		"tssLane",
 		tssLaneMatchHandler(app.appCodec, &app.AuthzKeeper, &app.BandtssKeeper),
-		math.LegacyMustNewDecFromStr("0.05"),
+		math.LegacyMustNewDecFromStr("0.02"),
 		math.LegacyMustNewDecFromStr("0.2"),
 		sdkmempool.DefaultPriorityMempool(),
+		nil,
 	)
 
-	oracleLane = mempool.NewLane(
+	oracleRequestLane = mempool.NewLane(
 		app.Logger(),
 		app.txConfig.TxEncoder(),
 		signerExtractor,
-		"oracleLane",
-		oracleLaneMatchHandler(app.appCodec, &app.AuthzKeeper),
+		"oracleRequestLane",
+		oracleRequestLaneMatchHandler(app.appCodec, &app.AuthzKeeper),
+		math.LegacyMustNewDecFromStr("0.1"),
+		math.LegacyMustNewDecFromStr("0.1"),
+		sdkmempool.DefaultPriorityMempool(),
+		nil,
+	)
+
+	oracleReportLane = mempool.NewLane(
+		app.Logger(),
+		app.txConfig.TxEncoder(),
+		signerExtractor,
+		"oracleReportLane",
+		oracleReportLaneMatchHandler(app.appCodec, &app.AuthzKeeper),
 		math.LegacyMustNewDecFromStr("0.05"),
 		math.LegacyMustNewDecFromStr("0.2"),
 		sdkmempool.DefaultPriorityMempool(),
+		func(isLaneLimitExceeded bool) {
+			oracleRequestLane.SetBlocked(isLaneLimitExceeded)
+		},
 	)
 
 	defaultLane = mempool.NewLane(
@@ -246,9 +310,10 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleLane, defaultLane *mem
 		signerExtractor,
 		"defaultLane",
 		DefaultLaneMatchHandler(),
-		math.LegacyMustNewDecFromStr("0.3"),
-		math.LegacyMustNewDecFromStr("0.3"),
+		math.LegacyMustNewDecFromStr("0.1"),
+		math.LegacyMustNewDecFromStr("0.1"),
 		sdkmempool.DefaultPriorityMempool(),
+		nil,
 	)
 
 	return
