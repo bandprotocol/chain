@@ -181,7 +181,7 @@ func getActivatingGroupIDs(clientCtx client.Context) ([]tss.GroupID, error) {
 	}
 	penaltyDuration := paramResp.Params.InactivePenaltyDuration
 
-	// Get the time when the penalty will expire.
+	// Get the latest block time
 	status, err := clientCtx.Client.Status(context.Background())
 	if err != nil {
 		return nil, err
