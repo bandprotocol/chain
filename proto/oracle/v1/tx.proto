@@ -8,6 +8,7 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/any.proto";
 import "oracle/v1/oracle.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "amino/amino.proto";
 
 // Msg defines the oracle Msg service.
 service Msg {
@@ -38,7 +39,9 @@ service Msg {
 
 // MsgRequestData is a message for sending a data oracle request.
 message MsgRequestData {
+  option (amino.name)           = "oracle/Request";
   option (gogoproto.equal) = true;
+
   // OracleScriptID is the identifier of the oracle script to be called.
   uint64 oracle_script_id = 1 [
     (gogoproto.customname) = "OracleScriptID",
@@ -72,7 +75,9 @@ message MsgRequestDataResponse {}
 
 // MsgReportData is a message for reporting to a data request by a validator.
 message MsgReportData {
+  option (amino.name)           = "oracle/Report";
   option (gogoproto.equal) = true;
+
   // RequestID is the identifier of the request to be reported to.
   uint64 request_id = 1 [
     (gogoproto.customname) = "RequestID",
@@ -90,7 +95,9 @@ message MsgReportDataResponse {}
 
 // MsgCreateDataSource is a message for creating a new data source.
 message MsgCreateDataSource {
+  option (amino.name)           = "oracle/CreateDataSource";
   option (gogoproto.equal) = true;
+
   // Name is the name of this data source used for display (optional).
   string name = 1;
   // Description is the description of this data source used for display
@@ -119,7 +126,9 @@ message MsgCreateDataSourceResponse {}
 
 // MsgEditDataSource is a message for editing an existing data source.
 message MsgEditDataSource {
+  option (amino.name)           = "oracle/EditDataSource";
   option (gogoproto.equal) = true;
+
   // DataSourceID is the unique identifier of the data source to be edited.
   uint64 data_source_id = 1 [
     (gogoproto.customname) = "DataSourceID",
@@ -154,7 +163,9 @@ message MsgEditDataSourceResponse {}
 
 // MsgCreateOracleScript is a message for creating an oracle script.
 message MsgCreateOracleScript {
+  option (amino.name)           = "oracle/CreateOracleScript";
   option (gogoproto.equal) = true;
+
   // Name is the name of this oracle script used for display (optional).
   string name = 1;
   // Description is the description of this oracle script used for display
@@ -179,7 +190,9 @@ message MsgCreateOracleScriptResponse {}
 
 // MsgEditOracleScript is a message for editing an existing oracle script.
 message MsgEditOracleScript {
+  option (amino.name)           = "oracle/EditOracleScript";
   option (gogoproto.equal) = true;
+
   // OracleScriptID is the unique identifier of the oracle script to be edited.
   uint64 oracle_script_id = 1 [
     (gogoproto.customname) = "OracleScriptID",
@@ -211,7 +224,9 @@ message MsgEditOracleScriptResponse {}
 // oracle provider. However, the activation can be revoked once the validator
 // is unable to provide data to fulfill requests
 message MsgActivate {
+  option (amino.name)           = "oracle/Activate";
   option (gogoproto.equal) = true;
+
   // Validator is the validator address who sign this message and request to be
   // activated.
   string validator = 1;
