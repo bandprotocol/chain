@@ -130,7 +130,7 @@ The tunnel requests the BandTSS module to sign the tunnel packet. Once the signi
 To create a TSS tunnel, use the following CLI command:
 
 ```bash
-bandd tx tunnel create-tunnel tss [destination-chain-id] [destination-contract-address] [encoder] [initial-deposit] [interval] [signalDeviations-json-file]
+bandd tx tunnel create-tunnel tss [destination-chain-id] [destination-contract-address] [encoder] [initial-deposit] [interval] [signal-deviations-json-file]
 ```
 
 ### Packet
