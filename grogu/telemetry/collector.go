@@ -22,7 +22,7 @@ type GroguCollector struct {
 	Registry                 *prometheus.Registry
 	SignalPriceStatus        map[string]feedstypes.SignalPriceStatus
 	SignalPriceStatusCount   map[feedstypes.SignalPriceStatus]int
-	SignalPriceLatestUpdated map[string]int
+	SignalPriceLatestUpdated map[string]time.Time
 
 	// Updater metrics
 	UpdatingRegistryCount      prometheus.Counter // a counter for Bothan registry update.
@@ -67,7 +67,7 @@ func IncrementUpdateRegistryFailed() {
 		return
 	}
 
-	collector.UpdateRegistrySuccessCount.Inc()
+	collector.UpdateRegistryFailedCount.Inc()
 }
 
 // IncrementUpdateRegistrySuccess increments the number of successful Bothan's registry update request.
@@ -76,7 +76,7 @@ func IncrementUpdateRegistrySuccess() {
 		return
 	}
 
-	collector.UpdateRegistryFailedCount.Inc()
+	collector.UpdateRegistrySuccessCount.Inc()
 }
 
 // SetValidatorStatus sets the validator status.
@@ -265,10 +265,10 @@ func ObserveSignalPriceUpdateInterval(signalPrices []feedstypes.SignalPrice) {
 	for _, signal := range signalPrices {
 		if lastUpdated, ok := collector.SignalPriceLatestUpdated[signal.SignalID]; ok {
 			collector.UpdatedSignalInterval.WithLabelValues(signal.SignalID).
-				Observe(float64(now.Second() - lastUpdated))
+				Observe(now.Sub(lastUpdated).Seconds())
 		}
 
-		collector.SignalPriceLatestUpdated[signal.SignalID] = now.Second()
+		collector.SignalPriceLatestUpdated[signal.SignalID] = now
 	}
 }
 
@@ -391,7 +391,7 @@ func NewGroguCollector() *GroguCollector {
 		Registry:                           registry,
 		SignalPriceStatus:                  make(map[string]feedstypes.SignalPriceStatus),
 		SignalPriceStatusCount:             make(map[feedstypes.SignalPriceStatus]int),
-		SignalPriceLatestUpdated:           make(map[string]int),
+		SignalPriceLatestUpdated:           make(map[string]time.Time),
 		UpdatingRegistryCount:              updatingRegistryCount,
 		UpdateRegistryFailedCount:          updateRegistryFailedCount,
 		UpdateRegistrySuccessCount:         updateRegistrySuccessCount,
