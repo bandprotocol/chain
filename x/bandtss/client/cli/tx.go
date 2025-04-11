@@ -19,9 +19,8 @@ import (
 )
 
 const (
-	flagExpiration    = "expiration"
-	flagFeeLimit      = "fee-limit"
-	flagIncomingGroup = "incoming-group"
+	flagExpiration = "expiration"
+	flagFeeLimit   = "fee-limit"
 )
 
 // GetTxCmd returns the transaction commands for this module
@@ -132,53 +131,85 @@ func GetTxCmdActivate() *cobra.Command {
 				return err
 			}
 
-			isIncomingGroup, err := cmd.Flags().GetBool(flagIncomingGroup)
+			groupIDs, err := getActivatingGroupIDs(clientCtx)
 			if err != nil {
 				return err
 			}
-
-			queryClient := types.NewQueryClient(clientCtx)
-			groupID, err := getGroupID(queryClient, isIncomingGroup)
-			if err != nil {
-				return err
+			if len(groupIDs) == 0 {
+				return fmt.Errorf("no group to activate")
 			}
 
-			msg := &types.MsgActivate{
-				Sender:  clientCtx.GetFromAddress().String(),
-				GroupID: groupID,
+			msgs := make([]sdk.Msg, len(groupIDs))
+			for i, groupID := range groupIDs {
+				msgs[i] = &types.MsgActivate{
+					Sender:  clientCtx.GetFromAddress().String(),
+					GroupID: groupID,
+				}
 			}
 
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msgs...)
 		},
 	}
 
-	cmd.Flags().
-		Bool(flagIncomingGroup, false, "Whether the activation is for the incoming group or current group.")
 	flags.AddTxFlagsToCmd(cmd)
-
 	return cmd
 }
 
-func getGroupID(queryClient types.QueryClient, isIncomingGroup bool) (tss.GroupID, error) {
-	if isIncomingGroup {
-		resp, err := queryClient.IncomingGroup(
-			context.Background(),
-			&types.QueryIncomingGroupRequest{},
-		)
-		if err != nil {
-			return 0, err
-		}
+// getActivatingGroupIDs returns the group IDs that the sender should activate.
+func getActivatingGroupIDs(clientCtx client.Context) ([]tss.GroupID, error) {
+	queryClient := types.NewQueryClient(clientCtx)
 
-		return resp.GroupID, nil
-	} else {
-		resp, err := queryClient.CurrentGroup(
-			context.Background(),
-			&types.QueryCurrentGroupRequest{},
-		)
-		if err != nil {
-			return 0, err
-		}
-
-		return resp.GroupID, nil
+	// Get the member information in both current and incoming group.
+	memberResp, err := queryClient.Member(
+		context.Background(),
+		&types.QueryMemberRequest{
+			Address: clientCtx.GetFromAddress().String(),
+		},
+	)
+	if err != nil {
+		return nil, err
 	}
+	memberInfos := []types.Member{
+		memberResp.CurrentGroupMember,
+		memberResp.IncomingGroupMember,
+	}
+
+	// Get penalty duration from the params
+	paramResp, err := queryClient.Params(context.Background(), &types.QueryParamsRequest{})
+	if err != nil {
+		return nil, err
+	}
+	penaltyDuration := paramResp.Params.InactivePenaltyDuration
+
+	// Get the latest block time
+	status, err := clientCtx.Client.Status(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	latestBlockTime := status.SyncInfo.LatestBlockTime
+
+	groupTypeText := []string{"current group", "incoming group"}
+
+	// Check what group that the member should activate.
+	var activatingGroupIDs []tss.GroupID
+	for i, info := range memberInfos {
+		displayedText := ""
+
+		if info.Address == "" {
+			displayedText = "skip; not belong to this group"
+		} else if info.IsActive {
+			displayedText = "skip; member is already active"
+		} else if info.Since.Add(penaltyDuration).After(latestBlockTime) {
+			displayedText = "skip; penalty not expired"
+		} else {
+			activatingGroupIDs = append(activatingGroupIDs, info.GroupID)
+			displayedText = "activating"
+		}
+
+		fmt.Printf("checking %s: %s\n", groupTypeText[i], displayedText)
+	}
+
+	fmt.Println() // extra-newline for better readability
+
+	return activatingGroupIDs, nil
 }
