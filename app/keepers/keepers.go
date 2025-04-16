@@ -384,7 +384,7 @@ func NewAppKeeper(
 		appCodec,
 		appKeepers.keys[feemarkettypes.StoreKey],
 		appKeepers.AccountKeeper,
-		&DefaultFeemarketDenomResolver{},
+		&DefaultFeeMarketDenomResolver{},
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
@@ -591,9 +591,9 @@ func initParamsKeeper(
 	return paramsKeeper
 }
 
-type DefaultFeemarketDenomResolver struct{}
+type DefaultFeeMarketDenomResolver struct{}
 
-func (r *DefaultFeemarketDenomResolver) ConvertToDenom(
+func (r *DefaultFeeMarketDenomResolver) ConvertToDenom(
 	_ sdk.Context,
 	coin sdk.DecCoin,
 	denom string,
@@ -605,6 +605,6 @@ func (r *DefaultFeemarketDenomResolver) ConvertToDenom(
 	return sdk.DecCoin{}, fmt.Errorf("error resolving denom")
 }
 
-func (r *DefaultFeemarketDenomResolver) ExtraDenoms(_ sdk.Context) ([]string, error) {
+func (r *DefaultFeeMarketDenomResolver) ExtraDenoms(_ sdk.Context) ([]string, error) {
 	return []string{}, nil
 }

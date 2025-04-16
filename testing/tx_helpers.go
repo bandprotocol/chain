@@ -3,7 +3,6 @@ package testing
 // Copy from https://github.com/cosmos/cosmos-sdk/blob/v0.50.9/testutil/sims/tx_helpers.go to add time in block header and block events
 import (
 	"context"
-	"fmt"
 	"math/rand"
 	"testing"
 	"time"
@@ -147,8 +146,6 @@ func SignCheckDeliver(
 	require.Equal(t, 1, len(resBlock.TxResults))
 	txResult := resBlock.TxResults[0]
 	finalizeSuccess := txResult.Code == 0
-	fmt.Println("log", txResult.Log)
-	fmt.Println("info", txResult.Info)
 	if expPass {
 		require.True(t, finalizeSuccess)
 	} else {
