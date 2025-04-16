@@ -70,16 +70,16 @@ func (u *Updater) checkAndUpdateBothan() {
 	}
 
 	// Increment the update registry count metric
-	telemetry.IncrementUpdatingRegistry()
+	telemetry.IncrementUpdatingRegistry(rfc.RegistryIPFSHash)
 	u.logger.Info("[Updater] chain and Bothan config mismatch detected, updating registry")
 
 	err = u.bothanClient.UpdateRegistry(rfc.RegistryIPFSHash, rfc.RegistryVersion)
 	if err != nil {
-		telemetry.IncrementUpdateRegistryFailed()
+		telemetry.IncrementUpdateRegistryFailed(rfc.RegistryIPFSHash)
 		u.logger.Error("[Updater] failed to update registry: %v", err)
 		return
 	}
 
-	telemetry.IncrementUpdateRegistrySuccess()
+	telemetry.IncrementUpdateRegistrySuccess(rfc.RegistryIPFSHash)
 	u.logger.Info("[Updater] successfully updated registry with IPFS hash: %s", rfc.RegistryIPFSHash)
 }

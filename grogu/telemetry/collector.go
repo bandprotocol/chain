@@ -25,9 +25,9 @@ type GroguCollector struct {
 	SignalPriceLastUpdated map[string]time.Time
 
 	// Updater metrics
-	UpdatingRegistryCount      prometheus.Counter // a counter for Bothan registry update.
-	UpdateRegistryFailedCount  prometheus.Counter // a counter for an unsuccessful Bothan registry update.
-	UpdateRegistrySuccessCount prometheus.Counter // a counter for successful Bothan registry update.
+	UpdatingRegistryCountVec      *prometheus.CounterVec // a counter for Bothan registry update.
+	UpdateRegistryFailedCountVec  *prometheus.CounterVec // a counter for an unsuccessful Bothan registry update.
+	UpdateRegistrySuccessCountVec *prometheus.CounterVec // a counter for successful Bothan registry update.
 
 	// Signaler metrics
 	ValidatorStatusGauge               prometheus.Gauge    // a gauge for the current validator status.
@@ -53,30 +53,30 @@ type GroguCollector struct {
 }
 
 // IncrementUpdatingRegistry increments the number of sending a Bothan's registry update request.
-func IncrementUpdatingRegistry() {
+func IncrementUpdatingRegistry(hashID string) {
 	if collector == nil {
 		return
 	}
 
-	collector.UpdatingRegistryCount.Inc()
+	collector.UpdatingRegistryCountVec.With(prometheus.Labels{"hash_id": hashID}).Inc()
 }
 
 // IncrementUpdateRegistryFailed increments the number of failed Bothan's registry update request.
-func IncrementUpdateRegistryFailed() {
+func IncrementUpdateRegistryFailed(hashID string) {
 	if collector == nil {
 		return
 	}
 
-	collector.UpdateRegistryFailedCount.Inc()
+	collector.UpdateRegistryFailedCountVec.With(prometheus.Labels{"hash_id": hashID}).Inc()
 }
 
 // IncrementUpdateRegistrySuccess increments the number of successful Bothan's registry update request.
-func IncrementUpdateRegistrySuccess() {
+func IncrementUpdateRegistrySuccess(hashID string) {
 	if collector == nil {
 		return
 	}
 
-	collector.UpdateRegistrySuccessCount.Inc()
+	collector.UpdateRegistrySuccessCountVec.With(prometheus.Labels{"hash_id": hashID}).Inc()
 }
 
 // SetValidatorStatus sets the validator status.
@@ -277,21 +277,21 @@ func NewGroguCollector(labels prometheus.Labels) *GroguCollector {
 	registry := prometheus.NewRegistry()
 	registerer := promauto.With(registry)
 	// metrics for updater
-	updatingRegistryCount := registerer.NewCounter(prometheus.CounterOpts{
+	updatingRegistryCount := registerer.NewCounterVec(prometheus.CounterOpts{
 		Name:        "grogu_update_registry_count",
 		Help:        "number of times the registry is updated since last grogu restart",
 		ConstLabels: labels,
-	})
-	updateRegistryFailedCount := registerer.NewCounter(prometheus.CounterOpts{
+	}, []string{"hash_id"})
+	updateRegistryFailedCount := registerer.NewCounterVec(prometheus.CounterOpts{
 		Name:        "grogu_update_registry_failed_count",
 		Help:        "number of times the registry failed to update since last grogu restart",
 		ConstLabels: labels,
-	})
-	updateRegistrySuccessCount := registerer.NewCounter(prometheus.CounterOpts{
+	}, []string{"hash_id"})
+	updateRegistrySuccessCount := registerer.NewCounterVec(prometheus.CounterOpts{
 		Name:        "grogu_update_registry_success_count",
 		Help:        "number of times the registry successfully update since last grogu restart",
 		ConstLabels: labels,
-	})
+	}, []string{"hash_id"})
 
 	// metrics for signaler
 	validatorStatusGauge := registerer.NewGauge(prometheus.GaugeOpts{
@@ -412,9 +412,9 @@ func NewGroguCollector(labels prometheus.Labels) *GroguCollector {
 		SignalPriceStatus:                  make(map[string]feedstypes.SignalPriceStatus),
 		SignalPriceStatusCount:             make(map[feedstypes.SignalPriceStatus]int),
 		SignalPriceLastUpdated:             make(map[string]time.Time),
-		UpdatingRegistryCount:              updatingRegistryCount,
-		UpdateRegistryFailedCount:          updateRegistryFailedCount,
-		UpdateRegistrySuccessCount:         updateRegistrySuccessCount,
+		UpdatingRegistryCountVec:           updatingRegistryCount,
+		UpdateRegistryFailedCountVec:       updateRegistryFailedCount,
+		UpdateRegistrySuccessCountVec:      updateRegistrySuccessCount,
 		ValidatorStatusGauge:               validatorStatusGauge,
 		ProcessingSignalCount:              processingSignalCount,
 		ProcessSignalSkippedCount:          processSignalSkippedCount,
@@ -439,9 +439,9 @@ func NewGroguCollector(labels prometheus.Labels) *GroguCollector {
 // Describe sends the descriptors of each metric to the provided channel.
 func (c GroguCollector) Describe(ch chan<- *prometheus.Desc) {
 	// description for updater
-	ch <- c.UpdatingRegistryCount.Desc()
-	ch <- c.UpdateRegistryFailedCount.Desc()
-	ch <- c.UpdateRegistrySuccessCount.Desc()
+	c.UpdatingRegistryCountVec.Describe(ch)
+	c.UpdateRegistryFailedCountVec.Describe(ch)
+	c.UpdateRegistrySuccessCountVec.Describe(ch)
 
 	// description for signaler
 	ch <- c.ValidatorStatusGauge.Desc()
@@ -469,9 +469,9 @@ func (c GroguCollector) Describe(ch chan<- *prometheus.Desc) {
 // Collect sends the metric values for each metric related to the grogu collector to the provided channel.
 func (c GroguCollector) Collect(ch chan<- prometheus.Metric) {
 	// collector for updater
-	ch <- c.UpdatingRegistryCount
-	ch <- c.UpdateRegistryFailedCount
-	ch <- c.UpdateRegistrySuccessCount
+	c.UpdatingRegistryCountVec.Collect(ch)
+	c.UpdateRegistryFailedCountVec.Collect(ch)
+	c.UpdateRegistrySuccessCountVec.Collect(ch)
 
 	// collector for signaler
 	ch <- c.ValidatorStatusGauge
