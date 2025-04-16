@@ -215,7 +215,7 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleLane, defaultLane *mem
 		feedsLaneMatchHandler(app.appCodec, &app.AuthzKeeper),
 		math.LegacyMustNewDecFromStr("0.05"),
 		math.LegacyMustNewDecFromStr("0.3"),
-		sdkmempool.DefaultPriorityMempool(),
+		sdkmempool.NewSenderNonceMempool(sdkmempool.SenderNonceMaxTxOpt(0)),
 	)
 
 	tssLane = mempool.NewLane(
