@@ -31,7 +31,6 @@ var (
 				feemarkettypes.StoreKey,
 			},
 			Deleted: []string{
-				// TODO: check if we can import store key from deleted local module
 				"globalfee",
 			},
 		},

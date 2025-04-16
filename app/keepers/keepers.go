@@ -379,7 +379,7 @@ func NewAppKeeper(
 
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	appKeepers.EvidenceKeeper = *evidenceKeeper
-	// GlobalFeeKeeper
+	// FeemarketKeeper
 	appKeepers.FeeMarketKeeper = feemarketkeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[feemarkettypes.StoreKey],
