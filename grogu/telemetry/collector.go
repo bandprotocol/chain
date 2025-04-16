@@ -284,7 +284,7 @@ func NewGroguCollector(labels prometheus.Labels) *GroguCollector {
 	})
 	updateRegistryFailedCount := registerer.NewCounter(prometheus.CounterOpts{
 		Name:        "grogu_update_registry_failed_count",
-		Help:        "number of times the registry fail to update since last grogu restart",
+		Help:        "number of times the registry failed to update since last grogu restart",
 		ConstLabels: labels,
 	})
 	updateRegistrySuccessCount := registerer.NewCounter(prometheus.CounterOpts{
@@ -368,7 +368,7 @@ func NewGroguCollector(labels prometheus.Labels) *GroguCollector {
 	})
 	submitTxFailedCount := registerer.NewCounter(prometheus.CounterOpts{
 		Name:        "grogu_submit_tx_failed_count",
-		Help:        "number of times the submitter fail to submit transactions",
+		Help:        "number of times the submitter failed to submit transactions",
 		ConstLabels: labels,
 	})
 	submitTxSuccessCount := registerer.NewCounter(prometheus.CounterOpts{
