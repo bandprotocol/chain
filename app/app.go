@@ -61,7 +61,9 @@ import (
 	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3_mainnet"
 	nodeservice "github.com/bandprotocol/chain/v3/client/grpc/node"
 	proofservice "github.com/bandprotocol/chain/v3/client/grpc/oracle/proof"
+	feedskeeper "github.com/bandprotocol/chain/v3/x/feeds/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
+	tsskeeper "github.com/bandprotocol/chain/v3/x/tss/keeper"
 )
 
 var (
@@ -270,6 +272,10 @@ func NewBandApp(
 	app.MountTransientStores(app.GetTransientStoreKey())
 	app.MountMemoryStores(app.GetMemoryStoreKey())
 
+	feedsMsgServer := feedskeeper.NewMsgServerImpl(app.FeedsKeeper)
+	tssMsgServer := tsskeeper.NewMsgServerImpl(app.TSSKeeper)
+	oracleMsgServer := oraclekeeper.NewMsgServerImpl(app.OracleKeeper)
+
 	anteHandler, err := NewAnteHandler(
 		HandlerOptions{
 			Cdc:             app.appCodec,
@@ -290,8 +296,11 @@ func NewBandApp(
 			TSSKeeper:       app.TSSKeeper,
 			BandtssKeeper:   &app.BandtssKeeper,
 			FeedsKeeper:     &app.FeedsKeeper,
-
-			Lanes: []*mempool.Lane{feedsLane, tssLane, oracleLane}, // every lane except default lane
+			IgnoreDecoratorMatchFns: []func(sdk.Context, sdk.Tx) bool{
+				feedsSubmitSignalPriceTxMatchHandler(app.appCodec, &app.AuthzKeeper, feedsMsgServer),
+				tssTxMatchHandler(app.appCodec, &app.AuthzKeeper, &app.BandtssKeeper, tssMsgServer),
+				oracleReportTxMatchHandler(app.appCodec, &app.AuthzKeeper, oracleMsgServer),
+			},
 		},
 	)
 	if err != nil {

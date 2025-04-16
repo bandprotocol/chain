@@ -842,7 +842,7 @@ func (suite *IBCTestSuite) TestIBCResolveRequestNoReturnData() {
 		0,
 		0,
 		bandtesting.FeePayer.Address.String(),
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 	))
 
 	raws := []oracletypes.RawReport{oracletypes.NewRawReport(1, 0, []byte("test"))}
@@ -904,7 +904,7 @@ func (suite *IBCTestSuite) TestIBCResolveRequestWasmFailure() {
 		bandtesting.TestDefaultExecuteGas,
 		0,
 		bandtesting.FeePayer.Address.String(),
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 	))
 
 	raws := []oracletypes.RawReport{oracletypes.NewRawReport(1, 0, []byte("test"))}
@@ -966,7 +966,7 @@ func (suite *IBCTestSuite) TestIBCResolveRequestCallReturnDataSeveralTimes() {
 		bandtesting.TestDefaultExecuteGas,
 		0,
 		bandtesting.FeePayer.Address.String(),
-		bandtesting.Coins100000000uband,
+		bandtesting.Coins100band,
 	))
 
 	raws := []oracletypes.RawReport{oracletypes.NewRawReport(1, 0, []byte("test"))}

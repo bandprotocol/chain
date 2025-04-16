@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"strings"
+	"sync"
 
 	comettypes "github.com/cometbft/cometbft/types"
 
@@ -17,20 +18,23 @@ import (
 
 // Lane defines a logical grouping of transactions within the mempool.
 type Lane struct {
-	Logger          log.Logger
-	TxEncoder       sdk.TxEncoder
-	SignerExtractor sdkmempool.SignerExtractionAdapter
-	Name            string
-	Match           func(ctx sdk.Context, tx sdk.Tx) bool
+	logger          log.Logger
+	txEncoder       sdk.TxEncoder
+	signerExtractor sdkmempool.SignerExtractionAdapter
+	name            string
+	matchFn         func(ctx sdk.Context, tx sdk.Tx) bool
 
-	MaxTransactionSpace math.LegacyDec
-	MaxLaneSpace        math.LegacyDec
+	maxTransactionSpace math.LegacyDec
+	maxLaneSpace        math.LegacyDec
 
 	laneMempool sdkmempool.Mempool
 
 	// txIndex holds the uppercase hex-encoded hash for every transaction
 	// currently in this lane's mempool.
 	txIndex map[string]struct{}
+
+	// Add mutex for thread safety
+	mu sync.RWMutex
 }
 
 // NewLane is a constructor for a lane.
@@ -45,13 +49,13 @@ func NewLane(
 	laneMempool sdkmempool.Mempool,
 ) *Lane {
 	return &Lane{
-		Logger:              logger,
-		TxEncoder:           txEncoder,
-		SignerExtractor:     signerExtractor,
-		Name:                name,
-		Match:               matchFn,
-		MaxTransactionSpace: maxTransactionSpace,
-		MaxLaneSpace:        maxLaneSpace,
+		logger:              logger,
+		txEncoder:           txEncoder,
+		signerExtractor:     signerExtractor,
+		name:                name,
+		matchFn:             matchFn,
+		maxTransactionSpace: maxTransactionSpace,
+		maxLaneSpace:        maxLaneSpace,
 		laneMempool:         laneMempool,
 
 		// Initialize the txIndex.
@@ -65,6 +69,9 @@ func (l *Lane) Insert(ctx context.Context, tx sdk.Tx) error {
 	if err != nil {
 		return err
 	}
+
+	l.mu.Lock()
+	defer l.mu.Unlock()
 
 	if err = l.laneMempool.Insert(ctx, tx); err != nil {
 		return err
@@ -86,11 +93,13 @@ func (l *Lane) Remove(tx sdk.Tx) error {
 		return err
 	}
 
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
 	if err = l.laneMempool.Remove(tx); err != nil {
 		return err
 	}
 
-	// Remove it from the local index
 	delete(l.txIndex, txInfo.Hash)
 	return nil
 }
@@ -102,11 +111,19 @@ func (l *Lane) Contains(tx sdk.Tx) bool {
 		return false
 	}
 
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+
 	_, exists := l.txIndex[txInfo.Hash]
 	return exists
 }
 
-// FillProposal fills the proposal with transactions from the lane mempool with the its own limit.
+// Match returns true if the transaction belongs to the lane.
+func (l *Lane) Match(ctx sdk.Context, tx sdk.Tx) bool {
+	return l.matchFn(ctx, tx)
+}
+
+// FillProposal fills the proposal with transactions from the lane mempool with its own limit.
 // It returns the total size and gas of the transactions added to the proposal.
 // It also returns an iterator to the next transaction in the mempool and a list
 // of transactions that were removed from the lane mempool.
@@ -114,13 +131,9 @@ func (l *Lane) FillProposal(
 	ctx sdk.Context,
 	proposal *Proposal,
 ) (blockUsed BlockSpace, iterator sdkmempool.Iterator, txsToRemove []sdk.Tx) {
-	var (
-		transactionLimit BlockSpace
-		laneLimit        BlockSpace
-	)
 	// Get the transaction and lane limit for the lane.
-	transactionLimit = proposal.GetLimit(l.MaxTransactionSpace)
-	laneLimit = proposal.GetLimit(l.MaxLaneSpace)
+	transactionLimit := proposal.GetLimit(l.maxTransactionSpace)
+	laneLimit := proposal.GetLimit(l.maxLaneSpace)
 
 	// Select all transactions in the mempool that are valid and not already in the
 	// partial proposal.
@@ -134,7 +147,7 @@ func (l *Lane) FillProposal(
 		tx := iterator.Tx()
 		txInfo, err := l.GetTxInfo(tx)
 		if err != nil {
-			l.Logger.Info("failed to get hash of tx", "err", err)
+			l.logger.Info("failed to get hash of tx", "err", err)
 
 			txsToRemove = append(txsToRemove, tx)
 			continue
@@ -142,10 +155,10 @@ func (l *Lane) FillProposal(
 
 		// if the transaction is exceed the limit, we remove it from the lane mempool.
 		if transactionLimit.IsExceededBy(txInfo.BlockSpace) {
-			l.Logger.Info(
+			l.logger.Info(
 				"failed to select tx for lane; tx exceeds limit",
 				"tx_hash", txInfo.Hash,
-				"lane", l.Name,
+				"lane", l.name,
 			)
 
 			txsToRemove = append(txsToRemove, tx)
@@ -153,11 +166,10 @@ func (l *Lane) FillProposal(
 		}
 
 		// Add the transaction to the proposal.
-		// TODO: check if the transaction cannot be added here, it should also cannot be added afterward.
 		if err := proposal.Add(txInfo); err != nil {
-			l.Logger.Info(
+			l.logger.Info(
 				"failed to add tx to proposal",
-				"lane", l.Name,
+				"lane", l.name,
 				"tx_hash", txInfo.Hash,
 				"err", err,
 			)
@@ -165,25 +177,24 @@ func (l *Lane) FillProposal(
 			break
 		}
 
-		blockUsed.IncreaseBy(txInfo.BlockSpace)
+		blockUsed = blockUsed.Add(txInfo.BlockSpace)
 	}
 
 	return
 }
 
-// FillProposalBy fills the proposal with transactions from the lane mempool with the given iterator and limit.
+// FillProposalByIterator fills the proposal with transactions from the lane mempool with the given iterator and limit.
 // It returns the total size and gas of the transactions added to the proposal.
 // It also returns a list of transactions that were removed from the lane mempool.
-func (l *Lane) FillProposalBy(
+func (l *Lane) FillProposalByIterator(
 	proposal *Proposal,
 	iterator sdkmempool.Iterator,
 	laneLimit BlockSpace,
 ) (blockUsed BlockSpace, txsToRemove []sdk.Tx) {
 	// get the transaction limit for the lane.
-	transactionLimit := proposal.GetLimit(l.MaxTransactionSpace)
+	transactionLimit := proposal.GetLimit(l.maxTransactionSpace)
 
-	// Select all transactions in the mempool that are valid and not already in the
-	// partial proposal.
+	// Select all transactions in the mempool that are valid and not already in the partial proposal.
 	for ; iterator != nil; iterator = iterator.Next() {
 		// If the total size used or total gas used exceeds the limit, we break and do not attempt to include more txs.
 		// We can tolerate a few bytes/gas over the limit, since we limit the size of each transaction.
@@ -194,7 +205,7 @@ func (l *Lane) FillProposalBy(
 		tx := iterator.Tx()
 		txInfo, err := l.GetTxInfo(tx)
 		if err != nil {
-			l.Logger.Info("failed to get hash of tx", "err", err)
+			l.logger.Info("failed to get hash of tx", "err", err)
 
 			txsToRemove = append(txsToRemove, tx)
 			continue
@@ -202,10 +213,10 @@ func (l *Lane) FillProposalBy(
 
 		// if the transaction is exceed the limit, we remove it from the lane mempool.
 		if transactionLimit.IsExceededBy(txInfo.BlockSpace) {
-			l.Logger.Info(
+			l.logger.Info(
 				"failed to select tx for lane; tx exceeds limit",
 				"tx_hash", txInfo.Hash,
-				"lane", l.Name,
+				"lane", l.name,
 			)
 
 			txsToRemove = append(txsToRemove, tx)
@@ -214,9 +225,9 @@ func (l *Lane) FillProposalBy(
 
 		// Add the transaction to the proposal.
 		if err := proposal.Add(txInfo); err != nil {
-			l.Logger.Info(
+			l.logger.Info(
 				"failed to add tx to proposal",
-				"lane", l.Name,
+				"lane", l.name,
 				"tx_hash", txInfo.Hash,
 				"err", err,
 			)
@@ -225,7 +236,7 @@ func (l *Lane) FillProposalBy(
 		}
 
 		// Update the total size and gas.
-		blockUsed.IncreaseBy(txInfo.BlockSpace)
+		blockUsed = blockUsed.Add(txInfo.BlockSpace)
 	}
 
 	return
@@ -235,27 +246,26 @@ func (l *Lane) FillProposalBy(
 // belongs to the lane including its priority, signer's, sequence number,
 // size and more.
 func (l *Lane) GetTxInfo(tx sdk.Tx) (TxWithInfo, error) {
-	txBytes, err := l.TxEncoder(tx)
+	txBytes, err := l.txEncoder(tx)
 	if err != nil {
 		return TxWithInfo{}, fmt.Errorf("failed to encode transaction: %w", err)
 	}
 
-	// TODO: Add an adapter to lanes so that this can be flexible to support EVM, etc.
 	gasTx, ok := tx.(sdk.FeeTx)
 	if !ok {
 		return TxWithInfo{}, fmt.Errorf("failed to cast transaction to gas tx")
 	}
 
-	signers, err := l.SignerExtractor.GetSigners(tx)
+	signers, err := l.signerExtractor.GetSigners(tx)
 	if err != nil {
 		return TxWithInfo{}, err
 	}
 
-	BlockSpace := NewBlockSpace(int64(len(txBytes)), gasTx.GetGas())
+	blockSpace := NewBlockSpace(uint64(len(txBytes)), gasTx.GetGas())
 
 	return TxWithInfo{
 		Hash:       strings.ToUpper(hex.EncodeToString(comettypes.Tx(txBytes).Hash())),
-		BlockSpace: BlockSpace,
+		BlockSpace: blockSpace,
 		TxBytes:    txBytes,
 		Signers:    signers,
 	}, nil

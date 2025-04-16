@@ -19,7 +19,6 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	"github.com/bandprotocol/chain/v3/app/mempool"
 	bandtsskeeper "github.com/bandprotocol/chain/v3/x/bandtss/keeper"
 	feedskeeper "github.com/bandprotocol/chain/v3/x/feeds/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
@@ -50,7 +49,7 @@ type HandlerOptions struct {
 	BandtssKeeper   *bandtsskeeper.Keeper
 	FeedsKeeper     *feedskeeper.Keeper
 
-	Lanes []*mempool.Lane
+	IgnoreDecoratorMatchFns []func(sdk.Context, sdk.Tx) bool
 }
 
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
@@ -103,6 +102,15 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
+		NewIgnoreDecorator(
+			ante.NewDeductFeeDecorator(
+				options.AccountKeeper,
+				options.BankKeeper,
+				options.FeegrantKeeper,
+				options.TxFeeChecker,
+			),
+			options.IgnoreDecoratorMatchFns...,
+		),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
 		ante.NewValidateSigCountDecorator(options.AccountKeeper),
@@ -125,7 +133,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 						options.BankKeeper,
 						options.FeegrantKeeper,
 						options.TxFeeChecker)),
-				options.Lanes...,
+				options.IgnoreDecoratorMatchFns...,
 			),
 		)
 	}
@@ -137,29 +145,36 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 // for the AnteDecorator to be ignored for specified lanes.
 type IgnoreDecorator struct {
 	decorator sdk.AnteDecorator
-	lanes     []*mempool.Lane
+	matchFns  []func(sdk.Context, sdk.Tx) bool
 }
 
 // NewIgnoreDecorator returns a new IgnoreDecorator instance.
-func NewIgnoreDecorator(decorator sdk.AnteDecorator, lanes ...*mempool.Lane) *IgnoreDecorator {
+func NewIgnoreDecorator(decorator sdk.AnteDecorator, matchFns ...func(sdk.Context, sdk.Tx) bool) *IgnoreDecorator {
 	return &IgnoreDecorator{
 		decorator: decorator,
-		lanes:     lanes,
+		matchFns:  matchFns,
 	}
 }
 
-// AnteHandle implements the sdk.AnteDecorator interface. If the transaction belongs to
-// one of the lanes, the next AnteHandler is called. Otherwise, the decorator's AnteHandler
-// is called.
-func (sd IgnoreDecorator) AnteHandle(
+// NewIgnoreDecorator is a wrapper that implements the sdk.AnteDecorator interface,
+// providing two execution paths for processing transactions:
+//   - If a transaction matches one of the designated bypass lanes, it is forwarded
+//     directly to the next AnteHandler.
+//   - Otherwise, the transaction is processed using the embedded decorator’s AnteHandler.
+func (ig IgnoreDecorator) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
 ) (sdk.Context, error) {
+	// IgnoreDecorator is only used for check tx.
+	if !ctx.IsCheckTx() {
+		return ig.decorator.AnteHandle(ctx, tx, simulate, next)
+	}
+
 	cacheCtx, _ := ctx.CacheContext()
-	for _, lane := range sd.lanes {
-		if lane.Match(cacheCtx, tx) {
+	for _, matchFn := range ig.matchFns {
+		if matchFn(cacheCtx, tx) {
 			return next(ctx, tx, simulate)
 		}
 	}
 
-	return sd.decorator.AnteHandle(ctx, tx, simulate, next)
+	return ig.decorator.AnteHandle(ctx, tx, simulate, next)
 }
