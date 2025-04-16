@@ -12032,7 +12032,7 @@ func (x *BlockRelayProof) GetSignatures() []*TMSignature {
 //
 // [0] - acc (auth) [1] - authz         [2] - bandtss       [3] - bank        [4] - capability [5] - consensus
 // [6] - crisis     [7] - distribution  [8] - evidence      [9] - feeds       [A] - feegrant   [B] - feeibc
-// [C] - globalfee  [D] - gov           [E] - ibc           [F] - icahost     [G] - mint       [H] - oracle
+// [C] - feemarket  [D] - gov           [E] - ibc           [F] - icahost     [G] - mint       [H] - oracle
 // [I] - params     [J] - restake       [K] - rollingseed   [L] - slashing    [M] - staking    [N] - transfer
 // [O] - tss        [P] - tunnel        [Q] - upgrade
 //
