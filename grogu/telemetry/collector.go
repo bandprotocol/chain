@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	// GroguCollector stores the Cylinder collector instance.
+	// GroguCollector stores the grogu collector instance.
 	collector *GroguCollector
 
 	updateSignalPriceTimestampMu = sync.Mutex{}
@@ -19,10 +19,10 @@ var (
 
 // Metrics is the metrics struct.
 type GroguCollector struct {
-	Registry                 *prometheus.Registry
-	SignalPriceStatus        map[string]feedstypes.SignalPriceStatus
-	SignalPriceStatusCount   map[feedstypes.SignalPriceStatus]int
-	SignalPriceLatestUpdated map[string]time.Time
+	Registry               *prometheus.Registry
+	SignalPriceStatus      map[string]feedstypes.SignalPriceStatus
+	SignalPriceStatusCount map[feedstypes.SignalPriceStatus]int
+	SignalPriceLastUpdated map[string]time.Time
 
 	// Updater metrics
 	UpdatingRegistryCount      prometheus.Counter // a counter for Bothan registry update.
@@ -263,16 +263,16 @@ func ObserveSignalPriceUpdateInterval(signalPrices []feedstypes.SignalPrice) {
 
 	now := time.Now()
 	for _, signal := range signalPrices {
-		if lastUpdated, ok := collector.SignalPriceLatestUpdated[signal.SignalID]; ok {
+		if lastUpdated, ok := collector.SignalPriceLastUpdated[signal.SignalID]; ok {
 			collector.UpdatedSignalInterval.WithLabelValues(signal.SignalID).
 				Observe(now.Sub(lastUpdated).Seconds())
 		}
 
-		collector.SignalPriceLatestUpdated[signal.SignalID] = now
+		collector.SignalPriceLastUpdated[signal.SignalID] = now
 	}
 }
 
-// NewGroguCollector creates a new cylinder collector instance.
+// NewGroguCollector creates a new grogu collector instance.
 func NewGroguCollector(labels prometheus.Labels) *GroguCollector {
 	registry := prometheus.NewRegistry()
 	registerer := promauto.With(registry)
@@ -411,7 +411,7 @@ func NewGroguCollector(labels prometheus.Labels) *GroguCollector {
 		Registry:                           registry,
 		SignalPriceStatus:                  make(map[string]feedstypes.SignalPriceStatus),
 		SignalPriceStatusCount:             make(map[feedstypes.SignalPriceStatus]int),
-		SignalPriceLatestUpdated:           make(map[string]time.Time),
+		SignalPriceLastUpdated:             make(map[string]time.Time),
 		UpdatingRegistryCount:              updatingRegistryCount,
 		UpdateRegistryFailedCount:          updateRegistryFailedCount,
 		UpdateRegistrySuccessCount:         updateRegistrySuccessCount,
@@ -466,7 +466,7 @@ func (c GroguCollector) Describe(ch chan<- *prometheus.Desc) {
 	c.UpdatedSignalInterval.Describe(ch)
 }
 
-// Collect sends the metric values for each metric related to the Cylinder collector to the provided channel.
+// Collect sends the metric values for each metric related to the grogu collector to the provided channel.
 func (c GroguCollector) Collect(ch chan<- prometheus.Metric) {
 	// collector for updater
 	ch <- c.UpdatingRegistryCount
