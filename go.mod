@@ -46,7 +46,7 @@ require (
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.10.0
-	go.uber.org/mock v0.5.0
+	go.uber.org/mock v0.5.1
 	golang.org/x/crypto v0.27.0
 	golang.org/x/text v0.18.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20241021214115-324edc3d5d38
