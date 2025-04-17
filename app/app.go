@@ -559,7 +559,7 @@ func (app *BandApp) CheckTx(req *abci.RequestCheckTx) (*abci.ResponseCheckTx, er
 	isRecheck := req.Type == abci.CheckTxType_Recheck
 	txInMempool := mempool.Contains(tx)
 
-	// if the mode is ReCheck and the app's mempool does not contain the given tx, we fail
+	// if the mode is Recheck and the app's mempool does not contain the given tx, we fail
 	// immediately, to purge the tx from the comet mempool.
 	if isRecheck && !txInMempool {
 		app.Logger().Debug(
@@ -592,7 +592,7 @@ func (app *BandApp) CheckTx(req *abci.RequestCheckTx) (*abci.ResponseCheckTx, er
 
 	// run the checkTxHandler
 	res, checkTxError := app.BaseApp.CheckTx(req)
-	// if re-check fails for a transaction, we'll need to explicitly purge the tx from
+	// if Recheck fails for a transaction, we'll need to explicitly purge the tx from
 	// the app-side mempool
 	if isInvalidCheckTxExecution(res, checkTxError) && isRecheck && txInMempool {
 		removeTx = true
