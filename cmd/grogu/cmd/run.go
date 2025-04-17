@@ -88,7 +88,7 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 	return func(cmd *cobra.Command, args []string) error {
 		// Start metrics server if address is provided
 		if ctx.Config.MetricsListenAddr != "" {
-			go telemetry.StartServer(ctx.Logger, ctx.Config.MetricsListenAddr)
+			go telemetry.StartServer(ctx.Logger, ctx.Config)
 		}
 
 		// Split Node URIs and create RPC clients
