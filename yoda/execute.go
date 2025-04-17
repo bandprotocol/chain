@@ -159,7 +159,7 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 				)
 				continue
 			} else if txResp.Code != 0 {
-				l.Error(":exploding_head: Tx returned nonzero code %d with log %s, tx hash: %s", c, txResp.Code, txResp.RawLog, txResp.TxHash)
+				l.Error(":exploding_head: Tx returned nonzero code %d with log: %s, tx hash: %s", c, txResp.Code, txResp.RawLog, txResp.TxHash)
 				continue
 			}
 			// Transaction passed CheckTx process and wait to include in block.
@@ -193,7 +193,7 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 				txFound = true
 				break FindTx
 			} else {
-				l.Error(":exploding_head: Tx returned nonzero code %d with log %s, tx hash: %s", c, txResp.Code, txResp.RawLog, txResp.TxHash)
+				l.Error(":exploding_head: Tx returned nonzero code %d with log: %s, tx hash: %s", c, txResp.Code, txResp.RawLog, txResp.TxHash)
 				return
 			}
 		}
