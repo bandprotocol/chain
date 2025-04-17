@@ -308,9 +308,10 @@ func NewBandApp(
 	}
 
 	postHandlerOptions := PostHandlerOptions{
-		AccountKeeper:   app.AccountKeeper,
-		BankKeeper:      app.BankKeeper,
-		FeeMarketKeeper: app.FeeMarketKeeper,
+		AccountKeeper:            app.AccountKeeper,
+		BankKeeper:               app.BankKeeper,
+		FeeMarketKeeper:          app.FeeMarketKeeper,
+		IgnorePostDecoratorLanes: []*mempool.Lane{feedsLane, tssLane, oracleLane},
 	}
 	postHandler, err := NewPostHandler(postHandlerOptions)
 	if err != nil {
@@ -632,12 +633,21 @@ func minTxFeesChecker(ctx sdk.Context, tx sdk.Tx, feemarketKp feemarketkeeper.Ke
 		return nil, 0, err
 	}
 
+	feeCoins := feeTx.GetFee()
+	priority := ctx.Priority()
+	// Ensure that the provided fees meet minimum-gas-prices and globalFees,
+	// if this is a CheckTx. This is only for local mempool purposes, and thus
+	// is only ran on check tx.
+
+	if !ctx.IsCheckTx() {
+		return feeCoins, priority, nil
+	}
+
 	feeRequired := sdk.NewCoins(
 		sdk.NewCoin(
 			feeMarketParams.FeeDenom,
 			feeMarketParams.MinBaseGasPrice.MulInt(math.NewIntFromUint64(feeTx.GetGas())).Ceil().RoundInt()))
 
-	feeCoins := feeTx.GetFee()
 	if len(feeCoins) != 1 {
 		return nil, 0, fmt.Errorf(
 			"expected exactly one fee coin; got %s, required: %s", feeCoins.String(), feeRequired.String())
@@ -648,5 +658,5 @@ func minTxFeesChecker(ctx sdk.Context, tx sdk.Tx, feemarketKp feemarketkeeper.Ke
 			"not enough fees provided; got %s, required: %s", feeCoins.String(), feeRequired.String())
 	}
 
-	return feeTx.GetFee(), 0, nil
+	return feeTx.GetFee(), priority, nil
 }
