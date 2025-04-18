@@ -33,6 +33,11 @@ type Lane struct {
 	// currently in this lane's mempool.
 	txIndex map[string]struct{}
 
+	// handleLaneLimitCheck is a callback function that is called when the lane exceeds its limit.
+	handleLaneLimitCheck func(isLaneLimitExceeded bool)
+
+	blocked bool
+
 	// Add mutex for thread safety
 	mu sync.RWMutex
 }
@@ -47,19 +52,23 @@ func NewLane(
 	maxTransactionSpace math.LegacyDec,
 	maxLaneSpace math.LegacyDec,
 	laneMempool sdkmempool.Mempool,
+	handleLaneLimitCheck func(isLaneLimitExceeded bool),
 ) *Lane {
 	return &Lane{
-		logger:              logger,
-		txEncoder:           txEncoder,
-		signerExtractor:     signerExtractor,
-		name:                name,
-		matchFn:             matchFn,
-		maxTransactionSpace: maxTransactionSpace,
-		maxLaneSpace:        maxLaneSpace,
-		laneMempool:         laneMempool,
+		logger:               logger,
+		txEncoder:            txEncoder,
+		signerExtractor:      signerExtractor,
+		name:                 name,
+		matchFn:              matchFn,
+		maxTransactionSpace:  maxTransactionSpace,
+		maxLaneSpace:         maxLaneSpace,
+		laneMempool:          laneMempool,
+		handleLaneLimitCheck: handleLaneLimitCheck,
 
 		// Initialize the txIndex.
 		txIndex: make(map[string]struct{}),
+
+		blocked: false,
 	}
 }
 
@@ -135,6 +144,12 @@ func (l *Lane) FillProposal(
 	transactionLimit := proposal.GetLimit(l.maxTransactionSpace)
 	laneLimit := proposal.GetLimit(l.maxLaneSpace)
 
+	isLaneLimitExceeded := false
+
+	if l.blocked {
+		return
+	}
+
 	// Select all transactions in the mempool that are valid and not already in the
 	// partial proposal.
 	for iterator = l.laneMempool.Select(ctx, nil); iterator != nil; iterator = iterator.Next() {
@@ -180,6 +195,14 @@ func (l *Lane) FillProposal(
 		blockUsed = blockUsed.Add(txInfo.BlockSpace)
 	}
 
+	if laneLimit.IsReachedBy(blockUsed) {
+		isLaneLimitExceeded = true
+	}
+
+	if l.handleLaneLimitCheck != nil {
+		l.handleLaneLimitCheck(isLaneLimitExceeded)
+	}
+
 	return
 }
 
@@ -193,6 +216,10 @@ func (l *Lane) FillProposalByIterator(
 ) (blockUsed BlockSpace, txsToRemove []sdk.Tx) {
 	// get the transaction limit for the lane.
 	transactionLimit := proposal.GetLimit(l.maxTransactionSpace)
+
+	if l.blocked {
+		return
+	}
 
 	// Select all transactions in the mempool that are valid and not already in the partial proposal.
 	for ; iterator != nil; iterator = iterator.Next() {
@@ -269,4 +296,9 @@ func (l *Lane) GetTxInfo(tx sdk.Tx) (TxWithInfo, error) {
 		TxBytes:    txBytes,
 		Signers:    signers,
 	}, nil
+}
+
+// SetBlocked sets the blocked flag to the given value.
+func (l *Lane) SetBlocked(blocked bool) {
+	l.blocked = blocked
 }
