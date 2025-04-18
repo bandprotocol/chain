@@ -25,7 +25,7 @@ func (k Keeper) GetReport(ctx sdk.Context, rid types.RequestID, val sdk.ValAddre
 	return report, nil
 }
 
-// SetDataReport saves the report to the storage without performing validation.
+// SetReport saves the report to the storage without performing validation.
 func (k Keeper) SetReport(ctx sdk.Context, rid types.RequestID, rep types.Report) {
 	val, _ := sdk.ValAddressFromBech32(rep.Validator)
 	key := types.ReportsOfValidatorPrefixKey(rid, val)
