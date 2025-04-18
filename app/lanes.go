@@ -262,7 +262,7 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleReportLane, oracleRequ
 		feedsLaneMatchHandler(app.appCodec, &app.AuthzKeeper),
 		math.LegacyMustNewDecFromStr("0.02"),
 		math.LegacyMustNewDecFromStr("0.5"),
-		sdkmempool.DefaultPriorityMempool(),
+		sdkmempool.NewSenderNonceMempool(sdkmempool.SenderNonceMaxTxOpt(0)),
 		nil,
 	)
 
