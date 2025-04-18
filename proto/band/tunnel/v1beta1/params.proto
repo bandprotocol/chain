@@ -31,4 +31,10 @@ message Params {
   // router_integration_contract specifies the address of the Router integration contract on the Router chain
   // that the tunnel module will interact with.
   string router_integration_contract = 9;
+  // axelar_ibc_channel specifies the IBC channel used by the tunnel to communicate with the axelar chain.
+  string axelar_ibc_channel = 10 [(gogoproto.customname) = "AxelarIBCChannel"];
+  // axelar_gmp_account is the account address on axelar chain that processes and verifies Axelar GMP transactions.
+  string axelar_gmp_account = 11 [(gogoproto.customname) = "AxelarGMPAccount"];
+  // axelar_fee_recipient is the account address on axelar chain that receive fee from tunnel.
+  string axelar_fee_recipient = 12;
 }

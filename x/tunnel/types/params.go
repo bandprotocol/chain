@@ -20,6 +20,9 @@ var (
 	DefaultBasePacketFee             = sdk.NewCoins(sdk.NewInt64Coin("uband", 500))
 	DefaultRouterIBCChannel          = ""
 	DefaultRouterIntegrationContract = ""
+	DefaultAxelarIBCChannel          = ""
+	DefaultAxelarGMPAccount          = "axelar1dv4u5k73pzqrxlzujxg3qp8kvc3pje7jtdvu72npnt5zhq05ejcsn5qme5"
+	DefaultAxelarFeeRecipient        = ""
 )
 
 // NewParams creates a new Params instance
@@ -33,6 +36,9 @@ func NewParams(
 	basePacketFee sdk.Coins,
 	routerIBCChannel string,
 	routerIntegrationContract string,
+	axelarIBCChannel string,
+	axelarGMPAccount string,
+	axelarFeeRecipient string,
 ) Params {
 	return Params{
 		MinDeposit:                minDeposit,
@@ -44,6 +50,9 @@ func NewParams(
 		BasePacketFee:             basePacketFee,
 		RouterIBCChannel:          routerIBCChannel,
 		RouterIntegrationContract: routerIntegrationContract,
+		AxelarIBCChannel:          axelarIBCChannel,
+		AxelarGMPAccount:          axelarGMPAccount,
+		AxelarFeeRecipient:        axelarFeeRecipient,
 	}
 }
 
@@ -59,6 +68,9 @@ func DefaultParams() Params {
 		DefaultBasePacketFee,
 		DefaultRouterIBCChannel,
 		DefaultRouterIntegrationContract,
+		DefaultAxelarIBCChannel,
+		DefaultAxelarGMPAccount,
+		DefaultAxelarFeeRecipient,
 	)
 }
 
@@ -119,7 +131,12 @@ func (p Params) Validate() error {
 
 	// validate RouterIBCChannel
 	if p.RouterIBCChannel != "" && !channeltypes.IsChannelIDFormat(p.RouterIBCChannel) {
-		return fmt.Errorf("channel identifier is not in the format: `channel-{N}` or be empty string")
+		return fmt.Errorf("channel router identifier is not in the format: `channel-{N}` or be empty string")
+	}
+
+	// validate AxelarIBCChannel
+	if p.AxelarIBCChannel != "" && !channeltypes.IsChannelIDFormat(p.AxelarIBCChannel) {
+		return fmt.Errorf("channel axelar identifier is not in the format: `channel-{N}` or be empty string")
 	}
 
 	return nil
