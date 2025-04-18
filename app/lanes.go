@@ -254,6 +254,9 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleReportLane, oracleRequ
 	// a transaction. Each lane can have a different signer extractor if needed.
 	signerExtractor := sdkmempool.NewDefaultSignerExtractionAdapter()
 
+	// feedsLane handles feeds submit signal price transactions.
+	// Each transaction has a gas limit of 0.02, and the total gas limit for the lane is 0.5.
+	// It uses SenderNonceMempool to ensure transactions are ordered by sender and nonce, with no per-sender tx limit.
 	feedsLane = mempool.NewLane(
 		app.Logger(),
 		app.txConfig.TxEncoder(),
@@ -266,6 +269,8 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleReportLane, oracleRequ
 		nil,
 	)
 
+	// tssLane handles TSS transactions.
+	// Each transaction has a gas limit of 0.02, and the total gas limit for the lane is 0.2.
 	tssLane = mempool.NewLane(
 		app.Logger(),
 		app.txConfig.TxEncoder(),
@@ -278,6 +283,9 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleReportLane, oracleRequ
 		nil,
 	)
 
+	// oracleRequestLane handles oracle request data transactions.
+	// Each transaction has a gas limit of 0.1, and the total gas limit for the lane is 0.1.
+	// It is blocked if the oracle report lane exceeds its limit.
 	oracleRequestLane = mempool.NewLane(
 		app.Logger(),
 		app.txConfig.TxEncoder(),
@@ -290,6 +298,9 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleReportLane, oracleRequ
 		nil,
 	)
 
+	// oracleReportLane handles oracle report data transactions.
+	// Each transaction has a gas limit of 0.05, and the total gas limit for the lane is 0.2.
+	// It block the oracle request lane if it exceeds its limit.
 	oracleReportLane = mempool.NewLane(
 		app.Logger(),
 		app.txConfig.TxEncoder(),
@@ -304,6 +315,8 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleReportLane, oracleRequ
 		},
 	)
 
+	// defaultLane handles all other transactions.
+	// Each transaction has a gas limit of 0.1, and the total gas limit for the lane is 0.1.
 	defaultLane = mempool.NewLane(
 		app.Logger(),
 		app.txConfig.TxEncoder(),
