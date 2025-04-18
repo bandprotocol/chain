@@ -6,7 +6,7 @@ import (
 	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
-// SetSigningID sets the key-value pair of the request ID to signing ID in the store.
+// SetSigningResult sets the signing result in the store.
 func (k Keeper) SetSigningResult(ctx sdk.Context, rid types.RequestID, signingResult types.SigningResult) {
 	ctx.KVStore(k.storeKey).Set(types.SigningResultStoreKey(rid), k.cdc.MustMarshal(&signingResult))
 }
