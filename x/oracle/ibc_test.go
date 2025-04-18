@@ -44,6 +44,7 @@ type IBCTestSuite struct {
 }
 
 func (suite *IBCTestSuite) SetupTest() {
+	band.UseFeeMarketDecorator = false
 	ibctesting.DefaultTestingAppInit = bandtesting.CreateTestingAppFn(suite.T())
 
 	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 2)
