@@ -142,7 +142,7 @@ func MedianValidatorPriceInfos(validatorPriceInfos []ValidatorPriceInfo) (uint64
 		// accumulated weight for this entry
 		totalWeight := sdkmath.NewInt(0)
 
-		// distribute the entry's power across remaning sections, starting from the current `sectionIndex`
+		// distribute the entry's power across remaining sections, starting from the current `sectionIndex`
 		for ; sectionIndex < len(sections); sectionIndex++ {
 			// calculate the power limit for the current section
 			sectionLimit := totalPower.Mul(sections[sectionIndex])
