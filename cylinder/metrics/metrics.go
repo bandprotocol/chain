@@ -11,6 +11,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
+	cylinderctx "github.com/bandprotocol/chain/v3/cylinder/context"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 )
 
@@ -39,7 +40,6 @@ type PrometheusMetrics struct {
 	// DE metrics
 	OnChinDELeftGauge   prometheus.Gauge
 	OffChainDELeftGauge prometheus.Gauge
-	DECountUsedGauge    prometheus.Gauge
 
 	// signing metrics
 	IncomingSigningCount       *prometheus.CounterVec
@@ -194,13 +194,6 @@ func DecOffChainDELeftGauge() {
 	})
 }
 
-// SetDECountUsedGauge sets the value of the DE count used gauge.
-func SetDECountUsedGauge(value float64) {
-	updateMetrics(func() {
-		metrics.DECountUsedGauge.Set(value)
-	})
-}
-
 // IncIncomingSigningCount increments the count of incoming signing requests for a specific group.
 func IncIncomingSigningCount(groupID uint64) {
 	updateMetrics(func() {
@@ -264,18 +257,20 @@ func ObserveSubmitTxTime(duration float64) {
 	})
 }
 
-func InitPrometheusMetrics() {
+func InitPrometheusMetrics(labels prometheus.Labels) {
 	roundLabels := []string{"group_id"}
 	signingLabels := []string{"group_id"}
 
 	metrics = &PrometheusMetrics{
 		ProcessRound1SuccessCount: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: "cylinder_process_round1_success_count",
-			Help: "Number of successful process round 1",
+			Name:        "cylinder_process_round1_success_count",
+			Help:        "Number of successful process round 1",
+			ConstLabels: labels,
 		}, roundLabels),
 		ProcessRound1FailureCount: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: "cylinder_process_round1_failure_count",
-			Help: "Number of failed process round 1",
+			Name:        "cylinder_process_round1_failure_count",
+			Help:        "Number of failed process round 1",
+			ConstLabels: labels,
 		}, roundLabels),
 		ProcessRound1Time: promauto.NewSummaryVec(prometheus.SummaryOpts{
 			Name: "cylinder_process_round1_time",
@@ -285,14 +280,17 @@ func InitPrometheusMetrics() {
 				0.9:  0.01,
 				0.99: 0.001,
 			},
+			ConstLabels: labels,
 		}, roundLabels),
 		ProcessRound2SuccessCount: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: "cylinder_process_round2_success_count",
-			Help: "Number of successful process round 2",
+			Name:        "cylinder_process_round2_success_count",
+			Help:        "Number of successful process round 2",
+			ConstLabels: labels,
 		}, roundLabels),
 		ProcessRound2FailureCount: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: "cylinder_process_round2_failure_count",
-			Help: "Number of failed process round 2",
+			Name:        "cylinder_process_round2_failure_count",
+			Help:        "Number of failed process round 2",
+			ConstLabels: labels,
 		}, roundLabels),
 		ProcessRound2Time: promauto.NewSummaryVec(prometheus.SummaryOpts{
 			Name: "cylinder_process_round2_time",
@@ -302,10 +300,12 @@ func InitPrometheusMetrics() {
 				0.9:  0.01,
 				0.99: 0.001,
 			},
+			ConstLabels: labels,
 		}, roundLabels),
 		ProcessRound3ConfirmCount: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: "cylinder_process_round3_confirm_count",
-			Help: "Number of successful process round 3 confirm",
+			Name:        "cylinder_process_round3_confirm_count",
+			Help:        "Number of successful process round 3 confirm",
+			ConstLabels: labels,
 		}, roundLabels),
 		ProcessRound3ComplainCount: promauto.NewCounterVec(prometheus.CounterOpts{
 			Name: "cylinder_process_round3_complain_count",
@@ -325,36 +325,39 @@ func InitPrometheusMetrics() {
 			},
 		}, roundLabels),
 		DKGLeftGauge: promauto.NewGauge(prometheus.GaugeOpts{
-			Name: "cylinder_dkg_left_gauge",
-			Help: "Number of DKG left in the store",
+			Name:        "cylinder_dkg_left_gauge",
+			Help:        "Number of DKG left in the store",
+			ConstLabels: labels,
 		}),
 		GroupCount: promauto.NewGauge(prometheus.GaugeOpts{
-			Name: "cylinder_group_count",
-			Help: "Number of groups in the store",
+			Name:        "cylinder_group_count",
+			Help:        "Number of groups in the store",
+			ConstLabels: labels,
 		}),
 		OnChinDELeftGauge: promauto.NewGauge(prometheus.GaugeOpts{
-			Name: "cylinder_on_chain_de_left_gauge",
-			Help: "Number of on-chain DE left",
+			Name:        "cylinder_on_chain_de_left_gauge",
+			Help:        "Number of on-chain DE left",
+			ConstLabels: labels,
 		}),
 		OffChainDELeftGauge: promauto.NewGauge(prometheus.GaugeOpts{
-			Name: "cylinder_off_chain_de_left_gauge",
-			Help: "Number of DE left in the store",
-		}),
-		DECountUsedGauge: promauto.NewGauge(prometheus.GaugeOpts{
-			Name: "cylinder_de_count_used_gauge",
-			Help: "Number of DE count used",
+			Name:        "cylinder_off_chain_de_left_gauge",
+			Help:        "Number of DE left in the store",
+			ConstLabels: labels,
 		}),
 		IncomingSigningCount: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: "cylinder_incoming_signing_count",
-			Help: "Number of incoming signing requests",
+			Name:        "cylinder_incoming_signing_count",
+			Help:        "Number of incoming signing requests",
+			ConstLabels: labels,
 		}, signingLabels),
 		ProcessSigningSuccessCount: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: "cylinder_process_signing_success_count",
-			Help: "Number of successful process signing",
+			Name:        "cylinder_process_signing_success_count",
+			Help:        "Number of successful process signing",
+			ConstLabels: labels,
 		}, signingLabels),
 		ProcessSigningFailureCount: promauto.NewCounterVec(prometheus.CounterOpts{
-			Name: "cylinder_process_signing_failure_count",
-			Help: "Number of failed process signing",
+			Name:        "cylinder_process_signing_failure_count",
+			Help:        "Number of failed process signing",
+			ConstLabels: labels,
 		}, signingLabels),
 		ProcessSigningTime: promauto.NewSummaryVec(prometheus.SummaryOpts{
 			Name: "cylinder_process_signing_time",
@@ -364,6 +367,7 @@ func InitPrometheusMetrics() {
 				0.9:  0.01,
 				0.99: 0.001,
 			},
+			ConstLabels: labels,
 		}, signingLabels),
 		WaitingSenderTime: promauto.NewSummary(prometheus.SummaryOpts{
 			Name: "cylinder_waiting_sender_time",
@@ -373,18 +377,22 @@ func InitPrometheusMetrics() {
 				0.9:  0.01,
 				0.99: 0.001,
 			},
+			ConstLabels: labels,
 		}),
 		SubmittingTxCount: promauto.NewCounter(prometheus.CounterOpts{
-			Name: "cylinder_submitting_tx_count",
-			Help: "Number of submitting transactions",
+			Name:        "cylinder_submitting_tx_count",
+			Help:        "Number of submitting transactions",
+			ConstLabels: labels,
 		}),
 		SubmitTxSuccessCount: promauto.NewCounter(prometheus.CounterOpts{
-			Name: "cylinder_submit_tx_success_count",
-			Help: "Number of successful submit transactions",
+			Name:        "cylinder_submit_tx_success_count",
+			Help:        "Number of successful submit transactions",
+			ConstLabels: labels,
 		}),
 		SubmitTxFailedCount: promauto.NewCounter(prometheus.CounterOpts{
-			Name: "cylinder_submit_tx_failed_count",
-			Help: "Number of failed submit transactions",
+			Name:        "cylinder_submit_tx_failed_count",
+			Help:        "Number of failed submit transactions",
+			ConstLabels: labels,
 		}),
 		SubmitTxTime: promauto.NewSummary(prometheus.SummaryOpts{
 			Name: "cylinder_submit_tx_time",
@@ -394,6 +402,7 @@ func InitPrometheusMetrics() {
 				0.9:  0.01,
 				0.99: 0.001,
 			},
+			ConstLabels: labels,
 		}),
 	}
 }
@@ -401,23 +410,28 @@ func InitPrometheusMetrics() {
 // StartServer starts a metrics server in a background goroutine, accepting connections
 // on the given listener. Any HTTP logging will be written at info level to the given logger.
 // The server will be forcefully shut down when ctx finishes.
-func StartServer(ctx context.Context, logger *logger.Logger, metricsListenAddr string) error {
-	ln, err := net.Listen("tcp", metricsListenAddr)
+func StartServer(ctx context.Context, logger *logger.Logger, config *cylinderctx.Config) error {
+	ln, err := net.Listen("tcp", config.MetricsListenAddr)
 	if err != nil {
 		logger.Error(
 			"Failed to start metrics server you can change the address and port using metrics-listen-addr config setting or --metrics-listen-addr flag",
 		)
 
-		return fmt.Errorf("failed to listen on metrics address %q: %w", metricsListenAddr, err)
+		return fmt.Errorf("failed to listen on metrics address %q: %w", config.MetricsListenAddr, err)
+	}
+
+	labels := prometheus.Labels{
+		"chain_id": config.ChainID,
+		"granter":  config.Granter,
 	}
 
 	// allow for the global telemetry enabled state to be set.
 	globalTelemetryEnabled = true
 
 	// initialize Prometheus metrics
-	InitPrometheusMetrics()
+	InitPrometheusMetrics(labels)
 
-	logger.Info("Metrics server listening on address %s", metricsListenAddr)
+	logger.Info("Metrics server listening on address %s", config.MetricsListenAddr)
 
 	// Serve default prometheus metrics
 	mux := http.NewServeMux()
@@ -425,7 +439,7 @@ func StartServer(ctx context.Context, logger *logger.Logger, metricsListenAddr s
 
 	srv := &http.Server{
 		Handler:           mux,
-		Addr:              metricsListenAddr,
+		Addr:              config.MetricsListenAddr,
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 

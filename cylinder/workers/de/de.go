@@ -211,8 +211,6 @@ func (de *DE) intervalUpdateDE() error {
 	if deCount < 2*de.context.Config.MinDE {
 		de.updateDE(2*de.context.Config.MinDE - deCount)
 		de.cntUsed = 0
-
-		metrics.SetDECountUsedGauge(float64(de.cntUsed))
 	}
 
 	metrics.SetOnChainDELeftGauge(float64(deCount))
@@ -263,7 +261,6 @@ func (de *DE) Start() {
 				de.updateDE(de.cntUsed)
 				de.cntUsed = 0
 			}
-			metrics.SetDECountUsedGauge(float64(de.cntUsed))
 		}
 	}
 }

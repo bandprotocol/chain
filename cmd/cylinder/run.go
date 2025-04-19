@@ -71,7 +71,7 @@ func runCmd(ctx *context.Context) *cobra.Command {
 			// Start metrics server if enabled
 			if ctx.Config.MetricsListenAddr != "" {
 				ctx.Logger.Info("Metrics server is enabled")
-				err := metrics.StartServer(cmd.Context(), ctx.Logger, ctx.Config.MetricsListenAddr)
+				err := metrics.StartServer(cmd.Context(), ctx.Logger, ctx.Config)
 				if err != nil {
 					return fmt.Errorf("failed to start metrics server: %w", err)
 				}
