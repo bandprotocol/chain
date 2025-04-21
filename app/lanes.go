@@ -213,7 +213,7 @@ func oracleRequestLaneMatchHandler(
 	}
 }
 
-// isValidMsgRequestData return true if the message is a valid oracle's MsgRequestData.
+// isMsgRequestData return true if the message is a valid oracle's MsgRequestData.
 func isMsgRequestData(
 	ctx sdk.Context,
 	msg sdk.Msg,
@@ -255,7 +255,7 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleReportLane, oracleRequ
 	signerExtractor := sdkmempool.NewDefaultSignerExtractionAdapter()
 
 	// feedsLane handles feeds submit signal price transactions.
-	// Each transaction has a gas limit of 0.02, and the total gas limit for the lane is 0.5.
+	// Each transaction has a gas limit of 2%, and the total gas limit for the lane is 50%.
 	// It uses SenderNonceMempool to ensure transactions are ordered by sender and nonce, with no per-sender tx limit.
 	feedsLane = mempool.NewLane(
 		app.Logger(),
@@ -270,7 +270,7 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleReportLane, oracleRequ
 	)
 
 	// tssLane handles TSS transactions.
-	// Each transaction has a gas limit of 0.02, and the total gas limit for the lane is 0.2.
+	// Each transaction has a gas limit of 2%, and the total gas limit for the lane is 20%.
 	tssLane = mempool.NewLane(
 		app.Logger(),
 		app.txConfig.TxEncoder(),
@@ -284,7 +284,7 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleReportLane, oracleRequ
 	)
 
 	// oracleRequestLane handles oracle request data transactions.
-	// Each transaction has a gas limit of 0.1, and the total gas limit for the lane is 0.1.
+	// Each transaction has a gas limit of 10%, and the total gas limit for the lane is 10%.
 	// It is blocked if the oracle report lane exceeds its limit.
 	oracleRequestLane = mempool.NewLane(
 		app.Logger(),
@@ -299,7 +299,7 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleReportLane, oracleRequ
 	)
 
 	// oracleReportLane handles oracle report data transactions.
-	// Each transaction has a gas limit of 0.05, and the total gas limit for the lane is 0.2.
+	// Each transaction has a gas limit of 5%, and the total gas limit for the lane is 20%.
 	// It block the oracle request lane if it exceeds its limit.
 	oracleReportLane = mempool.NewLane(
 		app.Logger(),
@@ -316,7 +316,7 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleReportLane, oracleRequ
 	)
 
 	// defaultLane handles all other transactions.
-	// Each transaction has a gas limit of 0.1, and the total gas limit for the lane is 0.1.
+	// Each transaction has a gas limit of 10%, and the total gas limit for the lane is 10%.
 	defaultLane = mempool.NewLane(
 		app.Logger(),
 		app.txConfig.TxEncoder(),

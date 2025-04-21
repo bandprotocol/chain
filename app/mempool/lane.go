@@ -36,6 +36,7 @@ type Lane struct {
 	// handleLaneLimitCheck is a callback function that is called when the lane exceeds its limit.
 	handleLaneLimitCheck func(isLaneLimitExceeded bool)
 
+	// blocked indicates whether the transaction in this lane should be excluded from the proposal for the current block.
 	blocked bool
 
 	// Add mutex for thread safety
