@@ -114,7 +114,7 @@ func (l *Lane) Remove(tx sdk.Tx) error {
 	return nil
 }
 
-// Contains returns true if the lane's mempool Contains the transaction.
+// Contains returns true if the lane's mempool contains the transaction.
 func (l *Lane) Contains(tx sdk.Tx) bool {
 	txInfo, err := l.getTxInfo(tx)
 	if err != nil {
