@@ -40,6 +40,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/std"
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 	sigtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
@@ -53,12 +54,15 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/bandprotocol/chain/v3/app/keepers"
+	"github.com/bandprotocol/chain/v3/app/mempool"
 	"github.com/bandprotocol/chain/v3/app/upgrades"
 	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3"
 	nodeservice "github.com/bandprotocol/chain/v3/client/grpc/node"
 	proofservice "github.com/bandprotocol/chain/v3/client/grpc/oracle/proof"
 	"github.com/bandprotocol/chain/v3/hooks/common"
+	feedskeeper "github.com/bandprotocol/chain/v3/x/feeds/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
+	tsskeeper "github.com/bandprotocol/chain/v3/x/tss/keeper"
 )
 
 var (
@@ -259,10 +263,22 @@ func NewBandApp(
 
 	app.sm.RegisterStoreDecoders()
 
+	feedsLane, tssLane, oracleReportLane, oracleRequestLane, defaultLane := CreateLanes(app)
+	bandLanes := []*mempool.Lane{feedsLane, tssLane, oracleReportLane, oracleRequestLane, defaultLane}
+
+	// create Band mempool
+	bandMempool := mempool.NewMempool(app.Logger(), bandLanes)
+	// set the mempool
+	app.SetMempool(bandMempool)
+
 	// Initialize stores.
 	app.MountKVStores(app.GetKVStoreKey())
 	app.MountTransientStores(app.GetTransientStoreKey())
 	app.MountMemoryStores(app.GetMemoryStoreKey())
+
+	feedsMsgServer := feedskeeper.NewMsgServerImpl(app.FeedsKeeper)
+	tssMsgServer := tsskeeper.NewMsgServerImpl(app.TSSKeeper)
+	oracleMsgServer := oraclekeeper.NewMsgServerImpl(app.OracleKeeper)
 
 	anteHandler, err := NewAnteHandler(
 		HandlerOptions{
@@ -282,11 +298,23 @@ func NewBandApp(
 			IBCKeeper:       app.IBCKeeper,
 			StakingKeeper:   app.StakingKeeper,
 			GlobalfeeKeeper: &app.GlobalFeeKeeper,
+			IgnoreDecoratorMatchFns: []func(sdk.Context, sdk.Tx) bool{
+				feedsSubmitSignalPriceTxMatchHandler(app.appCodec, &app.AuthzKeeper, feedsMsgServer),
+				tssTxMatchHandler(app.appCodec, &app.AuthzKeeper, &app.BandtssKeeper, tssMsgServer),
+				oracleReportTxMatchHandler(app.appCodec, &app.AuthzKeeper, oracleMsgServer),
+			},
 		},
 	)
 	if err != nil {
 		panic(fmt.Errorf("failed to create ante handler: %s", err))
 	}
+
+	// proposal handler
+	proposalHandler := mempool.NewProposalHandler(app.Logger(), txConfig.TxDecoder(), bandMempool)
+
+	// set the Prepare / ProcessProposal Handlers on the app to be the `LanedMempool`'s
+	app.SetPrepareProposal(proposalHandler.PrepareProposalHandler())
+	app.SetProcessProposal(proposalHandler.ProcessProposalHandler())
 
 	postHandler, err := NewPostHandler(
 		PostHandlerOptions{},
@@ -517,4 +545,70 @@ func (app *BandApp) AutoCliOpts() autocli.AppOptions {
 		ValidatorAddressCodec: authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix()),
 		ConsensusAddressCodec: authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix()),
 	}
+}
+
+// CheckTx returns a CheckTx handler that wraps a given CheckTx handler and evicts txs that are not
+// in the app-side mempool on ReCheckTx.
+func (app *BandApp) CheckTx(req *abci.RequestCheckTx) (*abci.ResponseCheckTx, error) {
+	// decode tx
+	tx, err := app.BaseApp.TxDecode(req.Tx)
+	if err != nil {
+		return sdkerrors.ResponseCheckTxWithEvents(
+			fmt.Errorf("failed to decode tx: %w", err),
+			0,
+			0,
+			nil,
+			false,
+		), nil
+	}
+
+	mempool := app.Mempool().(*mempool.Mempool)
+
+	isRecheck := req.Type == abci.CheckTxType_Recheck
+	txInMempool := mempool.Contains(tx)
+
+	// if the mode is Recheck and the app's mempool does not contain the given tx, we fail
+	// immediately, to purge the tx from the comet mempool.
+	if isRecheck && !txInMempool {
+		app.Logger().Debug(
+			"tx from comet mempool not found in app-side mempool",
+			"tx", tx,
+		)
+
+		return sdkerrors.ResponseCheckTxWithEvents(
+			fmt.Errorf("tx from comet mempool not found in app-side mempool"),
+			0,
+			0,
+			nil,
+			false,
+		), nil
+	}
+
+	// prepare cleanup closure to remove tx if marked
+	removeTx := false
+	defer func() {
+		if removeTx {
+			// remove the tx
+			if err := mempool.Remove(tx); err != nil {
+				app.Logger().Debug(
+					"failed to remove tx from app-side mempool when purging for re-check failure",
+					"removal-err", err,
+				)
+			}
+		}
+	}()
+
+	// run the checkTxHandler
+	res, checkTxError := app.BaseApp.CheckTx(req)
+	// if Recheck fails for a transaction, we'll need to explicitly purge the tx from
+	// the app-side mempool
+	if isInvalidCheckTxExecution(res, checkTxError) && isRecheck && txInMempool {
+		removeTx = true
+	}
+
+	return res, checkTxError
+}
+
+func isInvalidCheckTxExecution(resp *abci.ResponseCheckTx, checkTxErr error) bool {
+	return resp == nil || resp.Code != 0 || checkTxErr != nil
 }
