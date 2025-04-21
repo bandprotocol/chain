@@ -145,6 +145,7 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 
 		// Generate own private key and update it in store
 		group = store.Group{
+			GroupID:     gid,
 			GroupPubKey: groupRes.Group.PubKey,
 			MemberID:    dkg.MemberID,
 			PrivKey:     ownPrivKey,

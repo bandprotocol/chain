@@ -208,6 +208,21 @@ func (c *Client) QueryPendingSignings(address string) (*tsstypes.QueryPendingSig
 	return res, nil
 }
 
+// QueryMembers queries the members of the given group ID.
+// It returns the MembersResponse or an error.
+func (c *Client) QueryMembers(groupID tss.GroupID) (*MembersResponse, error) {
+	queryClient := tsstypes.NewQueryClient(c.context)
+
+	res, err := queryClient.Members(context.Background(), &tsstypes.QueryMembersRequest{
+		GroupId: uint64(groupID),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return NewMembersResponse(res), nil
+}
+
 // BroadcastAndConfirm broadcasts and confirms the messages by signing and submitting them using the provided key.
 // It returns the transaction response or an error. It retries broadcasting and confirming up to maxTry times.
 func (c *Client) BroadcastAndConfirm(

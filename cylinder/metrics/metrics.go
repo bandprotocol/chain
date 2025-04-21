@@ -425,6 +425,8 @@ func StartServer(ctx context.Context, logger *logger.Logger, config *cylinderctx
 		"granter":  config.Granter,
 	}
 
+	fmt.Printf("labels %+v\n", labels)
+
 	// allow for the global telemetry enabled state to be set.
 	globalTelemetryEnabled = true
 

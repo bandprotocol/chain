@@ -16,21 +16,23 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder/workers/group"
 	"github.com/bandprotocol/chain/v3/cylinder/workers/sender"
 	"github.com/bandprotocol/chain/v3/cylinder/workers/signing"
+	"github.com/bandprotocol/chain/v3/cylinder/workers/status"
 )
 
 const (
-	flagGranter            = "granter"
-	flagLogLevel           = "log-level"
-	flagMaxMessages        = "max-messages"
-	flagBroadcastTimeout   = "broadcast-timeout"
-	flagRPCPollInterval    = "rpc-poll-interval"
-	flagMaxTry             = "max-try"
-	flagMinDE              = "min-de"
-	flagGasAdjustStart     = "gas-adjust-start"
-	flagGasAdjustStep      = "gas-adjust-step"
-	flagRandomSecret       = "random-secret"
-	flagCheckingDEInterval = "checking-de-interval"
-	flagMetricsListenAddr  = "metrics-listen-addr"
+	flagGranter             = "granter"
+	flagLogLevel            = "log-level"
+	flagMaxMessages         = "max-messages"
+	flagBroadcastTimeout    = "broadcast-timeout"
+	flagRPCPollInterval     = "rpc-poll-interval"
+	flagMaxTry              = "max-try"
+	flagMinDE               = "min-de"
+	flagGasAdjustStart      = "gas-adjust-start"
+	flagGasAdjustStep       = "gas-adjust-step"
+	flagRandomSecret        = "random-secret"
+	flagCheckingDEInterval  = "checking-de-interval"
+	flagCheckStatusInterval = "check-status-interval"
+	flagMetricsListenAddr   = "metrics-listen-addr"
 )
 
 // runCmd returns a Cobra command to run the cylinder process.
@@ -66,7 +68,12 @@ func runCmd(ctx *context.Context) *cobra.Command {
 				return err
 			}
 
-			workers := cylinder.Workers{group, de, signing, sender}
+			status, err := status.New(ctx)
+			if err != nil {
+				return err
+			}
+
+			workers := cylinder.Workers{group, de, signing, sender, status}
 
 			// Start metrics server if enabled
 			if ctx.Config.MetricsListenAddr != "" {
@@ -112,12 +119,14 @@ func runCmd(ctx *context.Context) *cobra.Command {
 	cmd.Flags().Float64(flagGasAdjustStep, 0.2, "The increment step of gad adjustment")
 	cmd.Flags().BytesHex(flagRandomSecret, nil, "The secret value that is used for random D,E")
 	cmd.Flags().Duration(flagCheckingDEInterval, 5*time.Minute, "The interval of checking DE")
+	cmd.Flags().Duration(flagCheckStatusInterval, time.Minute, "The interval of checking the status of the member")
 	cmd.Flags().String(flagMetricsListenAddr, "", "address to use for metrics server.")
 
 	flagNames := []string{
 		flags.FlagChainID, flags.FlagNode, flagGranter, flags.FlagGasPrices, flagLogLevel,
 		flagMaxMessages, flagBroadcastTimeout, flagRPCPollInterval, flagMaxTry, flagMinDE,
-		flagGasAdjustStart, flagGasAdjustStep, flagRandomSecret, flagCheckingDEInterval, flagMetricsListenAddr,
+		flagGasAdjustStart, flagGasAdjustStep, flagRandomSecret, flagCheckingDEInterval,
+		flagCheckStatusInterval, flagMetricsListenAddr,
 	}
 
 	for _, flagName := range flagNames {
