@@ -241,7 +241,7 @@ func H_M1_L48(
 	return fieldElements, nil
 }
 
-// Implemented as hash_to_field(m, 1) using expand_message_xmd with SHA-256 with parameters
+// H1 is implemented as hash_to_field(m, 1) using expand_message_xmd with SHA-256 with parameters
 // DST = contextString || "rho", F set to the scalar field, p set to G.Order(), m = 1, and L = 48.
 func H1(msg []byte) ([]byte, error) {
 	result, err := H_M1_L48(Hash, 1, crypto.S256().Params().P, msg, ContextStringConst+"rho")
@@ -256,7 +256,7 @@ func H1(msg []byte) ([]byte, error) {
 	return paddedHashed, err
 }
 
-// H2(m): Implemented as hash_to_field(m, 1) using expand_message_xmd with SHA-256 with parameters
+// H2 is implemented as hash_to_field(m, 1) using expand_message_xmd with SHA-256 with parameters
 // DST = contextString || "chal", F set to the scalar field, p set to G.Order(), m = 1, and L = 48.
 func H2(msg []byte) ([]byte, error) {
 	result, err := H_M1_L48(Hash, 1, crypto.S256().Params().P, msg, ContextStringConst+"chal")
@@ -271,7 +271,7 @@ func H2(msg []byte) ([]byte, error) {
 	return paddedHashed, err
 }
 
-// H3(m): Implemented as hash_to_field(m, 1) using expand_message_xmd with SHA-256 with parameters
+// H3 is implemented as hash_to_field(m, 1) using expand_message_xmd with SHA-256 with parameters
 // DST = contextString || "nonce", F set to the scalar field, p set to G.Order(), m = 1, and L = 48.
 func H3(msg []byte) ([]byte, error) {
 	result, err := H_M1_L48(Hash, 1, crypto.S256().Params().P, msg, ContextStringConst+"nonce")
@@ -286,12 +286,12 @@ func H3(msg []byte) ([]byte, error) {
 	return paddedHashed, err
 }
 
-// H4(m): Implemented by computing H(contextString || "msg" || m).
+// H4 computes H(contextString || "msg" || m).
 func H4(msg []byte) []byte {
 	return Hash(append([]byte(ContextStringConst+"msg"), msg...))
 }
 
-// H5(m): Implemented by computing H(contextString || "com" || m).
+// H5 computes H(contextString || "com" || m).
 func H5(msg []byte) []byte {
 	return Hash(append([]byte(ContextStringConst+"com"), msg...))
 }

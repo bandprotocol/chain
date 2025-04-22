@@ -75,11 +75,11 @@ func (os *OracleSnapshotter) SnapshotExtension(height uint64, payloadWriter snap
 	return nil
 }
 
-// No need to do anything
+// PruneSnapshotHeight does nothing
 func (os *OracleSnapshotter) PruneSnapshotHeight(height int64) {
 }
 
-// No need to do anything
+// SetSnapshotInterval does nothing
 func (os *OracleSnapshotter) SetSnapshotInterval(snapshotInterval uint64) {
 }
 

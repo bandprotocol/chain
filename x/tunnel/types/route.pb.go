@@ -27,7 +27,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// TSSRoute represents a route for TSS packets and implements the RouteI interface.
+// TSSRoute represents a route for tss packets and implements the RouteI interface.
 type TSSRoute struct {
 	// destination_chain_id is the destination chain ID
 	DestinationChainID string `protobuf:"bytes,1,opt,name=destination_chain_id,json=destinationChainId,proto3" json:"destination_chain_id,omitempty"`
@@ -91,7 +91,7 @@ func (m *TSSRoute) GetEncoder() types.Encoder {
 	return types.ENCODER_UNSPECIFIED
 }
 
-// TSSPacketReceipt represents a receipt for a TSS packet and implements the PacketReceiptI interface.
+// TSSPacketReceipt represents a receipt for a tss packet and implements the PacketReceiptI interface.
 type TSSPacketReceipt struct {
 	// signing_id is the signing ID
 	SigningID github_com_bandprotocol_chain_v3_x_bandtss_types.SigningID `protobuf:"varint,1,opt,name=signing_id,json=signingId,proto3,casttype=github.com/bandprotocol/chain/v3/x/bandtss/types.SigningID" json:"signing_id,omitempty"`

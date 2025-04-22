@@ -13,7 +13,7 @@ type Logger struct {
 	logger log.Logger
 }
 
-// New creates a new instance of the Logger.
+// NewLogger creates a new instance of the Logger.
 func NewLogger(level log.FilterFunc) *Logger {
 	return &Logger{log.NewLogger(os.Stdout, log.FilterOption(level))}
 }

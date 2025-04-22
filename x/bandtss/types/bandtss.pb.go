@@ -207,7 +207,7 @@ type Signing struct {
 	ID SigningID `protobuf:"varint,1,opt,name=id,proto3,casttype=SigningID" json:"id,omitempty"`
 	// fee_per_signer is the tokens that will be paid per signer for this bandtss signing.
 	FeePerSigner github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,2,rep,name=fee_per_signer,json=feePerSigner,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"fee_per_signer"`
-	// requester is the address who pays the Bandtss signing.
+	// requester is the address who pays the bandtss signing.
 	Requester string `protobuf:"bytes,3,opt,name=requester,proto3" json:"requester,omitempty"`
 	// current_group_signing_id is a tss signing ID of a current group.
 	CurrentGroupSigningID github_com_bandprotocol_chain_v3_pkg_tss.SigningID `protobuf:"varint,4,opt,name=current_group_signing_id,json=currentGroupSigningId,proto3,casttype=github.com/bandprotocol/chain/v3/pkg/tss.SigningID" json:"current_group_signing_id,omitempty"`

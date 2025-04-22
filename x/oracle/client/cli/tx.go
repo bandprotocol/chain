@@ -159,9 +159,9 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-l
 	cmd.Flags().Uint64(flagPrepareGas, 50000, "Prepare gas used in fee counting for prepare request")
 	cmd.Flags().Uint64(flagExecuteGas, 300000, "Execute gas used in fee counting for execute request")
 	cmd.Flags().
-		String(flagFeeLimit, "", "The maximum tokens paid to all data source and TSS signature providers, if any")
+		String(flagFeeLimit, "", "The maximum tokens paid to all data source and tss signature providers, if any")
 	cmd.Flags().
-		Int32(flagTSSEncoder, 0, "The encode type of oracle result that will be sent to TSS (1=proto, 2=ABI, 3=Partial ABI)")
+		Int32(flagTSSEncoder, 0, "The encode type of oracle result that will be sent to tss (1=proto, 2=ABI, 3=Partial ABI)")
 
 	flags.AddTxFlagsToCmd(cmd)
 

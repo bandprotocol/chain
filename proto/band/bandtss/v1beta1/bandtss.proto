@@ -42,7 +42,7 @@ message Signing {
   // fee_per_signer is the tokens that will be paid per signer for this bandtss signing.
   repeated cosmos.base.v1beta1.Coin fee_per_signer = 2
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
-  // requester is the address who pays the Bandtss signing.
+  // requester is the address who pays the bandtss signing.
   string requester = 3;
   // current_group_signing_id is a tss signing ID of a current group.
   uint64 current_group_signing_id = 4 [

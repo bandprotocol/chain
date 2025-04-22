@@ -11,7 +11,7 @@ import "band/feeds/v1beta1/feeds.proto";
 option go_package            = "github.com/bandprotocol/chain/v3/x/tunnel/types";
 option (gogoproto.equal_all) = true;
 
-// TSSRoute represents a route for TSS packets and implements the RouteI interface.
+// TSSRoute represents a route for tss packets and implements the RouteI interface.
 message TSSRoute {
   option (cosmos_proto.implements_interface) = "RouteI";
 
@@ -23,7 +23,7 @@ message TSSRoute {
   band.feeds.v1beta1.Encoder encoder = 3;
 }
 
-// TSSPacketReceipt represents a receipt for a TSS packet and implements the PacketReceiptI interface.
+// TSSPacketReceipt represents a receipt for a tss packet and implements the PacketReceiptI interface.
 message TSSPacketReceipt {
   option (cosmos_proto.implements_interface) = "PacketReceiptI";
 
