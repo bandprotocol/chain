@@ -113,20 +113,6 @@ func (s *Store) GetAllGroups() ([]Group, error) {
 	return groups, err
 }
 
-func (s *Store) GetAllGroupIDs() ([]tss.GroupID, error) {
-	groups, err := s.GetAllGroups()
-	if err != nil {
-		return nil, err
-	}
-
-	groupIDs := make([]tss.GroupID, len(groups))
-	for i, group := range groups {
-		groupIDs[i] = group.GroupID
-	}
-
-	return groupIDs, nil
-}
-
 // GetGroup retrieves the group information by the given public key.
 func (s *Store) GetGroup(pubKey tss.Point) (Group, error) {
 	bytes, err := s.DB.Get(GroupStoreKey(pubKey))

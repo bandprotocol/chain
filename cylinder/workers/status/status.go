@@ -33,35 +33,25 @@ func New(ctx *context.Context) (*Status, error) {
 	}, nil
 }
 
-// queryStatusWithLogging queries the status of the active member of the given group and address.
+// queryStatusWithLogging queries the status of the active member from the current and incoming groups.
 // It logs the status of the active member.
 func (s *Status) queryStatusWithLogging() {
 	address := s.context.Config.Granter
 
-	groupIDs, err := s.context.Store.GetAllGroupIDs()
+	members, err := s.client.QueryMembers()
 	if err != nil {
-		s.logger.Error(":x: failed to query status: %s", err)
+		s.logger.Error(":x: failed to query members: %s", err)
 		return
 	}
 
-	for _, groupID := range groupIDs {
-		members, err := s.client.QueryMembers(groupID)
-		if err != nil {
-			s.logger.Error(":x: failed to query members: %s", err)
-			return
+	for _, member := range members.Members {
+		if member.Address == address {
+			status := ":white_check_mark:"
+			if !member.IsActive {
+				status = ":x:"
+			}
+			s.logger.Info("group %d with member %s is active: %s", member.GroupID, address, status)
 		}
-
-		isActive, err := members.IsActive(address)
-		if err != nil {
-			s.logger.Error(":x: failed to get member status: %s", err)
-			return
-		}
-
-		status := ":white_check_mark:"
-		if !isActive {
-			status = ":x:"
-		}
-		s.logger.Info("group %d with member %s is active: %s", groupID, s.context.Config.Granter, status)
 	}
 }
 

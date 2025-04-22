@@ -3,26 +3,32 @@ package client
 import (
 	"fmt"
 
-	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 )
 
 // MembersResponse wraps the types.Members to provide additional helper methods.
 type MembersResponse struct {
-	tsstypes.Members
+	Members []*bandtsstypes.Member
 }
 
 // NewMembersResponse creates a new instance of MembersResponse.
-func NewMembersResponse(mr *tsstypes.QueryMembersResponse) *MembersResponse {
+func NewMembersResponse(mr *bandtsstypes.QueryMembersResponse) *MembersResponse {
 	return &MembersResponse{mr.Members}
 }
 
-// IsActive checks if the member with the given address is active.
-func (mr MembersResponse) IsActive(address string) (bool, error) {
+// FindMembersByAddress finds members in the response by their address.
+func (mr MembersResponse) FindMembersByAddress(address string) ([]bandtsstypes.Member, error) {
+	members := make([]bandtsstypes.Member, 0)
 	for _, member := range mr.Members {
 		if member.Address == address {
-			return member.IsActive, nil
+			members = append(members, *member)
+			break
 		}
 	}
 
-	return false, fmt.Errorf("member not found")
+	if len(members) == 0 {
+		return members, fmt.Errorf("member not found")
+	}
+
+	return members, nil
 }

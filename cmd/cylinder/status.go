@@ -2,8 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"strconv"
 
 	"github.com/kyokomi/emoji"
 	"github.com/spf13/cobra"
@@ -11,59 +9,48 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 
-	cylinderclient "github.com/bandprotocol/chain/v3/cylinder/client"
 	cylinderctx "github.com/bandprotocol/chain/v3/cylinder/context"
-	"github.com/bandprotocol/chain/v3/x/tss/types"
+	"github.com/bandprotocol/chain/v3/x/bandtss/types"
 )
 
-// statusCmd returns a Cobra command for showing the tss status of the given group id and address.
+// statusCmd returns
 func statusCmd(ctx *cylinderctx.Context) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "status [group-id] [address]",
+		Use:     "status [address]",
 		Aliases: []string{"s"},
-		Short:   "Show the tss member status of the given group id and address",
-		Args:    cobra.ExactArgs(2),
+		Short:   "Show the tss member status of the given address",
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// Print the node URI for debugging
-			fmt.Printf("Node URI: %s\n", ctx.Config.NodeURI)
-
-			// Set the node URI in the command flags
-			if err := cmd.Flags().Set(flags.FlagNode, ctx.Config.NodeURI); err != nil {
-				return fmt.Errorf("failed to set node URI: %w", err)
-			}
-
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			groupID, err := strconv.ParseUint(args[0], 10, 64)
+			address := args[0]
+
+			queryClient := types.NewQueryClient(clientCtx)
+			currentGroup, err := queryClient.Members(context.Background(), &types.QueryMembersRequest{})
 			if err != nil {
 				return err
 			}
-			address := args[1]
-
-			queryClient := types.NewQueryClient(clientCtx)
-			r, err := queryClient.Members(
+			incomingGroup, err := queryClient.Members(
 				context.Background(),
-				&types.QueryMembersRequest{GroupId: groupID},
+				&types.QueryMembersRequest{IsIncomingGroup: true},
 			)
 			if err != nil {
 				return err
 			}
 
-			members := cylinderclient.NewMembersResponse(r)
-			isActive, err := members.IsActive(address)
-			if err != nil {
-				return err
+			members := append(currentGroup.Members, incomingGroup.Members...)
+			for _, member := range members {
+				if member.Address == address {
+					status := ":white_check_mark:"
+					if !member.IsActive {
+						status = ":x:"
+					}
+					emoji.Printf("group %d with member %s is active: %s", member.GroupID, address, status)
+				}
 			}
-
-			status := ":white_check_mark:"
-			if !isActive {
-				status = ":x:"
-			}
-			emoji.Printf("group %d with member %s is active: %s\n", groupID, address, status)
-
 			return nil
 		},
 	}
