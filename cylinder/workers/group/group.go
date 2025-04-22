@@ -5,7 +5,7 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder/context"
 )
 
-// Group is a worker responsible for group creation process of tss module
+// Group is a worker responsible for group creation process of TSS module
 type Group struct {
 	context *context.Context
 	workers []cylinder.Worker

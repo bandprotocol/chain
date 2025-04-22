@@ -37,7 +37,7 @@ var (
 // AppModuleBasic
 // ----------------------------------------------------------------------------
 
-// AppModuleBasic defines the basic application module used by the tss module.
+// AppModuleBasic defines the basic application module used by the TSS module.
 type AppModuleBasic struct {
 	cdc codec.Codec
 }
@@ -67,7 +67,7 @@ func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
 	return cdc.MustMarshalJSON(types.DefaultGenesisState())
 }
 
-// ValidateGenesis performs genesis state validation for the tss module.
+// ValidateGenesis performs genesis state validation for the TSS module.
 func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
 	var data types.GenesisState
 	if err := cdc.UnmarshalJSON(bz, &data); err != nil {

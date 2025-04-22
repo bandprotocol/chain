@@ -1,6 +1,6 @@
 # Schnorr
 
-This package is the modified version from https://github.com/decred/dcrd/blob/master/dcrec/secp256k1/schnorr to support the use cases of Bandchain's tss module.
+This package is the modified version from https://github.com/decred/dcrd/blob/master/dcrec/secp256k1/schnorr to support the use cases of Bandchain's TSS module.
 
 ## Modification
 - Adjust r and s in Signature to be public fields

@@ -126,7 +126,7 @@ func (cb TSSCallback) OnSigningTimeout(
 		}
 
 		// Deactivate the member; this shouldn't cause an error because member should exist in
-		// both tss and bandtss module.
+		// both TSS and bandtss module.
 		if err := cb.k.DeactivateMember(ctx, addr, signing.GroupID); err != nil {
 			panic(err)
 		}

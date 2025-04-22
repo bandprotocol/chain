@@ -49,7 +49,7 @@ The module is configured to charge a fee for each signing request, a cost that i
 
 ### Current Group
 
-The signing process mainly happens in the tss module. To handle the signing in bandtss module, a proposal is made to create a TSS group for the module and use it as a main group for a signing process. The proposal and bandtss's groups can be created multiple times, in that case, the first one is considered the main group of the module and being used for signing process until a proposal for group transition is made and approved.
+The signing process mainly happens in the TSS module. To handle the signing in bandtss module, a proposal is made to create a TSS group for the module and use it as a main group for a signing process. The proposal and bandtss's groups can be created multiple times, in that case, the first one is considered the main group of the module and being used for signing process until a proposal for group transition is made and approved.
 
 ### Member
 
@@ -82,7 +82,7 @@ Users requesting signatures from the bandtss system are required to pay a fee fo
 
 ### Signing
 
-When a signing request is submitted to the module, the request is forwarded to the tss module for processing. Following this, the bandtss module imposes a fee on the requester. This fee, referred to as the request fee, will be transferred to the assigned members after the message has been successfully signed.
+When a signing request is submitted to the module, the request is forwarded to the TSS module for processing. Following this, the bandtss module imposes a fee on the requester. This fee, referred to as the request fee, will be transferred to the assigned members after the message has been successfully signed.
 
 If there is an incoming group during the transition process, the assigned members of this group are required to sign a given message without receiving any reward. Signer only are eligible for rewards if they are in the current active group.
 
@@ -105,7 +105,7 @@ During the transition period, signing requests are sent to both the current grou
 The steps involved in the transition process are as follows:
 
 1. Initiate Proposal: Start by proposing a transition from the current group members to those in the incoming group.
-2. Group Creation in TSS Module: Once the proposal is approved, the tss module triggers the group creation process, including the members listed in the proposal.
+2. Group Creation in TSS Module: Once the proposal is approved, the TSS module triggers the group creation process, including the members listed in the proposal.
 3. Sign Transition Message: After the group is successfully created, a signing request is sent to the current group to sign a transition message.
 4. Group Transition: If the assigned members of the current group sign the message, the incoming group is prepared to replace the current group. If the execution time elapses, the incoming group automatically becomes the current group, existing members are removed, and new members are activated.
 

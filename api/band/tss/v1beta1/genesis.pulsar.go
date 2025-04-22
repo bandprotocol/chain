@@ -2067,7 +2067,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// GenesisState defines the tss module's genesis state.
+// GenesisState defines the TSS module's genesis state.
 type GenesisState struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -2222,7 +2222,7 @@ func (x *Params) GetMaxMessageLength() uint64 {
 	return 0
 }
 
-// DEGenesis defines an account address and de pair used in the tss module's genesis state.
+// DEGenesis defines an account address and de pair used in the TSS module's genesis state.
 type DEGenesis struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

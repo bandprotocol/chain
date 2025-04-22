@@ -20,7 +20,7 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-// Round1 is a worker responsible for round1 in the DKG process of tss module
+// Round1 is a worker responsible for round1 in the DKG process of TSS module
 type Round1 struct {
 	context *context.Context
 	logger  *logger.Logger

@@ -21,7 +21,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// Encoder is an enumerator that defines the mode of encoding message in tss module.
+// Encoder is an enumerator that defines the mode of encoding message in TSS module.
 type Encoder int32
 
 const (

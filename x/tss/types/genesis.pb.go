@@ -24,7 +24,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// GenesisState defines the tss module's genesis state.
+// GenesisState defines the TSS module's genesis state.
 type GenesisState struct {
 	// params defines all the parameters of the module.
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
@@ -197,7 +197,7 @@ func (m *Params) GetMaxMessageLength() uint64 {
 	return 0
 }
 
-// DEGenesis defines an account address and de pair used in the tss module's genesis state.
+// DEGenesis defines an account address and de pair used in the TSS module's genesis state.
 type DEGenesis struct {
 	// address is the address of the de holder.
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`

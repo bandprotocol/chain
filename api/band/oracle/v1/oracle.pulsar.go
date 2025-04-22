@@ -12658,7 +12658,7 @@ func (ResolveStatus) EnumDescriptor() ([]byte, []int) {
 	return file_band_oracle_v1_oracle_proto_rawDescGZIP(), []int{0}
 }
 
-// Encoder is an enumerator that defines the mode of encoding message in tss module.
+// Encoder is an enumerator that defines the mode of encoding message in TSS module.
 type Encoder int32
 
 const (

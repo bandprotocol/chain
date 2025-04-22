@@ -68,7 +68,7 @@ func (ResolveStatus) EnumDescriptor() ([]byte, []int) {
 	return fileDescriptor_9714783eaff1514b, []int{0}
 }
 
-// Encoder is an enumerator that defines the mode of encoding message in tss module.
+// Encoder is an enumerator that defines the mode of encoding message in TSS module.
 type Encoder int32
 
 const (

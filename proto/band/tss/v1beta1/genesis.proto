@@ -8,7 +8,7 @@ import "band/tss/v1beta1/tss.proto";
 
 option go_package = "github.com/bandprotocol/chain/v3/x/tss/types";
 
-// GenesisState defines the tss module's genesis state.
+// GenesisState defines the TSS module's genesis state.
 message GenesisState {
   // params defines all the parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
@@ -40,7 +40,7 @@ message Params {
   uint64 max_message_length = 7;
 }
 
-// DEGenesis defines an account address and de pair used in the tss module's genesis state.
+// DEGenesis defines an account address and de pair used in the TSS module's genesis state.
 message DEGenesis {
   // address is the address of the de holder.
   string address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];

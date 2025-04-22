@@ -38,7 +38,7 @@ func (k Keeper) AllocateTokens(ctx sdk.Context) error {
 	feeCollector := k.authKeeper.GetModuleAccount(ctx, k.feeCollectorName)
 	totalFee := sdk.NewDecCoinsFromCoins(k.bankKeeper.GetAllBalances(ctx, feeCollector.GetAddress())...)
 
-	// Compute the fee allocated for tss module.
+	// Compute the fee allocated for TSS module.
 	tssRewardRatio := math.LegacyNewDecWithPrec(int64(k.GetParams(ctx).RewardPercentage), 2)
 	tssRewardInt, _ := totalFee.MulDecTruncate(tssRewardRatio).TruncateDecimal()
 

@@ -10,7 +10,7 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-// InitGenesis performs genesis initialization for the tss module.
+// InitGenesis performs genesis initialization for the TSS module.
 func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 	if err := k.SetParams(ctx, data.Params); err != nil {
 		panic(err)
