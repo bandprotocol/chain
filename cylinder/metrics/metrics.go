@@ -176,7 +176,9 @@ func SetMemberStatus(groupID uint64, status bool) {
 		statusValue = 1.0
 	}
 
-	metrics.MemberStatusGauge.WithLabelValues(fmt.Sprintf("%d", groupID)).Set(statusValue)
+	updateMetrics(func() {
+		metrics.MemberStatusGauge.WithLabelValues(fmt.Sprintf("%d", groupID)).Set(statusValue)
+	})
 }
 
 // SetOnChainDELeftGauge sets the value of the on-chain DE left gauge.
