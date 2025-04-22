@@ -24,7 +24,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// GenesisState defines the TSS module's genesis state.
+// GenesisState defines the tss module's genesis state.
 type GenesisState struct {
 	// params defines all the parameters of the module.
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
@@ -103,7 +103,7 @@ type Params struct {
 	MaxGroupSize uint64 `protobuf:"varint,1,opt,name=max_group_size,json=maxGroupSize,proto3" json:"max_group_size,omitempty"`
 	// max_de_size is the maximum of the de capacity of the member.
 	MaxDESize uint64 `protobuf:"varint,2,opt,name=max_de_size,json=maxDeSize,proto3" json:"max_de_size,omitempty"`
-	// creation_period is the number of blocks allowed to creating TSS group.
+	// creation_period is the number of blocks allowed to creating tss group.
 	CreationPeriod uint64 `protobuf:"varint,3,opt,name=creation_period,json=creationPeriod,proto3" json:"creation_period,omitempty"`
 	// signing_period is the number of blocks allowed to sign.
 	SigningPeriod uint64 `protobuf:"varint,4,opt,name=signing_period,json=signingPeriod,proto3" json:"signing_period,omitempty"`
@@ -197,7 +197,7 @@ func (m *Params) GetMaxMessageLength() uint64 {
 	return 0
 }
 
-// DEGenesis defines an account address and de pair used in the TSS module's genesis state.
+// DEGenesis defines an account address and de pair used in the tss module's genesis state.
 type DEGenesis struct {
 	// address is the address of the de holder.
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`

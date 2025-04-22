@@ -30,7 +30,7 @@ func (k Keeper) AllocateTokens(ctx sdk.Context) error {
 		}
 	}
 
-	// No active members performing TSS tasks, nothing needs to be done here.
+	// No active members performing tss tasks, nothing needs to be done here.
 	if len(validMembers) == 0 {
 		return nil
 	}
@@ -38,7 +38,7 @@ func (k Keeper) AllocateTokens(ctx sdk.Context) error {
 	feeCollector := k.authKeeper.GetModuleAccount(ctx, k.feeCollectorName)
 	totalFee := sdk.NewDecCoinsFromCoins(k.bankKeeper.GetAllBalances(ctx, feeCollector.GetAddress())...)
 
-	// Compute the fee allocated for TSS module.
+	// Compute the fee allocated for tss module.
 	tssRewardRatio := math.LegacyNewDecWithPrec(int64(k.GetParams(ctx).RewardPercentage), 2)
 	tssRewardInt, _ := totalFee.MulDecTruncate(tssRewardRatio).TruncateDecimal()
 

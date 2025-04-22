@@ -8019,7 +8019,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// TSSRoute represents a route for TSS packets and implements the RouteI interface.
+// TSSRoute represents a route for tss packets and implements the RouteI interface.
 type TSSRoute struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -8074,7 +8074,7 @@ func (x *TSSRoute) GetEncoder() v1beta1.Encoder {
 	return v1beta1.Encoder(0)
 }
 
-// TSSPacketReceipt represents a receipt for a TSS packet and implements the PacketReceiptI interface.
+// TSSPacketReceipt represents a receipt for a tss packet and implements the PacketReceiptI interface.
 type TSSPacketReceipt struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

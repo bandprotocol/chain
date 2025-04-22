@@ -54,7 +54,7 @@ func SigningInfoStoreKey(id SigningID) []byte {
 	return append(SigningInfoStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(id))...)
 }
 
-// SigningIDMappingStoreKey returns the key for storing the TSS signing ID mapping.
+// SigningIDMappingStoreKey returns the key for storing the tss signing ID mapping.
 func SigningIDMappingStoreKey(id tss.SigningID) []byte {
 	return append(SigningIDMappingStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(id))...)
 }

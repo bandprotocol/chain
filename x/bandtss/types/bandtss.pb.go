@@ -201,17 +201,17 @@ func (m *CurrentGroup) GetActiveTime() time.Time {
 	return time.Time{}
 }
 
-// Signing is a Bandtss signing information.
+// Signing is a bandtss signing information.
 type Signing struct {
-	// id is the unique identifier of the Bandtss signing.
+	// id is the unique identifier of the bandtss signing.
 	ID SigningID `protobuf:"varint,1,opt,name=id,proto3,casttype=SigningID" json:"id,omitempty"`
-	// fee_per_signer is the tokens that will be paid per signer for this Bandtss signing.
+	// fee_per_signer is the tokens that will be paid per signer for this bandtss signing.
 	FeePerSigner github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,2,rep,name=fee_per_signer,json=feePerSigner,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"fee_per_signer"`
-	// requester is the address who pays the Bandtss signing.
+	// requester is the address who pays the bandtss signing.
 	Requester string `protobuf:"bytes,3,opt,name=requester,proto3" json:"requester,omitempty"`
-	// current_group_signing_id is a TSS signing ID of a current group.
+	// current_group_signing_id is a tss signing ID of a current group.
 	CurrentGroupSigningID github_com_bandprotocol_chain_v3_pkg_tss.SigningID `protobuf:"varint,4,opt,name=current_group_signing_id,json=currentGroupSigningId,proto3,casttype=github.com/bandprotocol/chain/v3/pkg/tss.SigningID" json:"current_group_signing_id,omitempty"`
-	// incoming_group_signing_id is a TSS signing ID of an incoming group, if any.
+	// incoming_group_signing_id is a tss signing ID of an incoming group, if any.
 	IncomingGroupSigningID github_com_bandprotocol_chain_v3_pkg_tss.SigningID `protobuf:"varint,5,opt,name=incoming_group_signing_id,json=incomingGroupSigningId,proto3,casttype=github.com/bandprotocol/chain/v3/pkg/tss.SigningID" json:"incoming_group_signing_id,omitempty"`
 }
 
@@ -285,7 +285,7 @@ func (m *Signing) GetIncomingGroupSigningID() github_com_bandprotocol_chain_v3_p
 
 // GroupTransition defines the group transition information of the current group and incoming group.
 type GroupTransition struct {
-	// signing_id is a TSS signing ID of group transition signing request.
+	// signing_id is a tss signing ID of group transition signing request.
 	SigningID github_com_bandprotocol_chain_v3_pkg_tss.SigningID `protobuf:"varint,1,opt,name=signing_id,json=signingId,proto3,casttype=github.com/bandprotocol/chain/v3/pkg/tss.SigningID" json:"signing_id,omitempty"`
 	// current_group_id is the ID of the group that will be replaced.
 	CurrentGroupID github_com_bandprotocol_chain_v3_pkg_tss.GroupID `protobuf:"varint,2,opt,name=current_group_id,json=currentGroupId,proto3,casttype=github.com/bandprotocol/chain/v3/pkg/tss.GroupID" json:"current_group_id,omitempty"`

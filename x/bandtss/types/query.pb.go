@@ -669,9 +669,9 @@ func (m *QuerySigningRequest) GetSigningId() uint64 {
 
 // QuerySigningResponse is the response type for the Query/Signing RPC method.
 type QuerySigningResponse struct {
-	// fee_per_signer is the tokens that will be paid per signer for this Bandtss signing.
+	// fee_per_signer is the tokens that will be paid per signer for this bandtss signing.
 	FeePerSigner github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=fee_per_signer,json=feePerSigner,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"fee_per_signer"`
-	// requester is the address of requester who paid for Bandtss signing.
+	// requester is the address of requester who paid for bandtss signing.
 	Requester string `protobuf:"bytes,2,opt,name=requester,proto3" json:"requester,omitempty"`
 	// current_group_signing_result is the signing result from the current group.
 	CurrentGroupSigningResult *types.SigningResult `protobuf:"bytes,3,opt,name=current_group_signing_result,json=currentGroupSigningResult,proto3" json:"current_group_signing_result,omitempty"`

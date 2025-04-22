@@ -2,7 +2,7 @@
 
 ## Abstract
 
-The Bandtss module serves as a critical component for ensuring secure message signing within a decentralized network, playing a pivotal role in maintaining the integrity and authenticity of communications across the system.
+The bandtss module serves as a critical component for ensuring secure message signing within a decentralized network, playing a pivotal role in maintaining the integrity and authenticity of communications across the system.
 
 When a user requests the module to sign a message, it triggers a process where the message is authenticated by designated members within the module. This rigorous authentication process is designed to guarantee that the message has not been tampered with, thereby reinforcing trust and reliability within the network.
 
@@ -49,7 +49,7 @@ The module is configured to charge a fee for each signing request, a cost that i
 
 ### Current Group
 
-The signing process mainly happens in the TSS module. To handle the signing in bandtss module, a proposal is made to create a TSS group for the module and use it as a main group for a signing process. The proposal and bandtss's groups can be created multiple times, in that case, the first one is considered the main group of the module and being used for signing process until a proposal for group transition is made and approved.
+The signing process mainly happens in the tss module. To handle the signing in bandtss module, a proposal is made to create a tss group for the module and use it as a main group for a signing process. The proposal and bandtss's groups can be created multiple times, in that case, the first one is considered the main group of the module and being used for signing process until a proposal for group transition is made and approved.
 
 ### Member
 
@@ -82,7 +82,7 @@ Users requesting signatures from the bandtss system are required to pay a fee fo
 
 ### Signing
 
-When a signing request is submitted to the module, the request is forwarded to the TSS module for processing. Following this, the bandtss module imposes a fee on the requester. This fee, referred to as the request fee, will be transferred to the assigned members after the message has been successfully signed.
+When a signing request is submitted to the module, the request is forwarded to the tss module for processing. Following this, the bandtss module imposes a fee on the requester. This fee, referred to as the request fee, will be transferred to the assigned members after the message has been successfully signed.
 
 If there is an incoming group during the transition process, the assigned members of this group are required to sign a given message without receiving any reward. Signer only are eligible for rewards if they are in the current active group.
 
@@ -105,7 +105,7 @@ During the transition period, signing requests are sent to both the current grou
 The steps involved in the transition process are as follows:
 
 1. Initiate Proposal: Start by proposing a transition from the current group members to those in the incoming group.
-2. Group Creation in TSS Module: Once the proposal is approved, the TSS module triggers the group creation process, including the members listed in the proposal.
+2. Group Creation in tss Module: Once the proposal is approved, the tss module triggers the group creation process, including the members listed in the proposal.
 3. Sign Transition Message: After the group is successfully created, a signing request is sent to the current group to sign a transition message.
 4. Group Transition: If the assigned members of the current group sign the message, the incoming group is prepared to replace the current group. If the execution time elapses, the incoming group automatically becomes the current group, existing members are removed, and new members are activated.
 
@@ -137,7 +137,7 @@ The `x/bandtss` module stores group and member information including their activ
 
 ### Signing
 
-The `x/bandtss` module stores signing information and mapping between TSS SigningID to bandtss SigningID.
+The `x/bandtss` module stores signing information and mapping between tss SigningID to bandtss SigningID.
 
 - SigningCount : `0x00 -> BidEndian(#signing)`
 - Signing : `0x11 | BandtssSigningID -> Signing`
@@ -325,7 +325,7 @@ The module contains the following parameters
 
 ```protobuf
 message Params {
-  // reward_percentage is the percentage of block rewards allocated to active TSS members.
+  // reward_percentage is the percentage of block rewards allocated to active tss members.
   // The reward proportion is calculated after being allocated to oracle rewards.
   uint64 reward_percentage = 1 [(gogoproto.customname) = "RewardPercentage"];
   // inactive_penalty_duration is the duration where a member cannot activate back after being set to inactive.

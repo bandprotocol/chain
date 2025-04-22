@@ -4,7 +4,7 @@ import (
 	"github.com/bandprotocol/chain/v3/pkg/tss"
 )
 
-// Group represents a TSS group.
+// Group represents a tss group.
 type Group struct {
 	GroupPubKey tss.Point    `json:"group_pub_key"` // Public key of the group
 	MemberID    tss.MemberID `json:"member_id"`     // Member ID associated with the group

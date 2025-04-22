@@ -226,7 +226,7 @@ message Params {
   // price_quorum is the minimum percentage of power that needs to be reached for a price to be processed.
   string price_quorum = 12;
 
-  // MaxSignalIDsPerSigning is the maximum number of signals allowed in a single TSS signing request.
+  // MaxSignalIDsPerSigning is the maximum number of signals allowed in a single tss signing request.
   uint64 max_signal_ids_per_signing = 13 [(gogoproto.customname) = "MaxSignalIDsPerSigning"];
 }
 ```

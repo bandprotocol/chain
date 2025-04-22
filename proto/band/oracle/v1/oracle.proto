@@ -381,7 +381,7 @@ message OracleResultSignatureOrder {
   Encoder encoder = 2;
 }
 
-// Encoder is an enumerator that defines the mode of encoding message in TSS module.
+// Encoder is an enumerator that defines the mode of encoding message in tss module.
 enum Encoder {
   option (gogoproto.goproto_enum_prefix) = false;
 

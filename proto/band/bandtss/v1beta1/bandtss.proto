@@ -33,23 +33,23 @@ message CurrentGroup {
   google.protobuf.Timestamp active_time = 2 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
 }
 
-// Signing is a Bandtss signing information.
+// Signing is a bandtss signing information.
 message Signing {
   option (gogoproto.equal) = true;
 
-  // id is the unique identifier of the Bandtss signing.
+  // id is the unique identifier of the bandtss signing.
   uint64 id = 1 [(gogoproto.customname) = "ID", (gogoproto.casttype) = "SigningID"];
-  // fee_per_signer is the tokens that will be paid per signer for this Bandtss signing.
+  // fee_per_signer is the tokens that will be paid per signer for this bandtss signing.
   repeated cosmos.base.v1beta1.Coin fee_per_signer = 2
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
-  // requester is the address who pays the Bandtss signing.
+  // requester is the address who pays the bandtss signing.
   string requester = 3;
-  // current_group_signing_id is a TSS signing ID of a current group.
+  // current_group_signing_id is a tss signing ID of a current group.
   uint64 current_group_signing_id = 4 [
     (gogoproto.customname) = "CurrentGroupSigningID",
     (gogoproto.casttype)   = "github.com/bandprotocol/chain/v3/pkg/tss.SigningID"
   ];
-  // incoming_group_signing_id is a TSS signing ID of an incoming group, if any.
+  // incoming_group_signing_id is a tss signing ID of an incoming group, if any.
   uint64 incoming_group_signing_id = 5 [
     (gogoproto.customname) = "IncomingGroupSigningID",
     (gogoproto.casttype)   = "github.com/bandprotocol/chain/v3/pkg/tss.SigningID"
@@ -58,7 +58,7 @@ message Signing {
 
 // GroupTransition defines the group transition information of the current group and incoming group.
 message GroupTransition {
-  // signing_id is a TSS signing ID of group transition signing request.
+  // signing_id is a tss signing ID of group transition signing request.
   uint64 signing_id = 1 [
     (gogoproto.customname) = "SigningID",
     (gogoproto.casttype)   = "github.com/bandprotocol/chain/v3/pkg/tss.SigningID"

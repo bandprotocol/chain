@@ -34,7 +34,7 @@ func NewKeeper(
 	authority string,
 ) *Keeper {
 	if _, err := sdk.AccAddressFromBech32(authority); err != nil {
-		panic(fmt.Errorf("invalid TSS authority address: %w", err))
+		panic(fmt.Errorf("invalid tss authority address: %w", err))
 	}
 
 	return &Keeper{

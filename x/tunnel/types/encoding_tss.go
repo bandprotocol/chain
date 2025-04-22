@@ -26,7 +26,7 @@ var (
 	}
 )
 
-// TSSPacket represents the Packet that will be used for encoding a TSS message.
+// TSSPacket represents the Packet that will be used for encoding a tss message.
 type TSSPacket struct {
 	Sequence    uint64
 	RelayPrices []feedstypes.RelayPrice
@@ -46,7 +46,7 @@ func NewTSSPacket(
 	}
 }
 
-// EncodeTSS encodes the packet to TSS message
+// EncodeTSS encodes the packet to tss message
 func EncodeTSS(
 	sequence uint64,
 	prices []feedstypes.Price,

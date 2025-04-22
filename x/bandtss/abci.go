@@ -12,7 +12,7 @@ import (
 func BeginBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, telemetry.Now(), telemetry.MetricKeyBeginBlocker)
 
-	// Reward a portion of block rewards (inflation + tx fee) to active TSS members.
+	// Reward a portion of block rewards (inflation + tx fee) to active tss members.
 	return k.AllocateTokens(ctx)
 }
 

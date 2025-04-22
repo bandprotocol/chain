@@ -12,7 +12,7 @@ import (
 
 const GroupTransitionMsgPrefix = "\x61\xb9\xb7\x41" // tss.Hash([]byte("Transition"))[:4]
 
-// NewSignatureOrderHandler implements the Handler interface for TSS module-based
+// NewSignatureOrderHandler implements the Handler interface for tss module-based
 // request signatures (i.e. TextSignatureOrder)
 func NewSignatureOrderHandler() tsstypes.Handler {
 	return func(ctx sdk.Context, content tsstypes.Content) ([]byte, error) {
@@ -29,7 +29,7 @@ func NewSignatureOrderHandler() tsstypes.Handler {
 
 		default:
 			return nil, sdkerrors.ErrUnknownRequest.Wrapf(
-				"unrecognized TSS request signature message type: %s",
+				"unrecognized tss request signature message type: %s",
 				c.OrderType(),
 			)
 		}

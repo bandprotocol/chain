@@ -19,7 +19,7 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-// Signing is a worker responsible for the signing process of the TSS module.
+// Signing is a worker responsible for the signing process of the tss module.
 type Signing struct {
 	context *context.Context
 	logger  *logger.Logger

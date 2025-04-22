@@ -106,7 +106,7 @@ message SignalDeviation {
   uint64 hard_deviation_bps = 3 [(gogoproto.customname) = "HardDeviationBPS"];
 }
 
-// TunnelSignatureOrder defines a general signature order for sending signature to TSS group.
+// TunnelSignatureOrder defines a general signature order for sending signature to tss group.
 message TunnelSignatureOrder {
   option (gogoproto.goproto_getters) = false;
 

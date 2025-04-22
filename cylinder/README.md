@@ -4,14 +4,14 @@ The cylinder program is designed for selected members involved in threshold sign
 
 # Introduction
 
-The cylinder program is designed for selected members involved in threshold signature scheme (TSS) message signing. It streamlines the process for participants required to sign a TSS message, ensuring secure and efficient collaboration within the signing group.
+The cylinder program is designed for selected members involved in threshold signature scheme (TSS) message signing. It streamlines the process for participants required to sign a tss message, ensuring secure and efficient collaboration within the signing group.
 
 Key features of cylinder include:
 
 - Nonce Submission: Allows users to submit nonces that are used during the signing process, ensuring proper coordination for message signing.
-- Message Signing: Enables users to sign newly requested messages as part of the TSS protocol.
+- Message Signing: Enables users to sign newly requested messages as part of the tss protocol.
 
-This tool is essential for members who need to maintain constant engagement and coordination during TSS message signing operations.
+This tool is essential for members who need to maintain constant engagement and coordination during tss message signing operations.
 
 # Run cylinder on BandChain mainnet
 

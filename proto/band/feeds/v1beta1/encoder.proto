@@ -5,7 +5,7 @@ option go_package = "github.com/bandprotocol/chain/v3/x/feeds/types";
 
 import "gogoproto/gogo.proto";
 
-// Encoder is an enumerator that defines the mode of encoding message in TSS module.
+// Encoder is an enumerator that defines the mode of encoding message in tss module.
 enum Encoder {
   option (gogoproto.goproto_enum_prefix) = false;
 

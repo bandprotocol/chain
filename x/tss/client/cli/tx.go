@@ -52,10 +52,10 @@ func GetTxCmd() *cobra.Command {
 func GetTxCmdAddGrantees() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add-grantees [grantee1] [grantee2] ...",
-		Short: "Add agents authorized to submit TSS transactions.",
+		Short: "Add agents authorized to submit tss transactions.",
 		Args:  cobra.MinimumNArgs(1),
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Add agents authorized to submit TSS transactions.
+			fmt.Sprintf(`Add agents authorized to submit tss transactions.
 Example:
 $ %s tx tss add-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs --from mykey
 `,
@@ -99,7 +99,7 @@ func GetTxCmdSubmitDKGRound1() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-dkg-round1 [group_id] [member_id] [one_time_pub_key] [a0_sign] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...",
 		Args:  cobra.MinimumNArgs(6),
-		Short: "Submit TSS round 1 containing group_id, member_id, one_time_pub_key, a0_sign, one_time_sign and coefficients_commit",
+		Short: "Submit tss round 1 containing group_id, member_id, one_time_pub_key, a0_sign, one_time_sign and coefficients_commit",
 		Example: fmt.Sprintf(
 			`%s tx tss submit-dkg-round1 [group_id] [member_id] [one_time_pub_key] [a0_sign] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...`,
 			version.AppName,
@@ -173,7 +173,7 @@ func GetTxCmdSubmitDKGRound2() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-dkg-round2 [group_id] [member_id] [encrypted-secret-share1,encrypted-secret-share2,...]",
 		Args:  cobra.MinimumNArgs(2),
-		Short: "Submit TSS round 2 containing group_id, member_id, and n-1 encrypted-secret-shares",
+		Short: "Submit tss round 2 containing group_id, member_id, and n-1 encrypted-secret-shares",
 		Example: fmt.Sprintf(
 			`%s tx tss submit-dkg-round2 [group_id] [member_id] [encrypted-secret-share1,encrypted-secret-share2,...]`,
 			version.AppName,

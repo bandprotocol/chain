@@ -476,7 +476,7 @@ func (m *SignalDeviation) GetHardDeviationBPS() uint64 {
 	return 0
 }
 
-// TunnelSignatureOrder defines a general signature order for sending signature to TSS group.
+// TunnelSignatureOrder defines a general signature order for sending signature to tss group.
 type TunnelSignatureOrder struct {
 	// sequence is the sequence of the packet
 	Sequence uint64 `protobuf:"varint,1,opt,name=sequence,proto3" json:"sequence,omitempty"`

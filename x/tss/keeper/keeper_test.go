@@ -68,7 +68,7 @@ func (s *KeeperTestSuite) SetupTest() {
 	s.authzKeeper = tsstestutil.NewMockAuthzKeeper(ctrl)
 	s.rollingseedKeeper = tsstestutil.NewMockRollingseedKeeper(ctrl)
 
-	// declare TSS components
+	// declare tss components
 	s.contentRouter = types.NewContentRouter()
 	s.cbRouter = types.NewCallbackRouter()
 	s.authority = authtypes.NewModuleAddress(govtypes.ModuleName)

@@ -61,7 +61,7 @@ func GetTxCmdCreateTunnel() *cobra.Command {
 func GetTxCmdCreateTSSTunnel() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "tss [destination-chain-id] [destination-contract-address] [encoder] [initial-deposit] [interval] [signal-deviations-json-file]",
-		Short: "Create a new TSS tunnel",
+		Short: "Create a new tss tunnel",
 		Args:  cobra.ExactArgs(6),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)

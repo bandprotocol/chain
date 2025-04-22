@@ -14314,7 +14314,7 @@ func (x *Group) GetModuleOwner() string {
 	return ""
 }
 
-// GroupResult is a TSS group result from querying TSS group information.
+// GroupResult is a tss group result from querying tss group information.
 type GroupResult struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -15432,13 +15432,13 @@ func (x *EVMSignature) GetSignature() []byte {
 	return nil
 }
 
-// SigningResult is a TSS signing result from querying TSS signing information.
+// SigningResult is a tss signing result from querying tss signing information.
 type SigningResult struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// signing is the TSS signing result.
+	// signing is the tss signing result.
 	Signing *Signing `protobuf:"bytes,1,opt,name=signing,proto3" json:"signing,omitempty"`
 	// current_signing_attempt is the current attempt information of the signing.
 	CurrentSigningAttempt *SigningAttempt `protobuf:"bytes,2,opt,name=current_signing_attempt,json=currentSigningAttempt,proto3" json:"current_signing_attempt,omitempty"`

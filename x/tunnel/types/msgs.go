@@ -42,7 +42,7 @@ func NewMsgCreateTunnel(
 	}, nil
 }
 
-// NewMsgCreateTSSTunnel creates a new MsgCreateTunnel instance for TSS tunnel.
+// NewMsgCreateTSSTunnel creates a new MsgCreateTunnel instance for tss tunnel.
 func NewMsgCreateTSSTunnel(
 	signalDeviations []SignalDeviation,
 	interval uint64,

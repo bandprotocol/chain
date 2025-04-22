@@ -43,7 +43,7 @@ type DistrKeeper interface {
 	FundCommunityPool(ctx context.Context, amount sdk.Coins, sender sdk.AccAddress) error
 }
 
-// TSSKeeper defines the expected TSS keeper (noalias)
+// TSSKeeper defines the expected tss keeper (noalias)
 type TSSKeeper interface {
 	CreateGroup(
 		ctx sdk.Context,

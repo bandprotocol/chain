@@ -22,7 +22,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Encoder is an enumerator that defines the mode of encoding message in TSS module.
+// Encoder is an enumerator that defines the mode of encoding message in tss module.
 type Encoder int32
 
 const (
