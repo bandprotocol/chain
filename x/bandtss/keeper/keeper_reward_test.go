@@ -90,7 +90,7 @@ func (s *AppTestSuite) TestAllocateTokensOneActive() {
 	app, ctx := s.app, s.ctx
 	tssKeeper, k := app.TSSKeeper, app.BandtssKeeper
 
-	// setup fee collector
+	// set up fee collector
 	feeCollector, err := SetupFeeCollector(app, ctx, k)
 	s.Require().NoError(err)
 	s.Require().Equal(Coins1000000uband, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
@@ -174,7 +174,7 @@ func (s *AppTestSuite) TestAllocateTokensAllActive() {
 		s.Require().Greater(deQueue.Tail, deQueue.Head)
 	}
 
-	// From 50% of fee, 1% should go to community pool, the rest get split to validators.)
+	// From 50% of fee, 1% should go to community pool, the rest is split to validators.)
 	balancesBefore := make([]sdk.Coins, len(groupCtx.Accounts))
 	for i, acc := range groupCtx.Accounts {
 		balancesBefore[i] = app.BankKeeper.GetAllBalances(ctx, acc.Address)

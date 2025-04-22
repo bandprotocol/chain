@@ -102,7 +102,7 @@ func (k Keeper) SetRequestCount(ctx sdk.Context, count uint64) {
 	ctx.KVStore(k.storeKey).Set(types.RequestCountStoreKey, bz)
 }
 
-// GetRequestCount returns the current number of all requests ever exist.
+// GetRequestCount returns the current number of all requests ever existed.
 func (k Keeper) GetRequestCount(ctx sdk.Context) uint64 {
 	bz := ctx.KVStore(k.storeKey).Get(types.RequestCountStoreKey)
 	return binary.BigEndian.Uint64(bz)
@@ -155,7 +155,7 @@ func (k Keeper) SetOracleScriptCount(ctx sdk.Context, count uint64) {
 	ctx.KVStore(k.storeKey).Set(types.OracleScriptCountStoreKey, bz)
 }
 
-// GetOracleScriptCount returns the current number of all oracle scripts ever exist.
+// GetOracleScriptCount returns the current number of all oracle scripts ever existed.
 func (k Keeper) GetOracleScriptCount(ctx sdk.Context) uint64 {
 	bz := ctx.KVStore(k.storeKey).Get(types.OracleScriptCountStoreKey)
 	return binary.BigEndian.Uint64(bz)

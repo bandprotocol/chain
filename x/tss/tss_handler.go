@@ -11,7 +11,7 @@ import (
 const TextMsgPrefix = "\xb1\xf7\x60\x16" // tss.Hash([]byte("Text"))[:4]
 
 // NewSignatureOrderHandler implements the Handler interface for tss module-based
-// request signatures (ie. TextSignatureOrder)
+// request signatures (i.e. TextSignatureOrder)
 func NewSignatureOrderHandler(k keeper.Keeper) types.Handler {
 	return func(ctx sdk.Context, content types.Content) ([]byte, error) {
 		switch c := content.(type) {

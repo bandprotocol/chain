@@ -49,7 +49,7 @@ func (h Hooks) BeforeDelegationSharesModified(_ context.Context, _ sdk.AccAddres
 	return nil
 }
 
-// check if after delegation is removed, the locked power is still less than total delegation
+// BeforeDelegationRemoved checks if after delegation is removed, the locked power is still less than total delegation
 func (h Hooks) BeforeDelegationRemoved(ctx context.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
@@ -80,7 +80,7 @@ func (h Hooks) BeforeDelegationRemoved(ctx context.Context, delAddr sdk.AccAddre
 	return nil
 }
 
-// check if after delegation is modified, the locked power is still less than total delegation
+// AfterDelegationModified checks if after delegation is modified, the locked power is still less than total delegation
 func (h Hooks) AfterDelegationModified(ctx context.Context, delAddr sdk.AccAddress, _ sdk.ValAddress) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 

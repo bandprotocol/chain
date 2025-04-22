@@ -62,14 +62,14 @@ func (k Keeper) GetPrice(ctx sdk.Context, signalID string) types.Price {
 	return price
 }
 
-// SetPrice sets multiple prices.
+// SetPrices sets multiple prices.
 func (k Keeper) SetPrices(ctx sdk.Context, prices []types.Price) {
 	for _, price := range prices {
 		k.SetPrice(ctx, price)
 	}
 }
 
-// SetPRice sets a new price to the prices store or replace if price with the same signal id existed.
+// SetPrice sets a new price to the prices store or replace if price with the same signal id existed.
 func (k Keeper) SetPrice(ctx sdk.Context, price types.Price) {
 	ctx.KVStore(k.storeKey).Set(types.PriceStoreKey(price.SignalID), k.cdc.MustMarshal(&price))
 }

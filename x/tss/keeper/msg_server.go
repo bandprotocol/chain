@@ -389,7 +389,7 @@ func (k msgServer) SubmitSignature(
 	}
 
 	// Verify signing signature
-	if err = tss.VerifySigningSignature(
+	if err = tss.VerifySignature(
 		signing.GroupPubNonce,
 		signing.GroupPubKey,
 		signing.Message,

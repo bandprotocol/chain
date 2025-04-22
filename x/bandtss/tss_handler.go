@@ -13,7 +13,7 @@ import (
 const GroupTransitionMsgPrefix = "\x61\xb9\xb7\x41" // tss.Hash([]byte("Transition"))[:4]
 
 // NewSignatureOrderHandler implements the Handler interface for tss module-based
-// request signatures (ie. TextSignatureOrder)
+// request signatures (i.e. TextSignatureOrder)
 func NewSignatureOrderHandler() tsstypes.Handler {
 	return func(ctx sdk.Context, content tsstypes.Content) ([]byte, error) {
 		switch c := content.(type) {

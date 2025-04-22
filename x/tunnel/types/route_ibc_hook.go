@@ -24,7 +24,7 @@ func NewIBCHookRoute(channelID, destinationContractAddress string) *IBCHookRoute
 	}
 }
 
-// Route defines the IBC route for the tunnel module
+// ValidateBasic validates the IBCHookRoute
 func (r *IBCHookRoute) ValidateBasic() error {
 	// Validate the ChannelID format
 	if !channeltypes.IsChannelIDFormat(r.ChannelID) {

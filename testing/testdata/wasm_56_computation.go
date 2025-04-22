@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-// An oracle script to test heavy computation.
+// Wasm56 is an oracle script to test heavy computation.
 //
 //	PREPARE:
 //	  Loop for `time` times and ask external data with calldata "new test".
