@@ -137,7 +137,7 @@ func isTssLaneMsg(
 	return true
 }
 
-// oracleReportLaneMatchHandler is a function that returns the match function for the oracle lane.
+// oracleReportLaneMatchHandler is a function that returns the match function for the oracle report lane.
 func oracleReportLaneMatchHandler(
 	cdc codec.Codec,
 	authzKeeper *authzkeeper.Keeper,
