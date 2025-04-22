@@ -37,6 +37,9 @@ type PrometheusMetrics struct {
 	DKGLeftGauge               prometheus.Gauge
 	GroupCount                 prometheus.Counter
 
+	// Member metrics
+	MemberStatusGauge *prometheus.GaugeVec
+
 	// DE metrics
 	OnChinDELeftGauge   prometheus.Gauge
 	OffChainDELeftGauge prometheus.Gauge
@@ -166,6 +169,16 @@ func AddGroupCount(n float64) {
 	})
 }
 
+// SetMemberStatus sets the status of a member.
+func SetMemberStatus(groupID uint64, status bool) {
+	statusValue := 0.0
+	if status {
+		statusValue = 1.0
+	}
+
+	metrics.MemberStatusGauge.WithLabelValues(fmt.Sprintf("%d", groupID)).Set(statusValue)
+}
+
 // SetOnChainDELeftGauge sets the value of the on-chain DE left gauge.
 func SetOnChainDELeftGauge(value float64) {
 	updateMetrics(func() {
@@ -259,6 +272,7 @@ func ObserveSubmitTxTime(duration float64) {
 
 func InitPrometheusMetrics(labels prometheus.Labels) {
 	roundLabels := []string{"group_id"}
+	memberLabels := []string{"group_id"}
 	signingLabels := []string{"group_id"}
 
 	metrics = &PrometheusMetrics{
@@ -334,6 +348,11 @@ func InitPrometheusMetrics(labels prometheus.Labels) {
 			Help:        "Number of groups in the store",
 			ConstLabels: labels,
 		}),
+		MemberStatusGauge: promauto.NewGaugeVec(prometheus.GaugeOpts{
+			Name:        "cylinder_member_status",
+			Help:        "Status of a member",
+			ConstLabels: labels,
+		}, memberLabels),
 		OnChinDELeftGauge: promauto.NewGauge(prometheus.GaugeOpts{
 			Name:        "cylinder_on_chain_de_left_gauge",
 			Help:        "Number of on-chain DE left",

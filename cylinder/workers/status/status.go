@@ -6,6 +6,7 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder"
 	"github.com/bandprotocol/chain/v3/cylinder/client"
 	"github.com/bandprotocol/chain/v3/cylinder/context"
+	"github.com/bandprotocol/chain/v3/cylinder/metrics"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 )
 
@@ -51,6 +52,8 @@ func (s *Status) queryStatusWithLogging() {
 				status = ":x:"
 			}
 			s.logger.Info("group %d with member %s is active: %s", member.GroupID, address, status)
+
+			metrics.SetMemberStatus(uint64(member.GroupID), member.IsActive)
 		}
 	}
 }
