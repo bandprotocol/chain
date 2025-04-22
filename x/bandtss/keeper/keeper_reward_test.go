@@ -3,9 +3,6 @@ package keeper_test
 import (
 	"fmt"
 
-	abci "github.com/cometbft/cometbft/abci/types"
-	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
-
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -23,28 +20,6 @@ import (
 )
 
 var Coins1000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
-
-func defaultVotes() []abci.VoteInfo {
-	return []abci.VoteInfo{{
-		Validator: abci.Validator{
-			Address: bandtesting.Validators[0].PubKey.Address(),
-			Power:   70,
-		},
-		BlockIdFlag: cmtproto.BlockIDFlagCommit,
-	}, {
-		Validator: abci.Validator{
-			Address: bandtesting.Validators[1].PubKey.Address(),
-			Power:   20,
-		},
-		BlockIdFlag: cmtproto.BlockIDFlagCommit,
-	}, {
-		Validator: abci.Validator{
-			Address: bandtesting.Validators[2].PubKey.Address(),
-			Power:   10,
-		},
-		BlockIdFlag: cmtproto.BlockIDFlagCommit,
-	}}
-}
 
 func SetupFeeCollector(
 	app *band.BandApp,
@@ -174,7 +149,7 @@ func (s *AppTestSuite) TestAllocateTokensAllActive() {
 		s.Require().Greater(deQueue.Tail, deQueue.Head)
 	}
 
-	// From 50% of fee, 1% should go to community pool, the rest is split to validators.)
+	// From 50% of fee, 1% should go to community pool, the rest is split to validators.
 	balancesBefore := make([]sdk.Coins, len(groupCtx.Accounts))
 	for i, acc := range groupCtx.Accounts {
 		balancesBefore[i] = app.BankKeeper.GetAllBalances(ctx, acc.Address)
