@@ -9,7 +9,7 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
-// NewSignatureOrderHandler creates a tss handler to handle tunnel signature order
+// NewSignatureOrderHandler creates a TSS handler to handle tunnel signature order
 func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 	return func(ctx sdk.Context, content tsstypes.Content) ([]byte, error) {
 		switch c := content.(type) {
@@ -22,7 +22,7 @@ func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 			)
 		default:
 			return nil, sdkerrors.ErrUnknownRequest.Wrapf(
-				"unrecognized tss request signature type: %s",
+				"unrecognized TSS request signature type: %s",
 				c.OrderType(),
 			)
 		}

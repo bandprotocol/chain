@@ -3300,21 +3300,21 @@ func (x *CurrentGroup) GetActiveTime() *timestamppb.Timestamp {
 	return nil
 }
 
-// Signing is a bandtss signing information.
+// Signing is a Bandtss signing information.
 type Signing struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// id is the unique identifier of the bandtss signing.
+	// id is the unique identifier of the Bandtss signing.
 	Id uint64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	// fee_per_signer is the tokens that will be paid per signer for this bandtss signing.
+	// fee_per_signer is the tokens that will be paid per signer for this Bandtss signing.
 	FeePerSigner []*v1beta1.Coin `protobuf:"bytes,2,rep,name=fee_per_signer,json=feePerSigner,proto3" json:"fee_per_signer,omitempty"`
 	// requester is the address who pays the Bandtss signing.
 	Requester string `protobuf:"bytes,3,opt,name=requester,proto3" json:"requester,omitempty"`
-	// current_group_signing_id is a tss signing ID of a current group.
+	// current_group_signing_id is a TSS signing ID of a current group.
 	CurrentGroupSigningId uint64 `protobuf:"varint,4,opt,name=current_group_signing_id,json=currentGroupSigningId,proto3" json:"current_group_signing_id,omitempty"`
-	// incoming_group_signing_id is a tss signing ID of an incoming group, if any.
+	// incoming_group_signing_id is a TSS signing ID of an incoming group, if any.
 	IncomingGroupSigningId uint64 `protobuf:"varint,5,opt,name=incoming_group_signing_id,json=incomingGroupSigningId,proto3" json:"incoming_group_signing_id,omitempty"`
 }
 
@@ -3379,7 +3379,7 @@ type GroupTransition struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// signing_id is a tss signing ID of group transition signing request.
+	// signing_id is a TSS signing ID of group transition signing request.
 	SigningId uint64 `protobuf:"varint,1,opt,name=signing_id,json=signingId,proto3" json:"signing_id,omitempty"`
 	// current_group_id is the ID of the group that will be replaced.
 	CurrentGroupId uint64 `protobuf:"varint,2,opt,name=current_group_id,json=currentGroupId,proto3" json:"current_group_id,omitempty"`

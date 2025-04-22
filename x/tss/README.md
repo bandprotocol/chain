@@ -2,11 +2,11 @@
 
 ## Abstract
 
-The TSS module's main purpose is to manage the threshold signature scheme (TSS) signing process, allowing other system modules to utilize this method for cryptographic signing.
+The tss module's main purpose is to manage the threshold signature scheme (TSS) signing process, allowing other system modules to utilize this method for cryptographic signing.
 
 To handle a signing process, the module has to create a group with selected members. These selected members then submit encrypted secret shares to create a public shared secret of the group, which is subsequently formed and owned by the caller module.
 
-Once the group is established, the group's owner can request specific signatures. The resulting group signature, which can be verified using the group's public key, proves useful in various situations, rendering the TSS module quite valuable. This method of creating signatures not only ensures trust among all participants but also adds an extra layer of security to the system.
+Once the group is established, the group's owner can request specific signatures. The resulting group signature, which can be verified using the group's public key, proves useful in various situations, rendering the tss module quite valuable. This method of creating signatures not only ensures trust among all participants but also adds an extra layer of security to the system.
 
 ## Contents
 
@@ -199,7 +199,7 @@ message Params {
   uint64 max_group_size = 1;
   // max_d_e_size is the maximum of the de capacity of the member.
   uint64 max_d_e_size = 2;
-  // creation_period is the number of blocks allowed to creating tss group.
+  // creation_period is the number of blocks allowed to creating TSS group.
   uint64 creation_period = 3;
   // signing_period is the number of blocks allowed to sign.
   uint64 signing_period = 4;
@@ -354,7 +354,7 @@ message MsgSubmitSignature {
 
 ### Msg/UpdateParams
 
-When anyone wants to update the parameters of the TSS module, they will have to open a governance proposal by using the `MsgUpdateParams` of the TSS module to update those parameters.
+When anyone wants to update the parameters of the tss module, they will have to open a governance proposal by using the `MsgUpdateParams` of the tss module to update those parameters.
 
 ```protobuf
 message MsgUpdateParams {
@@ -400,7 +400,7 @@ A module can register its callback object within the x/tss module. This callback
 
 ## Events
 
-The TSS module emits the following events:
+The tss module emits the following events:
 
 ### EventTypeCreateGroup
 

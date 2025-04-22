@@ -51,7 +51,7 @@ func SetupFeeCollector(
 	ctx sdk.Context,
 	k keeper.Keeper,
 ) (sdk.ModuleAccountI, error) {
-	// Set collected fee to 1000000uband and 50% tss reward proportion.
+	// Set collected fee to 1000000uband and 50% TSS reward proportion.
 	feeCollector := app.AccountKeeper.GetModuleAccount(ctx, authtypes.FeeCollectorName)
 	if err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, Coins1000000uband); err != nil {
 		return nil, err

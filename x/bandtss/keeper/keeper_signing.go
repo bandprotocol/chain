@@ -219,7 +219,7 @@ func (k Keeper) MustGetSigning(ctx sdk.Context, id types.SigningID) types.Signin
 	return req
 }
 
-// SetSigningIDMapping sets a mapping between tss.signingID and bandtss signing id.
+// SetSigningIDMapping sets a mapping between TSS signingID and Bandtss signing id.
 func (k Keeper) SetSigningIDMapping(ctx sdk.Context, signingID tss.SigningID, signingInfoID types.SigningID) {
 	ctx.KVStore(k.storeKey).Set(
 		types.SigningIDMappingStoreKey(signingID),
@@ -227,13 +227,13 @@ func (k Keeper) SetSigningIDMapping(ctx sdk.Context, signingID tss.SigningID, si
 	)
 }
 
-// GetSigningIDMapping gets a signing id from the given tss signingID
+// GetSigningIDMapping gets a signing id from the given TSS signingID
 func (k Keeper) GetSigningIDMapping(ctx sdk.Context, signingID tss.SigningID) types.SigningID {
 	bz := ctx.KVStore(k.storeKey).Get(types.SigningIDMappingStoreKey(signingID))
 	return types.SigningID(sdk.BigEndianToUint64(bz))
 }
 
-// DeleteSigningIDMapping removes the mapping between tss signingID and bandtss signing id of the given key
+// DeleteSigningIDMapping removes the mapping between TSS signingID and Bandtss signing id of the given key
 func (k Keeper) DeleteSigningIDMapping(ctx sdk.Context, signingID tss.SigningID) {
 	ctx.KVStore(k.storeKey).Delete(types.SigningIDMappingStoreKey(signingID))
 }

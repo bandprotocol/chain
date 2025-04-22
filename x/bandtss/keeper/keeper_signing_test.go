@@ -56,7 +56,7 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 			postCheck: func(s *KeeperTestSuite) {
 				params := s.keeper.GetParams(s.ctx)
 
-				// check mapping of tss signingID -> bandtss signingID
+				// check mapping of TSS signingID -> bandtss signingID
 				actualMappedSigningID := s.keeper.GetSigningIDMapping(s.ctx, tss.SigningID(1))
 				s.Require().Equal(types.SigningID(1), actualMappedSigningID)
 
@@ -174,7 +174,7 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 			postCheck: func(s *KeeperTestSuite) {
 				params := s.keeper.GetParams(s.ctx)
 
-				// check mapping of tss signingID -> bandtss signingID
+				// check mapping of TSS signingID -> bandtss signingID
 				actualMappedSigningID := s.keeper.GetSigningIDMapping(s.ctx, tss.SigningID(1))
 				s.Require().Equal(types.SigningID(1), actualMappedSigningID)
 
@@ -230,7 +230,7 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 			postCheck: func(s *KeeperTestSuite) {
 				params := s.keeper.GetParams(s.ctx)
 
-				// check mapping of tss signingID -> bandtss signingID
+				// check mapping of TSS signingID -> bandtss signingID
 				bandtssSignignID := s.keeper.GetSigningIDMapping(s.ctx, tss.SigningID(2))
 				s.Require().Equal(types.SigningID(1), bandtssSignignID)
 				bandtssSignignID = s.keeper.GetSigningIDMapping(s.ctx, tss.SigningID(3))
@@ -283,7 +283,7 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 			postCheck: func(s *KeeperTestSuite) {
 				params := s.keeper.GetParams(s.ctx)
 
-				// check mapping of tss signingID -> bandtss signingID
+				// check mapping of TSS signingID -> bandtss signingID
 				bandtssSignignID := s.keeper.GetSigningIDMapping(s.ctx, tss.SigningID(4))
 				s.Require().Equal(types.SigningID(1), bandtssSignignID)
 
@@ -320,7 +320,7 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 					Return(tss.SigningID(1), nil)
 			},
 			postCheck: func(s *KeeperTestSuite) {
-				// check mapping of tss signingID -> bandtss signingID
+				// check mapping of TSS signingID -> bandtss signingID
 				bandtssSignignID := s.keeper.GetSigningIDMapping(s.ctx, tss.SigningID(1))
 				s.Require().Equal(types.SigningID(1), bandtssSignignID)
 

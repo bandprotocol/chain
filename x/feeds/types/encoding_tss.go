@@ -76,7 +76,7 @@ func ToRelayTickPrices(prices []Price) ([]RelayPrice, error) {
 	return relayPrices, nil
 }
 
-// EncodeTSS encodes the feed prices to tss message
+// EncodeTSS encodes the feed prices to TSS message
 func EncodeTSS(prices []Price, timestamp int64, encoder Encoder) ([]byte, error) {
 	switch encoder {
 	case ENCODER_FIXED_POINT_ABI:

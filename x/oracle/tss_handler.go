@@ -15,7 +15,7 @@ const (
 	EncoderPartialABIPrefix = "\x7b\xae\x7c\xd8" // tss.Hash([]byte("PartialABI"))[:4]
 )
 
-// NewSignatureOrderHandler creates a tss handler to handle oracle result signature order
+// NewSignatureOrderHandler creates a TSS handler to handle oracle result signature order
 func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 	return func(ctx sdk.Context, content tsstypes.Content) ([]byte, error) {
 		switch c := content.(type) {
@@ -56,7 +56,7 @@ func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 
 		default:
 			return nil, sdkerrors.ErrUnknownRequest.Wrapf(
-				"unrecognized tss request signature type: %s",
+				"unrecognized TSS request signature type: %s",
 				c.OrderType(),
 			)
 		}

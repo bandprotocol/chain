@@ -13,7 +13,7 @@ import (
 // Query signing-related information
 // =====================================
 
-// GetSigningResult returns the signing result of the given tss signingID.
+// GetSigningResult returns the signing result of the given TSS signingID.
 func (k Keeper) GetSigningResult(ctx sdk.Context, signingID tss.SigningID) (*types.SigningResult, error) {
 	signing, err := k.GetSigning(ctx, signingID)
 	if err != nil {
@@ -55,7 +55,7 @@ func (k Keeper) GetPendingSignings(ctx sdk.Context, address sdk.AccAddress) []ts
 	return k.getPendingSigningByFilterFunc(ctx, filterFunc)
 }
 
-// GetPendingSigningsByPubKey retrieves the pending signing objects associated with the given tss public key.
+// GetPendingSigningsByPubKey retrieves the pending signing objects associated with the given TSS public key.
 func (k Keeper) GetPendingSigningsByPubKey(ctx sdk.Context, pubKey tss.Point) []tss.SigningID {
 	filterFunc := func(am types.AssignedMember) bool {
 		return bytes.Equal(am.PubKey, pubKey)

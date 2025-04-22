@@ -30,7 +30,7 @@ func (k Keeper) AllocateTokens(ctx sdk.Context) error {
 		}
 	}
 
-	// No active members performing tss tasks, nothing needs to be done here.
+	// No active members performing TSS tasks, nothing needs to be done here.
 	if len(validMembers) == 0 {
 		return nil
 	}

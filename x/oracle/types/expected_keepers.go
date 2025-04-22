@@ -74,7 +74,7 @@ type RollingseedKeeper interface {
 	GetRollingSeed(ctx sdk.Context) []byte
 }
 
-// BandtssKeeper defines the expected tss keeper.
+// BandtssKeeper defines the expected bandtss keeper.
 type BandtssKeeper interface {
 	CreateDirectSigningRequest(
 		ctx sdk.Context,

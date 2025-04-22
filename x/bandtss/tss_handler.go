@@ -29,7 +29,7 @@ func NewSignatureOrderHandler() tsstypes.Handler {
 
 		default:
 			return nil, sdkerrors.ErrUnknownRequest.Wrapf(
-				"unrecognized tss request signature message type: %s",
+				"unrecognized TSS request signature message type: %s",
 				c.OrderType(),
 			)
 		}

@@ -86,7 +86,7 @@ func TestGetMultiStoreProof(t *testing.T) {
 				),
 				m.RollingseedToTransferStoresMerkleHash,
 			),
-			m.TssToUpgradeStoresMerkleHash,
+			m.TSSToUpgradeStoresMerkleHash,
 		),
 	)
 

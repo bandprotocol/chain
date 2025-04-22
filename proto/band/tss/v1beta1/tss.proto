@@ -27,7 +27,7 @@ message Group {
   string module_owner = 7;
 }
 
-// GroupResult is a tss group result from querying tss group information.
+// GroupResult is a TSS group result from querying TSS group information.
 message GroupResult {
   // group defines the group object containing group information.
   Group group = 1 [(gogoproto.nullable) = false];
@@ -306,9 +306,9 @@ message EVMSignature {
   bytes signature = 2 [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
 }
 
-// SigningResult is a tss signing result from querying tss signing information.
+// SigningResult is a TSS signing result from querying TSS signing information.
 message SigningResult {
-  // signing is the tss signing result.
+  // signing is the TSS signing result.
   Signing signing = 1 [(gogoproto.nullable) = false];
   // current_signing_attempt is the current attempt information of the signing.
   SigningAttempt current_signing_attempt = 2;

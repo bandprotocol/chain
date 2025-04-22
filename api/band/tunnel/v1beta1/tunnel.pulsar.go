@@ -5070,7 +5070,7 @@ func (x *SignalDeviation) GetHardDeviationBps() uint64 {
 	return 0
 }
 
-// TunnelSignatureOrder defines a general signature order for sending signature to tss group.
+// TunnelSignatureOrder defines a general signature order for sending signature to TSS group.
 type TunnelSignatureOrder struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

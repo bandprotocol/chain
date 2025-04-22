@@ -125,7 +125,7 @@ bandd tx tunnel create-tunnel ibc [initial-deposit] [interval] [signalInfos-json
 
 The TSS Route enables the tunnel to send data securely from BandChain to destination chain using a TSS (Threshold Signature Scheme) signature. This approach ensures secure data signing within a decentralized network.
 
-The tunnel requests the BandTSS module to sign the tunnel packet. Once the signing process is complete, a relayer captures the signed message and relays it to the destination chain. The destination chain can also verify that the data originates from BandChain without any modifications, ensuring data integrity.
+The tunnel requests the bandtss module to sign the tunnel packet. Once the signing process is complete, a relayer captures the signed message and relays it to the destination chain. The destination chain can also verify that the data originates from BandChain without any modifications, ensuring data integrity.
 
 To create a TSS tunnel, use the following CLI command:
 

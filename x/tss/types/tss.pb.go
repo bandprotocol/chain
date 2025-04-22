@@ -247,7 +247,7 @@ func (m *Group) GetModuleOwner() string {
 	return ""
 }
 
-// GroupResult is a tss group result from querying tss group information.
+// GroupResult is a TSS group result from querying TSS group information.
 type GroupResult struct {
 	// group defines the group object containing group information.
 	Group Group `protobuf:"bytes,1,opt,name=group,proto3" json:"group"`
@@ -1536,9 +1536,9 @@ func (m *EVMSignature) GetSignature() github_com_cometbft_cometbft_libs_bytes.He
 	return nil
 }
 
-// SigningResult is a tss signing result from querying tss signing information.
+// SigningResult is a TSS signing result from querying TSS signing information.
 type SigningResult struct {
-	// signing is the tss signing result.
+	// signing is the TSS signing result.
 	Signing Signing `protobuf:"bytes,1,opt,name=signing,proto3" json:"signing"`
 	// current_signing_attempt is the current attempt information of the signing.
 	CurrentSigningAttempt *SigningAttempt `protobuf:"bytes,2,opt,name=current_signing_attempt,json=currentSigningAttempt,proto3" json:"current_signing_attempt,omitempty"`

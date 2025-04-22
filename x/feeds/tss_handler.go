@@ -9,7 +9,7 @@ import (
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-// NewSignatureOrderHandler creates a tss handler to handle feeds signature order
+// NewSignatureOrderHandler creates a TSS handler to handle feeds signature order
 func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 	return func(ctx sdk.Context, content tsstypes.Content) ([]byte, error) {
 		switch c := content.(type) {
@@ -26,7 +26,7 @@ func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 			return types.EncodeTSS(prices, ctx.BlockTime().Unix(), c.Encoder)
 		default:
 			return nil, sdkerrors.ErrUnknownRequest.Wrapf(
-				"unrecognized tss request signature type: %s",
+				"unrecognized TSS request signature type: %s",
 				c.OrderType(),
 			)
 		}

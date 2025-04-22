@@ -14,7 +14,7 @@ type MultiStoreProofEthereum struct {
 	MintStoreMerkleHash                   common.Hash
 	ParamsToRestakeStoresMerkleHash       common.Hash
 	RollingseedToTransferStoresMerkleHash common.Hash
-	TssToUpgradeStoresMerkleHash          common.Hash
+	TSSToUpgradeStoresMerkleHash          common.Hash
 	AuthToIcahostStoresMerkleHash         common.Hash
 }
 
@@ -24,7 +24,7 @@ func (m *MultiStoreProof) encodeToEthFormat() MultiStoreProofEthereum {
 		MintStoreMerkleHash:                   common.BytesToHash(m.MintStoreMerkleHash),
 		ParamsToRestakeStoresMerkleHash:       common.BytesToHash(m.ParamsToRestakeStoresMerkleHash),
 		RollingseedToTransferStoresMerkleHash: common.BytesToHash(m.RollingseedToTransferStoresMerkleHash),
-		TssToUpgradeStoresMerkleHash:          common.BytesToHash(m.TssToUpgradeStoresMerkleHash),
+		TSSToUpgradeStoresMerkleHash:          common.BytesToHash(m.TSSToUpgradeStoresMerkleHash),
 		AuthToIcahostStoresMerkleHash:         common.BytesToHash(m.AuthToIcahostStoresMerkleHash),
 	}
 }
@@ -36,7 +36,7 @@ func GetMultiStoreProof(multiStoreEp *ics23.ExistenceProof) MultiStoreProof {
 		MintStoreMerkleHash:                   tmbytes.HexBytes(multiStoreEp.Path[0].Prefix[1:]),
 		ParamsToRestakeStoresMerkleHash:       tmbytes.HexBytes(multiStoreEp.Path[1].Suffix),
 		RollingseedToTransferStoresMerkleHash: tmbytes.HexBytes(multiStoreEp.Path[2].Suffix),
-		TssToUpgradeStoresMerkleHash:          tmbytes.HexBytes(multiStoreEp.Path[3].Suffix),
+		TSSToUpgradeStoresMerkleHash:          tmbytes.HexBytes(multiStoreEp.Path[3].Suffix),
 		AuthToIcahostStoresMerkleHash:         tmbytes.HexBytes(multiStoreEp.Path[4].Prefix[1:]),
 	}
 }

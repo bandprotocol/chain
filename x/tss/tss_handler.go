@@ -26,7 +26,7 @@ func NewSignatureOrderHandler(k keeper.Keeper) types.Handler {
 			return append([]byte(TextMsgPrefix), c.Message...), nil
 		default:
 			return nil, sdkerrors.ErrUnknownRequest.Wrapf(
-				"unrecognized tss request signature message type: %s",
+				"unrecognized TSS request signature message type: %s",
 				c.OrderType(),
 			)
 		}
