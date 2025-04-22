@@ -38,7 +38,7 @@ To install and run cylinder, the following tools and packages are required:
 
 - make, gcc, g++ (can be obtained from the build-essential package on linux)
 - wget, curl, openssl for downloading files
-- go version 1.22.3
+- go version 1.24.2
 
 To install required tools, run the following code
 
@@ -49,12 +49,12 @@ sudo apt-get upgrade -y && \
 sudo apt-get install -y build-essential curl wget openssl
 ```
 
-To install Go version 1.22.3, run the following commands
+To install Go version 1.24.2, run the following commands
 
 ```sh
-# Install Go 1.22.3
-wget https://go.dev/dl/go1.22.3.linux-amd64.tar.gz
-tar xf go1.22.3.linux-amd64.tar.gz
+# Install Go 1.24.2
+wget https://go.dev/dl/go1.24.2.linux-amd64.tar.gz
+tar xf go1.24.2.linux-amd64.tar.gz
 sudo mv go /usr/local/go
 
 # Set Go path to $PATH variable
