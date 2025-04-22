@@ -14,7 +14,7 @@ type MultiStoreProofEthereum struct {
 	MintStoreMerkleHash                   common.Hash
 	ParamsToRestakeStoresMerkleHash       common.Hash
 	RollingseedToTransferStoresMerkleHash common.Hash
-	TSSToUpgradeStoresMerkleHash          common.Hash
+	TSSToUpgradeStoresMerkleHash          common.Hash `abi:"tssToUpgradeStoresMerkleHash"`
 	AuthToIcahostStoresMerkleHash         common.Hash
 }
 
