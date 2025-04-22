@@ -497,7 +497,7 @@ func NewAppKeeper(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
-	// Add TSS route
+	// Add tss route
 	tssContentRouter.
 		AddRoute(tsstypes.RouterKey, tss.NewSignatureOrderHandler(*appKeepers.TSSKeeper)).
 		AddRoute(oracletypes.RouterKey, oracle.NewSignatureOrderHandler(appKeepers.OracleKeeper)).

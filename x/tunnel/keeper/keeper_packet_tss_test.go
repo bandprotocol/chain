@@ -32,7 +32,7 @@ func (s *KeeperTestSuite) TestSendTSSPacket() {
 
 	s.bandtssKeeper.EXPECT().GetSigningFee(ctx).Return(sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil)
 
-	// Mock the TSS keeper and set the state for checking later
+	// Mock the tss keeper and set the state for checking later
 	s.bandtssKeeper.EXPECT().CreateTunnelSigningRequest(
 		gomock.Any(),
 		uint64(1),
@@ -43,7 +43,7 @@ func (s *KeeperTestSuite) TestSendTSSPacket() {
 		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))),
 	).Return(bandtsstypes.SigningID(1), nil)
 
-	// Send the TSS packet
+	// Send the tss packet
 	content, err := k.SendTSSPacket(
 		ctx,
 		&route,

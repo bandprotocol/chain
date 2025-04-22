@@ -10,7 +10,7 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-// DEWithPrivateNonce represents private value (D, E) used in TSS signing process.
+// DEWithPrivateNonce represents private value (D, E) used in tss signing process.
 type DEWithPrivateNonce struct {
 	PubDE types.DE
 	PrivD tss.Scalar

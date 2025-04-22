@@ -151,7 +151,7 @@ func (k Keeper) AggregatePartialSignatures(ctx sdk.Context, signingID tss.Signin
 		return types.ErrInvalidSignature.Wrapf("failed to combine partial signatures: %v", err)
 	}
 
-	if err = tss.VerifyGroupSigningSignature(signing.GroupPubKey, signing.Message, sig); err != nil {
+	if err = tss.VerifyGroupSignature(signing.GroupPubKey, signing.Message, sig); err != nil {
 		return types.ErrInvalidSignature.Wrapf("failed to verify group signature: %v", err)
 	}
 

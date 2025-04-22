@@ -73,7 +73,7 @@ The following telemetry metrics are captured and exposed via Prometheus:
 
 ## Grafana Dashboard
 
-Cylinder provides a pre-built Grafana Dashboard to visualize TSS signing metrics efficiently. You can download and import the dashboard from Grafana's official repository.
+Cylinder provides a pre-built Grafana Dashboard to visualize tss signing metrics efficiently. You can download and import the dashboard from Grafana's official repository.
 
 ### Dashboard Link
 

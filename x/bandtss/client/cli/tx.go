@@ -27,7 +27,7 @@ const (
 func GetTxCmd(requestSignatureCmds []*cobra.Command) *cobra.Command {
 	txCmd := &cobra.Command{
 		Use:                        types.ModuleName,
-		Short:                      "Bandtss transactions subcommands",
+		Short:                      "bandtss transactions subcommands",
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
 		RunE:                       client.ValidateCmd,

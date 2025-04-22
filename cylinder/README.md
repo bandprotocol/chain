@@ -4,14 +4,14 @@ The cylinder program is designed for selected members involved in threshold sign
 
 # Introduction
 
-The cylinder program is designed for selected members involved in threshold signature scheme (TSS) message signing. It streamlines the process for participants required to sign a TSS message, ensuring secure and efficient collaboration within the signing group.
+The cylinder program is designed for selected members involved in threshold signature scheme (TSS) message signing. It streamlines the process for participants required to sign a tss message, ensuring secure and efficient collaboration within the signing group.
 
 Key features of cylinder include:
 
 - Nonce Submission: Allows users to submit nonces that are used during the signing process, ensuring proper coordination for message signing.
-- Message Signing: Enables users to sign newly requested messages as part of the TSS protocol.
+- Message Signing: Enables users to sign newly requested messages as part of the tss protocol.
 
-This tool is essential for members who need to maintain constant engagement and coordination during TSS message signing operations.
+This tool is essential for members who need to maintain constant engagement and coordination during tss message signing operations.
 
 # Run cylinder on BandChain mainnet
 
@@ -38,7 +38,7 @@ To install and run cylinder, the following tools and packages are required:
 
 - make, gcc, g++ (can be obtained from the build-essential package on linux)
 - wget, curl, openssl for downloading files
-- go version 1.22.3
+- go version 1.24.2
 
 To install required tools, run the following code
 
@@ -49,12 +49,12 @@ sudo apt-get upgrade -y && \
 sudo apt-get install -y build-essential curl wget openssl
 ```
 
-To install Go version 1.22.3, run the following commands
+To install Go version 1.24.2, run the following commands
 
 ```sh
-# Install Go 1.22.3
-wget https://go.dev/dl/go1.22.3.linux-amd64.tar.gz
-tar xf go1.22.3.linux-amd64.tar.gz
+# Install Go 1.24.2
+wget https://go.dev/dl/go1.24.2.linux-amd64.tar.gz
+tar xf go1.24.2.linux-amd64.tar.gz
 sudo mv go /usr/local/go
 
 # Set Go path to $PATH variable

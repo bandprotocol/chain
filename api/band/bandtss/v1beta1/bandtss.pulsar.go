@@ -3310,7 +3310,7 @@ type Signing struct {
 	Id uint64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// fee_per_signer is the tokens that will be paid per signer for this bandtss signing.
 	FeePerSigner []*v1beta1.Coin `protobuf:"bytes,2,rep,name=fee_per_signer,json=feePerSigner,proto3" json:"fee_per_signer,omitempty"`
-	// requester is the address who pays the Bandtss signing.
+	// requester is the address who pays the bandtss signing.
 	Requester string `protobuf:"bytes,3,opt,name=requester,proto3" json:"requester,omitempty"`
 	// current_group_signing_id is a tss signing ID of a current group.
 	CurrentGroupSigningId uint64 `protobuf:"varint,4,opt,name=current_group_signing_id,json=currentGroupSigningId,proto3" json:"current_group_signing_id,omitempty"`
