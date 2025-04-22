@@ -97,7 +97,7 @@ feeds_historical_prices = sa.Table(
     "feeds_historical_prices",
     metadata,
     Column("signal_id", sa.String, primary_key=True),
-    Column("timestamp", CustomDateTime, primary_key=True, index=True),
+    Column("timestamp", CustomDateTime, primary_key=True),
     Column("status", CustomPriceStatus),
     Column("price", sa.BigInteger),
 )
@@ -105,7 +105,7 @@ feeds_historical_prices = sa.Table(
 feeds_reference_source_configs = sa.Table(
     "feeds_reference_source_configs",
     metadata,
-    Column("timestamp", CustomDateTime, primary_key=True, index=True),
+    Column("timestamp", CustomDateTime, primary_key=True),
     Column("registry_ipfs_hash", sa.String),
     Column("registry_version", sa.String),
 )
@@ -114,5 +114,5 @@ feeds_feeders = sa.Table(
     "feeds_feeders",
     metadata,
     Column("feeder_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
-    Column("operator_address", sa.String, primary_key=True, index=True),
+    Column("operator_address", sa.String, sa.ForeignKey("validators.operator_address"), primary_key=True),
 )
