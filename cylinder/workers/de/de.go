@@ -168,6 +168,8 @@ func (de *DE) updateDE(numNewDE uint64) {
 		metrics.IncOffChainDELeftGauge()
 	}
 
+	de.logger.Info(":white_check_mark: Successfully generated %d new DE pairs", numNewDE)
+
 	// Send MsgDE
 	de.context.MsgCh <- types.NewMsgSubmitDEs(pubDEs, de.context.Config.Granter)
 }
