@@ -1520,7 +1520,7 @@ type Params struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// reward_percentage is the percentage of block rewards allocated to active TSS members.
+	// reward_percentage is the percentage of block rewards allocated to active tss members.
 	// The reward proportion is calculated after being allocated to oracle rewards.
 	RewardPercentage uint64 `protobuf:"varint,1,opt,name=reward_percentage,json=rewardPercentage,proto3" json:"reward_percentage,omitempty"`
 	// inactive_penalty_duration is the duration where a member cannot activate back after being set to inactive.

@@ -1172,7 +1172,7 @@ const (
 )
 
 // DirectOriginator is a message originator defines an information of the requester
-// on direct TSS request.
+// on direct tss request.
 type DirectOriginator struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -1228,7 +1228,7 @@ func (x *DirectOriginator) GetMemo() string {
 }
 
 // TunnelOriginator is a message originator defines an information of the requester
-// on TSS request via tunnel module.
+// on tss request via tunnel module.
 type TunnelOriginator struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

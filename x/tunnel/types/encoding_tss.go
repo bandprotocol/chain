@@ -33,7 +33,7 @@ type TSSPacket struct {
 	CreatedAt   int64
 }
 
-// NewTSSPacket returns a new TssPacket object
+// NewTSSPacket returns a new TSSPacket object
 func NewTSSPacket(
 	sequence uint64,
 	relayPrices []feedstypes.RelayPrice,

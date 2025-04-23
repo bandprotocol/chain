@@ -109,7 +109,7 @@ func (cb TSSCallback) OnSigningFailed(ctx sdk.Context, signingID tss.SigningID) 
 	}
 }
 
-// OnSignTimeout is called when the signing request is expired. It penalizes the members that
+// OnSigningTimeout is called when the signing request is expired. It penalizes the members that
 // do not sign a message.
 func (cb TSSCallback) OnSigningTimeout(
 	ctx sdk.Context,
@@ -125,7 +125,7 @@ func (cb TSSCallback) OnSigningTimeout(
 			continue
 		}
 
-		// Deactivate the member; this shouldn't cause an error because member should exists in
+		// Deactivate the member; this shouldn't cause an error because member should exist in
 		// both tss and bandtss module.
 		if err := cb.k.DeactivateMember(ctx, addr, signing.GroupID); err != nil {
 			panic(err)

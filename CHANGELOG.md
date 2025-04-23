@@ -20,9 +20,9 @@
 * (chain) Add Global fee module to set the min-gas-price on protocol level (MinimumGasPrice param)
 * (chain) Set MinimumGasPrice to 0.0025uband
 * (chain) Use priority based on gas_prices of uband but MsgReport will have the highest priority
-* (chain) Add TSS module
-* (cylinder) Add Cylinder to provide a service for supporting TSS process
-* (chain) Add Bandtss module
+* (chain) Add tss module
+* (cylinder) Add Cylinder to provide a service for supporting tss process
+* (chain) Add bandtss module
 * (chain) Add Feeds module
 * (grogu) Add Grogu to provide a service for supporting Feeds price submission
 * (chain) Add Tunnel module

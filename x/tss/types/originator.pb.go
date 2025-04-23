@@ -25,7 +25,7 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // DirectOriginator is a message originator defines an information of the requester
-// on direct TSS request.
+// on direct tss request.
 type DirectOriginator struct {
 	// source_chain_id is the source chain ID that the data is originated from.
 	SourceChainID string `protobuf:"bytes,1,opt,name=source_chain_id,json=sourceChainId,proto3" json:"source_chain_id,omitempty"`
@@ -90,7 +90,7 @@ func (m *DirectOriginator) GetMemo() string {
 }
 
 // TunnelOriginator is a message originator defines an information of the requester
-// on TSS request via tunnel module.
+// on tss request via tunnel module.
 type TunnelOriginator struct {
 	// source_chain_id is the source chain ID that the data is originated from.
 	SourceChainID string `protobuf:"bytes,1,opt,name=source_chain_id,json=sourceChainId,proto3" json:"source_chain_id,omitempty"`

@@ -59,7 +59,7 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	}
 }
 
-// GetDEsGenesis retrieves all de from the context's KVStore.
+// GetDEsGenesis retrieves all DE from the context's KVStore.
 func (k Keeper) GetDEsGenesis(ctx sdk.Context) []types.DEGenesis {
 	var des []types.DEGenesis
 	iterator := k.GetDEQueueIterator(ctx)

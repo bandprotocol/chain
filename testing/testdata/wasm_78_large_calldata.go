@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// An oracle script to test large calldata
+// Wasm78 is an oracle script to test large calldata
 //
 //	PREPARE:
 //	  Ask external data with calldata "b"*time
