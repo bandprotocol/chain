@@ -33,13 +33,15 @@ type Lane struct {
 	// currently in this lane's mempool.
 	txIndex map[string]struct{}
 
-	// callbackAfterFillProposal is a callback function that is called when the lane exceeds its limit.
+	// callbackAfterFillProposal is a callback function that is called after
+	// filling the proposal with transactions from the lane.
 	callbackAfterFillProposal func(isLaneLimitExceeded bool)
 
-	// blocked indicates whether the transaction in this lane should be excluded from the proposal for the current block.
+	// blocked indicates whether the transactions in this lane should be
+	// excluded from the proposal for the current block.
 	blocked bool
 
-	// Add mutex for thread safety
+	// Add mutex for thread safety.
 	mu sync.RWMutex
 }
 
