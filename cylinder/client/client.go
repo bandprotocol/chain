@@ -208,31 +208,6 @@ func (c *Client) QueryPendingSignings(address string) (*tsstypes.QueryPendingSig
 	return res, nil
 }
 
-// QueryMembers queries the members of the current and incoming groups.
-// It returns the MembersResponse or an error.
-func (c *Client) QueryMembers() (*MembersResponse, error) {
-	queryClient := bandtsstypes.NewQueryClient(c.context)
-
-	currentGroup, err := queryClient.Members(context.Background(), &bandtsstypes.QueryMembersRequest{})
-	if err != nil {
-		return nil, err
-	}
-
-	incomingGroup, err := queryClient.Members(context.Background(), &bandtsstypes.QueryMembersRequest{
-		IsIncomingGroup: true,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	// append members of current and incoming groups
-	membersResponse := &bandtsstypes.QueryMembersResponse{
-		Members: append(currentGroup.Members, incomingGroup.Members...),
-	}
-
-	return NewMembersResponse(membersResponse), nil
-}
-
 // BroadcastAndConfirm broadcasts and confirms the messages by signing and submitting them using the provided key.
 // It returns the transaction response or an error. It retries broadcasting and confirming up to maxTry times.
 func (c *Client) BroadcastAndConfirm(

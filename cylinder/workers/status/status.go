@@ -39,22 +39,26 @@ func New(ctx *context.Context) (*Status, error) {
 func (s *Status) queryStatusWithLogging() {
 	address := s.context.Config.Granter
 
-	members, err := s.client.QueryMembers()
+	member, err := s.client.QueryMember(address)
 	if err != nil {
 		s.logger.Error(":x: failed to query members: %s", err)
 		return
 	}
 
-	for _, member := range members.Members {
-		if member.Address == address {
-			status := ":white_check_mark:"
-			if !member.IsActive {
-				status = ":x:"
-			}
-			s.logger.Info("group %d with member %s is active: %s", member.GroupID, address, status)
+	memberResponse := client.NewMemberResponse(member)
+	if len(memberResponse.Members) == 0 {
+		s.logger.Info("no members found for address %s", address)
+		return
+	}
 
-			metrics.SetMemberStatus(uint64(member.GroupID), member.IsActive)
+	for _, member := range memberResponse.Members {
+		status := ":white_check_mark:"
+		if !member.IsActive {
+			status = ":x:"
 		}
+		s.logger.Info("group %d with member %s is active: %s", member.GroupID, address, status)
+
+		metrics.SetMemberStatus(uint64(member.GroupID), member.IsActive)
 	}
 }
 
