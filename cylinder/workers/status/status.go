@@ -1,7 +1,6 @@
 package status
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/bandprotocol/chain/v3/cylinder"
@@ -72,7 +71,6 @@ func (s *Status) Start() {
 	defer ticker.Stop()
 
 	for range ticker.C {
-		fmt.Println("check status")
 		s.checkStatus()
 	}
 }

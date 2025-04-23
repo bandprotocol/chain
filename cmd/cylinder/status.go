@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/kyokomi/emoji"
@@ -34,7 +33,7 @@ func statusCmd(ctx *cylinderctx.Context) *cobra.Command {
 			}
 
 			queryClient := types.NewQueryClient(clientCtx)
-			member, err := queryClient.Member(context.Background(), &types.QueryMemberRequest{
+			member, err := queryClient.Member(cmd.Context(), &types.QueryMemberRequest{
 				Address: address,
 			})
 			if err != nil {
