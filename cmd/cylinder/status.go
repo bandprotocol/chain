@@ -18,17 +18,20 @@ import (
 // statusCmd returns a cobra command to show the tss member status of the given address.
 func statusCmd(ctx *cylinderctx.Context) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "status [address]",
+		Use:     "status",
 		Aliases: []string{"s"},
-		Short:   "Show the tss member status of the given address",
-		Args:    cobra.ExactArgs(1),
+		Short:   "Show the TSS member status of the given address",
+		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			address := args[0]
+			address := ctx.Config.Granter
+			if address == "" {
+				return fmt.Errorf("granter address is not set in the config")
+			}
 
 			queryClient := types.NewQueryClient(clientCtx)
 			member, err := queryClient.Member(context.Background(), &types.QueryMemberRequest{
@@ -44,11 +47,11 @@ func statusCmd(ctx *cylinderctx.Context) *cobra.Command {
 			}
 
 			for _, member := range memberResponse.Members {
-				status := ":white_check_mark:"
 				if !member.IsActive {
-					status = ":x:"
+					emoji.Printf(":warning:group %d with member %s is inactive", member.GroupID, address)
+				} else {
+					emoji.Printf(":white_check_mark:group %d with member %s is active", member.GroupID, address)
 				}
-				emoji.Printf("group %d with member %s is active: %s", member.GroupID, address, status)
 			}
 
 			return nil

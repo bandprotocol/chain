@@ -1,6 +1,7 @@
 package status
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/bandprotocol/chain/v3/cylinder"
@@ -34,29 +35,29 @@ func New(ctx *context.Context) (*Status, error) {
 	}, nil
 }
 
-// queryStatusWithLogging queries the status of the active member from the current and incoming groups.
+// checkStatus queries the status of the active member from the current and incoming groups.
 // It logs the status of the active member.
-func (s *Status) queryStatusWithLogging() {
+func (s *Status) checkStatus() {
 	address := s.context.Config.Granter
 
 	member, err := s.client.QueryMember(address)
 	if err != nil {
-		s.logger.Error(":x: failed to query members: %s", err)
+		s.logger.Error("failed to query member: %s", err)
 		return
 	}
 
 	memberResponse := client.NewMemberResponse(member)
 	if len(memberResponse.Members) == 0 {
-		s.logger.Info("no members found for address %s", address)
+		s.logger.Warn("Member not found in the bandtss current group or incoming group %s", address)
 		return
 	}
 
 	for _, member := range memberResponse.Members {
-		status := ":white_check_mark:"
 		if !member.IsActive {
-			status = ":x:"
+			s.logger.Warn(":warning:group %d with member %s is inactive", member.GroupID, address)
+		} else {
+			s.logger.Debug(":white_check_mark:group %d with member %s is active", member.GroupID, address)
 		}
-		s.logger.Info("group %d with member %s is active: %s", member.GroupID, address, status)
 
 		metrics.SetMemberStatus(uint64(member.GroupID), member.IsActive)
 	}
@@ -67,14 +68,17 @@ func (s *Status) queryStatusWithLogging() {
 func (s *Status) Start() {
 	s.logger.Info("start")
 
-	for {
-		s.queryStatusWithLogging()
-		time.Sleep(s.context.Config.CheckStatusInterval)
+	ticker := time.NewTicker(s.context.Config.CheckStatusInterval)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		fmt.Println("check status")
+		s.checkStatus()
 	}
 }
 
 // Stop stops the Status worker.
 func (s *Status) Stop() error {
-	s.logger.Info("stop")
+	s.logger.Info("Stopping status worker")
 	return s.client.Stop()
 }
