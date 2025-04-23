@@ -4,7 +4,7 @@ import (
 	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 )
 
-// MemberResponse
+// MemberResponse is a response from the bandtss client.
 type MemberResponse struct {
 	Members []bandtsstypes.Member
 }

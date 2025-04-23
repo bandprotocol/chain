@@ -30,7 +30,7 @@ const (
 	flagGasAdjustStart      = "gas-adjust-start"
 	flagGasAdjustStep       = "gas-adjust-step"
 	flagRandomSecret        = "random-secret"
-	flagCheckingDEInterval  = "checking-de-interval"
+	flagCheckDEInterval     = "check-de-interval"
 	flagCheckStatusInterval = "check-status-interval"
 	flagMetricsListenAddr   = "metrics-listen-addr"
 )
@@ -118,14 +118,14 @@ func runCmd(ctx *context.Context) *cobra.Command {
 	cmd.Flags().Float64(flagGasAdjustStart, 1.6, "The start value of gas adjustment")
 	cmd.Flags().Float64(flagGasAdjustStep, 0.2, "The increment step of gad adjustment")
 	cmd.Flags().BytesHex(flagRandomSecret, nil, "The secret value that is used for random D,E")
-	cmd.Flags().Duration(flagCheckingDEInterval, 5*time.Minute, "The interval of checking DE")
+	cmd.Flags().Duration(flagCheckDEInterval, 5*time.Minute, "The interval of checking DE")
 	cmd.Flags().Duration(flagCheckStatusInterval, time.Minute, "The interval of checking the status of the member")
 	cmd.Flags().String(flagMetricsListenAddr, "", "address to use for metrics server.")
 
 	flagNames := []string{
 		flags.FlagChainID, flags.FlagNode, flagGranter, flags.FlagGasPrices, flagLogLevel,
 		flagMaxMessages, flagBroadcastTimeout, flagRPCPollInterval, flagMaxTry, flagMinDE,
-		flagGasAdjustStart, flagGasAdjustStep, flagRandomSecret, flagCheckingDEInterval,
+		flagGasAdjustStart, flagGasAdjustStep, flagRandomSecret, flagCheckDEInterval,
 		flagCheckStatusInterval, flagMetricsListenAddr,
 	}
 
