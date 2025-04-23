@@ -77,7 +77,7 @@ func NewLane(
 
 // Insert inserts a transaction into the lane's mempool.
 func (l *Lane) Insert(ctx context.Context, tx sdk.Tx) error {
-	txInfo, err := l.GetTxInfo(tx)
+	txInfo, err := l.getTxInfo(tx)
 	if err != nil {
 		return err
 	}
@@ -100,7 +100,7 @@ func (l *Lane) CountTx() int {
 
 // Remove removes a transaction from the lane's mempool.
 func (l *Lane) Remove(tx sdk.Tx) error {
-	txInfo, err := l.GetTxInfo(tx)
+	txInfo, err := l.getTxInfo(tx)
 	if err != nil {
 		return err
 	}
@@ -118,7 +118,7 @@ func (l *Lane) Remove(tx sdk.Tx) error {
 
 // Contains returns true if the lane's mempool contains the transaction.
 func (l *Lane) Contains(tx sdk.Tx) bool {
-	txInfo, err := l.GetTxInfo(tx)
+	txInfo, err := l.getTxInfo(tx)
 	if err != nil {
 		return false
 	}
@@ -162,7 +162,7 @@ func (l *Lane) FillProposal(
 		}
 
 		tx := iterator.Tx()
-		txInfo, err := l.GetTxInfo(tx)
+		txInfo, err := l.getTxInfo(tx)
 		if err != nil {
 			l.logger.Info("failed to get hash of tx", "err", err)
 
@@ -230,7 +230,7 @@ func (l *Lane) FillProposalByIterator(
 		}
 
 		tx := iterator.Tx()
-		txInfo, err := l.GetTxInfo(tx)
+		txInfo, err := l.getTxInfo(tx)
 		if err != nil {
 			l.logger.Info("failed to get hash of tx", "err", err)
 
@@ -269,10 +269,10 @@ func (l *Lane) FillProposalByIterator(
 	return
 }
 
-// GetTxInfo returns various information about the transaction that
+// getTxInfo returns various information about the transaction that
 // belongs to the lane including its priority, signer's, sequence number,
 // size and more.
-func (l *Lane) GetTxInfo(tx sdk.Tx) (TxWithInfo, error) {
+func (l *Lane) getTxInfo(tx sdk.Tx) (TxWithInfo, error) {
 	txBytes, err := l.txEncoder(tx)
 	if err != nil {
 		return TxWithInfo{}, fmt.Errorf("failed to encode transaction: %w", err)
