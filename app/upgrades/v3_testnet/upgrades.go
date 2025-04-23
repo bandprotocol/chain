@@ -20,15 +20,15 @@ func CreateUpgradeHandler(
 		// Set param key table for params module migration
 		ctx := sdk.UnwrapSDKContext(c)
 
-		oracleParams := keepers.OracleKeeper.GetParams(ctx)
-		oracleParams.MaxCalldataSize = 512
-		oracleParams.MaxReportDataSize = 512
-		err := keepers.OracleKeeper.SetParams(ctx, oracleParams)
+		vm, err := mm.RunMigrations(ctx, configurator, fromVM)
 		if err != nil {
 			return nil, err
 		}
 
-		vm, err := mm.RunMigrations(ctx, configurator, fromVM)
+		oracleParams := keepers.OracleKeeper.GetParams(ctx)
+		oracleParams.MaxCalldataSize = 512
+		oracleParams.MaxReportDataSize = 512
+		err = keepers.OracleKeeper.SetParams(ctx, oracleParams)
 		if err != nil {
 			return nil, err
 		}
