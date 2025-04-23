@@ -157,6 +157,7 @@ func (s *MempoolTestSuite) newMempool() *Mempool {
 		math.LegacyMustNewDecFromStr("0.2"),
 		math.LegacyMustNewDecFromStr("0.3"),
 		sdkmempool.DefaultPriorityMempool(),
+		nil,
 	)
 
 	DelegateLane := NewLane(
@@ -168,6 +169,7 @@ func (s *MempoolTestSuite) newMempool() *Mempool {
 		math.LegacyMustNewDecFromStr("0.2"),
 		math.LegacyMustNewDecFromStr("0.3"),
 		sdkmempool.DefaultPriorityMempool(),
+		nil,
 	)
 
 	OtherLane := NewLane(
@@ -179,6 +181,7 @@ func (s *MempoolTestSuite) newMempool() *Mempool {
 		math.LegacyMustNewDecFromStr("0.4"),
 		math.LegacyMustNewDecFromStr("0.4"),
 		sdkmempool.DefaultPriorityMempool(),
+		nil,
 	)
 
 	lanes := []*Lane{BankSendLane, DelegateLane, OtherLane}
@@ -504,6 +507,107 @@ func (s *MempoolTestSuite) TestFillUpLeftOverSpace() {
 	// should contain bankTx3 as the last tx
 	expectedIncludedTxs := s.getTxBytes(bankTx1, bankTx2, delegateTx1, delegateTx2, bankTx3)
 	s.Require().Equal(5, len(result.txs))
+	s.Require().Equal(expectedIncludedTxs, result.txs)
+}
+
+func (s *MempoolTestSuite) TestDependencyBlockLane() {
+	signerAdapter := sdkmempool.NewDefaultSignerExtractionAdapter()
+
+	DependentLane := NewLane(
+		log.NewTestLogger(s.T()),
+		s.encodingConfig.TxConfig.TxEncoder(),
+		signerAdapter,
+		"dependent",
+		isOtherTx,
+		math.LegacyMustNewDecFromStr("0.5"),
+		math.LegacyMustNewDecFromStr("0.5"),
+		sdkmempool.DefaultPriorityMempool(),
+		nil,
+	)
+
+	DependencyLane := NewLane(
+		log.NewTestLogger(s.T()),
+		s.encodingConfig.TxConfig.TxEncoder(),
+		signerAdapter,
+		"dependency",
+		isBankSendTx,
+		math.LegacyMustNewDecFromStr("0.5"),
+		math.LegacyMustNewDecFromStr("0.5"),
+		sdkmempool.DefaultPriorityMempool(),
+		func(isLaneLimitExceeded bool) {
+			DependentLane.SetBlocked(isLaneLimitExceeded)
+		},
+	)
+
+	lanes := []*Lane{DependencyLane, DependentLane}
+
+	mem := NewMempool(
+		log.NewTestLogger(s.T()),
+		lanes,
+	)
+
+	bankTx1, err := CreateBankSendTx(
+		s.encodingConfig.TxConfig,
+		s.accounts[0],
+		0,
+		0,
+		30,
+		sdk.NewCoin(s.gasTokenDenom, math.NewInt(1000000)),
+	)
+	s.Require().NoError(err)
+
+	MixedTx1, err := CreateMixedTx(
+		s.encodingConfig.TxConfig,
+		s.accounts[2],
+		0,
+		0,
+		30,
+		sdk.NewCoin(s.gasTokenDenom, math.NewInt(1000000)),
+	)
+	s.Require().NoError(err)
+
+	// Insert in reverse order to ensure ordering is correct
+	s.Require().NoError(mem.Insert(s.ctx, MixedTx1))
+	s.Require().NoError(mem.Insert(s.ctx, bankTx1))
+
+	proposal := NewProposal(
+		log.NewTestLogger(s.T()),
+		uint64(s.ctx.ConsensusParams().Block.MaxBytes),
+		uint64(s.ctx.ConsensusParams().Block.MaxGas),
+	)
+
+	result, err := mem.PrepareProposal(s.ctx, proposal)
+	s.Require().NoError(err)
+	s.Require().NotNil(result)
+
+	expectedIncludedTxs := s.getTxBytes(bankTx1, MixedTx1)
+	s.Require().Equal(2, len(result.txs))
+	s.Require().Equal(expectedIncludedTxs, result.txs)
+
+	bankTx2, err := CreateBankSendTx(
+		s.encodingConfig.TxConfig,
+		s.accounts[1],
+		0,
+		0,
+		30,
+		sdk.NewCoin(s.gasTokenDenom, math.NewInt(1000000)),
+	)
+	s.Require().NoError(err)
+
+	s.Require().NoError(mem.Insert(s.ctx, bankTx2))
+
+	proposal = NewProposal(
+		log.NewTestLogger(s.T()),
+		uint64(s.ctx.ConsensusParams().Block.MaxBytes),
+		uint64(s.ctx.ConsensusParams().Block.MaxGas),
+	)
+
+	result, err = mem.PrepareProposal(s.ctx, proposal)
+	s.Require().NoError(err)
+	s.Require().NotNil(result)
+
+	expectedIncludedTxs = s.getTxBytes(bankTx1, bankTx2)
+	s.Require().Equal(2, len(result.txs))
 	s.Require().Equal(expectedIncludedTxs, result.txs)
 }
 

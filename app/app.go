@@ -257,8 +257,8 @@ func NewBandApp(
 
 	app.sm.RegisterStoreDecoders()
 
-	feedsLane, tssLane, oracleLane, defaultLane := CreateLanes(app)
-	bandLanes := []*mempool.Lane{feedsLane, tssLane, oracleLane, defaultLane}
+	feedsLane, tssLane, oracleReportLane, oracleRequestLane, defaultLane := CreateLanes(app)
+	bandLanes := []*mempool.Lane{feedsLane, tssLane, oracleReportLane, oracleRequestLane, defaultLane}
 
 	// create Band mempool
 	bandMempool := mempool.NewMempool(app.Logger(), bandLanes)

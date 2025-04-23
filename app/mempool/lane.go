@@ -33,7 +33,15 @@ type Lane struct {
 	// currently in this lane's mempool.
 	txIndex map[string]struct{}
 
-	// Add mutex for thread safety
+	// callbackAfterFillProposal is a callback function that is called after
+	// filling the proposal with transactions from the lane.
+	callbackAfterFillProposal func(isLaneLimitExceeded bool)
+
+	// blocked indicates whether the transactions in this lane should be
+	// excluded from the proposal for the current block.
+	blocked bool
+
+	// Add mutex for thread safety.
 	mu sync.RWMutex
 }
 
@@ -47,19 +55,23 @@ func NewLane(
 	maxTransactionSpace math.LegacyDec,
 	maxLaneSpace math.LegacyDec,
 	laneMempool sdkmempool.Mempool,
+	callbackAfterFillProposal func(isLaneLimitExceeded bool),
 ) *Lane {
 	return &Lane{
-		logger:              logger,
-		txEncoder:           txEncoder,
-		signerExtractor:     signerExtractor,
-		name:                name,
-		matchFn:             matchFn,
-		maxTransactionSpace: maxTransactionSpace,
-		maxLaneSpace:        maxLaneSpace,
-		laneMempool:         laneMempool,
+		logger:                    logger,
+		txEncoder:                 txEncoder,
+		signerExtractor:           signerExtractor,
+		name:                      name,
+		matchFn:                   matchFn,
+		maxTransactionSpace:       maxTransactionSpace,
+		maxLaneSpace:              maxLaneSpace,
+		laneMempool:               laneMempool,
+		callbackAfterFillProposal: callbackAfterFillProposal,
 
 		// Initialize the txIndex.
 		txIndex: make(map[string]struct{}),
+
+		blocked: false,
 	}
 }
 
@@ -131,6 +143,11 @@ func (l *Lane) FillProposal(
 	ctx sdk.Context,
 	proposal *Proposal,
 ) (blockUsed BlockSpace, iterator sdkmempool.Iterator, txsToRemove []sdk.Tx) {
+	// if the lane is blocked, we do not add any transactions to the proposal.
+	if l.blocked {
+		return
+	}
+
 	// Get the transaction and lane limit for the lane.
 	transactionLimit := proposal.GetLimit(l.maxTransactionSpace)
 	laneLimit := proposal.GetLimit(l.maxLaneSpace)
@@ -180,6 +197,11 @@ func (l *Lane) FillProposal(
 		blockUsed = blockUsed.Add(txInfo.BlockSpace)
 	}
 
+	// call the callback function of the lane after fill proposal.
+	if l.callbackAfterFillProposal != nil {
+		l.callbackAfterFillProposal(laneLimit.IsReachedBy(blockUsed))
+	}
+
 	return
 }
 
@@ -191,6 +213,11 @@ func (l *Lane) FillProposalByIterator(
 	iterator sdkmempool.Iterator,
 	laneLimit BlockSpace,
 ) (blockUsed BlockSpace, txsToRemove []sdk.Tx) {
+	// if the lane is blocked, we do not add any transactions to the proposal.
+	if l.blocked {
+		return
+	}
+
 	// get the transaction limit for the lane.
 	transactionLimit := proposal.GetLimit(l.maxTransactionSpace)
 
@@ -269,4 +296,9 @@ func (l *Lane) GetTxInfo(tx sdk.Tx) (TxWithInfo, error) {
 		TxBytes:    txBytes,
 		Signers:    signers,
 	}, nil
+}
+
+// SetBlocked sets the blocked flag to the given value.
+func (l *Lane) SetBlocked(blocked bool) {
+	l.blocked = blocked
 }
