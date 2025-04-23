@@ -80,12 +80,17 @@ func CreateUpgradeHandler(
 			}
 		}
 
+		vm, err := mm.RunMigrations(ctx, configurator, fromVM)
+		if err != nil {
+			return nil, err
+		}
+
 		// Set new consensus params with same values as before
 		consensusParams := cmttypes.DefaultConsensusParams().ToProto()
 		consensusParams.Block.MaxBytes = BlockMaxBytes                                     // unchanged
 		consensusParams.Block.MaxGas = BlockMaxGas                                         // unchanged
 		consensusParams.Validator.PubKeyTypes = []string{cmttypes.ABCIPubKeyTypeSecp256k1} // unchanged
-		err := keepers.ConsensusParamsKeeper.ParamsStore.Set(ctx, consensusParams)
+		err = keepers.ConsensusParamsKeeper.ParamsStore.Set(ctx, consensusParams)
 		if err != nil {
 			return nil, err
 		}
@@ -121,11 +126,6 @@ func CreateUpgradeHandler(
 		oracleParams.MaxCalldataSize = 512
 		oracleParams.MaxReportDataSize = 512
 		err = keepers.OracleKeeper.SetParams(ctx, oracleParams)
-		if err != nil {
-			return nil, err
-		}
-
-		vm, err := mm.RunMigrations(ctx, configurator, fromVM)
 		if err != nil {
 			return nil, err
 		}

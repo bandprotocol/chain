@@ -1,4 +1,4 @@
-package v3_test
+package v3_rc3_test
 
 import (
 	"testing"
@@ -14,7 +14,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	band "github.com/bandprotocol/chain/v3/app"
-	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3_testnet"
+	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3_rc3"
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
 )
 

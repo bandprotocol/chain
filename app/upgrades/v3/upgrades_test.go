@@ -89,6 +89,11 @@ func postUpgradeChecks(s *UpgradeTestSuite) {
 	s.Require().True(icaHostParams.HostEnabled)
 	s.Require().Equal(v3.ICAAllowMessages, icaHostParams.AllowMessages)
 
+	// check oracle params
+	oracleParams := s.app.OracleKeeper.GetParams(s.ctx)
+	s.Require().Equal(uint64(512), oracleParams.MaxCalldataSize)
+	s.Require().Equal(uint64(512), oracleParams.MaxReportDataSize)
+
 	// check global fee params
 	s.Require().
 		Equal(sdk.DecCoins{sdk.NewDecCoinFromDec("uband", sdkmath.LegacyNewDecWithPrec(25, 4))}, s.app.GlobalFeeKeeper.GetParams(s.ctx).MinimumGasPrices)

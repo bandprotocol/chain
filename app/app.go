@@ -55,8 +55,7 @@ import (
 	"github.com/bandprotocol/chain/v3/app/keepers"
 	"github.com/bandprotocol/chain/v3/app/upgrades"
 	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3"
-	v3_mainnet "github.com/bandprotocol/chain/v3/app/upgrades/v3_mainnet"
-	v3_testnet "github.com/bandprotocol/chain/v3/app/upgrades/v3_testnet"
+	v3_rc3 "github.com/bandprotocol/chain/v3/app/upgrades/v3_rc3"
 	nodeservice "github.com/bandprotocol/chain/v3/client/grpc/node"
 	proofservice "github.com/bandprotocol/chain/v3/client/grpc/oracle/proof"
 	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
@@ -66,7 +65,7 @@ var (
 	// DefaultNodeHome default home directories for the application daemon
 	DefaultNodeHome string
 
-	Upgrades = []upgrades.Upgrade{v3.Upgrade, v3_mainnet.Upgrade, v3_testnet.Upgrade}
+	Upgrades = []upgrades.Upgrade{v3.Upgrade, v3_rc3.Upgrade}
 )
 
 var (
