@@ -145,22 +145,6 @@ The mempool provides functionality to prepare block proposals by:
 2. Filling remaining proposal space with transactions from each lane in the same order without `maxLaneSpace`
 3. Handling transaction removal of the transactions that violate the `maxTransactionSpace` from all lanes
 
-## Testing
-
-The package includes comprehensive tests covering:
-- Basic transaction operations
-- Lane management
-- Block proposal preparation
-- Space management
-- Error handling
-
-## Dependencies
-
-- `cosmossdk.io/log`: For logging
-- `cosmossdk.io/math`: For mathematical operations
-- `github.com/cosmos/cosmos-sdk/types`: Core SDK types
-- `github.com/cosmos/cosmos-sdk/types/mempool`: Mempool interface definitions
-
 ## Best Practices
 
 1. Configure appropriate lane ratios based on your application's needs
