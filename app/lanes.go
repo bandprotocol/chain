@@ -66,11 +66,10 @@ func isMsgSubmitSignalPrices(
 				return false
 			}
 		}
+		return true
 	default:
 		return false
 	}
-
-	return true
 }
 
 // tssLaneMatchHandler is a function that returns the match function for the TSS lane.
@@ -130,14 +129,13 @@ func isTssLaneMsg(
 				return false
 			}
 		}
+		return true
 	default:
 		return false
 	}
-
-	return true
 }
 
-// oracleReportLaneMatchHandler is a function that returns the match function for the oracle lane.
+// oracleReportLaneMatchHandler is a function that returns the match function for the oracle report lane.
 func oracleReportLaneMatchHandler(
 	cdc codec.Codec,
 	authzKeeper *authzkeeper.Keeper,
@@ -187,11 +185,10 @@ func isMsgReportData(
 				return false
 			}
 		}
+		return true
 	default:
 		return false
 	}
-
-	return true
 }
 
 // oracleRequestLaneMatchHandler is a function that returns the match function for the oracle request lane.
@@ -234,11 +231,10 @@ func isMsgRequestData(
 				return false
 			}
 		}
+		return true
 	default:
 		return false
 	}
-
-	return true
 }
 
 // DefaultLaneMatchHandler is a function that returns the match function for the default lane.

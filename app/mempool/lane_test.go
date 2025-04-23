@@ -175,16 +175,16 @@ func (s *LaneTestSuite) TestLaneFillProposal() {
 	s.Require().Equal(expectedIncludedTxs, proposal.txs)
 }
 
-type handleLaneLimitCheckMock struct {
+type callbackAfterFillProposalMock struct {
 	isLaneLimitExceeded bool
 }
 
-func (f *handleLaneLimitCheckMock) handleLaneLimitCheck(isLaneLimitExceeded bool) {
+func (f *callbackAfterFillProposalMock) callbackAfterFillProposal(isLaneLimitExceeded bool) {
 	f.isLaneLimitExceeded = isLaneLimitExceeded
 }
 
-func (s *LaneTestSuite) TestLaneHandleLaneLimitCheck() {
-	handleLaneLimitCheckMock := &handleLaneLimitCheckMock{}
+func (s *LaneTestSuite) TestLaneCallbackAfterFillProposal() {
+	callbackAfterFillProposalMock := &callbackAfterFillProposalMock{}
 	lane := NewLane(
 		log.NewNopLogger(),
 		s.encodingConfig.TxConfig.TxEncoder(),
@@ -194,7 +194,7 @@ func (s *LaneTestSuite) TestLaneHandleLaneLimitCheck() {
 		math.LegacyMustNewDecFromStr("0.3"),
 		math.LegacyMustNewDecFromStr("0.3"),
 		sdkmempool.DefaultPriorityMempool(),
-		handleLaneLimitCheckMock.handleLaneLimitCheck,
+		callbackAfterFillProposalMock.callbackAfterFillProposal,
 	)
 
 	// Insert a transaction
@@ -221,7 +221,7 @@ func (s *LaneTestSuite) TestLaneHandleLaneLimitCheck() {
 	s.Require().Equal(1, len(proposal.txs), "one txs in the proposal")
 	s.Require().Equal(expectedIncludedTxs, proposal.txs)
 
-	s.Require().False(handleLaneLimitCheckMock.isLaneLimitExceeded, "handleLaneLimitCheck should be called with false")
+	s.Require().False(callbackAfterFillProposalMock.isLaneLimitExceeded, "callbackAfterFillProposal should be called with false")
 
 	// Insert 2 more transactions
 	tx2 := s.createSimpleTx(s.accounts[1], 1, 20)
@@ -250,11 +250,11 @@ func (s *LaneTestSuite) TestLaneHandleLaneLimitCheck() {
 	s.Require().Equal(2, len(proposal.txs), "two txs in the proposal")
 	s.Require().Equal(expectedIncludedTxs, proposal.txs)
 
-	s.Require().True(handleLaneLimitCheckMock.isLaneLimitExceeded, "OoLaneLimitExceeded should be called with true")
+	s.Require().True(callbackAfterFillProposalMock.isLaneLimitExceeded, "OoLaneLimitExceeded should be called with true")
 }
 
 func (s *LaneTestSuite) TestLaneExactlyFilled() {
-	handleLaneLimitCheckMock := &handleLaneLimitCheckMock{}
+	callbackAfterFillProposalMock := &callbackAfterFillProposalMock{}
 	lane := NewLane(
 		log.NewNopLogger(),
 		s.encodingConfig.TxConfig.TxEncoder(),
@@ -264,7 +264,7 @@ func (s *LaneTestSuite) TestLaneExactlyFilled() {
 		math.LegacyMustNewDecFromStr("0.3"),
 		math.LegacyMustNewDecFromStr("0.3"),
 		sdkmempool.DefaultPriorityMempool(),
-		handleLaneLimitCheckMock.handleLaneLimitCheck,
+		callbackAfterFillProposalMock.callbackAfterFillProposal,
 	)
 
 	// Insert a transaction
@@ -291,7 +291,7 @@ func (s *LaneTestSuite) TestLaneExactlyFilled() {
 	s.Require().Equal(1, len(proposal.txs), "one txs in the proposal")
 	s.Require().Equal(expectedIncludedTxs, proposal.txs)
 
-	s.Require().False(handleLaneLimitCheckMock.isLaneLimitExceeded, "handleLaneLimitCheck should be called with false")
+	s.Require().False(callbackAfterFillProposalMock.isLaneLimitExceeded, "callbackAfterFillProposal should be called with false")
 
 	// Insert 2 more transactions
 	tx2 := s.createSimpleTx(s.accounts[1], 1, 10)
@@ -320,7 +320,7 @@ func (s *LaneTestSuite) TestLaneExactlyFilled() {
 	s.Require().Equal(2, len(proposal.txs), "two txs in the proposal")
 	s.Require().Equal(expectedIncludedTxs, proposal.txs)
 
-	s.Require().True(handleLaneLimitCheckMock.isLaneLimitExceeded, "handleLaneLimitCheck should be called with true")
+	s.Require().True(callbackAfterFillProposalMock.isLaneLimitExceeded, "callbackAfterFillProposal should be called with true")
 }
 
 func (s *LaneTestSuite) TestLaneBlocked() {
