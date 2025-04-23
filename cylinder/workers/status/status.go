@@ -47,7 +47,7 @@ func (s *Status) checkStatus() {
 
 	memberResponse := client.NewMemberResponse(member)
 	if len(memberResponse.Members) == 0 {
-		s.logger.Warn("Member not found in the bandtss current group or incoming group %s", address)
+		s.logger.Warn("Member %s not found in the bandtss current group or incoming group", address)
 		return
 	}
 
