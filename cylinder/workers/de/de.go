@@ -250,7 +250,7 @@ func (de *DE) Start() {
 	}()
 
 	// Update DE if there is assigned DE event or DE is used.
-	ticker := time.NewTicker(de.context.Config.CheckingDEInterval)
+	ticker := time.NewTicker(de.context.Config.CheckDEInterval)
 	for {
 		select {
 		case <-ticker.C:
