@@ -257,11 +257,10 @@ func NewBandApp(
 
 	app.sm.RegisterStoreDecoders()
 
-	feedsLane, tssLane, oracleReportLane, oracleRequestLane, defaultLane := CreateLanes(app)
-	bandLanes := []*mempool.Lane{feedsLane, tssLane, oracleReportLane, oracleRequestLane, defaultLane}
+	lanes := CreateLanes(app)
 
 	// create Band mempool
-	bandMempool := mempool.NewMempool(app.Logger(), bandLanes)
+	bandMempool := mempool.NewMempool(app.Logger(), lanes)
 	// set the mempool
 	app.SetMempool(bandMempool)
 
@@ -292,7 +291,7 @@ func NewBandApp(
 			IBCKeeper:       app.IBCKeeper,
 			StakingKeeper:   app.StakingKeeper,
 			GlobalfeeKeeper: &app.GlobalFeeKeeper,
-			IgnoreDecoratorMatchFns: []func(sdk.Context, sdk.Tx) bool{
+			IgnoreDecoratorMatchFns: []mempool.TxMatchFn{
 				feedsSubmitSignalPriceTxMatchHandler(app.appCodec, &app.AuthzKeeper, feedsMsgServer),
 				tssTxMatchHandler(app.appCodec, &app.AuthzKeeper, &app.BandtssKeeper, tssMsgServer),
 				oracleReportTxMatchHandler(app.appCodec, &app.AuthzKeeper, oracleMsgServer),

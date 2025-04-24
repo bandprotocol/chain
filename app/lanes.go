@@ -3,262 +3,34 @@ package band
 import (
 	"cosmossdk.io/math"
 
-	"github.com/cosmos/cosmos-sdk/codec"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
-	"github.com/cosmos/cosmos-sdk/x/authz"
-	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 
 	"github.com/bandprotocol/chain/v3/app/mempool"
-	bandtsskeeper "github.com/bandprotocol/chain/v3/x/bandtss/keeper"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-// feedsLaneMatchHandler is a function that returns the match function for the Feeds lane.
-func feedsLaneMatchHandler(
-	cdc codec.Codec,
-	authzKeeper *authzkeeper.Keeper,
-) func(sdk.Context, sdk.Tx) bool {
-	return func(ctx sdk.Context, tx sdk.Tx) bool {
-		// Feeds lane only matches fee-less transactions
-		gasTx, ok := tx.(sdk.FeeTx)
-		if !ok {
-			return false
-		}
-
-		if !gasTx.GetFee().IsZero() {
-			return false
-		}
-
-		msgs := tx.GetMsgs()
-		if len(msgs) == 0 {
-			return false
-		}
-		for _, msg := range msgs {
-			if !isMsgSubmitSignalPrices(ctx, msg, cdc, authzKeeper) {
-				return false
-			}
-		}
-		return true
-	}
-}
-
-// isMsgSubmitSignalPrices return true if the message is a valid feeds' MsgSubmitSignalPrices.
-func isMsgSubmitSignalPrices(
-	ctx sdk.Context,
-	msg sdk.Msg,
-	cdc codec.Codec,
-	authzKeeper *authzkeeper.Keeper,
-) bool {
-	switch msg := msg.(type) {
-	case *feedstypes.MsgSubmitSignalPrices:
-		return true
-	case *authz.MsgExec:
-		msgs, err := msg.GetMessages()
-		if err != nil {
-			return false
-		}
-
-		for _, m := range msgs {
-			if !isMsgSubmitSignalPrices(ctx, m, cdc, authzKeeper) {
-				return false
-			}
-		}
-		return true
-	default:
-		return false
-	}
-}
-
-// tssLaneMatchHandler is a function that returns the match function for the TSS lane.
-func tssLaneMatchHandler(
-	cdc codec.Codec,
-	authzKeeper *authzkeeper.Keeper,
-	bandtssKeeper *bandtsskeeper.Keeper,
-) func(sdk.Context, sdk.Tx) bool {
-	return func(ctx sdk.Context, tx sdk.Tx) bool {
-		// TSS lane only matches fee-less transactions
-		gasTx, ok := tx.(sdk.FeeTx)
-		if !ok {
-			return false
-		}
-
-		if !gasTx.GetFee().IsZero() {
-			return false
-		}
-
-		msgs := tx.GetMsgs()
-		if len(msgs) == 0 {
-			return false
-		}
-		for _, msg := range msgs {
-			if !isTssLaneMsg(ctx, msg, cdc, authzKeeper, bandtssKeeper) {
-				return false
-			}
-		}
-		return true
-	}
-}
-
-// isTssLaneMsg return true if the message is a valid for TSS lane.
-func isTssLaneMsg(
-	ctx sdk.Context,
-	msg sdk.Msg,
-	cdc codec.Codec,
-	authzKeeper *authzkeeper.Keeper,
-	bandtssKeeper *bandtsskeeper.Keeper,
-) bool {
-	switch msg := msg.(type) {
-	case *tsstypes.MsgSubmitDKGRound1,
-		*tsstypes.MsgSubmitDKGRound2,
-		*tsstypes.MsgConfirm,
-		*tsstypes.MsgComplain,
-		*tsstypes.MsgSubmitDEs,
-		*tsstypes.MsgSubmitSignature:
-		return true
-	case *authz.MsgExec:
-		msgs, err := msg.GetMessages()
-		if err != nil {
-			return false
-		}
-
-		for _, m := range msgs {
-			if !isTssLaneMsg(ctx, m, cdc, authzKeeper, bandtssKeeper) {
-				return false
-			}
-		}
-		return true
-	default:
-		return false
-	}
-}
-
-// oracleReportLaneMatchHandler is a function that returns the match function for the oracle report lane.
-func oracleReportLaneMatchHandler(
-	cdc codec.Codec,
-	authzKeeper *authzkeeper.Keeper,
-) func(sdk.Context, sdk.Tx) bool {
-	return func(ctx sdk.Context, tx sdk.Tx) bool {
-		// Oracle lane only matches fee-less transactions
-		gasTx, ok := tx.(sdk.FeeTx)
-		if !ok {
-			return false
-		}
-
-		if !gasTx.GetFee().IsZero() {
-			return false
-		}
-
-		msgs := tx.GetMsgs()
-		if len(msgs) == 0 {
-			return false
-		}
-		for _, msg := range msgs {
-			if !isMsgReportData(ctx, msg, cdc, authzKeeper) {
-				return false
-			}
-		}
-		return true
-	}
-}
-
-// isMsgReportData return true if the message is a valid oracle's MsgReportData.
-func isMsgReportData(
-	ctx sdk.Context,
-	msg sdk.Msg,
-	cdc codec.Codec,
-	authzKeeper *authzkeeper.Keeper,
-) bool {
-	switch msg := msg.(type) {
-	case *oracletypes.MsgReportData:
-		return true
-	case *authz.MsgExec:
-		msgs, err := msg.GetMessages()
-		if err != nil {
-			return false
-		}
-
-		for _, m := range msgs {
-			if !isMsgReportData(ctx, m, cdc, authzKeeper) {
-				return false
-			}
-		}
-		return true
-	default:
-		return false
-	}
-}
-
-// oracleRequestLaneMatchHandler is a function that returns the match function for the oracle request lane.
-func oracleRequestLaneMatchHandler(
-	cdc codec.Codec,
-	authzKeeper *authzkeeper.Keeper,
-) func(sdk.Context, sdk.Tx) bool {
-	return func(ctx sdk.Context, tx sdk.Tx) bool {
-		msgs := tx.GetMsgs()
-		if len(msgs) == 0 {
-			return false
-		}
-		for _, msg := range msgs {
-			if !isMsgRequestData(ctx, msg, cdc, authzKeeper) {
-				return false
-			}
-		}
-		return true
-	}
-}
-
-// isMsgRequestData return true if the message is a valid oracle's MsgRequestData.
-func isMsgRequestData(
-	ctx sdk.Context,
-	msg sdk.Msg,
-	cdc codec.Codec,
-	authzKeeper *authzkeeper.Keeper,
-) bool {
-	switch msg := msg.(type) {
-	case *oracletypes.MsgRequestData:
-		return true
-	case *authz.MsgExec:
-		msgs, err := msg.GetMessages()
-		if err != nil {
-			return false
-		}
-
-		for _, m := range msgs {
-			if !isMsgRequestData(ctx, m, cdc, authzKeeper) {
-				return false
-			}
-		}
-		return true
-	default:
-		return false
-	}
-}
-
 // DefaultLaneMatchHandler is a function that returns the match function for the default lane.
-func DefaultLaneMatchHandler() func(sdk.Context, sdk.Tx) bool {
+func DefaultLaneMatchHandler() mempool.TxMatchFn {
 	return func(_ sdk.Context, _ sdk.Tx) bool {
 		return true
 	}
 }
 
 // CreateLanes creates the lanes for the Band mempool.
-func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleReportLane, oracleRequestLane, defaultLane *mempool.Lane) {
-	// Create the signer extractor. This is used to extract the expected signers from
-	// a transaction. Each lane can have a different signer extractor if needed.
-	signerExtractor := sdkmempool.NewDefaultSignerExtractionAdapter()
-
+func CreateLanes(app *BandApp) []*mempool.Lane {
 	// feedsLane handles feeds submit signal price transactions.
 	// Each transaction has a gas limit of 2%, and the total gas limit for the lane is 50%.
 	// It uses SenderNonceMempool to ensure transactions are ordered by sender and nonce, with no per-sender tx limit.
-	feedsLane = mempool.NewLane(
+	feedsLane := mempool.NewLane(
 		app.Logger(),
 		app.txConfig.TxEncoder(),
-		signerExtractor,
 		"feedsLane",
-		feedsLaneMatchHandler(app.appCodec, &app.AuthzKeeper),
+		mempool.NewTxMatchFn(app.appCodec, []sdk.Msg{&feedstypes.MsgSubmitSignalPrices{}}, true),
 		math.LegacyMustNewDecFromStr("0.02"),
 		math.LegacyMustNewDecFromStr("0.5"),
 		sdkmempool.NewSenderNonceMempool(sdkmempool.SenderNonceMaxTxOpt(0)),
@@ -267,12 +39,22 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleReportLane, oracleRequ
 
 	// tssLane handles TSS transactions.
 	// Each transaction has a gas limit of 2%, and the total gas limit for the lane is 20%.
-	tssLane = mempool.NewLane(
+	tssLane := mempool.NewLane(
 		app.Logger(),
 		app.txConfig.TxEncoder(),
-		signerExtractor,
 		"tssLane",
-		tssLaneMatchHandler(app.appCodec, &app.AuthzKeeper, &app.BandtssKeeper),
+		mempool.NewTxMatchFn(
+			app.appCodec,
+			[]sdk.Msg{
+				&tsstypes.MsgSubmitDKGRound1{},
+				&tsstypes.MsgSubmitDKGRound2{},
+				&tsstypes.MsgConfirm{},
+				&tsstypes.MsgComplain{},
+				&tsstypes.MsgSubmitDEs{},
+				&tsstypes.MsgSubmitSignature{},
+			},
+			true,
+		),
 		math.LegacyMustNewDecFromStr("0.02"),
 		math.LegacyMustNewDecFromStr("0.2"),
 		sdkmempool.DefaultPriorityMempool(),
@@ -282,12 +64,18 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleReportLane, oracleRequ
 	// oracleRequestLane handles oracle request data transactions.
 	// Each transaction has a gas limit of 10%, and the total gas limit for the lane is 10%.
 	// It is blocked if the oracle report lane exceeds its limit.
-	oracleRequestLane = mempool.NewLane(
+	oracleRequestLane := mempool.NewLane(
 		app.Logger(),
 		app.txConfig.TxEncoder(),
-		signerExtractor,
 		"oracleRequestLane",
-		oracleRequestLaneMatchHandler(app.appCodec, &app.AuthzKeeper),
+		mempool.NewTxMatchFn(
+			app.appCodec,
+			[]sdk.Msg{
+				&oracletypes.MsgRequestData{},
+				&channeltypes.MsgRecvPacket{}, // TODO: Only match oracle request packet
+			},
+			false,
+		),
 		math.LegacyMustNewDecFromStr("0.1"),
 		math.LegacyMustNewDecFromStr("0.1"),
 		sdkmempool.DefaultPriorityMempool(),
@@ -297,12 +85,11 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleReportLane, oracleRequ
 	// oracleReportLane handles oracle report data transactions.
 	// Each transaction has a gas limit of 5%, and the total gas limit for the lane is 20%.
 	// It block the oracle request lane if it exceeds its limit.
-	oracleReportLane = mempool.NewLane(
+	oracleReportLane := mempool.NewLane(
 		app.Logger(),
 		app.txConfig.TxEncoder(),
-		signerExtractor,
 		"oracleReportLane",
-		oracleReportLaneMatchHandler(app.appCodec, &app.AuthzKeeper),
+		mempool.NewTxMatchFn(app.appCodec, []sdk.Msg{&oracletypes.MsgReportData{}}, true),
 		math.LegacyMustNewDecFromStr("0.05"),
 		math.LegacyMustNewDecFromStr("0.2"),
 		sdkmempool.DefaultPriorityMempool(),
@@ -313,10 +100,9 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleReportLane, oracleRequ
 
 	// defaultLane handles all other transactions.
 	// Each transaction has a gas limit of 10%, and the total gas limit for the lane is 10%.
-	defaultLane = mempool.NewLane(
+	defaultLane := mempool.NewLane(
 		app.Logger(),
 		app.txConfig.TxEncoder(),
-		signerExtractor,
 		"defaultLane",
 		DefaultLaneMatchHandler(),
 		math.LegacyMustNewDecFromStr("0.1"),
@@ -325,5 +111,5 @@ func CreateLanes(app *BandApp) (feedsLane, tssLane, oracleReportLane, oracleRequ
 		nil,
 	)
 
-	return
+	return []*mempool.Lane{feedsLane, tssLane, oracleRequestLane, oracleReportLane, defaultLane}
 }
