@@ -57,10 +57,21 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 }
 
 func preUpgradeChecks(s *UpgradeTestSuite) {
+	// check default oracle params
+	oracleParams := s.app.OracleKeeper.GetParams(s.ctx)
+	s.Require().Equal(uint64(512), oracleParams.MaxCalldataSize)
+	s.Require().Equal(uint64(512), oracleParams.MaxReportDataSize)
+
+	// Set oracle params to 0 to test upgrade
+	// this is to ensure that the upgrade handler is called
+	oracleParams.MaxCalldataSize = uint64(0)
+	oracleParams.MaxReportDataSize = uint64(0)
+	s.Require().Equal(uint64(0), oracleParams.MaxCalldataSize)
+	s.Require().Equal(uint64(0), oracleParams.MaxReportDataSize)
 }
 
 func postUpgradeChecks(s *UpgradeTestSuite) {
-	// check oracle params
+	// check oracle params is changed after upgrade
 	oracleParams := s.app.OracleKeeper.GetParams(s.ctx)
 	s.Require().Equal(uint64(512), oracleParams.MaxCalldataSize)
 	s.Require().Equal(uint64(512), oracleParams.MaxReportDataSize)
