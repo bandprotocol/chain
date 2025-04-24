@@ -7,7 +7,6 @@ import (
 	comettypes "github.com/cometbft/cometbft/types"
 
 	"cosmossdk.io/log"
-	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -69,16 +68,6 @@ func (p *Proposal) Add(txInfo TxWithInfo) error {
 	p.totalBlockSpace = currentBlockSpace
 
 	return nil
-}
-
-// GetLimit returns the maximum block space available for a given ratio.
-func (p *Proposal) GetLimit(ratio sdkmath.LegacyDec) BlockSpace {
-	// In the case where the ratio is zero, we return the max tx bytes remaining.
-	if ratio.IsZero() {
-		return p.maxBlockSpace.Sub(p.totalBlockSpace)
-	}
-
-	return p.maxBlockSpace.Scale(ratio)
 }
 
 // GetBlockLimits retrieves the maximum block size and gas limit from context.

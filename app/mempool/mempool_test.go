@@ -74,7 +74,7 @@ func (s *MempoolTestSuite) SetupTest() {
 	s.ctx = s.ctx.WithBlockHeight(1)
 
 	// Default consensus params
-	s.setBlockParams(100, 1000000000000)
+	s.setBlockParams(1000000000000, 100)
 }
 
 type EncodingConfig struct {
@@ -130,12 +130,12 @@ func RandomAccounts(r *rand.Rand, n int) []Account {
 	return accs
 }
 
-func (s *MempoolTestSuite) setBlockParams(maxGasLimit, maxBlockSize int64) {
+func (s *MempoolTestSuite) setBlockParams(maxBlockSize, maxBlockGas int64) {
 	s.ctx = s.ctx.WithConsensusParams(
 		tmprototypes.ConsensusParams{
 			Block: &tmprototypes.BlockParams{
 				MaxBytes: maxBlockSize,
-				MaxGas:   maxGasLimit,
+				MaxGas:   maxBlockGas,
 			},
 		},
 	)
@@ -339,7 +339,12 @@ func (s *MempoolTestSuite) TestTxOverLimit() {
 	s.Require().NoError(err)
 
 	mem := s.newMempool()
-	s.Require().NoError(mem.Insert(s.ctx, tx))
+	s.Require().Error(mem.Insert(s.ctx, tx))
+
+	// Ensure the tx is rejected
+	for _, lane := range mem.lanes {
+		s.Require().Equal(0, lane.CountTx())
+	}
 
 	proposal := NewProposal(
 		log.NewTestLogger(s.T()),
@@ -351,11 +356,6 @@ func (s *MempoolTestSuite) TestTxOverLimit() {
 	s.Require().NoError(err)
 
 	s.Require().Equal(0, len(result.txs))
-
-	// Ensure the tx is removed
-	for _, lane := range mem.lanes {
-		s.Require().Equal(0, lane.CountTx())
-	}
 }
 
 // TestTxsOverGasLimit checks if txs over the gas limit are rejected
