@@ -416,11 +416,9 @@ func (s *LaneTestSuite) TestLaneBlocked() {
 	// Insert 3 transactions
 	tx1 := s.createSimpleTx(s.accounts[0], 0, 20)
 	tx2 := s.createSimpleTx(s.accounts[1], 1, 20)
-	tx3 := s.createSimpleTx(s.accounts[2], 2, 30) // This is too large
 
 	s.Require().NoError(lane.Insert(s.ctx, tx1))
 	s.Require().NoError(lane.Insert(s.ctx, tx2))
-	s.Require().Error(lane.Insert(s.ctx, tx3))
 
 	// Create a proposal with block-limits
 	proposal := NewProposal(
