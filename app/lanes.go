@@ -30,7 +30,7 @@ func CreateLanes(app *BandApp) []*mempool.Lane {
 		app.Logger(),
 		app.txConfig.TxEncoder(),
 		"feedsLane",
-		mempool.NewTxMatchFn(app.appCodec, []sdk.Msg{&feedstypes.MsgSubmitSignalPrices{}}, true),
+		mempool.NewTxMatchFn([]sdk.Msg{&feedstypes.MsgSubmitSignalPrices{}}, true),
 		math.LegacyMustNewDecFromStr("0.02"),
 		math.LegacyMustNewDecFromStr("0.5"),
 		sdkmempool.NewSenderNonceMempool(sdkmempool.SenderNonceMaxTxOpt(0)),
@@ -44,7 +44,6 @@ func CreateLanes(app *BandApp) []*mempool.Lane {
 		app.txConfig.TxEncoder(),
 		"tssLane",
 		mempool.NewTxMatchFn(
-			app.appCodec,
 			[]sdk.Msg{
 				&tsstypes.MsgSubmitDKGRound1{},
 				&tsstypes.MsgSubmitDKGRound2{},
@@ -69,7 +68,6 @@ func CreateLanes(app *BandApp) []*mempool.Lane {
 		app.txConfig.TxEncoder(),
 		"oracleRequestLane",
 		mempool.NewTxMatchFn(
-			app.appCodec,
 			[]sdk.Msg{
 				&oracletypes.MsgRequestData{},
 				&channeltypes.MsgRecvPacket{}, // TODO: Only match oracle request packet
@@ -89,7 +87,7 @@ func CreateLanes(app *BandApp) []*mempool.Lane {
 		app.Logger(),
 		app.txConfig.TxEncoder(),
 		"oracleReportLane",
-		mempool.NewTxMatchFn(app.appCodec, []sdk.Msg{&oracletypes.MsgReportData{}}, true),
+		mempool.NewTxMatchFn([]sdk.Msg{&oracletypes.MsgReportData{}}, true),
 		math.LegacyMustNewDecFromStr("0.05"),
 		math.LegacyMustNewDecFromStr("0.2"),
 		sdkmempool.DefaultPriorityMempool(),
