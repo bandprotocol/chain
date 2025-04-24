@@ -11,6 +11,7 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	"github.com/bandprotocol/chain/v3/app/mempool"
 	bandtsskeeper "github.com/bandprotocol/chain/v3/x/bandtss/keeper"
 	feedskeeper "github.com/bandprotocol/chain/v3/x/feeds/keeper"
 	"github.com/bandprotocol/chain/v3/x/globalfee/feechecker"
@@ -32,7 +33,7 @@ type HandlerOptions struct {
 	TSSKeeper               *tsskeeper.Keeper
 	BandtssKeeper           *bandtsskeeper.Keeper
 	FeedsKeeper             *feedskeeper.Keeper
-	IgnoreDecoratorMatchFns []func(sdk.Context, sdk.Tx) bool
+	IgnoreDecoratorMatchFns []mempool.TxMatchFn
 }
 
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
@@ -124,11 +125,11 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 // for the AnteDecorator to be ignored for specified lanes.
 type IgnoreDecorator struct {
 	decorator sdk.AnteDecorator
-	matchFns  []func(sdk.Context, sdk.Tx) bool
+	matchFns  []mempool.TxMatchFn
 }
 
 // NewIgnoreDecorator returns a new IgnoreDecorator instance.
-func NewIgnoreDecorator(decorator sdk.AnteDecorator, matchFns ...func(sdk.Context, sdk.Tx) bool) *IgnoreDecorator {
+func NewIgnoreDecorator(decorator sdk.AnteDecorator, matchFns ...mempool.TxMatchFn) *IgnoreDecorator {
 	return &IgnoreDecorator{
 		decorator: decorator,
 		matchFns:  matchFns,

@@ -57,7 +57,6 @@ func (s *LaneTestSuite) TestLaneInsertAndCount() {
 	lane := NewLane(
 		log.NewNopLogger(),
 		s.encodingConfig.TxConfig.TxEncoder(),
-		sdkmempool.NewDefaultSignerExtractionAdapter(),
 		"testLane",
 		func(sdk.Context, sdk.Tx) bool { return true }, // accept all
 		math.LegacyMustNewDecFromStr("0.3"),
@@ -82,7 +81,6 @@ func (s *LaneTestSuite) TestLaneRemove() {
 	lane := NewLane(
 		log.NewNopLogger(),
 		s.encodingConfig.TxConfig.TxEncoder(),
-		sdkmempool.NewDefaultSignerExtractionAdapter(),
 		"testLane",
 		func(sdk.Context, sdk.Tx) bool { return true }, // accept all
 		math.LegacyMustNewDecFromStr("0.3"),
@@ -106,7 +104,6 @@ func (s *LaneTestSuite) TestLaneFillProposal() {
 	lane := NewLane(
 		log.NewNopLogger(),
 		s.encodingConfig.TxConfig.TxEncoder(),
-		sdkmempool.NewDefaultSignerExtractionAdapter(),
 		"testLane",
 		func(sdk.Context, sdk.Tx) bool { return true }, // accept all
 		math.LegacyMustNewDecFromStr("0.2"),
@@ -188,7 +185,6 @@ func (s *LaneTestSuite) TestLaneCallbackAfterFillProposal() {
 	lane := NewLane(
 		log.NewNopLogger(),
 		s.encodingConfig.TxConfig.TxEncoder(),
-		sdkmempool.NewDefaultSignerExtractionAdapter(),
 		"testLane",
 		func(sdk.Context, sdk.Tx) bool { return true }, // accept all
 		math.LegacyMustNewDecFromStr("0.3"),
@@ -258,7 +254,6 @@ func (s *LaneTestSuite) TestLaneExactlyFilled() {
 	lane := NewLane(
 		log.NewNopLogger(),
 		s.encodingConfig.TxConfig.TxEncoder(),
-		sdkmempool.NewDefaultSignerExtractionAdapter(),
 		"testLane",
 		func(sdk.Context, sdk.Tx) bool { return true }, // accept all
 		math.LegacyMustNewDecFromStr("0.3"),
@@ -328,7 +323,6 @@ func (s *LaneTestSuite) TestLaneBlocked() {
 	lane := NewLane(
 		log.NewNopLogger(),
 		s.encodingConfig.TxConfig.TxEncoder(),
-		sdkmempool.NewDefaultSignerExtractionAdapter(),
 		"testLane",
 		func(sdk.Context, sdk.Tx) bool { return true }, // accept all
 		math.LegacyMustNewDecFromStr("0.2"),
@@ -372,7 +366,7 @@ func (s *LaneTestSuite) TestLaneBlocked() {
 	s.Require().Equal(0, len(proposal.txs), "no txs in the proposal")
 	s.Require().Equal(expectedIncludedTxs, proposal.txs)
 
-	s.Require().Equal(lane.laneMempool.Select(s.ctx, nil).Tx(), tx1)
+	s.Require().Equal(lane.mempool.Select(s.ctx, nil).Tx(), tx1)
 
 	// Calculate the remaining block space
 	remainderLimit := proposal.maxBlockSpace.Sub(proposal.totalBlockSpace)
@@ -391,7 +385,7 @@ func (s *LaneTestSuite) TestLaneBlocked() {
 	s.Require().Equal(0, len(proposal.txs), "no txs in the proposal")
 	s.Require().Equal(expectedIncludedTxs, proposal.txs)
 
-	s.Require().Equal(lane.laneMempool.Select(s.ctx, nil).Tx(), tx1)
+	s.Require().Equal(lane.mempool.Select(s.ctx, nil).Tx(), tx1)
 }
 
 // -----------------------------------------------------------------------------

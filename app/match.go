@@ -6,6 +6,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 
+	"github.com/bandprotocol/chain/v3/app/mempool"
 	bandtsskeeper "github.com/bandprotocol/chain/v3/x/bandtss/keeper"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
@@ -17,7 +18,7 @@ func feedsSubmitSignalPriceTxMatchHandler(
 	cdc codec.Codec,
 	authzKeeper *authzkeeper.Keeper,
 	feedsMsgServer feedstypes.MsgServer,
-) func(sdk.Context, sdk.Tx) bool {
+) mempool.TxMatchFn {
 	return func(ctx sdk.Context, tx sdk.Tx) bool {
 		msgs := tx.GetMsgs()
 		if len(msgs) == 0 {
@@ -42,9 +43,7 @@ func isValidMsgSubmitSignalPrices(
 ) bool {
 	switch msg := msg.(type) {
 	case *feedstypes.MsgSubmitSignalPrices:
-		if _, err := feedsMsgServer.SubmitSignalPrices(ctx, msg); err != nil {
-			return false
-		}
+		return isSuccess(feedsMsgServer.SubmitSignalPrices(ctx, msg))
 	case *authz.MsgExec:
 		msgs, err := msg.GetMessages()
 		if err != nil {
@@ -77,11 +76,10 @@ func isValidMsgSubmitSignalPrices(
 				return false
 			}
 		}
+		return true
 	default:
 		return false
 	}
-
-	return true
 }
 
 // tssTxMatchHandler is a function that returns the match function for the TSS Tx.
@@ -90,7 +88,7 @@ func tssTxMatchHandler(
 	authzKeeper *authzkeeper.Keeper,
 	bandtssKeeper *bandtsskeeper.Keeper,
 	tssMsgServer tsstypes.MsgServer,
-) func(sdk.Context, sdk.Tx) bool {
+) mempool.TxMatchFn {
 	return func(ctx sdk.Context, tx sdk.Tx) bool {
 		msgs := tx.GetMsgs()
 		if len(msgs) == 0 {
@@ -116,21 +114,13 @@ func isValidTSSTxMsg(
 ) bool {
 	switch msg := msg.(type) {
 	case *tsstypes.MsgSubmitDKGRound1:
-		if _, err := tssMsgServer.SubmitDKGRound1(ctx, msg); err != nil {
-			return false
-		}
+		return isSuccess(tssMsgServer.SubmitDKGRound1(ctx, msg))
 	case *tsstypes.MsgSubmitDKGRound2:
-		if _, err := tssMsgServer.SubmitDKGRound2(ctx, msg); err != nil {
-			return false
-		}
+		return isSuccess(tssMsgServer.SubmitDKGRound2(ctx, msg))
 	case *tsstypes.MsgConfirm:
-		if _, err := tssMsgServer.Confirm(ctx, msg); err != nil {
-			return false
-		}
+		return isSuccess(tssMsgServer.Confirm(ctx, msg))
 	case *tsstypes.MsgComplain:
-		if _, err := tssMsgServer.Complain(ctx, msg); err != nil {
-			return false
-		}
+		return isSuccess(tssMsgServer.Complain(ctx, msg))
 	case *tsstypes.MsgSubmitDEs:
 		acc, err := sdk.AccAddressFromBech32(msg.Sender)
 		if err != nil {
@@ -144,13 +134,9 @@ func isValidTSSTxMsg(
 			return false
 		}
 
-		if _, err := tssMsgServer.SubmitDEs(ctx, msg); err != nil {
-			return false
-		}
+		return isSuccess(tssMsgServer.SubmitDEs(ctx, msg))
 	case *tsstypes.MsgSubmitSignature:
-		if _, err := tssMsgServer.SubmitSignature(ctx, msg); err != nil {
-			return false
-		}
+		return isSuccess(tssMsgServer.SubmitSignature(ctx, msg))
 	case *authz.MsgExec:
 		msgs, err := msg.GetMessages()
 		if err != nil {
@@ -183,11 +169,10 @@ func isValidTSSTxMsg(
 				return false
 			}
 		}
+		return true
 	default:
 		return false
 	}
-
-	return true
 }
 
 // oracleReportTxMatchHandler is a function that returns the match function for the oracle report tx.
@@ -195,7 +180,7 @@ func oracleReportTxMatchHandler(
 	cdc codec.Codec,
 	authzKeeper *authzkeeper.Keeper,
 	oracleMsgServer oracletypes.MsgServer,
-) func(sdk.Context, sdk.Tx) bool {
+) mempool.TxMatchFn {
 	return func(ctx sdk.Context, tx sdk.Tx) bool {
 		msgs := tx.GetMsgs()
 		if len(msgs) == 0 {
@@ -220,9 +205,7 @@ func isValidMsgReportData(
 ) bool {
 	switch msg := msg.(type) {
 	case *oracletypes.MsgReportData:
-		if _, err := oracleMsgServer.ReportData(ctx, msg); err != nil {
-			return false
-		}
+		return isSuccess(oracleMsgServer.ReportData(ctx, msg))
 	case *authz.MsgExec:
 		msgs, err := msg.GetMessages()
 		if err != nil {
@@ -255,9 +238,13 @@ func isValidMsgReportData(
 				return false
 			}
 		}
+
+		return true
 	default:
 		return false
 	}
+}
 
-	return true
+func isSuccess(_ any, err error) bool {
+	return err == nil
 }
