@@ -35,7 +35,7 @@ type Config struct {
 	GasAdjustStart      float64       `mapstructure:"gas-adjust-start"`      // The start value of gas adjustment
 	GasAdjustStep       float64       `mapstructure:"gas-adjust-step"`       // The increment step of gad adjustment
 	RandomSecret        tss.Scalar    `mapstructure:"random-secret"`         // The secret value that is used for random D,E
-	CheckingDEInterval  time.Duration `mapstructure:"checking-de-interval"`  // The interval for updating DE
+	CheckDEInterval     time.Duration `mapstructure:"check-de-interval"`     // The interval for updating DE
 	CheckStatusInterval time.Duration `mapstructure:"check-status-interval"` // The interval for checking the status of the member
 	MetricsListenAddr   string        `mapstructure:"metrics-listen-addr"`   // Address to use for metrics server
 }
