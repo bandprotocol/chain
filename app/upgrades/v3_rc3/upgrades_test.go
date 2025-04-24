@@ -14,7 +14,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	band "github.com/bandprotocol/chain/v3/app"
-	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3_rc3"
+	"github.com/bandprotocol/chain/v3/app/upgrades/v3_rc3"
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
 )
 
@@ -51,7 +51,7 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 	preUpgradeChecks(s)
 
 	upgradeHeight := int64(2)
-	s.ConfirmUpgradeSucceeded(v3.UpgradeName, upgradeHeight)
+	s.ConfirmUpgradeSucceeded(v3_rc3.UpgradeName, upgradeHeight)
 
 	postUpgradeChecks(s)
 }
@@ -62,12 +62,17 @@ func preUpgradeChecks(s *UpgradeTestSuite) {
 	s.Require().Equal(uint64(512), oracleParams.MaxCalldataSize)
 	s.Require().Equal(uint64(512), oracleParams.MaxReportDataSize)
 
-	// Set oracle params to 0 to test upgrade
+	// Set oracle params to 1 to test upgrade
 	// this is to ensure that the upgrade handler is called
-	oracleParams.MaxCalldataSize = uint64(0)
-	oracleParams.MaxReportDataSize = uint64(0)
-	s.Require().Equal(uint64(0), oracleParams.MaxCalldataSize)
-	s.Require().Equal(uint64(0), oracleParams.MaxReportDataSize)
+	oracleParams.MaxCalldataSize = uint64(1)
+	oracleParams.MaxReportDataSize = uint64(1)
+	err := s.app.OracleKeeper.SetParams(s.ctx, oracleParams)
+	s.Require().NoError(err)
+
+	// check oracle params is set to 1
+	oracleParams = s.app.OracleKeeper.GetParams(s.ctx)
+	s.Require().Equal(uint64(1), oracleParams.MaxCalldataSize)
+	s.Require().Equal(uint64(1), oracleParams.MaxReportDataSize)
 }
 
 func postUpgradeChecks(s *UpgradeTestSuite) {
