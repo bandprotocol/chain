@@ -214,7 +214,7 @@ func (l *Lane) FillProposal(
 func (l *Lane) FillProposalByIterator(
 	proposal *Proposal,
 	iterator sdkmempool.Iterator,
-	laneLimit BlockSpace,
+	limit BlockSpace,
 ) (blockUsed BlockSpace) {
 	// if the lane is blocked, we do not add any transactions to the proposal.
 	if l.blocked {
@@ -225,7 +225,7 @@ func (l *Lane) FillProposalByIterator(
 	for ; iterator != nil; iterator = iterator.Next() {
 		// If the total size used or total gas used exceeds the limit, we break and do not attempt to include more txs.
 		// We can tolerate a few bytes/gas over the limit, since we limit the size of each transaction.
-		if laneLimit.IsReachedBy(blockUsed) {
+		if limit.IsReachedBy(blockUsed) {
 			break
 		}
 
