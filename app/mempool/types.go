@@ -20,16 +20,16 @@ type TxWithInfo struct {
 
 type TxMatchFn func(sdk.Context, sdk.Tx) bool
 
-func NewTxMatchFn(msgs []sdk.Msg, onlyFree bool) TxMatchFn {
+func NewLaneTxMatchFn(msgs []sdk.Msg, onlyFree bool) TxMatchFn {
 	msgTypes := make([]reflect.Type, len(msgs))
 
 	for i, msg := range msgs {
 		msgTypes[i] = reflect.TypeOf(msg)
 	}
 
-	var matchMsgFn func(sdk.Context, sdk.Msg) bool
+	var matchMsgFn func(sdk.Msg) bool
 
-	matchMsgFn = func(ctx sdk.Context, msg sdk.Msg) bool {
+	matchMsgFn = func(msg sdk.Msg) bool {
 		msgExec, ok := msg.(*authz.MsgExec)
 		if ok {
 			subMsgs, err := msgExec.GetMessages()
@@ -37,7 +37,7 @@ func NewTxMatchFn(msgs []sdk.Msg, onlyFree bool) TxMatchFn {
 				return false
 			}
 			for _, m := range subMsgs {
-				if !matchMsgFn(ctx, m) {
+				if !matchMsgFn(m) {
 					return false
 				}
 			}
@@ -47,7 +47,7 @@ func NewTxMatchFn(msgs []sdk.Msg, onlyFree bool) TxMatchFn {
 		}
 	}
 
-	return func(ctx sdk.Context, tx sdk.Tx) bool {
+	return func(_ sdk.Context, tx sdk.Tx) bool {
 		if onlyFree {
 			gasTx, ok := tx.(sdk.FeeTx)
 			if !ok {
@@ -64,7 +64,7 @@ func NewTxMatchFn(msgs []sdk.Msg, onlyFree bool) TxMatchFn {
 			return false
 		}
 		for _, msg := range msgs {
-			if !matchMsgFn(ctx, msg) {
+			if !matchMsgFn(msg) {
 				return false
 			}
 		}
