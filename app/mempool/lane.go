@@ -18,16 +18,15 @@ import (
 
 // Lane defines a logical grouping of transactions within the mempool.
 type Lane struct {
-	logger          log.Logger
-	txEncoder       sdk.TxEncoder
-	signerExtractor sdkmempool.SignerExtractionAdapter
-	name            string
-	matchFn         func(ctx sdk.Context, tx sdk.Tx) bool
+	logger    log.Logger
+	txEncoder sdk.TxEncoder
+	name      string
+	matchFn   func(ctx sdk.Context, tx sdk.Tx) bool
 
 	maxTransactionBlockRatio math.LegacyDec
 	maxLaneBlockRatio        math.LegacyDec
 
-	laneMempool sdkmempool.Mempool
+	mempool sdkmempool.Mempool
 
 	// txIndex holds the uppercase hex-encoded hash for every transaction
 	// currently in this lane's mempool.
@@ -49,23 +48,21 @@ type Lane struct {
 func NewLane(
 	logger log.Logger,
 	txEncoder sdk.TxEncoder,
-	signerExtractor sdkmempool.SignerExtractionAdapter,
 	name string,
-	matchFn func(sdk.Context, sdk.Tx) bool,
+	matchFn TxMatchFn,
 	maxTransactionBlockRatio math.LegacyDec,
 	maxLaneBlockRatio math.LegacyDec,
-	laneMempool sdkmempool.Mempool,
+	mempool sdkmempool.Mempool,
 	callbackAfterFillProposal func(isLaneLimitExceeded bool),
 ) *Lane {
 	return &Lane{
 		logger:                    logger,
 		txEncoder:                 txEncoder,
-		signerExtractor:           signerExtractor,
 		name:                      name,
 		matchFn:                   matchFn,
 		maxTransactionBlockRatio:  maxTransactionBlockRatio,
 		maxLaneBlockRatio:         maxLaneBlockRatio,
-		laneMempool:               laneMempool,
+		mempool:                   mempool,
 		callbackAfterFillProposal: callbackAfterFillProposal,
 
 		// Initialize the txIndex.
@@ -102,7 +99,7 @@ func (l *Lane) Insert(ctx context.Context, tx sdk.Tx) error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	if err = l.laneMempool.Insert(ctx, tx); err != nil {
+	if err = l.mempool.Insert(ctx, tx); err != nil {
 		return err
 	}
 
@@ -112,7 +109,7 @@ func (l *Lane) Insert(ctx context.Context, tx sdk.Tx) error {
 
 // CountTx returns the total number of transactions in the lane's mempool.
 func (l *Lane) CountTx() int {
-	return l.laneMempool.CountTx()
+	return l.mempool.CountTx()
 }
 
 // Remove removes a transaction from the lane's mempool.
@@ -125,7 +122,7 @@ func (l *Lane) Remove(tx sdk.Tx) error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	if err = l.laneMempool.Remove(tx); err != nil {
+	if err = l.mempool.Remove(tx); err != nil {
 		return err
 	}
 
@@ -170,7 +167,7 @@ func (l *Lane) FillProposal(
 
 	// Select all transactions in the mempool that are valid and not already in the
 	// partial proposal.
-	for iterator = l.laneMempool.Select(ctx, nil); iterator != nil; iterator = iterator.Next() {
+	for iterator = l.mempool.Select(ctx, nil); iterator != nil; iterator = iterator.Next() {
 		// If the total size used or total gas used exceeds the limit, we break and do not attempt to include more txs.
 		// We can tolerate a few bytes/gas over the limit, since we limit the size of each transaction.
 		if laneLimit.IsReachedBy(blockUsed) {
@@ -271,18 +268,12 @@ func (l *Lane) getTxInfo(tx sdk.Tx) (TxWithInfo, error) {
 		return TxWithInfo{}, fmt.Errorf("failed to cast transaction to gas tx")
 	}
 
-	signers, err := l.signerExtractor.GetSigners(tx)
-	if err != nil {
-		return TxWithInfo{}, err
-	}
-
 	blockSpace := NewBlockSpace(uint64(len(txBytes)), gasTx.GetGas())
 
 	return TxWithInfo{
 		Hash:       strings.ToUpper(hex.EncodeToString(comettypes.Tx(txBytes).Hash())),
 		BlockSpace: blockSpace,
 		TxBytes:    txBytes,
-		Signers:    signers,
 	}, nil
 }
 

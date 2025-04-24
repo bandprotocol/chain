@@ -146,12 +146,9 @@ func (s *MempoolTestSuite) setBlockParams(maxBlockSize, maxBlockGas int64) {
 // -----------------------------------------------------------------------------
 
 func (s *MempoolTestSuite) newMempool() *Mempool {
-	signerExtractor := sdkmempool.NewDefaultSignerExtractionAdapter()
-
 	BankSendLane := NewLane(
 		log.NewTestLogger(s.T()),
 		s.encodingConfig.TxConfig.TxEncoder(),
-		signerExtractor,
 		"bankSend",
 		isBankSendTx,
 		math.LegacyMustNewDecFromStr("0.2"),
@@ -163,7 +160,6 @@ func (s *MempoolTestSuite) newMempool() *Mempool {
 	DelegateLane := NewLane(
 		log.NewTestLogger(s.T()),
 		s.encodingConfig.TxConfig.TxEncoder(),
-		signerExtractor,
 		"delegate",
 		isDelegateTx,
 		math.LegacyMustNewDecFromStr("0.2"),
@@ -175,7 +171,6 @@ func (s *MempoolTestSuite) newMempool() *Mempool {
 	OtherLane := NewLane(
 		log.NewTestLogger(s.T()),
 		s.encodingConfig.TxConfig.TxEncoder(),
-		signerExtractor,
 		"other",
 		isOtherTx,
 		math.LegacyMustNewDecFromStr("0.4"),
@@ -511,12 +506,9 @@ func (s *MempoolTestSuite) TestFillUpLeftOverSpace() {
 }
 
 func (s *MempoolTestSuite) TestDependencyBlockLane() {
-	signerAdapter := sdkmempool.NewDefaultSignerExtractionAdapter()
-
 	DependentLane := NewLane(
 		log.NewTestLogger(s.T()),
 		s.encodingConfig.TxConfig.TxEncoder(),
-		signerAdapter,
 		"dependent",
 		isOtherTx,
 		math.LegacyMustNewDecFromStr("0.5"),
@@ -528,7 +520,6 @@ func (s *MempoolTestSuite) TestDependencyBlockLane() {
 	DependencyLane := NewLane(
 		log.NewTestLogger(s.T()),
 		s.encodingConfig.TxConfig.TxEncoder(),
-		signerAdapter,
 		"dependency",
 		isBankSendTx,
 		math.LegacyMustNewDecFromStr("0.5"),
