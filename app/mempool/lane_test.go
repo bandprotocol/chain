@@ -197,7 +197,6 @@ func (s *LaneTestSuite) TestLaneFillProposalWithBytesLimit() {
 	lane := NewLane(
 		log.NewNopLogger(),
 		s.encodingConfig.TxConfig.TxEncoder(),
-		sdkmempool.NewDefaultSignerExtractionAdapter(),
 		"testLane",
 		func(sdk.Context, sdk.Tx) bool { return true }, // accept all
 		math.LegacyMustNewDecFromStr("0.2"),
