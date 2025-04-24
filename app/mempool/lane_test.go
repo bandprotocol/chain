@@ -6,6 +6,8 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
@@ -45,6 +47,12 @@ func (s *LaneTestSuite) SetupTest() {
 	)
 	s.ctx = testCtx.Ctx.WithIsCheckTx(true)
 	s.ctx = s.ctx.WithBlockHeight(1)
+	s.ctx = s.ctx.WithConsensusParams(cmtproto.ConsensusParams{
+		Block: &cmtproto.BlockParams{
+			MaxBytes: 1000000000000,
+			MaxGas:   100,
+		},
+	})
 }
 
 // -----------------------------------------------------------------------------
@@ -57,7 +65,6 @@ func (s *LaneTestSuite) TestLaneInsertAndCount() {
 	lane := NewLane(
 		log.NewNopLogger(),
 		s.encodingConfig.TxConfig.TxEncoder(),
-		sdkmempool.NewDefaultSignerExtractionAdapter(),
 		"testLane",
 		func(sdk.Context, sdk.Tx) bool { return true }, // accept all
 		math.LegacyMustNewDecFromStr("0.3"),
@@ -75,6 +82,28 @@ func (s *LaneTestSuite) TestLaneInsertAndCount() {
 
 	// Ensure lane sees 2 transactions
 	s.Require().Equal(2, lane.CountTx())
+
+	// Create over gas limit tx
+	tx3 := s.createSimpleTx(s.accounts[2], 0, 100)
+	s.Require().Error(lane.Insert(s.ctx, tx3))
+
+	// Ensure lane does not insert tx3
+	s.Require().Equal(2, lane.CountTx())
+
+	// set bytes limit to 1000
+	s.ctx = s.ctx.WithConsensusParams(cmtproto.ConsensusParams{
+		Block: &cmtproto.BlockParams{
+			MaxBytes: 500,
+			MaxGas:   100,
+		},
+	})
+
+	// Create over bytes limit tx
+	tx4 := s.createSimpleTx(s.accounts[2], 0, 0) // 217 bytes
+	s.Require().Error(lane.Insert(s.ctx, tx4))
+
+	// Ensure lane does not insert tx4
+	s.Require().Equal(2, lane.CountTx())
 }
 
 func (s *LaneTestSuite) TestLaneRemove() {
@@ -82,7 +111,6 @@ func (s *LaneTestSuite) TestLaneRemove() {
 	lane := NewLane(
 		log.NewNopLogger(),
 		s.encodingConfig.TxConfig.TxEncoder(),
-		sdkmempool.NewDefaultSignerExtractionAdapter(),
 		"testLane",
 		func(sdk.Context, sdk.Tx) bool { return true }, // accept all
 		math.LegacyMustNewDecFromStr("0.3"),
@@ -101,12 +129,11 @@ func (s *LaneTestSuite) TestLaneRemove() {
 	s.Require().Equal(0, lane.CountTx())
 }
 
-func (s *LaneTestSuite) TestLaneFillProposal() {
+func (s *LaneTestSuite) TestLaneFillProposalWithGasLimit() {
 	// Lane that matches all txs
 	lane := NewLane(
 		log.NewNopLogger(),
 		s.encodingConfig.TxConfig.TxEncoder(),
-		sdkmempool.NewDefaultSignerExtractionAdapter(),
 		"testLane",
 		func(sdk.Context, sdk.Tx) bool { return true }, // accept all
 		math.LegacyMustNewDecFromStr("0.2"),
@@ -118,20 +145,17 @@ func (s *LaneTestSuite) TestLaneFillProposal() {
 	// Insert 3 transactions
 	tx1 := s.createSimpleTx(s.accounts[0], 0, 20)
 	tx2 := s.createSimpleTx(s.accounts[1], 1, 20)
-	tx3 := s.createSimpleTx(s.accounts[2], 2, 50) // This might be large
-	tx4 := s.createSimpleTx(s.accounts[2], 3, 30) // This might be large
-	tx5 := s.createSimpleTx(s.accounts[2], 4, 20)
-	tx6 := s.createSimpleTx(s.accounts[2], 5, 20)
-	tx7 := s.createSimpleTx(s.accounts[2], 6, 10)
-	tx8 := s.createSimpleTx(s.accounts[2], 7, 10)
+	tx3 := s.createSimpleTx(s.accounts[2], 2, 20)
+	tx4 := s.createSimpleTx(s.accounts[2], 3, 20)
+	tx5 := s.createSimpleTx(s.accounts[2], 4, 15)
+	tx6 := s.createSimpleTx(s.accounts[2], 5, 10)
+
 	s.Require().NoError(lane.Insert(s.ctx, tx1))
 	s.Require().NoError(lane.Insert(s.ctx, tx2))
 	s.Require().NoError(lane.Insert(s.ctx, tx3))
 	s.Require().NoError(lane.Insert(s.ctx, tx4))
 	s.Require().NoError(lane.Insert(s.ctx, tx5))
 	s.Require().NoError(lane.Insert(s.ctx, tx6))
-	s.Require().NoError(lane.Insert(s.ctx, tx7))
-	s.Require().NoError(lane.Insert(s.ctx, tx8))
 
 	// Create a proposal with block-limits
 	proposal := NewProposal(
@@ -141,15 +165,12 @@ func (s *LaneTestSuite) TestLaneFillProposal() {
 	)
 
 	// FillProposal
-	blockUsed, iterator, txsToRemove := lane.FillProposal(s.ctx, &proposal)
+	blockUsed, iterator := lane.FillProposal(s.ctx, &proposal)
 
 	// We expect tx1 and tx2 to be included in the proposal.
-	// Then the gas should be over the limit, so tx3 is yet to be considered.
-	s.Require().Equal(uint64(440), blockUsed.TxBytes())
+	// Since the 20% of 1000 is 200, the gas should be over the limit, so tx3 is yet to be considered.
 	s.Require().Equal(uint64(40), blockUsed.Gas(), "20 gas from tx1 and 20 gas from tx2")
 	s.Require().NotNil(iterator)
-	s.Require().
-		Len(txsToRemove, 0, "tx3 is yet to be considered")
 
 	// The proposal should contain 2 transactions in Txs().
 	expectedIncludedTxs := s.getTxBytes(tx1, tx2)
@@ -160,18 +181,74 @@ func (s *LaneTestSuite) TestLaneFillProposal() {
 	remainderLimit := proposal.maxBlockSpace.Sub(proposal.totalBlockSpace)
 
 	// Call FillProposalBy with the remainder limit and iterator from the previous call.
-	blockUsed, txsToRemove = lane.FillProposalByIterator(&proposal, iterator, remainderLimit)
+	blockUsed = lane.FillProposalByIterator(&proposal, iterator, remainderLimit)
 
-	// We expect tx1, tx2, tx5, tx6, tx7, tx8 to be included in the proposal.
-	s.Require().Equal(uint64(884), blockUsed.TxBytes())
-	s.Require().Equal(uint64(60), blockUsed.Gas())
-	s.Require().Equal([]sdk.Tx{tx3, tx4}, txsToRemove)
-	s.Require().
-		Len(txsToRemove, 2, "tx3 and tx4 are removed")
+	// We expect tx1, tx2, tx3, tx4, tx5 to be included in the proposal.
+	s.Require().Equal(uint64(55), blockUsed.Gas(), "20 gas from tx3 and 20 gas from tx4 + 15 gas from tx5")
+
+	// The proposal should contain 5 transactions in Txs().
+	expectedIncludedTxs = s.getTxBytes(tx1, tx2, tx3, tx4, tx5)
+	s.Require().Equal(5, len(proposal.txs), "five txs in the proposal")
+	s.Require().Equal(expectedIncludedTxs, proposal.txs)
+}
+
+func (s *LaneTestSuite) TestLaneFillProposalWithBytesLimit() {
+	// Lane that matches all txs
+	lane := NewLane(
+		log.NewNopLogger(),
+		s.encodingConfig.TxConfig.TxEncoder(),
+		"testLane",
+		func(sdk.Context, sdk.Tx) bool { return true }, // accept all
+		math.LegacyMustNewDecFromStr("0.2"),
+		math.LegacyMustNewDecFromStr("0.3"),
+		sdkmempool.DefaultPriorityMempool(),
+		nil,
+	)
+
+	// Insert 3 transactions
+	tx1 := s.createSimpleTx(s.accounts[0], 0, 0) // 217 bytes
+	tx2 := s.createSimpleTx(s.accounts[1], 1, 0) // 219 bytes
+	tx3 := s.createSimpleTx(s.accounts[2], 2, 0) // 219 bytes
+	tx4 := s.createSimpleTx(s.accounts[2], 3, 0) // 219 bytes
+	tx5 := s.createSimpleTx(s.accounts[2], 4, 0) // 219 bytes
+
+	s.Require().NoError(lane.Insert(s.ctx, tx1))
+	s.Require().NoError(lane.Insert(s.ctx, tx2))
+	s.Require().NoError(lane.Insert(s.ctx, tx3))
+	s.Require().NoError(lane.Insert(s.ctx, tx4))
+	s.Require().NoError(lane.Insert(s.ctx, tx5))
+
+	// Create a proposal with block-limits
+	proposal := NewProposal(
+		log.NewTestLogger(s.T()),
+		1000,
+		1000000000000,
+	)
+
+	// FillProposal
+	blockUsed, iterator := lane.FillProposal(s.ctx, &proposal)
+
+	// We expect tx1 and tx2 to be included in the proposal.
+	// Since the 30% of 1000 is 300, the bytes should be over the limit, so tx3 is yet to be considered.
+	s.Require().Equal(uint64(436), blockUsed.TxBytes())
 
 	// The proposal should contain 2 transactions in Txs().
-	expectedIncludedTxs = s.getTxBytes(tx1, tx2, tx5, tx6, tx7, tx8)
-	s.Require().Equal(6, len(proposal.txs), "two txs in the proposal")
+	expectedIncludedTxs := s.getTxBytes(tx1, tx2)
+	s.Require().Equal(2, len(proposal.txs), "two txs in the proposal")
+	s.Require().Equal(expectedIncludedTxs, proposal.txs)
+
+	// Calculate the remaining block space
+	remainderLimit := proposal.maxBlockSpace.Sub(proposal.totalBlockSpace)
+
+	// Call FillProposalBy with the remainder limit and iterator from the previous call.
+	blockUsed = lane.FillProposalByIterator(&proposal, iterator, remainderLimit)
+
+	// We expect tx1, tx2, tx3, tx4 to be included in the proposal.
+	s.Require().Equal(uint64(438), blockUsed.TxBytes())
+
+	// The proposal should contain 4 transactions in Txs().
+	expectedIncludedTxs = s.getTxBytes(tx1, tx2, tx3, tx4)
+	s.Require().Equal(4, len(proposal.txs), "four txs in the proposal")
 	s.Require().Equal(expectedIncludedTxs, proposal.txs)
 }
 
@@ -188,7 +265,6 @@ func (s *LaneTestSuite) TestLaneCallbackAfterFillProposal() {
 	lane := NewLane(
 		log.NewNopLogger(),
 		s.encodingConfig.TxConfig.TxEncoder(),
-		sdkmempool.NewDefaultSignerExtractionAdapter(),
 		"testLane",
 		func(sdk.Context, sdk.Tx) bool { return true }, // accept all
 		math.LegacyMustNewDecFromStr("0.3"),
@@ -210,7 +286,7 @@ func (s *LaneTestSuite) TestLaneCallbackAfterFillProposal() {
 	)
 
 	// FillProposal
-	blockUsed, iterator, _ := lane.FillProposal(s.ctx, &proposal)
+	blockUsed, iterator := lane.FillProposal(s.ctx, &proposal)
 
 	// We expect tx1 to be included in the proposal.
 	s.Require().Equal(uint64(20), blockUsed.Gas(), "20 gas from tx1")
@@ -238,7 +314,7 @@ func (s *LaneTestSuite) TestLaneCallbackAfterFillProposal() {
 	)
 
 	// FillProposal
-	blockUsed, iterator, _ = lane.FillProposal(s.ctx, &proposal)
+	blockUsed, iterator = lane.FillProposal(s.ctx, &proposal)
 
 	// We expect tx1 and tx2 to be included in the proposal.
 	// Then the gas should be over the limit, so tx3 is yet to be considered.
@@ -258,7 +334,6 @@ func (s *LaneTestSuite) TestLaneExactlyFilled() {
 	lane := NewLane(
 		log.NewNopLogger(),
 		s.encodingConfig.TxConfig.TxEncoder(),
-		sdkmempool.NewDefaultSignerExtractionAdapter(),
 		"testLane",
 		func(sdk.Context, sdk.Tx) bool { return true }, // accept all
 		math.LegacyMustNewDecFromStr("0.3"),
@@ -280,7 +355,7 @@ func (s *LaneTestSuite) TestLaneExactlyFilled() {
 	)
 
 	// FillProposal
-	blockUsed, iterator, _ := lane.FillProposal(s.ctx, &proposal)
+	blockUsed, iterator := lane.FillProposal(s.ctx, &proposal)
 
 	// We expect tx1 to be included in the proposal.
 	s.Require().Equal(uint64(20), blockUsed.Gas(), "20 gas from tx1")
@@ -308,7 +383,7 @@ func (s *LaneTestSuite) TestLaneExactlyFilled() {
 	)
 
 	// FillProposal
-	blockUsed, iterator, _ = lane.FillProposal(s.ctx, &proposal)
+	blockUsed, iterator = lane.FillProposal(s.ctx, &proposal)
 
 	// We expect tx1 and tx2 to be included in the proposal.
 	// Then the gas should be over the limit, so tx3 is yet to be considered.
@@ -328,7 +403,6 @@ func (s *LaneTestSuite) TestLaneBlocked() {
 	lane := NewLane(
 		log.NewNopLogger(),
 		s.encodingConfig.TxConfig.TxEncoder(),
-		sdkmempool.NewDefaultSignerExtractionAdapter(),
 		"testLane",
 		func(sdk.Context, sdk.Tx) bool { return true }, // accept all
 		math.LegacyMustNewDecFromStr("0.2"),
@@ -342,11 +416,11 @@ func (s *LaneTestSuite) TestLaneBlocked() {
 	// Insert 3 transactions
 	tx1 := s.createSimpleTx(s.accounts[0], 0, 20)
 	tx2 := s.createSimpleTx(s.accounts[1], 1, 20)
-	tx3 := s.createSimpleTx(s.accounts[2], 2, 30)
+	tx3 := s.createSimpleTx(s.accounts[2], 2, 30) // This is too large
 
 	s.Require().NoError(lane.Insert(s.ctx, tx1))
 	s.Require().NoError(lane.Insert(s.ctx, tx2))
-	s.Require().NoError(lane.Insert(s.ctx, tx3))
+	s.Require().Error(lane.Insert(s.ctx, tx3))
 
 	// Create a proposal with block-limits
 	proposal := NewProposal(
@@ -356,7 +430,7 @@ func (s *LaneTestSuite) TestLaneBlocked() {
 	)
 
 	// FillProposal
-	blockUsed, iterator, txsToRemove := lane.FillProposal(s.ctx, &proposal)
+	blockUsed, iterator := lane.FillProposal(s.ctx, &proposal)
 
 	s.Require().True(lane.blocked)
 
@@ -364,34 +438,30 @@ func (s *LaneTestSuite) TestLaneBlocked() {
 	s.Require().Equal(uint64(0), blockUsed.TxBytes())
 	s.Require().Equal(uint64(0), blockUsed.Gas(), "0 gas")
 	s.Require().Nil(iterator)
-	s.Require().
-		Len(txsToRemove, 0, "no txs are removed")
 
 	// The proposal should contain 0 transactions in Txs().
 	expectedIncludedTxs := [][]byte{}
 	s.Require().Equal(0, len(proposal.txs), "no txs in the proposal")
 	s.Require().Equal(expectedIncludedTxs, proposal.txs)
 
-	s.Require().Equal(lane.laneMempool.Select(s.ctx, nil).Tx(), tx1)
+	s.Require().Equal(lane.mempool.Select(s.ctx, nil).Tx(), tx1)
 
 	// Calculate the remaining block space
 	remainderLimit := proposal.maxBlockSpace.Sub(proposal.totalBlockSpace)
 
 	// Call FillProposalBy with the remainder limit and iterator from the previous call.
-	blockUsed, txsToRemove = lane.FillProposalByIterator(&proposal, iterator, remainderLimit)
+	blockUsed = lane.FillProposalByIterator(&proposal, iterator, remainderLimit)
 
 	// We expect no txs to be included in the proposal.
 	s.Require().Equal(uint64(0), blockUsed.TxBytes())
 	s.Require().Equal(uint64(0), blockUsed.Gas())
-	s.Require().
-		Len(txsToRemove, 0, "no txs are removed")
 
 	// The proposal should contain 0 transactions in Txs().
 	expectedIncludedTxs = [][]byte{}
 	s.Require().Equal(0, len(proposal.txs), "no txs in the proposal")
 	s.Require().Equal(expectedIncludedTxs, proposal.txs)
 
-	s.Require().Equal(lane.laneMempool.Select(s.ctx, nil).Tx(), tx1)
+	s.Require().Equal(lane.mempool.Select(s.ctx, nil).Tx(), tx1)
 }
 
 // -----------------------------------------------------------------------------

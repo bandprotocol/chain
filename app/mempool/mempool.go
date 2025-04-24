@@ -97,23 +97,19 @@ func (m *Mempool) PrepareProposal(ctx sdk.Context, proposal Proposal) (Proposal,
 	cacheCtx, _ := ctx.CacheContext()
 
 	// 1) Perform the initial fill of proposals
-	laneIterators, txsToRemove, blockUsed := m.fillInitialProposals(cacheCtx, &proposal)
+	laneIterators, blockUsed := m.fillInitialProposals(cacheCtx, &proposal)
 
 	// 2) Calculate the remaining block space
 	remainderLimit := proposal.maxBlockSpace.Sub(blockUsed)
 
 	// 3) Fill proposals with leftover space
-	m.fillRemainderProposals(&proposal, laneIterators, txsToRemove, remainderLimit)
-
-	// 4) Remove the transactions that were invalidated from each lane
-	m.removeTxsFromLanes(txsToRemove)
+	m.fillRemainderProposals(&proposal, laneIterators, remainderLimit)
 
 	return proposal, nil
 }
 
 // fillInitialProposals iterates over lanes, calling FillProposal. It returns:
 //   - laneIterators:  the Iterator for each lane
-//   - txsToRemove:    slice-of-slice of transactions to be removed later
 //   - totalSize:      total block size used
 //   - totalGas:       total gas used
 func (m *Mempool) fillInitialProposals(
@@ -121,23 +117,20 @@ func (m *Mempool) fillInitialProposals(
 	proposal *Proposal,
 ) (
 	[]sdkmempool.Iterator,
-	[][]sdk.Tx,
 	BlockSpace,
 ) {
 	totalBlockUsed := NewBlockSpace(0, 0)
 
 	laneIterators := make([]sdkmempool.Iterator, len(m.lanes))
-	txsToRemove := make([][]sdk.Tx, len(m.lanes))
 
 	for i, lane := range m.lanes {
-		blockUsed, iterator, txs := lane.FillProposal(ctx, proposal)
+		blockUsed, iterator := lane.FillProposal(ctx, proposal)
 		totalBlockUsed = totalBlockUsed.Add(blockUsed)
 
 		laneIterators[i] = iterator
-		txsToRemove[i] = txs
 	}
 
-	return laneIterators, txsToRemove, totalBlockUsed
+	return laneIterators, totalBlockUsed
 }
 
 // fillRemainderProposals performs an additional fill on each lane using the leftover
@@ -145,11 +138,10 @@ func (m *Mempool) fillInitialProposals(
 func (m *Mempool) fillRemainderProposals(
 	proposal *Proposal,
 	laneIterators []sdkmempool.Iterator,
-	txsToRemove [][]sdk.Tx,
 	remainderLimit BlockSpace,
 ) {
 	for i, lane := range m.lanes {
-		blockUsed, removedTxs := lane.FillProposalByIterator(
+		blockUsed := lane.FillProposalByIterator(
 			proposal,
 			laneIterators[i],
 			remainderLimit,
@@ -157,25 +149,6 @@ func (m *Mempool) fillRemainderProposals(
 
 		// Decrement the remainder for subsequent lanes
 		remainderLimit = remainderLimit.Sub(blockUsed)
-
-		// Append any newly removed transactions to be removed
-		txsToRemove[i] = append(txsToRemove[i], removedTxs...)
-	}
-}
-
-// removeTxsFromLanes loops through each lane and removes all transactions
-// accumulated in txsToRemove.
-func (m *Mempool) removeTxsFromLanes(txsToRemove [][]sdk.Tx) {
-	for i, lane := range m.lanes {
-		for _, tx := range txsToRemove[i] {
-			if err := lane.Remove(tx); err != nil {
-				m.logger.Error(
-					"failed to remove transactions from lane",
-					"lane", lane.name,
-					"err", err,
-				)
-			}
-		}
 	}
 }
 
