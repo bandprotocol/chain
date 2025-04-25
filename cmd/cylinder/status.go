@@ -47,9 +47,9 @@ func statusCmd(ctx *cylinderctx.Context) *cobra.Command {
 
 			for _, member := range memberResponse.Members {
 				if !member.IsActive {
-					emoji.Printf(":warning:group %d with member %s is inactive", member.GroupID, address)
+					emoji.Printf(":warning:group %d with member %s is inactive\n", member.GroupID, address)
 				} else {
-					emoji.Printf(":white_check_mark:group %d with member %s is active", member.GroupID, address)
+					emoji.Printf(":white_check_mark:group %d with member %s is active\n", member.GroupID, address)
 				}
 			}
 
