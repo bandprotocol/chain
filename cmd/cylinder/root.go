@@ -76,6 +76,7 @@ func NewRootCmd(ctx *context.Context) *cobra.Command {
 		importCmd(ctx),
 		exportCmd(ctx),
 		runCmd(ctx),
+		removeUnusedDECmd(ctx),
 		version.NewVersionCommand(),
 	)
 
