@@ -1,4 +1,4 @@
-package v3_test
+package v3_rc3_test
 
 import (
 	"testing"
@@ -7,16 +7,14 @@ import (
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	cmttypes "github.com/cometbft/cometbft/types"
 
-	sdkmath "cosmossdk.io/math"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	band "github.com/bandprotocol/chain/v3/app"
-	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3"
+	"github.com/bandprotocol/chain/v3/app/upgrades/v3_rc3"
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
 )
 
@@ -53,50 +51,35 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 	preUpgradeChecks(s)
 
 	upgradeHeight := int64(2)
-	s.ConfirmUpgradeSucceeded(v3.UpgradeName, upgradeHeight)
+	s.ConfirmUpgradeSucceeded(v3_rc3.UpgradeName, upgradeHeight)
 
 	postUpgradeChecks(s)
 }
 
 func preUpgradeChecks(s *UpgradeTestSuite) {
-}
-
-func postUpgradeChecks(s *UpgradeTestSuite) {
-	// check the subspaces
-	for _, subspace := range s.app.ParamsKeeper.GetSubspaces() {
-		s.Require().True(subspace.HasKeyTable())
-	}
-
-	// Check consensus params after upgrade
-	consensusParam, err := s.app.ConsensusParamsKeeper.ParamsStore.Get(s.ctx)
-	s.Require().NoError(err)
-
-	s.Require().Equal(v3.BlockMaxBytes, consensusParam.Block.MaxBytes)
-	s.Require().Equal(v3.BlockMaxGas, consensusParam.Block.MaxGas)
-	s.Require().Equal([]string{cmttypes.ABCIPubKeyTypeSecp256k1}, consensusParam.Validator.PubKeyTypes)
-
-	DefaultEvidenceParams := cmttypes.DefaultEvidenceParams()
-	s.Require().Equal(DefaultEvidenceParams.MaxAgeNumBlocks, consensusParam.Evidence.MaxAgeNumBlocks)
-	s.Require().Equal(DefaultEvidenceParams.MaxAgeDuration, consensusParam.Evidence.MaxAgeDuration)
-	s.Require().Equal(DefaultEvidenceParams.MaxBytes, consensusParam.Evidence.MaxBytes)
-
-	s.Require().Equal(cmttypes.DefaultVersionParams().App, consensusParam.Version.App)
-	s.Require().
-		Equal(cmttypes.DefaultABCIParams().VoteExtensionsEnableHeight, consensusParam.Abci.VoteExtensionsEnableHeight)
-
-	// check ICA host params
-	icaHostParams := s.app.ICAHostKeeper.GetParams(s.ctx)
-	s.Require().True(icaHostParams.HostEnabled)
-	s.Require().Equal(v3.ICAAllowMessages, icaHostParams.AllowMessages)
-
-	// check oracle params
+	// check default oracle params
 	oracleParams := s.app.OracleKeeper.GetParams(s.ctx)
 	s.Require().Equal(uint64(512), oracleParams.MaxCalldataSize)
 	s.Require().Equal(uint64(512), oracleParams.MaxReportDataSize)
 
-	// check global fee params
-	s.Require().
-		Equal(sdk.DecCoins{sdk.NewDecCoinFromDec("uband", sdkmath.LegacyNewDecWithPrec(25, 4))}, s.app.GlobalFeeKeeper.GetParams(s.ctx).MinimumGasPrices)
+	// Set oracle params to 1 to test upgrade
+	// this is to ensure that the upgrade handler is called
+	oracleParams.MaxCalldataSize = uint64(1)
+	oracleParams.MaxReportDataSize = uint64(1)
+	err := s.app.OracleKeeper.SetParams(s.ctx, oracleParams)
+	s.Require().NoError(err)
+
+	// check oracle params is set to 1
+	oracleParams = s.app.OracleKeeper.GetParams(s.ctx)
+	s.Require().Equal(uint64(1), oracleParams.MaxCalldataSize)
+	s.Require().Equal(uint64(1), oracleParams.MaxReportDataSize)
+}
+
+func postUpgradeChecks(s *UpgradeTestSuite) {
+	// check oracle params is changed after upgrade
+	oracleParams := s.app.OracleKeeper.GetParams(s.ctx)
+	s.Require().Equal(uint64(512), oracleParams.MaxCalldataSize)
+	s.Require().Equal(uint64(512), oracleParams.MaxReportDataSize)
 }
 
 func (s *UpgradeTestSuite) ConfirmUpgradeSucceeded(upgradeName string, upgradeHeight int64) {
