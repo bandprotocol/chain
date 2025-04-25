@@ -168,6 +168,8 @@ func (de *DE) updateDE(numNewDE uint64) {
 		metrics.IncOffChainDELeftGauge()
 	}
 
+	de.logger.Info(":white_check_mark: Successfully generated %d new DE pairs", numNewDE)
+
 	// Send MsgDE
 	de.context.MsgCh <- types.NewMsgSubmitDEs(pubDEs, de.context.Config.Granter)
 }
@@ -211,8 +213,6 @@ func (de *DE) intervalUpdateDE() error {
 	if deCount < 2*de.context.Config.MinDE {
 		de.updateDE(2*de.context.Config.MinDE - deCount)
 		de.cntUsed = 0
-
-		metrics.SetDECountUsedGauge(float64(de.cntUsed))
 	}
 
 	metrics.SetOnChainDELeftGauge(float64(deCount))
@@ -250,7 +250,7 @@ func (de *DE) Start() {
 	}()
 
 	// Update DE if there is assigned DE event or DE is used.
-	ticker := time.NewTicker(de.context.Config.CheckingDEInterval)
+	ticker := time.NewTicker(de.context.Config.CheckDEInterval)
 	for {
 		select {
 		case <-ticker.C:
@@ -263,7 +263,6 @@ func (de *DE) Start() {
 				de.updateDE(de.cntUsed)
 				de.cntUsed = 0
 			}
-			metrics.SetDECountUsedGauge(float64(de.cntUsed))
 		}
 	}
 }

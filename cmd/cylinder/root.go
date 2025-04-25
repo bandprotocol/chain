@@ -72,9 +72,11 @@ func NewRootCmd(ctx *context.Context) *cobra.Command {
 	rootCmd.AddCommand(
 		configCmd(ctx),
 		keysCmd(ctx),
+		statusCmd(ctx),
 		importCmd(ctx),
 		exportCmd(ctx),
 		runCmd(ctx),
+		removeUnusedDECmd(ctx),
 		version.NewVersionCommand(),
 	)
 
