@@ -13,10 +13,9 @@ import (
 
 // ProposalHandler wraps ABCI++ PrepareProposal/ProcessProposal for the Mempool.
 type ProposalHandler struct {
-	logger                   log.Logger
-	txDecoder                sdk.TxDecoder
-	Mempool                  *Mempool
-	useCustomProcessProposal bool
+	logger    log.Logger
+	txDecoder sdk.TxDecoder
+	mempool   *Mempool
 }
 
 // NewProposalHandler returns a new ABCI++ proposal handler for the Mempool.
@@ -26,10 +25,9 @@ func NewProposalHandler(
 	mempool *Mempool,
 ) *ProposalHandler {
 	return &ProposalHandler{
-		logger:                   logger,
-		txDecoder:                txDecoder,
-		Mempool:                  mempool,
-		useCustomProcessProposal: false, // set to true if you want custom logic
+		logger:    logger,
+		txDecoder: txDecoder,
+		mempool:   mempool,
 	}
 }
 
@@ -52,11 +50,15 @@ func (h *ProposalHandler) PrepareProposalHandler() sdk.PrepareProposalHandler {
 		h.logger.Info("preparing proposal from Mempool", "height", req.Height)
 
 		// Gather block limits
-		_, maxGasLimit := GetBlockLimits(ctx)
-		proposal := NewProposal(h.logger, uint64(req.MaxTxBytes), maxGasLimit)
+		maxBytesLimit, maxGasLimit := GetBlockLimits(ctx)
+		proposal := NewProposal(
+			h.logger,
+			min(uint64(req.MaxTxBytes), maxBytesLimit),
+			maxGasLimit,
+		)
 
 		// Populate proposal from Mempool
-		finalProposal, err := h.Mempool.PrepareProposal(ctx, proposal)
+		finalProposal, err := h.mempool.PrepareProposal(ctx, proposal)
 		if err != nil {
 			// If an error occurs, we can still return what we have or choose to return nothing
 			h.logger.Error("failed to prepare proposal", "err", err)
