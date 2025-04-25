@@ -83,7 +83,7 @@ func (k Keeper) GetDelegationPower(ctx sdk.Context, stakerAddr sdk.AccAddress) (
 	return k.stakingKeeper.GetDelegatorBonded(ctx, stakerAddr)
 }
 
-// Checks if an account associated with a given delegation is related to liquid staking
+// IsLiquidStaker checks if an account associated with a given delegation is related to liquid staking
 //
 // This is determined by checking if the account has a 32-length address
 // which will identify the following scenarios:

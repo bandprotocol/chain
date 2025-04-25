@@ -45,8 +45,11 @@ cylinder config gas-adjust-step 0.2 --home $HOME_PATH
 # setup random-secret to cylinder config
 cylinder config random-secret "$(openssl rand -hex 32)" --home $HOME_PATH
 
-# setup checking DE interval to cylinder config
-cylinder config checking-de-interval "1m" --home $HOME_PATH
+# setup check DE interval to cylinder config
+cylinder config check-de-interval "1m" --home $HOME_PATH
+
+# setup check status interval to cylinder config
+cylinder config check-status-interval "1m" --home $HOME_PATH
 
 for i in $(eval echo {1..4})
 do

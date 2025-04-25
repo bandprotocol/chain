@@ -141,7 +141,10 @@ func (k msgServer) UpdateRoute(
 			return nil, types.ErrInvalidChannelID
 		}
 		tunnel.Route = msg.Route
-
+	case *types.RouterRoute:
+		tunnel.Route = msg.Route
+	case *types.AxelarRoute:
+		tunnel.Route = msg.Route
 	default:
 		return nil, types.ErrInvalidRoute.Wrap("cannot update route on this route type")
 	}

@@ -6,7 +6,7 @@ import (
 	"sync/atomic"
 )
 
-// MutliExec is a higher-order executor that utlizes the underlying executors to perform Exec.
+// MutliExec is a higher-order executor that utilizes the underlying executors to perform Exec.
 type MultiExec struct {
 	execs    []Executor // The underlying executors (duplicated if strategy is round-robin).
 	strategy string     // Execution strategy. Can be "order" or "round-robin".

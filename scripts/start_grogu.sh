@@ -26,6 +26,9 @@ grogu config log-level "info"
 # setup max-try to grogu config
 grogu config max-try 5
 
+# setup metrics listen address to grogu config
+grogu config metrics-listen-addr "$GROGU_METRICS_LISTEN_ADDR"
+
 echo "y" | bandd tx oracle activate --from validator --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain
 
 # wait for activation transaction success

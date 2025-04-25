@@ -42,7 +42,7 @@ func NewMsgCreateTunnel(
 	}, nil
 }
 
-// NewMsgCreateTSSTunnel creates a new MsgCreateTunnel instance for TSS tunnel.
+// NewMsgCreateTSSTunnel creates a new MsgCreateTunnel instance for tss tunnel.
 func NewMsgCreateTSSTunnel(
 	signalDeviations []SignalDeviation,
 	interval uint64,
@@ -78,6 +78,48 @@ func NewMsgCreateIBCHookTunnel(
 ) (*MsgCreateTunnel, error) {
 	r := NewIBCHookRoute(channelID, destinationContractAddress)
 	return NewMsgCreateTunnel(signalDeviations, interval, r, initialDeposit, creator)
+}
+
+// NewMsgCreateRouterTunnel creates a new MsgCreateTunnel instance for Router tunnel.
+func NewMsgCreateRouterTunnel(
+	signalDeviations []SignalDeviation,
+	interval uint64,
+	destinationChainID string,
+	destinationContractAddress string,
+	destinationGasLimit uint64,
+	initialDeposit sdk.Coins,
+	creator string,
+) (*MsgCreateTunnel, error) {
+	r := &RouterRoute{
+		DestinationChainID:         destinationChainID,
+		DestinationContractAddress: destinationContractAddress,
+		DestinationGasLimit:        destinationGasLimit,
+	}
+	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, initialDeposit, creator)
+	if err != nil {
+		return nil, err
+	}
+
+	return m, nil
+}
+
+// NewMsgCreateAxelarTunnel creates a new MsgCreateTunnel instance for Axelar tunnel.
+func NewMsgCreateAxelarTunnel(
+	signalDeviations []SignalDeviation,
+	interval uint64,
+	destinationChainID string,
+	destinationContractAddress string,
+	fee sdk.Coin,
+	initialDeposit sdk.Coins,
+	creator string,
+) (*MsgCreateTunnel, error) {
+	r := NewAxelarRoute(destinationChainID, destinationContractAddress, fee)
+	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, initialDeposit, creator)
+	if err != nil {
+		return nil, err
+	}
+
+	return m, nil
 }
 
 // GetRouteValue returns the route of the tunnel.
@@ -170,6 +212,36 @@ func NewMsgUpdateIBCHookRoute(
 	creator string,
 ) (*MsgUpdateRoute, error) {
 	return NewMsgUpdateRoute(tunnelID, NewIBCHookRoute(channelID, destinationContractAddress), creator)
+}
+
+// NewMsgUpdateRouterRoute creates a new MsgUpdateRoute instance.
+func NewMsgUpdateRouterRoute(
+	tunnelID uint64,
+	destChainID string,
+	destContractAddress string,
+	destGasLimit uint64,
+	creator string,
+) (*MsgUpdateRoute, error) {
+	return NewMsgUpdateRoute(
+		tunnelID,
+		NewRouterRoute(destChainID, destContractAddress, destGasLimit),
+		creator,
+	)
+}
+
+// NewMsgUpdateAxelarRoute creates a new MsgUpdateRoute instance.
+func NewMsgUpdateAxelarRoute(
+	tunnelID uint64,
+	destinationChainID string,
+	destinationContractAddress string,
+	fee sdk.Coin,
+	creator string,
+) (*MsgUpdateRoute, error) {
+	return NewMsgUpdateRoute(
+		tunnelID,
+		NewAxelarRoute(destinationChainID, destinationContractAddress, fee),
+		creator,
+	)
 }
 
 // GetRouteValue returns the route of the message.

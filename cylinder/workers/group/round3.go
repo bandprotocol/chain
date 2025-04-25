@@ -2,6 +2,7 @@ package group
 
 import (
 	"fmt"
+	"time"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
@@ -12,13 +13,14 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder"
 	"github.com/bandprotocol/chain/v3/cylinder/client"
 	"github.com/bandprotocol/chain/v3/cylinder/context"
+	"github.com/bandprotocol/chain/v3/cylinder/metrics"
 	"github.com/bandprotocol/chain/v3/cylinder/store"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 	"github.com/bandprotocol/chain/v3/pkg/tss"
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-// Round3 is a worker responsible for round3 in the DKG process of TSS module
+// Round3 is a worker responsible for round3 in the DKG process of tss module
 type Round3 struct {
 	context *context.Context
 	logger  *logger.Logger
@@ -86,12 +88,17 @@ func (r *Round3) handlePendingGroups() {
 
 // handleGroup processes an incoming group.
 func (r *Round3) handleGroup(gid tss.GroupID) {
+	// since is used to measure the processing time
+	since := time.Now()
+
 	logger := r.logger.With("gid", gid)
 
 	// Query group detail
 	groupRes, err := r.client.QueryGroup(gid)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to query group information: %s", err)
+
+		metrics.IncProcessRound3FailureCount(uint64(gid))
 		return
 	}
 
@@ -113,6 +120,8 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 		dkg, err := r.context.Store.GetDKG(gid)
 		if err != nil {
 			logger.Error(":cold_sweat: Failed to find group in store: %s", err)
+
+			metrics.IncProcessRound3FailureCount(uint64(gid))
 			return
 		}
 
@@ -120,6 +129,8 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 		ownPrivKey, complaints, err := getOwnPrivKey(dkg, groupRes)
 		if err != nil {
 			logger.Error(":cold_sweat: Failed to get own private key or complaints: %s", err)
+
+			metrics.IncProcessRound3FailureCount(uint64(gid))
 			return
 		}
 
@@ -127,6 +138,8 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 		if len(complaints) > 0 {
 			// Send message complaints
 			r.context.MsgCh <- types.NewMsgComplain(gid, complaints, r.context.Config.Granter)
+
+			metrics.IncProcessRound3ComplainCount(uint64(gid))
 			return
 		}
 
@@ -140,14 +153,20 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 		err = r.context.Store.SetGroup(group)
 		if err != nil {
 			logger.Error(":cold_sweat: Failed to set group with error: %s", err)
+
+			metrics.IncProcessRound3FailureCount(uint64(gid))
 			return
 		}
+		metrics.IncGroupCount()
 
 		err = r.context.Store.DeleteDKG(gid)
 		if err != nil {
 			logger.Error(":cold_sweat: Failed to delete DKG with error: %s", err)
+
+			metrics.IncProcessRound3FailureCount(uint64(gid))
 			return
 		}
+		metrics.DecDKGLeftGauge()
 	}
 
 	// Sign own public key
@@ -159,11 +178,16 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 	)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to sign own public key: %s", err)
+
+		metrics.IncProcessRound3FailureCount(uint64(gid))
 		return
 	}
 
 	// Send MsgConfirm
 	r.context.MsgCh <- types.NewMsgConfirm(gid, group.MemberID, ownPubKeySig, r.context.Config.Granter)
+
+	metrics.ObserveProcessRound3Time(uint64(gid), time.Since(since).Seconds())
+	metrics.IncProcessRound3ConfirmCount(uint64(gid))
 }
 
 // Start starts the Round3 worker.

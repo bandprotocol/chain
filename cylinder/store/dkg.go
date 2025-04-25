@@ -4,7 +4,7 @@ import (
 	"github.com/bandprotocol/chain/v3/pkg/tss"
 )
 
-// DKG represents DKG information of a TSS group.
+// DKG represents DKG information of a tss group.
 type DKG struct {
 	GroupID        tss.GroupID  `json:"group_id"`          // Group ID associated with the DKG
 	MemberID       tss.MemberID `json:"member_id"`         // Member ID associated with the DKG

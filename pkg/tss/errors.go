@@ -2,7 +2,7 @@ package tss
 
 import "fmt"
 
-// ErrorKind represents a specific kind of TSS error.
+// ErrorKind represents a specific kind of tss error.
 type ErrorKind string
 
 // Error returns the string representation of the ErrorKind.
@@ -26,13 +26,13 @@ var (
 	ErrRandomError           = ErrorKind("random error")
 )
 
-// Error represents a TSS error.
+// Error represents a tss error.
 type Error struct {
 	err  error
 	desc string
 }
 
-// NewError creates a new TSS error with the given wrapped error and description.
+// NewError creates a new tss error with the given wrapped error and description.
 func NewError(err error, format string, args ...interface{}) *Error {
 	return &Error{
 		err:  err,

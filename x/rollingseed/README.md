@@ -6,4 +6,4 @@ This abstract outlines a module designed to enhance the security and randomness 
 
 One of the significant use cases of this module is the on-chain RNG functionality it enables. Random numbers play a crucial role in various applications such as gaming, gambling, and fair distributed systems. By leveraging the on-chain rolling seed system, developers can create a secure and transparent on-chain RNG. The generation of a new rolling seed based on the block hash ensures that the RNG output is unpredictable and tamper-proof. This capability opens up opportunities for provably fair games, random selection of validators or winners, and other use cases where unbiased randomness is essential.
 
-This module will be used in the Oracle and TSS modules in BandChain.
+This module will be used in the Oracle and tss modules in BandChain.

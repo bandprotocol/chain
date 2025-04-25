@@ -3,19 +3,26 @@ package types
 import (
 	"fmt"
 
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 var (
 	// Each value below is the default value for each parameter when generating the default
 	// genesis file. See comments in types.proto for explanation for each parameter.
-	DefaultMinInterval     = uint64(60)
-	DefaultMaxInterval     = uint64(3600)
-	DefaultMinDeviationBPS = uint64(50)
-	DefaultMaxDeviationBPS = uint64(3000)
-	DefaultMinDeposit      = sdk.NewCoins(sdk.NewInt64Coin("uband", 1_000_000_000))
-	DefaultMaxSignals      = uint64(25)
-	DefaultBasePacketFee   = sdk.NewCoins(sdk.NewInt64Coin("uband", 500))
+	DefaultMinInterval               = uint64(60)
+	DefaultMaxInterval               = uint64(3600)
+	DefaultMinDeviationBPS           = uint64(50)
+	DefaultMaxDeviationBPS           = uint64(3000)
+	DefaultMinDeposit                = sdk.NewCoins(sdk.NewInt64Coin("uband", 1_000_000_000))
+	DefaultMaxSignals                = uint64(25)
+	DefaultBasePacketFee             = sdk.NewCoins(sdk.NewInt64Coin("uband", 500))
+	DefaultRouterIBCChannel          = ""
+	DefaultRouterIntegrationContract = ""
+	DefaultAxelarIBCChannel          = ""
+	DefaultAxelarGMPAccount          = "axelar1dv4u5k73pzqrxlzujxg3qp8kvc3pje7jtdvu72npnt5zhq05ejcsn5qme5"
+	DefaultAxelarFeeRecipient        = ""
 )
 
 // NewParams creates a new Params instance
@@ -27,15 +34,25 @@ func NewParams(
 	maxDeviationBPS uint64,
 	maxSignals uint64,
 	basePacketFee sdk.Coins,
+	routerIBCChannel string,
+	routerIntegrationContract string,
+	axelarIBCChannel string,
+	axelarGMPAccount string,
+	axelarFeeRecipient string,
 ) Params {
 	return Params{
-		MinDeposit:      minDeposit,
-		MinInterval:     minInterval,
-		MaxInterval:     maxInterval,
-		MinDeviationBPS: minDeviationBPS,
-		MaxDeviationBPS: maxDeviationBPS,
-		MaxSignals:      maxSignals,
-		BasePacketFee:   basePacketFee,
+		MinDeposit:                minDeposit,
+		MinInterval:               minInterval,
+		MaxInterval:               maxInterval,
+		MinDeviationBPS:           minDeviationBPS,
+		MaxDeviationBPS:           maxDeviationBPS,
+		MaxSignals:                maxSignals,
+		BasePacketFee:             basePacketFee,
+		RouterIBCChannel:          routerIBCChannel,
+		RouterIntegrationContract: routerIntegrationContract,
+		AxelarIBCChannel:          axelarIBCChannel,
+		AxelarGMPAccount:          axelarGMPAccount,
+		AxelarFeeRecipient:        axelarFeeRecipient,
 	}
 }
 
@@ -49,6 +66,11 @@ func DefaultParams() Params {
 		DefaultMaxDeviationBPS,
 		DefaultMaxSignals,
 		DefaultBasePacketFee,
+		DefaultRouterIBCChannel,
+		DefaultRouterIntegrationContract,
+		DefaultAxelarIBCChannel,
+		DefaultAxelarGMPAccount,
+		DefaultAxelarFeeRecipient,
 	)
 }
 
@@ -105,6 +127,16 @@ func (p Params) Validate() error {
 	// validate BasePacketFee
 	if !p.BasePacketFee.IsValid() {
 		return fmt.Errorf("invalid base packet fee: %s", p.BasePacketFee)
+	}
+
+	// validate RouterIBCChannel
+	if p.RouterIBCChannel != "" && !channeltypes.IsChannelIDFormat(p.RouterIBCChannel) {
+		return fmt.Errorf("channel router identifier is not in the format: `channel-{N}` or be empty string")
+	}
+
+	// validate AxelarIBCChannel
+	if p.AxelarIBCChannel != "" && !channeltypes.IsChannelIDFormat(p.AxelarIBCChannel) {
+		return fmt.Errorf("channel axelar identifier is not in the format: `channel-{N}` or be empty string")
 	}
 
 	return nil

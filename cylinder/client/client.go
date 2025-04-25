@@ -163,6 +163,34 @@ func (c *Client) QueryDE(address string, offset uint64, limit uint64) (*DERespon
 	return NewDEResponse(der), nil
 }
 
+// QueryAllDE queries all DEs with the given address.
+func (c *Client) QueryAllDE(address string) ([]tsstypes.DE, error) {
+	des := make([]tsstypes.DE, 0)
+	queryClient := tsstypes.NewQueryClient(c.context)
+
+	var nextKey []byte
+	for {
+		res, err := queryClient.DE(context.Background(), &tsstypes.QueryDERequest{
+			Address: address,
+			Pagination: &query.PageRequest{
+				Key: nextKey,
+			},
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		des = append(des, res.DEs...)
+
+		nextKey = res.GetPagination().GetNextKey()
+		if len(nextKey) == 0 {
+			break
+		}
+	}
+
+	return des, nil
+}
+
 // QueryMember queries the member information of the given address.
 // It returns the member information on current and incoming group or an error.
 func (c *Client) QueryMember(address string) (*bandtsstypes.QueryMemberResponse, error) {

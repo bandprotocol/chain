@@ -14,6 +14,7 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder"
 	"github.com/bandprotocol/chain/v3/cylinder/client"
 	"github.com/bandprotocol/chain/v3/cylinder/context"
+	"github.com/bandprotocol/chain/v3/cylinder/metrics"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
@@ -112,6 +113,8 @@ func (de *DE) deleteDE(pubDE types.DE) {
 		de.logger.Error(":cold_sweat: Failed to remove DE: %s", err)
 		return
 	}
+
+	metrics.DecOffChainDELeftGauge()
 }
 
 func (de *DE) getDECount() (uint64, error) {
@@ -161,7 +164,11 @@ func (de *DE) updateDE(numNewDE uint64) {
 			de.logger.Error(":cold_sweat: Failed to set new DE in the store: %s", err)
 			return
 		}
+
+		metrics.IncOffChainDELeftGauge()
 	}
+
+	de.logger.Info(":white_check_mark: Successfully generated %d new DE pairs", numNewDE)
 
 	// Send MsgDE
 	de.context.MsgCh <- types.NewMsgSubmitDEs(pubDEs, de.context.Config.Granter)
@@ -208,6 +215,8 @@ func (de *DE) intervalUpdateDE() error {
 		de.cntUsed = 0
 	}
 
+	metrics.SetOnChainDELeftGauge(float64(deCount))
+
 	return nil
 }
 
@@ -241,7 +250,7 @@ func (de *DE) Start() {
 	}()
 
 	// Update DE if there is assigned DE event or DE is used.
-	ticker := time.NewTicker(de.context.Config.CheckingDEInterval)
+	ticker := time.NewTicker(de.context.Config.CheckDEInterval)
 	for {
 		select {
 		case <-ticker.C:

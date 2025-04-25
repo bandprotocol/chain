@@ -57,7 +57,7 @@ func (k Keeper) createSigningRequest(
 		return 0, types.ErrNoActiveGroup
 	}
 
-	// charged fee if necessary; If found any coins that exceed limit then return error
+	// charged fee if necessary; If any coins are found that exceed limit then return error
 	feePerSigner := sdk.NewCoins()
 	totalFee := sdk.NewCoins()
 	if sender.String() != k.authority && currentGroupID != 0 {
@@ -219,7 +219,7 @@ func (k Keeper) MustGetSigning(ctx sdk.Context, id types.SigningID) types.Signin
 	return req
 }
 
-// SetSigningIDMapping sets a mapping between tss.signingID and bandtss signing id.
+// SetSigningIDMapping sets a mapping between tss signingID and bandtss signing id.
 func (k Keeper) SetSigningIDMapping(ctx sdk.Context, signingID tss.SigningID, signingInfoID types.SigningID) {
 	ctx.KVStore(k.storeKey).Set(
 		types.SigningIDMappingStoreKey(signingID),

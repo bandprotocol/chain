@@ -151,7 +151,7 @@ func (k Keeper) AggregatePartialSignatures(ctx sdk.Context, signingID tss.Signin
 		return types.ErrInvalidSignature.Wrapf("failed to combine partial signatures: %v", err)
 	}
 
-	if err = tss.VerifyGroupSigningSignature(signing.GroupPubKey, signing.Message, sig); err != nil {
+	if err = tss.VerifyGroupSignature(signing.GroupPubKey, signing.Message, sig); err != nil {
 		return types.ErrInvalidSignature.Wrapf("failed to verify group signature: %v", err)
 	}
 
@@ -201,7 +201,8 @@ func (k Keeper) GetSigningExpirations(ctx sdk.Context) []types.SigningExpiration
 	return ses.SigningExpirations
 }
 
-// AddPendingProcessSigning adds a new pending process signing to the store.
+// AddSigningExpiration adds a signing expiration info into the existing
+// list and stores it.
 func (k Keeper) AddSigningExpiration(ctx sdk.Context, signingID tss.SigningID, attempt uint64) {
 	signingExpirations := k.GetSigningExpirations(ctx)
 

@@ -70,7 +70,7 @@ func GenerateDKGNonce() (Scalar, Point, error) {
 // of hash values over the span of the elliptic curve's order.
 func GenerateSigningNonce(secret Scalar) (Scalar, error) {
 	var nonce Scalar
-	// We omit implementing a timeout here as the probability of the hash exceeding
+	// We omit the implementation of a timeout here as the probability of the hash exceeding
 	// the curve's order is exceptionally small (1 in 2.67e+38).
 	for {
 		// Generate random bytes

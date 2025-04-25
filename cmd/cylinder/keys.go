@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"context"
 	"fmt"
 
 	"github.com/kyokomi/emoji"
@@ -195,7 +194,7 @@ func keysListCmd(ctx *cylinderctx.Context) *cobra.Command {
 					// Query if the key is a grantee and display the result
 					queryClient := types.NewQueryClient(clientCtx)
 					r, err := queryClient.IsGrantee(
-						context.Background(),
+						cmd.Context(),
 						&types.QueryIsGranteeRequest{Granter: ctx.Config.Granter, Grantee: address.String()},
 					)
 

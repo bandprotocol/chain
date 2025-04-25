@@ -13,7 +13,7 @@ import (
 var (
 	validSender = "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
 
-	validTssPoint = tss.Point(
+	validTSSPoint = tss.Point(
 		testutil.HexDecode("03a50a76f243836311dd2fbaaf8b5185f5f7f34bd4cb99ac7309af18f89703960b"),
 	)
 	validSignature = tss.Signature(
@@ -42,8 +42,8 @@ var (
 func TestNewMsgSubmitDKGRound1(t *testing.T) {
 	validRound1Info := types.Round1Info{
 		MemberID:           1,
-		CoefficientCommits: tss.Points{validTssPoint},
-		OneTimePubKey:      validTssPoint,
+		CoefficientCommits: tss.Points{validTSSPoint},
+		OneTimePubKey:      validTSSPoint,
 		A0Signature:        validSignature,
 		OneTimeSignature:   validSignature,
 	}
@@ -57,8 +57,8 @@ func TestNewMsgSubmitDKGRound1(t *testing.T) {
 func TestMsgSubmitDKGRound1_ValidateBasic(t *testing.T) {
 	validRound1Info := types.Round1Info{
 		MemberID:           1,
-		CoefficientCommits: tss.Points{validTssPoint},
-		OneTimePubKey:      validTssPoint,
+		CoefficientCommits: tss.Points{validTSSPoint},
+		OneTimePubKey:      validTSSPoint,
 		A0Signature:        validSignature,
 		OneTimeSignature:   validSignature,
 	}
@@ -117,7 +117,7 @@ func TestMsgSubmitDKGRound2_ValidateBasic(t *testing.T) {
 
 func TestNewMsgComplain(t *testing.T) {
 	validComplaints := []types.Complaint{
-		{Complainant: 1, Respondent: 2, KeySym: validTssPoint, Signature: tss.ComplaintSignature(validSignature)},
+		{Complainant: 1, Respondent: 2, KeySym: validTSSPoint, Signature: tss.ComplaintSignature(validSignature)},
 	}
 	msg := types.NewMsgComplain(1, validComplaints, validSender)
 	require.Equal(t, tss.GroupID(1), msg.GroupID)
@@ -127,7 +127,7 @@ func TestNewMsgComplain(t *testing.T) {
 
 func TestMsgComplain_ValidateBasic(t *testing.T) {
 	validComplaints := []types.Complaint{
-		{Complainant: 1, Respondent: 2, KeySym: validTssPoint, Signature: validComplaintSignature},
+		{Complainant: 1, Respondent: 2, KeySym: validTSSPoint, Signature: validComplaintSignature},
 	}
 
 	// Valid input
@@ -179,7 +179,7 @@ func TestMsgConfirm_ValidateBasic(t *testing.T) {
 // ====================================
 
 func TestNewMsgSubmitDE(t *testing.T) {
-	pubD := validTssPoint
+	pubD := validTSSPoint
 	pubE := tss.Point(testutil.HexDecode("03a50a76f243836311dd2fbaaf8b5185f5f7f34bd4cb99ac7309af18f89703960c"))
 
 	msg := types.NewMsgSubmitDEs([]types.DE{
@@ -192,7 +192,7 @@ func TestNewMsgSubmitDE(t *testing.T) {
 }
 
 func TestMsgSubmitDE_ValidateBasic(t *testing.T) {
-	pubD := validTssPoint
+	pubD := validTSSPoint
 	pubE := tss.Point(testutil.HexDecode("02117a767c77af0b9630991393ccbfe96930008987ee315ce205ae8b004795ad41"))
 
 	// valid input

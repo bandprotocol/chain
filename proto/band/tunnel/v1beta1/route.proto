@@ -2,6 +2,7 @@ syntax = "proto3";
 package band.tunnel.v1beta1;
 
 import "cosmos_proto/cosmos.proto";
+import "cosmos/base/v1beta1/coin.proto";
 import "gogoproto/gogo.proto";
 
 import "band/feeds/v1beta1/encoder.proto";
@@ -10,7 +11,7 @@ import "band/feeds/v1beta1/feeds.proto";
 option go_package            = "github.com/bandprotocol/chain/v3/x/tunnel/types";
 option (gogoproto.equal_all) = true;
 
-// TSSRoute represents a route for TSS packets and implements the RouteI interface.
+// TSSRoute represents a route for tss packets and implements the RouteI interface.
 message TSSRoute {
   option (cosmos_proto.implements_interface) = "RouteI";
 
@@ -22,7 +23,7 @@ message TSSRoute {
   band.feeds.v1beta1.Encoder encoder = 3;
 }
 
-// TSSPacketReceipt represents a receipt for a TSS packet and implements the PacketReceiptI interface.
+// TSSPacketReceipt represents a receipt for a tss packet and implements the PacketReceiptI interface.
 message TSSPacketReceipt {
   option (cosmos_proto.implements_interface) = "PacketReceiptI";
 
@@ -100,4 +101,73 @@ message IBCHookMemo {
   }
   // wasm is the payload for calling detination contract
   Payload wasm = 1 [(gogoproto.nullable) = false];
+}
+
+// RouterRoute is the type for a Router route
+message RouterRoute {
+  option (cosmos_proto.implements_interface) = "RouteI";
+
+  // destination_chain_id is the destination chain ID
+  string destination_chain_id = 1 [(gogoproto.customname) = "DestinationChainID"];
+  // destination_contract_address is the destination contract address
+  string destination_contract_address = 2;
+  // destination_gas_limit is the destination gas limit
+  uint64 destination_gas_limit = 3;
+}
+
+// RouterPacketReceipt represents a receipt for a Router packet and implements the PacketReceiptI interface.
+message RouterPacketReceipt {
+  option (cosmos_proto.implements_interface) = "PacketReceiptI";
+
+  // sequence is representing the sequence of the IBC packet.
+  uint64 sequence = 1;
+}
+
+// RouterMemo is the type for a data packet that will be stringtify to be a memo of IBC packet
+message RouterMemo {
+  // Payload defines target contract and detail of function call (msg).
+  message Payload {
+    // Msg defines function name (`receive_band_data`) and a type of function arguments.
+    message Msg {
+      // ReceiveBandDataArgs represents the arguments of `receive_band_data` function
+      message ReceiveBandDataArgs {
+        // dest_chain_id is the destination chain ID
+        string dest_chain_id = 1 [(gogoproto.customname) = "DestChainID"];
+        // dest_contract_address is the destination contract address
+        string dest_contract_address = 2;
+        // gas_limit is the destination gas limit
+        uint64 gas_limit = 3;
+        // payload is the payload of the packet
+        string payload = 4;
+      }
+      // receive_band_data is the function name on the destination contract
+      ReceiveBandDataArgs receive_band_data = 1 [(gogoproto.nullable) = false];
+    }
+    // contract is destination contract address
+    string contract = 1;
+    // msg is the Router message
+    Msg msg = 2 [(gogoproto.nullable) = false];
+  }
+  // wasm is the payload for calling detination contract
+  Payload wasm = 1 [(gogoproto.nullable) = false];
+}
+
+// AxelarRoute represents a route for Axelar packets and implements the RouteI interface.
+message AxelarRoute {
+  option (cosmos_proto.implements_interface) = "RouteI";
+
+  // destination_chain_id is the destination chain ID
+  string destination_chain_id = 1 [(gogoproto.customname) = "DestinationChainID", (gogoproto.casttype) = "ChainName"];
+  // destination_contract_address is the destination contract address
+  string destination_contract_address = 2;
+  // fee is the fee for each packet in the Axelar network.
+  cosmos.base.v1beta1.Coin fee = 3 [(gogoproto.nullable) = false];
+}
+
+// AxelarPacketReceipt represents a receipt for a Axelar packet and implements the PacketReceiptI interface.
+message AxelarPacketReceipt {
+  option (cosmos_proto.implements_interface) = "PacketReceiptI";
+
+  // sequence is representing the sequence of the Axelar packet.
+  uint64 sequence = 1;
 }

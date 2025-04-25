@@ -5,7 +5,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// NewOracleRequestPacketData contructs a new OracleRequestPacketData instance
+// NewOracleRequestPacketData constructs a new OracleRequestPacketData instance
 func NewOracleRequestPacketData(
 	clientID string,
 	oracleScriptID OracleScriptID,
@@ -71,7 +71,7 @@ func NewOracleRequestPacketAcknowledgement(requestID RequestID) *OracleRequestPa
 	}
 }
 
-// NewOracleResponsePacketData contructs a new OracleResponsePacketData instance
+// NewOracleResponsePacketData constructs a new OracleResponsePacketData instance
 func NewOracleResponsePacketData(
 	clientID string,
 	requestID RequestID,

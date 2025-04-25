@@ -14,7 +14,7 @@ type Rng struct {
 	rng *drbg.Drbg
 }
 
-// NewRng creates a new psudo-random generator, using the given seeds as the initial random source.
+// NewRng creates a new pseudo-random generator, using the given seeds as the initial random source.
 func NewRng(entropyInput, nonce, personalizationString []byte) (*Rng, error) {
 	rng, err := drbg.New(crypto.SHA256, entropyInput, nonce, personalizationString)
 	if err != nil {

@@ -2,6 +2,7 @@ package group
 
 import (
 	"fmt"
+	"time"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
@@ -12,12 +13,13 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder"
 	"github.com/bandprotocol/chain/v3/cylinder/client"
 	"github.com/bandprotocol/chain/v3/cylinder/context"
+	"github.com/bandprotocol/chain/v3/cylinder/metrics"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 	"github.com/bandprotocol/chain/v3/pkg/tss"
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-// Round2 is a worker responsible for round2 in the DKG process of TSS module
+// Round2 is a worker responsible for round2 in the DKG process of tss module
 type Round2 struct {
 	context *context.Context
 	logger  *logger.Logger
@@ -85,12 +87,16 @@ func (r *Round2) handlePendingGroups() {
 
 // handleGroup processes an incoming group.
 func (r *Round2) handleGroup(gid tss.GroupID) {
+	since := time.Now()
+
 	logger := r.logger.With("gid", gid)
 
 	// Query group detail
 	groupRes, err := r.client.QueryGroup(gid)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to query group information: %s", err)
+
+		metrics.IncProcessRound2FailureCount(uint64(gid))
 		return
 	}
 
@@ -111,6 +117,8 @@ func (r *Round2) handleGroup(gid tss.GroupID) {
 	dkg, err := r.context.Store.GetDKG(gid)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to find group in store: %s", err)
+
+		metrics.IncProcessRound2FailureCount(uint64(gid))
 		return
 	}
 
@@ -130,6 +138,8 @@ func (r *Round2) handleGroup(gid tss.GroupID) {
 	)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to genrate encrypted secret shares: %s", err)
+
+		metrics.IncProcessRound2FailureCount(uint64(gid))
 		return
 	}
 
@@ -144,6 +154,9 @@ func (r *Round2) handleGroup(gid tss.GroupID) {
 	)
 
 	r.context.MsgCh <- msg
+
+	metrics.ObserveProcessRound2Time(uint64(gid), time.Since(since).Seconds())
+	metrics.IncProcessRound2SuccessCount(uint64(gid))
 }
 
 // Start starts the Round2 worker.

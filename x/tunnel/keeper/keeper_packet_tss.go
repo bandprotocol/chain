@@ -6,7 +6,7 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
-// SendTSSPacket sends TSS packet
+// SendTSSPacket sends tss packet
 func (k Keeper) SendTSSPacket(
 	ctx sdk.Context,
 	route *types.TSSRoute,
@@ -25,7 +25,7 @@ func (k Keeper) SendTSSPacket(
 		return nil, err
 	}
 
-	// try signing TSS packet, if success, write the context.
+	// try signing tss packet, if success, write the context.
 	signingID, err := k.bandtssKeeper.CreateTunnelSigningRequest(
 		ctx,
 		packet.TunnelID,

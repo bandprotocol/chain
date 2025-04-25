@@ -2,6 +2,7 @@ package group
 
 import (
 	"fmt"
+	"time"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
@@ -12,13 +13,14 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder"
 	"github.com/bandprotocol/chain/v3/cylinder/client"
 	"github.com/bandprotocol/chain/v3/cylinder/context"
+	"github.com/bandprotocol/chain/v3/cylinder/metrics"
 	"github.com/bandprotocol/chain/v3/cylinder/store"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 	"github.com/bandprotocol/chain/v3/pkg/tss"
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-// Round1 is a worker responsible for round1 in the DKG process of TSS module
+// Round1 is a worker responsible for round1 in the DKG process of tss module
 type Round1 struct {
 	context *context.Context
 	logger  *logger.Logger
@@ -88,12 +90,16 @@ func (r *Round1) handlePendingGroups() {
 
 // handleGroup processes an incoming group.
 func (r *Round1) handleGroup(gid tss.GroupID) {
+	since := time.Now()
+
 	logger := r.logger.With("gid", gid)
 
 	// Query group detail
 	groupRes, err := r.client.QueryGroup(gid)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to query group information: %s", err)
+
+		metrics.IncProcessRound1FailureCount(uint64(gid))
 		return
 	}
 
@@ -104,6 +110,7 @@ func (r *Round1) handleGroup(gid tss.GroupID) {
 	// Check if the user is member in the group
 	mid, err := groupRes.GetMemberID(r.context.Config.Granter)
 	if err != nil {
+		metrics.IncProcessRound1FailureCount(uint64(gid))
 		return
 	}
 
@@ -114,6 +121,8 @@ func (r *Round1) handleGroup(gid tss.GroupID) {
 	data, err := tss.GenerateRound1Info(mid, groupRes.Group.Threshold, groupRes.DKGContext)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to generate round1 data with error: %s", err)
+
+		metrics.IncProcessRound1FailureCount(uint64(gid))
 		return
 	}
 
@@ -127,8 +136,12 @@ func (r *Round1) handleGroup(gid tss.GroupID) {
 	err = r.context.Store.SetDKG(dkg)
 	if err != nil {
 		logger.Error(":cold_sweat: Failed to set DKG with error: %s", err)
+
+		metrics.IncProcessRound1FailureCount(uint64(gid))
 		return
 	}
+
+	metrics.IncDKGLeftGauge()
 
 	// Generate message
 	msg := types.NewMsgSubmitDKGRound1(
@@ -145,6 +158,9 @@ func (r *Round1) handleGroup(gid tss.GroupID) {
 
 	// Send the message to the message channel
 	r.context.MsgCh <- msg
+
+	metrics.ObserveProcessRound1Time(uint64(gid), time.Since(since).Seconds())
+	metrics.IncProcessRound1SuccessCount(uint64(gid))
 }
 
 // Start starts the Round1 worker.

@@ -18,7 +18,7 @@ func init() {
 }
 
 func TestGenesisStateValidate(t *testing.T) {
-	validTssPoint2 := tss.Point(
+	validTSSPoint2 := tss.Point(
 		testutil.HexDecode("02117a767c77af0b9630991393ccbfe96930008987ee315ce205ae8b004795ad41"),
 	)
 
@@ -32,7 +32,7 @@ func TestGenesisStateValidate(t *testing.T) {
 			ID:            1,
 			Size_:         2,
 			Threshold:     1,
-			PubKey:        validTssPoint,
+			PubKey:        validTSSPoint,
 			Status:        types.GROUP_STATUS_ACTIVE,
 			CreatedHeight: 1,
 			ModuleOwner:   "test",
@@ -40,23 +40,23 @@ func TestGenesisStateValidate(t *testing.T) {
 	}
 
 	validMembers := []types.Member{
-		{ID: 1, GroupID: 1, Address: validMemberAddrs[0], PubKey: validTssPoint},
-		{ID: 2, GroupID: 1, Address: validMemberAddrs[1], PubKey: validTssPoint},
+		{ID: 1, GroupID: 1, Address: validMemberAddrs[0], PubKey: validTSSPoint},
+		{ID: 2, GroupID: 1, Address: validMemberAddrs[1], PubKey: validTSSPoint},
 	}
 
 	validDEs := []types.DEGenesis{
 		{
 			Address: validMemberAddrs[0],
 			DE: types.DE{
-				PubD: validTssPoint,
-				PubE: validTssPoint,
+				PubD: validTSSPoint,
+				PubE: validTSSPoint,
 			},
 		},
 		{
 			Address: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 			DE: types.DE{
-				PubD: validTssPoint2,
-				PubE: validTssPoint2,
+				PubD: validTSSPoint2,
+				PubE: validTSSPoint2,
 			},
 		},
 	}
@@ -92,8 +92,8 @@ func TestGenesisStateValidate(t *testing.T) {
 				Params: types.DefaultParams(),
 				Groups: []types.Group{validGroups[0]},
 				Members: []types.Member{
-					{ID: 1, GroupID: 1, Address: validMemberAddrs[0], PubKey: validTssPoint},
-					{ID: 1, GroupID: 1, Address: validMemberAddrs[1], PubKey: validTssPoint},
+					{ID: 1, GroupID: 1, Address: validMemberAddrs[0], PubKey: validTSSPoint},
+					{ID: 1, GroupID: 1, Address: validMemberAddrs[1], PubKey: validTSSPoint},
 				},
 				DEs: validDEs,
 			},
@@ -105,8 +105,8 @@ func TestGenesisStateValidate(t *testing.T) {
 				Params: types.DefaultParams(),
 				Groups: []types.Group{validGroups[0]},
 				Members: []types.Member{
-					{ID: 1, GroupID: 1, Address: validMemberAddrs[0], PubKey: validTssPoint},
-					{ID: 2, GroupID: 1, Address: validMemberAddrs[0], PubKey: validTssPoint},
+					{ID: 1, GroupID: 1, Address: validMemberAddrs[0], PubKey: validTSSPoint},
+					{ID: 2, GroupID: 1, Address: validMemberAddrs[0], PubKey: validTSSPoint},
 				},
 				DEs: validDEs,
 			},

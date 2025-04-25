@@ -199,9 +199,9 @@ func SignSigning(
 	return Sign(ownPrivKey, challenge, ownPrivNonce, rawLagrange)
 }
 
-// VerifySigning verifies the signing using the group public nonce, group public key, data, Lagrange coefficient,
-// signature, and own public key.
-func VerifySigningSignature(
+// VerifySignature verifies the signature using the group public nonce, group public key, data, Lagrange coefficient,
+// and own public key.
+func VerifySignature(
 	groupPubNonce Point,
 	groupPubKey Point,
 	data []byte,
@@ -217,8 +217,8 @@ func VerifySigningSignature(
 	return Verify(signature.R(), signature.S(), challenge, ownPubKey, nil, rawLagrange)
 }
 
-// VerifyGroupSigning verifies the group signing using the group public key, data, and signature.
-func VerifyGroupSigningSignature(
+// VerifyGroupSignature verifies the group signature using the group public key, data.
+func VerifyGroupSignature(
 	groupPubKey Point,
 	data []byte,
 	signature Signature,

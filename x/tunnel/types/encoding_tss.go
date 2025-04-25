@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	packetABI, _ = abi.NewType("tuple", "result", []abi.ArgumentMarshaling{
+	tssPacketABI, _ = abi.NewType("tuple", "result", []abi.ArgumentMarshaling{
 		{Name: "Sequence", Type: "uint64"},
 		{
 			Name:         "RelayPrices",
@@ -21,8 +21,8 @@ var (
 		{Name: "CreatedAt", Type: "int64"},
 	})
 
-	packetArgs = abi.Arguments{
-		{Type: packetABI, Name: "packet"},
+	tssPacketArgs = abi.Arguments{
+		{Type: tssPacketABI, Name: "packet"},
 	}
 )
 
@@ -33,7 +33,7 @@ type TSSPacket struct {
 	CreatedAt   int64
 }
 
-// NewTSSPacket returns a new TssPacket object
+// NewTSSPacket returns a new TSSPacket object
 func NewTSSPacket(
 	sequence uint64,
 	relayPrices []feedstypes.RelayPrice,
@@ -62,7 +62,7 @@ func EncodeTSS(
 
 		tssPacket := NewTSSPacket(sequence, relayPrices, createdAt)
 
-		bz, err := packetArgs.Pack(&tssPacket)
+		bz, err := tssPacketArgs.Pack(&tssPacket)
 		if err != nil {
 			return nil, err
 		}
@@ -76,7 +76,7 @@ func EncodeTSS(
 
 		tssPacket := NewTSSPacket(sequence, relayPrices, createdAt)
 
-		bz, err := packetArgs.Pack(&tssPacket)
+		bz, err := tssPacketArgs.Pack(&tssPacket)
 		if err != nil {
 			return nil, err
 		}

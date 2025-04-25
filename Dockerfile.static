@@ -1,4 +1,4 @@
-FROM golang:1.22.3-alpine as go-builder
+FROM golang:1.24.2-alpine as go-builder
 
 SHELL ["/bin/sh", "-ecuxo", "pipefail"]
 RUN apk add --no-cache ca-certificates build-base linux-headers git gmp gmp-dev

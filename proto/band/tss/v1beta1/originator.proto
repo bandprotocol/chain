@@ -7,7 +7,7 @@ import "cosmos_proto/cosmos.proto";
 option go_package = "github.com/bandprotocol/chain/v3/x/tss/types";
 
 // DirectOriginator is a message originator defines an information of the requester
-// on direct TSS request.
+// on direct tss request.
 message DirectOriginator {
   option (cosmos_proto.implements_interface) = "Originator";
 
@@ -20,7 +20,7 @@ message DirectOriginator {
 }
 
 // TunnelOriginator is a message originator defines an information of the requester
-// on TSS request via tunnel module.
+// on tss request via tunnel module.
 message TunnelOriginator {
   option (cosmos_proto.implements_interface) = "Originator";
 
