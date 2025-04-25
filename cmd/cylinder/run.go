@@ -118,7 +118,7 @@ func runCmd(ctx *context.Context) *cobra.Command {
 	cmd.Flags().Float64(flagGasAdjustStart, 1.6, "The start value of gas adjustment")
 	cmd.Flags().Float64(flagGasAdjustStep, 0.2, "The increment step of gad adjustment")
 	cmd.Flags().BytesHex(flagRandomSecret, nil, "The secret value that is used for random D,E")
-	cmd.Flags().Duration(flagCheckDEInterval, 1*time.Minute, "The interval of checking DE")
+	cmd.Flags().Duration(flagCheckDEInterval, time.Minute, "The interval of checking DE")
 	cmd.Flags().Duration(flagCheckStatusInterval, time.Minute, "The interval of checking the status of the member")
 	cmd.Flags().String(flagMetricsListenAddr, "", "address to use for metrics server.")
 
