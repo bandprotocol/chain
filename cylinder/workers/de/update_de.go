@@ -175,8 +175,9 @@ func (u *UpdateDE) intervalUpdateDE() error {
 		return err
 	}
 
-	if deCount < 2*u.context.Config.MinDE {
-		u.updateDE(2*u.context.Config.MinDE - deCount)
+	maxDEOnChain := 2 * u.context.Config.MinDE
+	if deCount < maxDEOnChain {
+		u.updateDE(maxDEOnChain - deCount)
 		u.cntUsed = 0
 	}
 
