@@ -23,8 +23,8 @@ type Lane struct {
 	name      string
 	matchFn   func(ctx sdk.Context, tx sdk.Tx) bool
 
-	maxTransactionSpace math.LegacyDec
-	maxLaneSpace        math.LegacyDec
+	maxTransactionBlockRatio math.LegacyDec
+	maxLaneBlockRatio        math.LegacyDec
 
 	mempool sdkmempool.Mempool
 
@@ -50,9 +50,9 @@ func NewLane(
 	txEncoder sdk.TxEncoder,
 	name string,
 	matchFn TxMatchFn,
-	maxTransactionSpace math.LegacyDec,
-	maxLaneSpace math.LegacyDec,
-	laneMempool sdkmempool.Mempool,
+	maxTransactionBlockRatio math.LegacyDec,
+	maxLaneBlockRatio math.LegacyDec,
+	mempool sdkmempool.Mempool,
 	callbackAfterFillProposal func(isLaneLimitExceeded bool),
 ) *Lane {
 	return &Lane{
@@ -60,9 +60,9 @@ func NewLane(
 		txEncoder:                 txEncoder,
 		name:                      name,
 		matchFn:                   matchFn,
-		maxTransactionSpace:       maxTransactionSpace,
-		maxLaneSpace:              maxLaneSpace,
-		mempool:                   laneMempool,
+		maxTransactionBlockRatio:  maxTransactionBlockRatio,
+		maxLaneBlockRatio:         maxLaneBlockRatio,
+		mempool:                   mempool,
 		callbackAfterFillProposal: callbackAfterFillProposal,
 
 		// Initialize the txIndex.
@@ -77,6 +77,23 @@ func (l *Lane) Insert(ctx context.Context, tx sdk.Tx) error {
 	txInfo, err := l.getTxInfo(tx)
 	if err != nil {
 		return err
+	}
+
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	consensusParams := sdkCtx.ConsensusParams()
+	transactionLimit := NewBlockSpace(
+		uint64(consensusParams.Block.MaxBytes),
+		uint64(consensusParams.Block.MaxGas),
+	).Scale(l.maxTransactionBlockRatio)
+
+	if transactionLimit.IsExceededBy(txInfo.BlockSpace) {
+		return fmt.Errorf(
+			"transaction exceeds limit: tx_hash %s, lane %s, limit %s, tx_size %s",
+			txInfo.Hash,
+			l.name,
+			transactionLimit,
+			txInfo.BlockSpace,
+		)
 	}
 
 	l.mu.Lock()
@@ -134,20 +151,19 @@ func (l *Lane) Match(ctx sdk.Context, tx sdk.Tx) bool {
 
 // FillProposal fills the proposal with transactions from the lane mempool with its own limit.
 // It returns the total size and gas of the transactions added to the proposal.
-// It also returns an iterator to the next transaction in the mempool and a list
-// of transactions that were removed from the lane mempool.
+// It also returns an iterator to the next transaction in the mempool.
 func (l *Lane) FillProposal(
 	ctx sdk.Context,
 	proposal *Proposal,
-) (blockUsed BlockSpace, iterator sdkmempool.Iterator, txsToRemove []sdk.Tx) {
+) (blockUsed BlockSpace, iterator sdkmempool.Iterator) {
 	// if the lane is blocked, we do not add any transactions to the proposal.
 	if l.blocked {
+		l.logger.Info("lane %s is blocked, skipping proposal filling", l.name)
 		return
 	}
 
-	// Get the transaction and lane limit for the lane.
-	transactionLimit := proposal.GetLimit(l.maxTransactionSpace)
-	laneLimit := proposal.GetLimit(l.maxLaneSpace)
+	// Get the lane limit for the lane.
+	laneLimit := proposal.maxBlockSpace.Scale(l.maxLaneBlockRatio)
 
 	// Select all transactions in the mempool that are valid and not already in the
 	// partial proposal.
@@ -161,21 +177,9 @@ func (l *Lane) FillProposal(
 		tx := iterator.Tx()
 		txInfo, err := l.getTxInfo(tx)
 		if err != nil {
-			l.logger.Info("failed to get hash of tx", "err", err)
-
-			txsToRemove = append(txsToRemove, tx)
-			continue
-		}
-
-		// if the transaction is exceed the limit, we remove it from the lane mempool.
-		if transactionLimit.IsExceededBy(txInfo.BlockSpace) {
-			l.logger.Info(
-				"failed to select tx for lane; tx exceeds limit",
-				"tx_hash", txInfo.Hash,
-				"lane", l.name,
-			)
-
-			txsToRemove = append(txsToRemove, tx)
+			// If the transaction is not valid, we skip it.
+			// This should never happen, but we log it for debugging purposes.
+			l.logger.Error("failed to get tx info", "err", err)
 			continue
 		}
 
@@ -204,46 +208,30 @@ func (l *Lane) FillProposal(
 
 // FillProposalByIterator fills the proposal with transactions from the lane mempool with the given iterator and limit.
 // It returns the total size and gas of the transactions added to the proposal.
-// It also returns a list of transactions that were removed from the lane mempool.
 func (l *Lane) FillProposalByIterator(
 	proposal *Proposal,
 	iterator sdkmempool.Iterator,
-	laneLimit BlockSpace,
-) (blockUsed BlockSpace, txsToRemove []sdk.Tx) {
+	limit BlockSpace,
+) (blockUsed BlockSpace) {
 	// if the lane is blocked, we do not add any transactions to the proposal.
 	if l.blocked {
 		return
 	}
 
-	// get the transaction limit for the lane.
-	transactionLimit := proposal.GetLimit(l.maxTransactionSpace)
-
 	// Select all transactions in the mempool that are valid and not already in the partial proposal.
 	for ; iterator != nil; iterator = iterator.Next() {
 		// If the total size used or total gas used exceeds the limit, we break and do not attempt to include more txs.
 		// We can tolerate a few bytes/gas over the limit, since we limit the size of each transaction.
-		if laneLimit.IsReachedBy(blockUsed) {
+		if limit.IsReachedBy(blockUsed) {
 			break
 		}
 
 		tx := iterator.Tx()
 		txInfo, err := l.getTxInfo(tx)
 		if err != nil {
-			l.logger.Info("failed to get hash of tx", "err", err)
-
-			txsToRemove = append(txsToRemove, tx)
-			continue
-		}
-
-		// if the transaction is exceed the limit, we remove it from the lane mempool.
-		if transactionLimit.IsExceededBy(txInfo.BlockSpace) {
-			l.logger.Info(
-				"failed to select tx for lane; tx exceeds limit",
-				"tx_hash", txInfo.Hash,
-				"lane", l.name,
-			)
-
-			txsToRemove = append(txsToRemove, tx)
+			// If the transaction is not valid, we skip it.
+			// This should never happen, but we log it for debugging purposes.
+			l.logger.Error("failed to get tx info", "err", err)
 			continue
 		}
 
