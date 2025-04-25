@@ -12,17 +12,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// MaxUint64 is the maximum value of a uint64.
-const MaxUint64 = math.MaxUint64
-
 // Proposal represents a block proposal under construction.
 type Proposal struct {
 	logger log.Logger
 
-	// Txs is the list of transactions in the proposal.
+	// txs is the list of transactions in the proposal.
 	txs [][]byte
-	// Cache helps quickly check for duplicates by tx hash.
-	cache map[string]struct{}
+	// seen helps quickly check for duplicates by tx hash.
+	seen map[string]struct{}
 	// maxBlockSpace is the maximum block space available for this proposal.
 	maxBlockSpace BlockSpace
 	// totalBlockSpace is the total block space used by the proposal.
@@ -34,7 +31,7 @@ func NewProposal(logger log.Logger, maxBlockSize uint64, maxGasLimit uint64) Pro
 	return Proposal{
 		logger:          logger,
 		txs:             make([][]byte, 0),
-		cache:           make(map[string]struct{}),
+		seen:            make(map[string]struct{}),
 		maxBlockSpace:   NewBlockSpace(maxBlockSize, maxGasLimit),
 		totalBlockSpace: NewBlockSpace(0, 0),
 	}
@@ -42,7 +39,7 @@ func NewProposal(logger log.Logger, maxBlockSize uint64, maxGasLimit uint64) Pro
 
 // Contains returns true if the proposal already has a transaction with the given txHash.
 func (p *Proposal) Contains(txHash string) bool {
-	_, ok := p.cache[txHash]
+	_, ok := p.seen[txHash]
 	return ok
 }
 
@@ -64,7 +61,7 @@ func (p *Proposal) Add(txInfo TxWithInfo) error {
 
 	// Add transaction
 	p.txs = append(p.txs, txInfo.TxBytes)
-	p.cache[txInfo.Hash] = struct{}{}
+	p.seen[txInfo.Hash] = struct{}{}
 
 	p.totalBlockSpace = currentBlockSpace
 
@@ -82,20 +79,21 @@ func (p *Proposal) GetLimit(ratio sdkmath.LegacyDec) BlockSpace {
 }
 
 // GetBlockLimits retrieves the maximum block size and gas limit from context.
-func GetBlockLimits(ctx sdk.Context) (int64, uint64) {
+func GetBlockLimits(ctx sdk.Context) (uint64, uint64) {
 	blockParams := ctx.ConsensusParams().Block
 
-	var maxGasLimit uint64
-
-	if blockParams.MaxGas == -1 {
-		maxGasLimit = MaxUint64
+	var maxBytesLimit uint64
+	if blockParams.MaxBytes == -1 {
+		maxBytesLimit = uint64(comettypes.MaxBlockSizeBytes)
 	} else {
-		maxGasLimit = uint64(blockParams.MaxGas)
+		maxBytesLimit = uint64(blockParams.MaxBytes)
 	}
 
-	maxBytesLimit := blockParams.MaxBytes
-	if blockParams.MaxBytes == -1 {
-		maxBytesLimit = comettypes.MaxBlockSizeBytes
+	var maxGasLimit uint64
+	if blockParams.MaxGas == -1 {
+		maxGasLimit = math.MaxUint64
+	} else {
+		maxGasLimit = uint64(blockParams.MaxGas)
 	}
 
 	return maxBytesLimit, maxGasLimit
