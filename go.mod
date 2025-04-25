@@ -19,7 +19,7 @@ require (
 	cosmossdk.io/x/upgrade v0.1.4
 	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/axelarnetwork/utils v0.0.0-20230706045331-b7aacc1f4a2f
-	github.com/bandprotocol/bothan/bothan-api/client/go-client v0.0.1-alpha.6
+	github.com/bandprotocol/bothan/bothan-api/client/go-client v0.0.1-beta.2
 	github.com/bandprotocol/go-owasm v0.3.1
 	github.com/bytecodealliance/wasmtime-go/v20 v20.0.0
 	github.com/cometbft/cometbft v0.38.17
