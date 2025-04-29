@@ -9,7 +9,7 @@ grogu config chain-id bandchain
 grogu config validator $(bandd keys show validator -a --bech val --keyring-backend test)
 
 # setup bothan endpoint
-grogu config bothan "localhost:50051"
+grogu config bothan "$BOTHAN_URL"
 
 # setup bothan timeout
 grogu config bothan-timeout "3s"
@@ -21,7 +21,7 @@ grogu config broadcast-timeout "1m"
 grogu config rpc-poll-interval "1s"
 
 # setup nodes to grogu config
-grogu config nodes "$BOTHAN_URL"
+grogu config nodes "http://localhost:26657"
 
 # setup log-level to grogu config
 grogu config log-level "info"
