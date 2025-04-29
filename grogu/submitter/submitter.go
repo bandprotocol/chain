@@ -41,6 +41,8 @@ type Submitter struct {
 	broadcastMaxTry  uint64
 	pollingInterval  time.Duration
 	gasPrices        string
+	gasAdjustStart   float64
+	gasAdjustStep    float64
 
 	idleKeyIDChannel chan string
 }
@@ -59,6 +61,8 @@ func New(
 	broadcastMaxTry uint64,
 	pollingInterval time.Duration,
 	gasPrices string,
+	gasAdjustStart float64,
+	gasAdjustStep float64,
 ) (*Submitter, error) {
 	if len(clients) == 0 {
 		return nil, fmt.Errorf("clients cannot be empty")
@@ -92,6 +96,8 @@ func New(
 		broadcastMaxTry:     broadcastMaxTry,
 		pollingInterval:     pollingInterval,
 		gasPrices:           gasPrices,
+		gasAdjustStart:      gasAdjustStart,
+		gasAdjustStep:       gasAdjustStep,
 		idleKeyIDChannel:    idleKeyIDChannel,
 	}, nil
 }
@@ -135,7 +141,7 @@ func (s *Submitter) submitPrice(pricesSubmission SignalPriceSubmission, keyID st
 	}
 
 	since := time.Now()
-	gasAdjustment := 1.3
+	gasAdjustment := s.gasAdjustStart
 	for i := uint64(0); i < s.broadcastMaxTry; i++ {
 		txResp, err := s.broadcastMsg(
 			key,
@@ -151,7 +157,7 @@ func (s *Submitter) submitPrice(pricesSubmission SignalPriceSubmission, keyID st
 		// if the transaction is out of gas, increase the gas adjustment
 		if txResp.Codespace == sdkerrors.RootCodespace && txResp.Code == sdkerrors.ErrOutOfGas.ABCICode() {
 			s.logger.Info("[Submitter] transaction is out of gas, retrying with increased gas adjustment")
-			gasAdjustment += 0.1
+			gasAdjustment += s.gasAdjustStep
 			continue
 		} else if txResp.Code != 0 {
 			s.logger.Error("[Submitter] failed to broadcast with non zero code: %v", txResp.RawLog)
@@ -177,7 +183,7 @@ func (s *Submitter) submitPrice(pricesSubmission SignalPriceSubmission, keyID st
 			return
 		case finalizedTxResp.Codespace == sdkerrors.RootCodespace && finalizedTxResp.Code == sdkerrors.ErrOutOfGas.ABCICode():
 			s.logger.Info("[Submitter] transaction is out of gas, retrying with increased gas adjustment")
-			gasAdjustment += 0.1
+			gasAdjustment += s.gasAdjustStep
 		default:
 			continue
 		}
