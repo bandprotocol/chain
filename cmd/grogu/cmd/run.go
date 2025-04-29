@@ -40,6 +40,8 @@ const (
 	flagLogLevel             = "log-level"
 	flagUpdaterQueryInterval = "updater-query-interval"
 	flagMetricsListenAddr    = "metrics-listen-addr"
+	flagGasAdjustStart       = "gas-adjust-start"
+	flagGasAdjustStep        = "gas-adjust-step"
 )
 
 func RunCmd(ctx *context.Context) *cobra.Command {
@@ -65,6 +67,8 @@ func RunCmd(ctx *context.Context) *cobra.Command {
 	cmd.Flags().String(flagLogLevel, "info", "The application's log level.")
 	cmd.Flags().String(flagUpdaterQueryInterval, "1m", "The interval for updater querying chain.")
 	cmd.Flags().String(flagMetricsListenAddr, "", "address to use for metrics server.")
+	cmd.Flags().Float64(flagGasAdjustStart, 1.0, "The gas adjustment start value for transactions.")
+	cmd.Flags().Float64(flagGasAdjustStep, 0.1, "The gas adjustment step for transactions.")
 
 	_ = viper.BindPFlag(flagValidator, cmd.Flags().Lookup(flagValidator))
 	_ = viper.BindPFlag(flagNodes, cmd.Flags().Lookup(flagNodes))
@@ -80,6 +84,8 @@ func RunCmd(ctx *context.Context) *cobra.Command {
 	_ = viper.BindPFlag(flagLogLevel, cmd.Flags().Lookup(flagLogLevel))
 	_ = viper.BindPFlag(flagUpdaterQueryInterval, cmd.Flags().Lookup(flagUpdaterQueryInterval))
 	_ = viper.BindPFlag(flagMetricsListenAddr, cmd.Flags().Lookup(flagMetricsListenAddr))
+	_ = viper.BindPFlag(flagGasAdjustStart, cmd.Flags().Lookup(flagGasAdjustStart))
+	_ = viper.BindPFlag(flagGasAdjustStep, cmd.Flags().Lookup(flagGasAdjustStep))
 
 	return cmd
 }
@@ -167,6 +173,8 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 			ctx.Config.MaxTry,
 			ctx.Config.RPCPollInterval,
 			ctx.Config.GasPrices,
+			ctx.Config.GasAdjustStart,
+			ctx.Config.GasAdjustStep,
 		)
 		if err != nil {
 			return err
