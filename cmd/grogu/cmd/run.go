@@ -33,15 +33,15 @@ const (
 	flagBroadcastTimeout     = "broadcast-timeout"
 	flagRPCPollInterval      = "rpc-poll-interval"
 	flagMaxTry               = "max-try"
-	flagBothan               = "bothan"
 	flagBothanTimeout        = "bothan-timeout"
+	flagGasAdjustStart       = "gas-adjust-start"
+	flagGasAdjustStep        = "gas-adjust-step"
 	flagDistrStartPct        = "distribution-start-pct"
 	flagDistrOffsetPct       = "distribution-offset-pct"
+	flagBothan               = "bothan"
 	flagLogLevel             = "log-level"
 	flagUpdaterQueryInterval = "updater-query-interval"
 	flagMetricsListenAddr    = "metrics-listen-addr"
-	flagGasAdjustStart       = "gas-adjust-start"
-	flagGasAdjustStep        = "gas-adjust-step"
 )
 
 func RunCmd(ctx *context.Context) *cobra.Command {
@@ -60,6 +60,8 @@ func RunCmd(ctx *context.Context) *cobra.Command {
 	cmd.Flags().String(flagBroadcastTimeout, "1m", "The timeout duration for transaction commits.")
 	cmd.Flags().String(flagRPCPollInterval, "1s", "The duration to wait between RPC polls.")
 	cmd.Flags().Uint64(flagMaxTry, 5, "The maximum number of attempts to submit a transaction.")
+	cmd.Flags().Float64(flagGasAdjustStart, 1.0, "The gas adjustment start value for transactions.")
+	cmd.Flags().Float64(flagGasAdjustStep, 0.1, "The gas adjustment step for transactions.")
 	cmd.Flags().Uint64(flagDistrStartPct, 50, "The starting percentage for the distribution offset range.")
 	cmd.Flags().Uint64(flagDistrOffsetPct, 30, "The offset percentage range from the starting distribution.")
 	cmd.Flags().String(flagBothan, "", "The Bothan URL to connect to.")
@@ -67,8 +69,6 @@ func RunCmd(ctx *context.Context) *cobra.Command {
 	cmd.Flags().String(flagLogLevel, "info", "The application's log level.")
 	cmd.Flags().String(flagUpdaterQueryInterval, "1m", "The interval for updater querying chain.")
 	cmd.Flags().String(flagMetricsListenAddr, "", "address to use for metrics server.")
-	cmd.Flags().Float64(flagGasAdjustStart, 1.0, "The gas adjustment start value for transactions.")
-	cmd.Flags().Float64(flagGasAdjustStep, 0.1, "The gas adjustment step for transactions.")
 
 	_ = viper.BindPFlag(flagValidator, cmd.Flags().Lookup(flagValidator))
 	_ = viper.BindPFlag(flagNodes, cmd.Flags().Lookup(flagNodes))
@@ -77,6 +77,8 @@ func RunCmd(ctx *context.Context) *cobra.Command {
 	_ = viper.BindPFlag(flagBroadcastTimeout, cmd.Flags().Lookup(flagBroadcastTimeout))
 	_ = viper.BindPFlag(flagRPCPollInterval, cmd.Flags().Lookup(flagRPCPollInterval))
 	_ = viper.BindPFlag(flagMaxTry, cmd.Flags().Lookup(flagMaxTry))
+	_ = viper.BindPFlag(flagGasAdjustStart, cmd.Flags().Lookup(flagGasAdjustStart))
+	_ = viper.BindPFlag(flagGasAdjustStep, cmd.Flags().Lookup(flagGasAdjustStep))
 	_ = viper.BindPFlag(flagDistrStartPct, cmd.Flags().Lookup(flagDistrStartPct))
 	_ = viper.BindPFlag(flagDistrOffsetPct, cmd.Flags().Lookup(flagDistrOffsetPct))
 	_ = viper.BindPFlag(flagBothan, cmd.Flags().Lookup(flagBothan))
@@ -84,8 +86,6 @@ func RunCmd(ctx *context.Context) *cobra.Command {
 	_ = viper.BindPFlag(flagLogLevel, cmd.Flags().Lookup(flagLogLevel))
 	_ = viper.BindPFlag(flagUpdaterQueryInterval, cmd.Flags().Lookup(flagUpdaterQueryInterval))
 	_ = viper.BindPFlag(flagMetricsListenAddr, cmd.Flags().Lookup(flagMetricsListenAddr))
-	_ = viper.BindPFlag(flagGasAdjustStart, cmd.Flags().Lookup(flagGasAdjustStart))
-	_ = viper.BindPFlag(flagGasAdjustStep, cmd.Flags().Lookup(flagGasAdjustStep))
 
 	return cmd
 }
