@@ -33,7 +33,7 @@ type Config struct {
 	MaxTry              uint64        `mapstructure:"max-try"`               // The maximum number of tries to submit a report transaction
 	MinDE               uint64        `mapstructure:"min-de"`                // The minimum number of DE
 	GasAdjustStart      float64       `mapstructure:"gas-adjust-start"`      // The start value of gas adjustment
-	GasAdjustStep       float64       `mapstructure:"gas-adjust-step"`       // The increment step of gad adjustment
+	GasAdjustStep       float64       `mapstructure:"gas-adjust-step"`       // The increment step of gas adjustment
 	RandomSecret        tss.Scalar    `mapstructure:"random-secret"`         // The secret value that is used for random D,E
 	CheckDEInterval     time.Duration `mapstructure:"check-de-interval"`     // The interval for updating DE
 	CheckStatusInterval time.Duration `mapstructure:"check-status-interval"` // The interval for checking the status of the member
