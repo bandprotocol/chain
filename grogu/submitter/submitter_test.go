@@ -164,6 +164,8 @@ func (s *SubmitterTestSuite) SetupTest() {
 		3,
 		1*time.Second,
 		"0.025stake",
+		1.0,
+		0.1,
 	)
 	s.Require().NoError(err)
 	s.Submitter = submitterInstance

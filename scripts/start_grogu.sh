@@ -8,8 +8,11 @@ grogu config chain-id bandchain
 # add validator to grogu config
 grogu config validator $(bandd keys show validator -a --bech val --keyring-backend test)
 
-# setup execution endpoint
+# setup bothan endpoint
 grogu config bothan "$BOTHAN_URL"
+
+# setup bothan timeout
+grogu config bothan-timeout "3s"
 
 # setup broadcast-timeout to grogu config
 grogu config broadcast-timeout "1m"
@@ -25,6 +28,21 @@ grogu config log-level "info"
 
 # setup max-try to grogu config
 grogu config max-try 5
+
+# setup gas-prices to grogu config
+grogu config gas-prices "0uband"
+
+# setup gas-adjust-start
+grogu config gas-adjust-start 1.0
+
+# setup gas-adjust-step
+grogu config gas-adjust-step 0.1
+
+# setup distribution-start-pct
+grogu config distribution-start-pct 50
+
+# setup distribution-offset-pct
+grogu config distribution-offset-pct 30
 
 # setup metrics listen address to grogu config
 grogu config metrics-listen-addr "$GROGU_METRICS_LISTEN_ADDR"
