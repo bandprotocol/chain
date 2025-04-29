@@ -32,6 +32,12 @@ type Config struct {
 	// GasPrices is the gas price set for each transaction.
 	GasPrices string `mapstructure:"gas-prices"`
 
+	// GasAdjustStart is the gas adjustment start value.
+	GasAdjustStart float64 `mapstructure:"gas-adjust-start"`
+
+	// GasAdjustStep is the gas adjustment step for each transaction.
+	GasAdjustStep float64 `mapstructure:"gas-adjust-step"`
+
 	// DistributionStartPercentage defines the initial percentage for price distribution.
 	DistributionStartPercentage uint64 `mapstructure:"distribution-start-pct"`
 

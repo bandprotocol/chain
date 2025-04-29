@@ -2,9 +2,9 @@
 
 ## [v3.0.0](https://github.com/bandprotocol/chain/releases/tag/v3.0.0)
 
-* (bump) Use go 1.22.3
-* (bump) Use cosmos-sdk package v0.50.11 / ibc-go v8.5.2
-* (bump) replace github.com/tendermint/tendermint by github.com/cometbft/cometbft v0.38.12
+* (bump) Use go 1.24.2
+* (bump) Use cosmos-sdk package v0.50.13 / ibc-go v8.7.0
+* (bump) replace github.com/tendermint/tendermint by github.com/cometbft/cometbft v0.38.17
 * (bump) migrated from gogo/protobuf to cosmos/gogoproto
 * (bump) Use go-owasm v0.3.1
 * (chain) Remove disablefeeless flag
@@ -21,14 +21,19 @@
 * (chain) Set MinimumGasPrice to 0.0025uband
 * (chain) Use priority based on gas_prices of uband but MsgReport will have the highest priority
 * (chain) Add tss module
-* (cylinder) Add Cylinder to provide a service for supporting tss process
 * (chain) Add bandtss module
-* (chain) Add Feeds module
-* (grogu) Add Grogu to provide a service for supporting Feeds price submission
-* (chain) Add Tunnel module
-* (chain) Add Restake module
+* (chain) Add feeds module
+* (chain) Add tunnel module (supports TSS, IBC, IBC Hook, Router, and Axelar routes)
+* (chain) Add restake module
 * (chain) Separate rolling seed from Oracle module to be a standalone Rolling seed module
 * (chain) Update proof to support newly added module
+* (grogu) Add Grogu to provide a service for supporting Feeds price submission
+* (grogu) Use block time instead of local time.
+* (grogu) Add telemetry support for tracking service metrics
+* (cylinder) Add Cylinder to provide a service for supporting tss process
+* (cylinder) Add telemetry support for tracking service metrics
+* (cylinder) Allow standalone commands to be able to run when running the program
+* (yoda) Add auto bump gas logic
 
 ## [v2.5.3](https://github.com/bandprotocol/chain/releases/tag/v2.5.3)
 
