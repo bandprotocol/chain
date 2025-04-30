@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+
 	"github.com/segmentio/kafka-go"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -515,7 +517,7 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, tx sdk.Tx, res *abci.ExecTxResult
 }
 
 // AfterEndBlock specify actions need to do after end block period (app.Hook interface).
-func (h *Hook) AfterEndBlock(ctx sdk.Context, events []abci.Event) {
+func (h *Hook) AfterEndBlock(ctx sdk.Context, events []abci.Event, validatorUpdates []abci.ValidatorUpdate) {
 	tunnelSenderFeesMap := getTunnelSenderFeesMap(ctx, *h, events)
 
 	eventQuerier := NewEventQuerier(events)
@@ -540,6 +542,25 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, events []abci.Event) {
 				"address": acc,
 				"balance": h.bankKeeper.GetAllBalances(ctx, acc).String(),
 			},
+		})
+	}
+
+	// Update validator status of all updated validators on this block.
+	for _, update := range validatorUpdates {
+		var sdkpk secp256k1.PubKey
+		sdkpk.Key = update.PubKey.GetSecp256K1()
+		consAddr := sdk.ConsAddress(sdkpk.Address().Bytes())
+
+		validator, err := h.stakingKeeper.GetValidatorByConsAddr(ctx, consAddr)
+		if err != nil {
+			continue
+		}
+
+		h.Write("UPDATE_VALIDATOR", common.JsDict{
+			"operator_address": validator.OperatorAddress,
+			"active":           validator.Status == stakingtypes.Bonded,
+			"tokens":           validator.Tokens.Uint64(),
+			"jailed":           validator.Jailed,
 		})
 	}
 
