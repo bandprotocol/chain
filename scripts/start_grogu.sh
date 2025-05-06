@@ -33,7 +33,7 @@ grogu config max-try 5
 grogu config gas-prices "0uband"
 
 # setup gas-adjust-start
-grogu config gas-adjust-start 1.0
+grogu config gas-adjust-start 1.2
 
 # setup gas-adjust-step
 grogu config gas-adjust-step 0.1
