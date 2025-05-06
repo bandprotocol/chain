@@ -59,6 +59,8 @@ func IncrementUpdatingRegistry(hashID string) {
 	}
 
 	collector.UpdatingRegistryCountVec.With(prometheus.Labels{"hash_id": hashID}).Inc()
+	collector.UpdateRegistrySuccessCountVec.With(prometheus.Labels{"hash_id": hashID}).Add(0)
+	collector.UpdateRegistryFailedCountVec.With(prometheus.Labels{"hash_id": hashID}).Add(0)
 }
 
 // IncrementUpdateRegistryFailed increments the number of failed Bothan's registry update request.
