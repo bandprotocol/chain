@@ -2,6 +2,7 @@ package benchmark
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"sort"
 	"testing"
@@ -78,7 +79,7 @@ func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 
 		txs := [][]byte{}
 		for _, val := range vals {
-			tx := GenSequenceOfTxs(
+			tx := bandtesting.GenSequenceOfTxs(
 				ba.TxEncoder,
 				ba.TxConfig,
 				GenMsgSubmitSignalPrices(
@@ -87,6 +88,8 @@ func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 					ba.Ctx.BlockTime().Unix(),
 				),
 				val,
+				sdk.Coins{sdk.NewInt64Coin("uband", 1)},
+				math.MaxInt64,
 				1,
 			)[0]
 
@@ -178,7 +181,7 @@ func setupFeeds(ba *BenchmarkApp, numFeeds uint64) error {
 	return nil
 }
 
-func setupValidatorPriceList(ba *BenchmarkApp, vals []*Account) error {
+func setupValidatorPriceList(ba *BenchmarkApp, vals []*bandtesting.AccountWithNumSeq) error {
 	sfs := ba.FeedsKeeper.GetCurrentFeeds(ba.Ctx)
 
 	for valIdx, val := range vals {
@@ -200,7 +203,7 @@ func setupValidatorPriceList(ba *BenchmarkApp, vals []*Account) error {
 	return nil
 }
 
-func setupValidatorPrices(ba *BenchmarkApp, vals []*Account) error {
+func setupValidatorPrices(ba *BenchmarkApp, vals []*bandtesting.AccountWithNumSeq) error {
 	sfs := ba.FeedsKeeper.GetCurrentFeeds(ba.Ctx)
 
 	for valIdx, val := range vals {
@@ -223,7 +226,7 @@ func setupValidatorPrices(ba *BenchmarkApp, vals []*Account) error {
 	return nil
 }
 
-func generateValidators(ba *BenchmarkApp, num int) ([]*Account, error) {
+func generateValidators(ba *BenchmarkApp, num int) ([]*bandtesting.AccountWithNumSeq, error) {
 	// transfer money
 	vals := []bandtesting.Account{}
 	txs := [][]byte{}
@@ -232,11 +235,13 @@ func generateValidators(ba *BenchmarkApp, num int) ([]*Account, error) {
 		acc := bandtesting.CreateArbitraryAccount(r)
 		vals = append(vals, acc)
 
-		tx := GenSequenceOfTxs(
+		tx := bandtesting.GenSequenceOfTxs(
 			ba.TxEncoder,
 			ba.TxConfig,
 			[]sdk.Msg{banktypes.NewMsgSend(ba.Sender.Address, acc.Address, bandtesting.Coins100band)},
 			ba.Sender,
+			sdk.Coins{sdk.NewInt64Coin("uband", 1)},
+			math.MaxInt64,
 			1,
 		)[0]
 
@@ -266,11 +271,11 @@ func generateValidators(ba *BenchmarkApp, num int) ([]*Account, error) {
 	}
 
 	// apply to be a validator
-	accs := []*Account{}
+	accs := []*bandtesting.AccountWithNumSeq{}
 	txs = [][]byte{}
 	for _, val := range vals {
 		info := ba.AccountKeeper.GetAccount(ba.Ctx, val.Address)
-		acc := &Account{
+		acc := &bandtesting.AccountWithNumSeq{
 			Account: val,
 			Num:     info.GetAccountNumber(),
 			Seq:     info.GetSequence(),
@@ -291,11 +296,13 @@ func generateValidators(ba *BenchmarkApp, num int) ([]*Account, error) {
 
 		msgActivate := oracletypes.NewMsgActivate(val.ValAddress)
 
-		tx := GenSequenceOfTxs(
+		tx := bandtesting.GenSequenceOfTxs(
 			ba.TxEncoder,
 			ba.TxConfig,
 			[]sdk.Msg{msgCreateVal, msgActivate},
 			acc,
+			sdk.Coins{sdk.NewInt64Coin("uband", 1)},
+			math.MaxInt64,
 			1,
 		)[0]
 

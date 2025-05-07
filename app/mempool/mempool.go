@@ -169,3 +169,14 @@ func (m *Mempool) Contains(tx sdk.Tx) (contains bool) {
 
 	return false
 }
+
+// GetLane returns the lane with the given name.
+func (m *Mempool) GetLane(name string) *Lane {
+	for _, lane := range m.lanes {
+		if lane.name == name {
+			return lane
+		}
+	}
+
+	return nil
+}
