@@ -37,6 +37,7 @@ func (h *Hook) emitSetValidator(ctx sdk.Context, addr sdk.ValAddress) types.Vali
 		"min_self_delegation":    val.MinSelfDelegation.String(),
 		"tokens":                 val.Tokens.Uint64(),
 		"jailed":                 val.Jailed,
+		"active":                 val.Status == types.Bonded,
 		"delegator_shares":       val.DelegatorShares.String(),
 		"current_reward":         currentReward,
 		"current_ratio":          currentRatio,
@@ -67,6 +68,7 @@ func (h *Hook) emitUpdateValidator(ctx sdk.Context, addr sdk.ValAddress) (types.
 		"current_reward":   currentReward,
 		"current_ratio":    currentRatio,
 		"jailed":           val.Jailed,
+		"active":           val.Status == types.Bonded,
 		"last_update":      ctx.BlockTime().UnixNano(),
 	})
 	return val, true

@@ -275,6 +275,7 @@ validators = sa.Table(
     Column("commission_max_change", sa.String),
     Column("min_self_delegation", sa.String),
     Column("jailed", sa.Boolean),
+    Column("active", sa.Boolean),
     Column("tokens", sa.DECIMAL),
     Column("delegator_shares", sa.DECIMAL),
     Column("current_reward", sa.DECIMAL),

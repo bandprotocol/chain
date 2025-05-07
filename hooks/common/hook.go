@@ -16,7 +16,7 @@ type Hook interface {
 	// Receive context that has been finalized on that block
 	AfterBeginBlock(ctx sdk.Context, req *abci.RequestFinalizeBlock, events []abci.Event)
 	AfterDeliverTx(ctx sdk.Context, tx sdk.Tx, res *abci.ExecTxResult)
-	AfterEndBlock(ctx sdk.Context, events []abci.Event)
+	AfterEndBlock(ctx sdk.Context, events []abci.Event, validatorUpdates []abci.ValidatorUpdate)
 	RequestSearch(req *types.QueryRequestSearchRequest) (*types.QueryRequestSearchResponse, bool, error)
 	RequestPrice(req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, bool, error)
 	BeforeCommit()
@@ -40,9 +40,9 @@ func (h Hooks) AfterDeliverTx(ctx sdk.Context, tx sdk.Tx, res *abci.ExecTxResult
 	}
 }
 
-func (h Hooks) AfterEndBlock(ctx sdk.Context, events []abci.Event) {
+func (h Hooks) AfterEndBlock(ctx sdk.Context, events []abci.Event, validatorUpdates []abci.ValidatorUpdate) {
 	for _, hook := range h {
-		hook.AfterEndBlock(ctx, events)
+		hook.AfterEndBlock(ctx, events, validatorUpdates)
 	}
 }
 

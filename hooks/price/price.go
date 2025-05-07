@@ -69,7 +69,7 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, tx sdk.Tx, res *abci.ExecTxResult
 }
 
 // AfterEndBlock specify actions need to do after end block period (app.Hook interface).
-func (h *Hook) AfterEndBlock(ctx sdk.Context, events []abci.Event) {
+func (h *Hook) AfterEndBlock(ctx sdk.Context, events []abci.Event, validatorUpdates []abci.ValidatorUpdate) {
 	for _, event := range events {
 		events := sdk.StringifyEvents([]abci.Event{event})
 		evMap := common.ParseEvents(events)
