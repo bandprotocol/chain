@@ -53,17 +53,15 @@ func (bs BlockSpace) Sub(other BlockSpace) BlockSpace {
 	var gas uint64
 
 	// Calculate txBytes
-	if other.txBytes > bs.txBytes {
+	txBytes, borrowOut := ethmath.SafeSub(bs.txBytes, other.txBytes)
+	if borrowOut {
 		txBytes = 0
-	} else {
-		txBytes = bs.txBytes - other.txBytes
 	}
 
 	// Calculate gas
-	if other.gas > bs.gas {
+	gas, borrowOut = ethmath.SafeSub(bs.gas, other.gas)
+	if borrowOut {
 		gas = 0
-	} else {
-		gas = bs.gas - other.gas
 	}
 
 	return BlockSpace{

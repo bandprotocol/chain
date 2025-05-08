@@ -195,9 +195,9 @@ func (l *Lane) FillProposal(
 		if err := proposal.Add(txInfo); err != nil {
 			l.logger.Info(
 				"failed to add tx to proposal",
-				"lane:", l.name,
-				"tx_hash:", txInfo.Hash,
-				"err:", err,
+				"lane", l.name,
+				"tx_hash", txInfo.Hash,
+				"err", err,
 			)
 
 			break
@@ -247,9 +247,9 @@ func (l *Lane) FillProposalByIterator(
 		if err := proposal.Add(txInfo); err != nil {
 			l.logger.Info(
 				"failed to add tx to proposal",
-				"lane:", l.name,
-				"tx_hash:", txInfo.Hash,
-				"err:", err,
+				"lane", l.name,
+				"tx_hash", txInfo.Hash,
+				"err", err,
 			)
 
 			break
