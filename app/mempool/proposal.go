@@ -43,13 +43,13 @@ func (p *Proposal) Add(txInfo TxWithInfo) error {
 		return fmt.Errorf("transaction already in proposal: %s", txInfo.Hash)
 	}
 
-	currentBlockSpace := p.totalBlockSpaceUsed.Add(txInfo.BlockSpace)
+	currentBlockSpaceUsed := p.totalBlockSpaceUsed.Add(txInfo.BlockSpace)
 
 	// Check block size limit
-	if p.maxBlockSpace.IsExceededBy(currentBlockSpace) {
+	if p.maxBlockSpace.IsExceededBy(currentBlockSpaceUsed) {
 		return fmt.Errorf(
 			"transaction space exceeds max block space: %s > %s",
-			currentBlockSpace.String(), p.maxBlockSpace.String(),
+			currentBlockSpaceUsed.String(), p.maxBlockSpace.String(),
 		)
 	}
 
@@ -57,7 +57,7 @@ func (p *Proposal) Add(txInfo TxWithInfo) error {
 	p.txs = append(p.txs, txInfo.TxBytes)
 	p.seen[txInfo.Hash] = struct{}{}
 
-	p.totalBlockSpaceUsed = currentBlockSpace
+	p.totalBlockSpaceUsed = currentBlockSpaceUsed
 
 	return nil
 }
