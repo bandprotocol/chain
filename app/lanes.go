@@ -109,5 +109,5 @@ func CreateLanes(app *BandApp) []*mempool.Lane {
 		nil,
 	)
 
-	return []*mempool.Lane{feedsLane, tssLane, oracleRequestLane, oracleReportLane, defaultLane}
+	return []*mempool.Lane{feedsLane, tssLane, oracleReportLane, oracleRequestLane, defaultLane}
 }
