@@ -81,10 +81,14 @@ func (l *Lane) Insert(ctx context.Context, tx sdk.Tx) error {
 
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	consensusParams := sdkCtx.ConsensusParams()
-	transactionLimit := NewBlockSpace(
+
+	transactionLimit, err := NewBlockSpace(
 		uint64(consensusParams.Block.MaxBytes),
 		uint64(consensusParams.Block.MaxGas),
 	).Scale(l.maxTransactionBlockRatio)
+	if err != nil {
+		return err
+	}
 
 	if transactionLimit.IsExceededBy(txInfo.BlockSpace) {
 		return fmt.Errorf(
@@ -163,7 +167,11 @@ func (l *Lane) FillProposal(
 	}
 
 	// Get the lane limit for the lane.
-	laneLimit := proposal.maxBlockSpace.Scale(l.maxLaneBlockRatio)
+	laneLimit, err := proposal.maxBlockSpace.Scale(l.maxLaneBlockRatio)
+	if err != nil {
+		l.logger.Error("failed to scale lane limit with err:", err)
+		return
+	}
 
 	// Select all transactions in the mempool that are valid and not already in the
 	// partial proposal.
@@ -179,7 +187,7 @@ func (l *Lane) FillProposal(
 		if err != nil {
 			// If the transaction is not valid, we skip it.
 			// This should never happen, but we log it for debugging purposes.
-			l.logger.Error("failed to get tx info", "err", err)
+			l.logger.Error("failed to get tx info with err:", err)
 			continue
 		}
 
@@ -187,9 +195,9 @@ func (l *Lane) FillProposal(
 		if err := proposal.Add(txInfo); err != nil {
 			l.logger.Info(
 				"failed to add tx to proposal",
-				"lane", l.name,
-				"tx_hash", txInfo.Hash,
-				"err", err,
+				"lane:", l.name,
+				"tx_hash:", txInfo.Hash,
+				"err:", err,
 			)
 
 			break
@@ -231,7 +239,7 @@ func (l *Lane) FillProposalByIterator(
 		if err != nil {
 			// If the transaction is not valid, we skip it.
 			// This should never happen, but we log it for debugging purposes.
-			l.logger.Error("failed to get tx info", "err", err)
+			l.logger.Error("failed to get tx info with err:", err)
 			continue
 		}
 
@@ -239,9 +247,9 @@ func (l *Lane) FillProposalByIterator(
 		if err := proposal.Add(txInfo); err != nil {
 			l.logger.Info(
 				"failed to add tx to proposal",
-				"lane", l.name,
-				"tx_hash", txInfo.Hash,
-				"err", err,
+				"lane:", l.name,
+				"tx_hash:", txInfo.Hash,
+				"err:", err,
 			)
 
 			break

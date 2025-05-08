@@ -177,11 +177,8 @@ func (s *LaneTestSuite) TestLaneFillProposalWithGasLimit() {
 	s.Require().Equal(2, len(proposal.txs), "two txs in the proposal")
 	s.Require().Equal(expectedIncludedTxs, proposal.txs)
 
-	// Calculate the remaining block space
-	remainderLimit := proposal.maxBlockSpace.Sub(proposal.totalBlockSpace)
-
 	// Call FillProposalBy with the remainder limit and iterator from the previous call.
-	blockUsed = lane.FillProposalByIterator(&proposal, iterator, remainderLimit)
+	blockUsed = lane.FillProposalByIterator(&proposal, iterator, proposal.GetRemainingBlockSpace())
 
 	// We expect tx1, tx2, tx3, tx4, tx5 to be included in the proposal.
 	s.Require().Equal(uint64(55), blockUsed.Gas(), "20 gas from tx3 and 20 gas from tx4 + 15 gas from tx5")
@@ -237,11 +234,8 @@ func (s *LaneTestSuite) TestLaneFillProposalWithBytesLimit() {
 	s.Require().Equal(2, len(proposal.txs), "two txs in the proposal")
 	s.Require().Equal(expectedIncludedTxs, proposal.txs)
 
-	// Calculate the remaining block space
-	remainderLimit := proposal.maxBlockSpace.Sub(proposal.totalBlockSpace)
-
 	// Call FillProposalBy with the remainder limit and iterator from the previous call.
-	blockUsed = lane.FillProposalByIterator(&proposal, iterator, remainderLimit)
+	blockUsed = lane.FillProposalByIterator(&proposal, iterator, proposal.GetRemainingBlockSpace())
 
 	// We expect tx1, tx2, tx3, tx4 to be included in the proposal.
 	s.Require().Equal(uint64(438), blockUsed.TxBytes())
@@ -444,11 +438,8 @@ func (s *LaneTestSuite) TestLaneBlocked() {
 
 	s.Require().Equal(lane.mempool.Select(s.ctx, nil).Tx(), tx1)
 
-	// Calculate the remaining block space
-	remainderLimit := proposal.maxBlockSpace.Sub(proposal.totalBlockSpace)
-
 	// Call FillProposalBy with the remainder limit and iterator from the previous call.
-	blockUsed = lane.FillProposalByIterator(&proposal, iterator, remainderLimit)
+	blockUsed = lane.FillProposalByIterator(&proposal, iterator, proposal.GetRemainingBlockSpace())
 
 	// We expect no txs to be included in the proposal.
 	s.Require().Equal(uint64(0), blockUsed.TxBytes())

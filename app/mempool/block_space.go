@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math"
 
+	ethmath "github.com/ethereum/go-ethereum/common/math"
+
 	sdkmath "cosmossdk.io/math"
 )
 
@@ -76,17 +78,15 @@ func (bs BlockSpace) Add(other BlockSpace) BlockSpace {
 	var gas uint64
 
 	// Calculate txBytes
-	if bs.txBytes > math.MaxUint64-other.txBytes {
+	txBytes, carry := ethmath.SafeAdd(bs.txBytes, other.txBytes)
+	if carry {
 		txBytes = math.MaxUint64
-	} else {
-		txBytes = bs.txBytes + other.txBytes
 	}
 
 	// Calculate gas
-	if bs.gas > math.MaxUint64-other.gas {
+	gas, carry = ethmath.SafeAdd(bs.gas, other.gas)
+	if carry {
 		gas = math.MaxUint64
-	} else {
-		gas = bs.gas + other.gas
 	}
 
 	return BlockSpace{
@@ -96,11 +96,18 @@ func (bs BlockSpace) Add(other BlockSpace) BlockSpace {
 }
 
 // Scale returns a new BlockSpace with txBytes and gas multiplied by a decimal.
-func (bs BlockSpace) Scale(dec sdkmath.LegacyDec) BlockSpace {
-	return BlockSpace{
-		txBytes: dec.MulInt(sdkmath.NewIntFromUint64(bs.txBytes)).TruncateInt().Uint64(),
-		gas:     dec.MulInt(sdkmath.NewIntFromUint64(bs.gas)).TruncateInt().Uint64(),
+func (bs BlockSpace) Scale(dec sdkmath.LegacyDec) (BlockSpace, error) {
+	txBytes := dec.MulInt(sdkmath.NewIntFromUint64(bs.txBytes)).TruncateInt()
+	gas := dec.MulInt(sdkmath.NewIntFromUint64(bs.gas)).TruncateInt()
+
+	if !txBytes.IsUint64() || !gas.IsUint64() {
+		return BlockSpace{}, fmt.Errorf("overflow")
 	}
+
+	return BlockSpace{
+		txBytes: txBytes.Uint64(),
+		gas:     gas.Uint64(),
+	}, nil
 }
 
 // --- Stringer ---

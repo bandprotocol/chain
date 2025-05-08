@@ -2,8 +2,10 @@ package mempool
 
 import (
 	"fmt"
+	"math"
 
 	abci "github.com/cometbft/cometbft/abci/types"
+	comettypes "github.com/cometbft/cometbft/types"
 
 	"cosmossdk.io/log"
 
@@ -50,10 +52,17 @@ func (h *ProposalHandler) PrepareProposalHandler() sdk.PrepareProposalHandler {
 		h.logger.Info("preparing proposal from Mempool", "height", req.Height)
 
 		// Gather block limits
-		maxBytesLimit, maxGasLimit := GetBlockLimits(ctx)
+		maxBytesLimit, maxGasLimit := getBlockLimits(ctx)
+		var maxTxBytes uint64
+		if req.MaxTxBytes < 0 {
+			maxTxBytes = maxBytesLimit
+		} else {
+			maxTxBytes = uint64(req.MaxTxBytes)
+		}
+
 		proposal := NewProposal(
 			h.logger,
-			min(uint64(req.MaxTxBytes), maxBytesLimit),
+			min(maxTxBytes, maxBytesLimit),
 			maxGasLimit,
 		)
 
@@ -67,10 +76,10 @@ func (h *ProposalHandler) PrepareProposalHandler() sdk.PrepareProposalHandler {
 
 		h.logger.Info(
 			"prepared proposal",
-			"num_txs", len(finalProposal.txs),
-			"total_block_space", finalProposal.totalBlockSpace.String(),
-			"max_block_space", finalProposal.maxBlockSpace.String(),
-			"height", req.Height,
+			"num_txs:", len(finalProposal.txs),
+			"total_block_space:", finalProposal.totalBlockSpaceUsed.String(),
+			"max_block_space:", finalProposal.maxBlockSpace.String(),
+			"height:", req.Height,
 		)
 
 		return &abci.ResponsePrepareProposal{
@@ -82,4 +91,25 @@ func (h *ProposalHandler) PrepareProposalHandler() sdk.PrepareProposalHandler {
 // ProcessProposalHandler returns a no-op process proposal handler.
 func (h *ProposalHandler) ProcessProposalHandler() sdk.ProcessProposalHandler {
 	return baseapp.NoOpProcessProposal()
+}
+
+// getBlockLimits retrieves the maximum block size and gas limit from context.
+func getBlockLimits(ctx sdk.Context) (uint64, uint64) {
+	blockParams := ctx.ConsensusParams().Block
+
+	var maxBytesLimit uint64
+	if blockParams.MaxBytes == -1 {
+		maxBytesLimit = uint64(comettypes.MaxBlockSizeBytes)
+	} else {
+		maxBytesLimit = uint64(blockParams.MaxBytes)
+	}
+
+	var maxGasLimit uint64
+	if blockParams.MaxGas == -1 {
+		maxGasLimit = math.MaxUint64
+	} else {
+		maxGasLimit = uint64(blockParams.MaxGas)
+	}
+
+	return maxBytesLimit, maxGasLimit
 }

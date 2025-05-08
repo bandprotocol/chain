@@ -3,60 +3,25 @@ package feechecker
 import (
 	sdkmath "cosmossdk.io/math"
 
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	bandtsskeeper "github.com/bandprotocol/chain/v3/x/bandtss/keeper"
-	feedskeeper "github.com/bandprotocol/chain/v3/x/feeds/keeper"
-	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/globalfee/keeper"
-	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
-	tsskeeper "github.com/bandprotocol/chain/v3/x/tss/keeper"
-	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 type FeeChecker struct {
-	cdc codec.Codec
-
-	AuthzKeeper     *authzkeeper.Keeper
-	OracleKeeper    *oraclekeeper.Keeper
 	GlobalfeeKeeper *keeper.Keeper
 	StakingKeeper   *stakingkeeper.Keeper
-	TSSKeeper       *tsskeeper.Keeper
-	BandtssKeeper   *bandtsskeeper.Keeper
-	FeedsKeeper     *feedskeeper.Keeper
-
-	TSSMsgServer   tsstypes.MsgServer
-	FeedsMsgServer feedstypes.MsgServer
 }
 
 func NewFeeChecker(
-	cdc codec.Codec,
-	authzKeeper *authzkeeper.Keeper,
-	oracleKeeper *oraclekeeper.Keeper,
 	globalfeeKeeper *keeper.Keeper,
 	stakingKeeper *stakingkeeper.Keeper,
-	tssKeeper *tsskeeper.Keeper,
-	bandtssKeeper *bandtsskeeper.Keeper,
-	feedsKeeper *feedskeeper.Keeper,
 ) FeeChecker {
-	tssMsgServer := tsskeeper.NewMsgServerImpl(tssKeeper)
-	feedsMsgServer := feedskeeper.NewMsgServerImpl(*feedsKeeper)
-
 	return FeeChecker{
-		cdc:             cdc,
-		AuthzKeeper:     authzKeeper,
-		OracleKeeper:    oracleKeeper,
 		GlobalfeeKeeper: globalfeeKeeper,
 		StakingKeeper:   stakingKeeper,
-		TSSKeeper:       tssKeeper,
-		BandtssKeeper:   bandtssKeeper,
-		FeedsKeeper:     feedsKeeper,
-		TSSMsgServer:    tssMsgServer,
-		FeedsMsgServer:  feedsMsgServer,
 	}
 }
 
