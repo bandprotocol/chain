@@ -8,9 +8,6 @@ updates:
     schedule:
       interval: daily
       time: "03:00"
-    reviewers:
-      - "RogerKSI"
-      - "taobun"
 
   - package-ecosystem: gomod
     directory: "/"
@@ -27,6 +24,3 @@ updates:
       - dependency-name: "github.com/cometbft/*"
         update-types:
           ["version-update:semver-major", "version-update:semver-minor"]
-    reviewers:
-      - "RogerKSI"
-      - "taobun"
