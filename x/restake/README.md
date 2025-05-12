@@ -274,7 +274,7 @@ This function is used to get the locked power of the account on the vault.
 
 This function is used to set the status of the vault to inactive
 
-**Note:** Once the vault is deactivated, it won’t be able to re-use again.
+**Note:** Once the vault is deactivated, it won’t be able to reuse again.
 
 **Logic**
 
