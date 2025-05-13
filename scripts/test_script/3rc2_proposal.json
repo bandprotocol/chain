@@ -1,0 +1,20 @@
+{
+  "messages": [
+    {
+      "@type": "/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade",
+      "authority": "band10d07y265gmmuvt4z0w9aw880jnsr700jrdn8wm",
+      "plan": {
+        "name": "v3.0.0-rc3",
+        "time": "0001-01-01T00:00:00Z",
+        "height": "94",
+        "info": "",
+        "upgraded_client_state": null
+      }
+    }
+  ],
+  "metadata": "ipfs://CID",
+  "deposit": "1000000000uband",
+  "title": "upgrade",
+  "summary": "upgrade",
+  "expedited": false
+}
