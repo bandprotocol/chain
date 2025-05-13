@@ -405,7 +405,7 @@ func (m *IBCHookPacketReceipt) GetSequence() uint64 {
 
 // IBCHookMemo is the type for a data packet that will be stringtify to be a memo of IBC hook packet
 type IBCHookMemo struct {
-	// wasm is the payload for calling detination contract
+	// wasm is the payload for calling destination contract
 	Wasm IBCHookMemo_Payload `protobuf:"bytes,1,opt,name=wasm,proto3" json:"wasm"`
 }
 
@@ -708,7 +708,7 @@ func (m *RouterPacketReceipt) GetSequence() uint64 {
 
 // RouterMemo is the type for a data packet that will be stringtify to be a memo of IBC packet
 type RouterMemo struct {
-	// wasm is the payload for calling detination contract
+	// wasm is the payload for calling destination contract
 	Wasm RouterMemo_Payload `protobuf:"bytes,1,opt,name=wasm,proto3" json:"wasm"`
 }
 

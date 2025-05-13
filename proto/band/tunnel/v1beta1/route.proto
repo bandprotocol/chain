@@ -99,7 +99,7 @@ message IBCHookMemo {
     // msg is the ibc hook message
     Msg msg = 2 [(gogoproto.nullable) = false];
   }
-  // wasm is the payload for calling detination contract
+  // wasm is the payload for calling destination contract
   Payload wasm = 1 [(gogoproto.nullable) = false];
 }
 
@@ -148,7 +148,7 @@ message RouterMemo {
     // msg is the Router message
     Msg msg = 2 [(gogoproto.nullable) = false];
   }
-  // wasm is the payload for calling detination contract
+  // wasm is the payload for calling destination contract
   Payload wasm = 1 [(gogoproto.nullable) = false];
 }
 

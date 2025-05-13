@@ -63,7 +63,7 @@ service Query {
     option (google.api.http).get = "/oracle/v1/active_validators";
   }
 
-  // Params queries parameters used for runnning bandchain network.
+  // Params queries parameters used for running BandChain network.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
     option (google.api.http).get = "/oracle/v1/params";
   }

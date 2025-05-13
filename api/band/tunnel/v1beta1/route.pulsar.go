@@ -9306,7 +9306,7 @@ type IBCHookMemo struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// wasm is the payload for calling detination contract
+	// wasm is the payload for calling destination contract
 	Wasm *IBCHookMemo_Payload `protobuf:"bytes,1,opt,name=wasm,proto3" json:"wasm,omitempty"`
 }
 
@@ -9435,7 +9435,7 @@ type RouterMemo struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// wasm is the payload for calling detination contract
+	// wasm is the payload for calling destination contract
 	Wasm *RouterMemo_Payload `protobuf:"bytes,1,opt,name=wasm,proto3" json:"wasm,omitempty"`
 }
 
