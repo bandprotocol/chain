@@ -108,7 +108,11 @@ func NewAppHooks(appCodec codec.Codec,
 func (app *BandApp) FinalizeBlock(req *abci.RequestFinalizeBlock) (*abci.ResponseFinalizeBlock, error) {
 	// Finalize on base app first
 	res, err := app.BaseApp.FinalizeBlock(req)
+	if err != nil {
+		return nil, err
+	}
 
+	validatorUpdates := res.ValidatorUpdates
 	beginBlockEvents, endBlockEvents := splitEvents(res.Events)
 	ctx := app.BaseApp.GetContextForFinalizeBlock(nil)
 	app.hooks.AfterBeginBlock(ctx, req, beginBlockEvents)
@@ -119,7 +123,7 @@ func (app *BandApp) FinalizeBlock(req *abci.RequestFinalizeBlock) (*abci.Respons
 		app.hooks.AfterDeliverTx(ctx, tx, resTx)
 	}
 
-	app.hooks.AfterEndBlock(ctx, endBlockEvents)
+	app.hooks.AfterEndBlock(ctx, endBlockEvents, validatorUpdates)
 
 	return res, err
 }
