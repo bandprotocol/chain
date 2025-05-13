@@ -62,7 +62,7 @@ type QueryClient interface {
 	Reporters(ctx context.Context, in *QueryReportersRequest, opts ...grpc.CallOption) (*QueryReportersResponse, error)
 	// ActiveValidators queries all active oracle validators.
 	ActiveValidators(ctx context.Context, in *QueryActiveValidatorsRequest, opts ...grpc.CallOption) (*QueryActiveValidatorsResponse, error)
-	// Params queries parameters used for runnning bandchain network.
+	// Params queries parameters used for running BandChain network.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 	// RequestSearch queries the latest request that match search criteria.
 	RequestSearch(ctx context.Context, in *QueryRequestSearchRequest, opts ...grpc.CallOption) (*QueryRequestSearchResponse, error)
@@ -235,7 +235,7 @@ type QueryServer interface {
 	Reporters(context.Context, *QueryReportersRequest) (*QueryReportersResponse, error)
 	// ActiveValidators queries all active oracle validators.
 	ActiveValidators(context.Context, *QueryActiveValidatorsRequest) (*QueryActiveValidatorsResponse, error)
-	// Params queries parameters used for runnning bandchain network.
+	// Params queries parameters used for running BandChain network.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 	// RequestSearch queries the latest request that match search criteria.
 	RequestSearch(context.Context, *QueryRequestSearchRequest) (*QueryRequestSearchResponse, error)

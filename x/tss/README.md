@@ -484,7 +484,7 @@ This event ( `complain_failed` ) is emitted when a member submits `MsgComplain` 
 
 ### EventTypeConfirmSuccess
 
-This event ( `confirm_success` ) is emitted when a member submits `MsgComfirm` and the confirmation is successful.
+This event ( `confirm_success` ) is emitted when a member submits `MsgConfirm` and the confirmation is successful.
 
 | Attribute Key   | Attribute Value         |
 | --------------- | ----------------------- |

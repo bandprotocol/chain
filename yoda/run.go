@@ -50,10 +50,10 @@ func runImpl(c *Context, l *Logger) error {
 		go metricsListen(cfg.MetricsListenAddr, c)
 	}
 
-	availiableKeys := make([]bool, len(c.keys))
+	availableKeys := make([]bool, len(c.keys))
 	waitingMsgs := make([][]ReportMsgWithKey, len(c.keys))
-	for i := range availiableKeys {
-		availiableKeys[i] = true
+	for i := range availableKeys {
+		availableKeys[i] = true
 		waitingMsgs[i] = []ReportMsgWithKey{}
 	}
 
@@ -87,12 +87,12 @@ func runImpl(c *Context, l *Logger) error {
 					waitingMsgs[keyIndex] = []ReportMsgWithKey{}
 				}
 			} else {
-				availiableKeys[keyIndex] = true
+				availableKeys[keyIndex] = true
 			}
 		case pm := <-c.pendingMsgs:
 			c.updatePendingGauge(1)
-			if availiableKeys[pm.keyIndex] {
-				availiableKeys[pm.keyIndex] = false
+			if availableKeys[pm.keyIndex] {
+				availableKeys[pm.keyIndex] = false
 				go SubmitReport(c, l, pm.keyIndex, []ReportMsgWithKey{pm})
 			} else {
 				waitingMsgs[pm.keyIndex] = append(waitingMsgs[pm.keyIndex], pm)

@@ -15248,7 +15248,7 @@ func (x *PendingProcessGroups) GetGroupIds() []uint64 {
 	return nil
 }
 
-// PendingProcessSignigns is a list of signings that are waiting to be processed.
+// PendingProcessSignings is a list of signings that are waiting to be processed.
 type PendingProcessSignings struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
