@@ -173,6 +173,7 @@ func setupFeeds(ba *BenchmarkApp, numFeeds uint64) error {
 	for i := uint64(0); i < numFeeds; i++ {
 		feeds = append(feeds, types.Feed{
 			SignalID: fmt.Sprintf("signal.%d", i),
+			Power:    int64(60_000_000_000),
 			Interval: 60,
 		})
 	}

@@ -1,6 +1,7 @@
 package band_test
 
 import (
+	"fmt"
 	"math/rand"
 	"testing"
 	"time"
@@ -131,6 +132,8 @@ func (s *AppTestSuite) SetupTest() {
 		Seq:     info.GetSequence(),
 	}
 
+	s.app.FeedsKeeper.SetCurrentFeeds(ctx, GenFeeds(300))
+
 	consensusParams := *bandtesting.DefaultConsensusParams
 	consensusParams.Block.MaxGas = 50000000
 	err = s.app.ConsensusParamsKeeper.ParamsStore.Set(ctx, consensusParams)
@@ -138,6 +141,19 @@ func (s *AppTestSuite) SetupTest() {
 
 	ctx = ctx.WithConsensusParams(consensusParams)
 	s.ctx = ctx
+}
+
+// GenFeeds a number of feeds
+func GenFeeds(num int) (feeds []feedstypes.Feed) {
+	for i := range num {
+		feeds = append(feeds, feedstypes.Feed{
+			SignalID: fmt.Sprintf("signal.%d", i),
+			Power:    int64(60_000_000_000),
+			Interval: 60,
+		})
+	}
+
+	return
 }
 
 // -----------------------------------------------
@@ -193,15 +209,17 @@ func (s *AppTestSuite) TestFeedsLaneZeroGas() {
 func (s *AppTestSuite) TestFeedsLaneExactGas() {
 	require := s.Require()
 
+	msg := GenMsgSubmitSignalPrices(
+		&s.valAccWithNumSeq,
+		s.app.FeedsKeeper.GetCurrentFeeds(s.ctx).Feeds,
+		s.ctx.BlockTime().Unix(),
+	)
+
 	tx, _ := bandtesting.GenSignedMockTx(
 		rand.New(rand.NewSource(time.Now().UnixNano())),
 		s.txConfig,
 		[]sdk.Msg{
-			GenMsgSubmitSignalPrices(
-				&s.valAccWithNumSeq,
-				s.app.FeedsKeeper.GetCurrentFeeds(s.ctx).Feeds,
-				s.ctx.BlockTime().Unix(),
-			),
+			msg,
 		},
 		sdk.Coins{},
 		1000000,
