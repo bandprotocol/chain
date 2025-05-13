@@ -659,3 +659,325 @@ func GenMsgReportData(sender *bandtesting.AccountWithNumSeq) sdk.Msg {
 		sender.ValAddress,
 	)
 }
+
+// -----------------------------------------------
+// OracleRequestLane tests
+// -----------------------------------------------
+
+// TestOracleRequestLaneZeroGas tests that transactions with zero gas are rejected
+func (s *AppTestSuite) TestOracleRequestLaneZeroGas() {
+	require := s.Require()
+
+	tx, _ := bandtesting.GenSignedMockTx(
+		rand.New(rand.NewSource(time.Now().UnixNano())),
+		s.txConfig,
+		[]sdk.Msg{
+			GenMsgRequestData(&s.valAccWithNumSeq),
+		},
+		sdk.Coins{},
+		0,
+		bandtesting.ChainID,
+		[]uint64{s.valAccWithNumSeq.Num},
+		[]uint64{s.valAccWithNumSeq.Seq},
+		s.valAccWithNumSeq.PrivKey,
+	)
+
+	txBytes, err := s.txConfig.TxEncoder()(tx)
+	require.NoError(err)
+
+	checkTxReq := &abci.RequestCheckTx{Tx: txBytes, Type: abci.CheckTxType_New}
+	res, err := s.app.CheckTx(checkTxReq)
+	require.NoError(err)
+	require.NotNil(res)
+	require.Equal(res.Code, uint32(11))
+	require.Equal(s.app.Mempool().CountTx(), 0)
+
+	// Prepare proposal
+	prepareReq := &abci.RequestPrepareProposal{
+		MaxTxBytes:      1000000,
+		Height:          s.app.LastBlockHeight() + 1,
+		Time:            s.ctx.BlockTime(),
+		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
+	}
+	resp, err := s.app.PrepareProposal(prepareReq)
+	require.NoError(err)
+	require.NotNil(resp)
+	require.Equal(len(resp.Txs), 0)
+}
+
+// TestOracleRequestLaneExactGas tests that transactions with exact gas limit are accepted
+func (s *AppTestSuite) TestOracleRequestLaneExactGas() {
+	require := s.Require()
+
+	tx, _ := bandtesting.GenSignedMockTx(
+		rand.New(rand.NewSource(time.Now().UnixNano())),
+		s.txConfig,
+		[]sdk.Msg{
+			GenMsgRequestData(&s.valAccWithNumSeq),
+		},
+		sdk.Coins{
+			sdk.NewInt64Coin("uband", 12500),
+		},
+		5000000,
+		bandtesting.ChainID,
+		[]uint64{s.valAccWithNumSeq.Num},
+		[]uint64{s.valAccWithNumSeq.Seq},
+		s.valAccWithNumSeq.PrivKey,
+	)
+
+	txBytes, err := s.txConfig.TxEncoder()(tx)
+	require.NoError(err)
+
+	checkTxReq := &abci.RequestCheckTx{Tx: txBytes, Type: abci.CheckTxType_New}
+	res, err := s.app.CheckTx(checkTxReq)
+	require.NoError(err)
+	require.NotNil(res)
+	require.Equal(res.Code, uint32(0))
+	require.Equal(s.app.Mempool().CountTx(), 1)
+
+	// Prepare proposal
+	prepareReq := &abci.RequestPrepareProposal{
+		MaxTxBytes:      1000000,
+		Height:          s.app.LastBlockHeight() + 1,
+		Time:            s.ctx.BlockTime(),
+		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
+	}
+	resp, err := s.app.PrepareProposal(prepareReq)
+	require.NoError(err)
+	require.NotNil(resp)
+	require.Equal(len(resp.Txs), 1)
+	require.Equal(resp.Txs[0], txBytes)
+}
+
+// TestOracleRequestLaneExceedGas tests that transactions with exceed gas limit are rejected
+func (s *AppTestSuite) TestOracleRequestLaneExceedGas() {
+	require := s.Require()
+
+	tx, _ := bandtesting.GenSignedMockTx(
+		rand.New(rand.NewSource(time.Now().UnixNano())),
+		s.txConfig,
+		[]sdk.Msg{
+			GenMsgRequestData(&s.valAccWithNumSeq),
+		},
+		sdk.Coins{
+			sdk.NewInt64Coin("uband", 12501),
+		},
+		5000001,
+		bandtesting.ChainID,
+		[]uint64{s.valAccWithNumSeq.Num},
+		[]uint64{s.valAccWithNumSeq.Seq},
+		s.valAccWithNumSeq.PrivKey,
+	)
+
+	txBytes, err := s.txConfig.TxEncoder()(tx)
+	require.NoError(err)
+
+	checkTxReq := &abci.RequestCheckTx{Tx: txBytes, Type: abci.CheckTxType_New}
+	res, err := s.app.CheckTx(checkTxReq)
+	require.NoError(err)
+	require.NotNil(res)
+	require.Equal(res.Code, uint32(1))
+	require.Equal(s.app.Mempool().CountTx(), 0)
+
+	// Prepare proposal
+	prepareReq := &abci.RequestPrepareProposal{
+		MaxTxBytes:      1000000,
+		Height:          s.app.LastBlockHeight() + 1,
+		Time:            s.ctx.BlockTime(),
+		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
+	}
+	resp, err := s.app.PrepareProposal(prepareReq)
+	require.NoError(err)
+	require.NotNil(resp)
+	require.Equal(len(resp.Txs), 0)
+}
+
+// TestOracleRequestLaneWrappedMsgExactGas tests that transactions with wrapped message with exact gas limit are accepted
+func (s *AppTestSuite) TestOracleRequestLaneWrappedMsgExactGas() {
+	require := s.Require()
+
+	msgExec := authz.NewMsgExec(
+		s.reporterAccWithNumSeq.Address,
+		[]sdk.Msg{
+			GenMsgRequestData(&s.valAccWithNumSeq),
+		},
+	)
+	tx, _ := bandtesting.GenSignedMockTx(
+		rand.New(rand.NewSource(time.Now().UnixNano())),
+		s.txConfig,
+		[]sdk.Msg{&msgExec},
+		sdk.Coins{
+			sdk.NewInt64Coin("uband", 12500),
+		},
+		5000000,
+		bandtesting.ChainID,
+		[]uint64{s.reporterAccWithNumSeq.Num},
+		[]uint64{s.reporterAccWithNumSeq.Seq},
+		s.reporterAccWithNumSeq.PrivKey,
+	)
+
+	txBytes, err := s.txConfig.TxEncoder()(tx)
+	require.NoError(err)
+
+	checkTxReq := &abci.RequestCheckTx{Tx: txBytes, Type: abci.CheckTxType_New}
+	res, err := s.app.CheckTx(checkTxReq)
+	require.NoError(err)
+	require.NotNil(res)
+	require.Equal(res.Code, uint32(0))
+	require.Equal(s.app.Mempool().CountTx(), 1)
+
+	mempool := s.app.Mempool().(*mempool.Mempool)
+	require.Equal(mempool.GetLane("oracleRequestLane").CountTx(), 1)
+
+	// Prepare proposal
+	prepareReq := &abci.RequestPrepareProposal{
+		MaxTxBytes:      1000000,
+		Height:          s.app.LastBlockHeight() + 1,
+		Time:            s.ctx.BlockTime(),
+		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
+	}
+	resp, err := s.app.PrepareProposal(prepareReq)
+	require.NoError(err)
+	require.NotNil(resp)
+	require.Equal(len(resp.Txs), 1)
+	require.Equal(resp.Txs[0], txBytes)
+}
+
+// TestOracleRequestLaneWrappedMsgExceedGas tests that transactions with wrapped message with exceed gas limit are rejected
+func (s *AppTestSuite) TestOracleRequestLaneWrappedMsgExceedGas() {
+	require := s.Require()
+
+	msgExec := authz.NewMsgExec(
+		s.reporterAccWithNumSeq.Address,
+		[]sdk.Msg{
+			GenMsgRequestData(&s.valAccWithNumSeq),
+		},
+	)
+	tx, _ := bandtesting.GenSignedMockTx(
+		rand.New(rand.NewSource(time.Now().UnixNano())),
+		s.txConfig,
+		[]sdk.Msg{&msgExec},
+		sdk.Coins{
+			sdk.NewInt64Coin("uband", 12501),
+		},
+		5000001,
+		bandtesting.ChainID,
+		[]uint64{s.reporterAccWithNumSeq.Num},
+		[]uint64{s.reporterAccWithNumSeq.Seq},
+		s.reporterAccWithNumSeq.PrivKey,
+	)
+
+	txBytes, err := s.txConfig.TxEncoder()(tx)
+	require.NoError(err)
+
+	checkTxReq := &abci.RequestCheckTx{Tx: txBytes, Type: abci.CheckTxType_New}
+	res, err := s.app.CheckTx(checkTxReq)
+	require.NoError(err)
+	require.NotNil(res)
+	require.Equal(res.Code, uint32(1))
+	require.Equal(s.app.Mempool().CountTx(), 0)
+
+	// Prepare proposal
+	prepareReq := &abci.RequestPrepareProposal{
+		MaxTxBytes:      1000000,
+		Height:          s.app.LastBlockHeight() + 1,
+		Time:            s.ctx.BlockTime(),
+		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
+	}
+	resp, err := s.app.PrepareProposal(prepareReq)
+	require.NoError(err)
+	require.NotNil(resp)
+	require.Equal(len(resp.Txs), 0)
+}
+
+// GenMsgRequestData creates a message for requesting data
+func GenMsgRequestData(sender *bandtesting.AccountWithNumSeq) sdk.Msg {
+	return oracletypes.NewMsgRequestData(
+		oracletypes.OracleScriptID(1),
+		[]byte("calldata"),
+		1,
+		1,
+		"app_test",
+		sdk.NewCoins(sdk.NewInt64Coin("uband", 9000000)),
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
+		sender.Address,
+		0,
+	)
+}
+
+// -----------------------------------------------
+// Multiple lanes tests
+// -----------------------------------------------
+
+// TestRequestLaneBlockedByReportLane tests that request lane is blocked by report lane
+func (s *AppTestSuite) TestRequestLaneBlockedByReportLane() {
+	require := s.Require()
+
+	// Generate 4 report data transactions
+	reportTxBytes := bandtesting.GenSequenceOfTxs(
+		s.txConfig.TxEncoder(),
+		s.txConfig,
+		[]sdk.Msg{
+			GenMsgReportData(&s.valAccWithNumSeq),
+		},
+		&s.valAccWithNumSeq,
+		sdk.Coins{},
+		2500000,
+		4,
+	)
+
+	// Check that the report data transactions are accepted
+	for _, txBytes := range reportTxBytes {
+		checkTxReq := &abci.RequestCheckTx{Tx: txBytes, Type: abci.CheckTxType_New}
+		res, err := s.app.CheckTx(checkTxReq)
+		require.NoError(err)
+		require.NotNil(res)
+		require.Equal(res.Code, uint32(0))
+	}
+
+	require.Equal(s.app.Mempool().CountTx(), 4)
+
+	mempool := s.app.Mempool().(*mempool.Mempool)
+	require.Equal(mempool.GetLane("oracleReportLane").CountTx(), 4)
+
+	// Generate 4 request data transactions
+	requestTxBytes := bandtesting.GenSequenceOfTxs(
+		s.txConfig.TxEncoder(),
+		s.txConfig,
+		[]sdk.Msg{
+			GenMsgRequestData(&s.valAccWithNumSeq),
+		},
+		&s.valAccWithNumSeq,
+		sdk.Coins{
+			sdk.NewInt64Coin("uband", 12500),
+		},
+		5000000,
+		1,
+	)
+
+	// Check that the request data transactions are accepted
+	for _, txBytes := range requestTxBytes {
+		checkTxReq := &abci.RequestCheckTx{Tx: txBytes, Type: abci.CheckTxType_New}
+		res, err := s.app.CheckTx(checkTxReq)
+		require.NoError(err)
+		require.NotNil(res)
+		require.Equal(res.Code, uint32(0))
+	}
+
+	require.Equal(s.app.Mempool().CountTx(), 5)
+	require.Equal(mempool.GetLane("oracleRequestLane").CountTx(), 1)
+
+	// Prepare proposal
+	prepareReq := &abci.RequestPrepareProposal{
+		MaxTxBytes:      1000000,
+		Height:          s.app.LastBlockHeight() + 1,
+		Time:            s.ctx.BlockTime(),
+		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
+	}
+	resp, err := s.app.PrepareProposal(prepareReq)
+	require.NoError(err)
+	require.NotNil(resp)
+	require.Equal(len(resp.Txs), 4)
+	require.Equal(resp.Txs, reportTxBytes)
+}
