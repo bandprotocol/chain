@@ -54,7 +54,7 @@ func CreateLanes(app *BandApp) []*mempool.Lane {
 			},
 			true,
 		),
-		math.LegacyMustNewDecFromStr("0.02"),
+		math.LegacyMustNewDecFromStr("0.05"),
 		math.LegacyMustNewDecFromStr("0.2"),
 		sdkmempool.DefaultPriorityMempool(),
 		nil,
