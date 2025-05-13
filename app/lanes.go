@@ -38,7 +38,7 @@ func CreateLanes(app *BandApp) []*mempool.Lane {
 	)
 
 	// tssLane handles TSS transactions.
-	// Each transaction has a gas limit of 2%, and the total gas limit for the lane is 20%.
+	// Each transaction has a gas limit of 5%, and the total gas limit for the lane is 20%.
 	tssLane := mempool.NewLane(
 		app.Logger(),
 		app.txConfig.TxEncoder(),
@@ -54,7 +54,7 @@ func CreateLanes(app *BandApp) []*mempool.Lane {
 			},
 			true,
 		),
-		math.LegacyMustNewDecFromStr("0.02"),
+		math.LegacyMustNewDecFromStr("0.05"),
 		math.LegacyMustNewDecFromStr("0.2"),
 		sdkmempool.DefaultPriorityMempool(),
 		nil,
