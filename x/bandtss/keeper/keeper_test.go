@@ -87,39 +87,25 @@ func (s *AppTestSuite) CreateNewGroup(
 	execTime time.Time,
 ) (*tsstestutils.GroupContext, error) {
 	accounts := tsstestutils.GenerateAccounts(n)
-	members := make([]sdk.AccAddress, n)
-	memberStrs := make([]string, n)
-	for i := 0; i < len(accounts); i++ {
-		members[i] = accounts[i].Address
-		memberStrs[i] = members[i].String()
+	var members []string
+	for _, account := range accounts {
+		members = append(members, account.Address.String())
 	}
 
-	des := make([][]tsstestutils.DEWithPrivateNonce, n)
-	for i := 0; i < len(des); i++ {
-		des[i] = make([]tsstestutils.DEWithPrivateNonce, 0, 10)
-	}
-
-	secrets := make([]tss.Scalar, n)
-	for i := 0; i < len(secrets); i++ {
-		secret, err := tss.RandomScalar()
-		if err != nil {
-			return nil, err
-		}
-		secrets[i] = secret
-	}
-
-	if _, err := s.msgSrvr.TransitionGroup(s.ctx, types.NewMsgTransitionGroup(
-		memberStrs, threshold, execTime, s.authority.String(),
-	)); err != nil {
+	transitionMsg := types.NewMsgTransitionGroup(members, threshold, execTime, s.authority.String())
+	if _, err := s.msgSrvr.TransitionGroup(s.ctx, transitionMsg); err != nil {
 		return nil, err
 	}
 
 	groupID := tss.GroupID(s.app.TSSKeeper.GetGroupCount(s.ctx))
-	groupCtx := &tsstestutils.GroupContext{
-		GroupID:  groupID,
-		Accounts: accounts,
-		DEs:      des,
-		Secrets:  secrets,
+	dkgContext, err := s.app.TSSKeeper.GetDKGContext(s.ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+
+	groupCtx, err := tsstestutils.NewGroupContext(accounts, groupID, threshold, dkgContext)
+	if err != nil {
+		return nil, err
 	}
 
 	if err := groupCtx.SubmitRound1(s.ctx, s.app.TSSKeeper); err != nil {
@@ -134,7 +120,7 @@ func (s *AppTestSuite) CreateNewGroup(
 		return nil, err
 	}
 
-	if err := groupCtx.GenerateDE(s.ctx, s.app.TSSKeeper); err != nil {
+	if err := groupCtx.FillDEs(s.ctx, s.app.TSSKeeper); err != nil {
 		return nil, err
 	}
 
