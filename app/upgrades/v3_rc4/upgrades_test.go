@@ -67,6 +67,7 @@ func postUpgradeChecks(s *UpgradeTestSuite) {
 	s.Require().NotNil(acc)
 	s.Require().Contains(acc.GetPermissions(), authtypes.Minter)
 	s.Require().Equal(perms, acc.GetPermissions())
+	s.Require().Equal(acc.HasPermission(authtypes.Minter), true)
 }
 
 func (s *UpgradeTestSuite) ConfirmUpgradeSucceeded(upgradeName string, upgradeHeight int64) {
