@@ -53,7 +53,7 @@ func (s *AppTestSuite) SetupTest() {
 	dir := testutil.GetTempDir(s.T())
 	s.app = bandtesting.SetupWithCustomHome(false, dir)
 	s.txConfig = moduletestutil.MakeTestTxConfig()
-	ctx := s.app.BaseApp.NewUncachedContext(false, cmtproto.Header{})
+	ctx := s.app.NewUncachedContext(false, cmtproto.Header{})
 
 	// Activate validators
 	for _, v := range bandtesting.Validators {
@@ -1563,7 +1563,6 @@ func genMsgComplain(
 		round1Infos[respondentID].OneTimePubKey,
 		round1Infos[complainantID].OneTimePrivKey,
 	)
-
 	if err != nil {
 		return nil, err
 	}
