@@ -240,258 +240,60 @@ func GenFeeds(num int) (feeds []feedstypes.Feed) {
 
 // TestFeedsLaneZeroGas tests that transactions with zero gas are rejected
 func (s *AppTestSuite) TestFeedsLaneZeroGas() {
-	require := s.Require()
-
-	tx, _ := bandtesting.GenSignedMockTx(
-		rand.New(rand.NewSource(time.Now().UnixNano())),
-		s.txConfig,
-		[]sdk.Msg{
-			GenMsgSubmitSignalPrices(
-				&s.valAccWithNumSeq,
-				s.app.FeedsKeeper.GetCurrentFeeds(s.ctx).Feeds,
-				s.ctx.BlockTime().Unix(),
-			),
-		},
-		sdk.Coins{},
-		0,
-		bandtesting.ChainID,
-		[]uint64{s.valAccWithNumSeq.Num},
-		[]uint64{s.valAccWithNumSeq.Seq},
-		s.valAccWithNumSeq.PrivKey,
-	)
-
-	txBytes, err := s.txConfig.TxEncoder()(tx)
-	require.NoError(err)
-
-	checkTxReq := &abci.RequestCheckTx{Tx: txBytes, Type: abci.CheckTxType_New}
-	res, err := s.app.CheckTx(checkTxReq)
-	require.NoError(err)
-	require.NotNil(res)
-	require.Equal(res.Code, uint32(11))
-	require.Equal(s.app.Mempool().CountTx(), 0)
-
-	// Prepare proposal
-	prepareReq := &abci.RequestPrepareProposal{
-		MaxTxBytes:      1000000,
-		Height:          s.app.LastBlockHeight() + 1,
-		Time:            s.ctx.BlockTime(),
-		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
-	}
-	resp, err := s.app.PrepareProposal(prepareReq)
-	require.NoError(err)
-	require.NotNil(resp)
-	require.Equal(len(resp.Txs), 0)
-}
-
-// TestFeedsLaneExactGas tests that transactions with exact gas limit are accepted
-func (s *AppTestSuite) TestFeedsLaneExactGas() {
-	require := s.Require()
-
 	msg := GenMsgSubmitSignalPrices(
 		&s.valAccWithNumSeq,
 		s.app.FeedsKeeper.GetCurrentFeeds(s.ctx).Feeds,
 		s.ctx.BlockTime().Unix(),
 	)
 
-	tx, _ := bandtesting.GenSignedMockTx(
-		rand.New(rand.NewSource(time.Now().UnixNano())),
-		s.txConfig,
-		[]sdk.Msg{
-			msg,
-		},
-		sdk.Coins{},
-		1000000,
-		bandtesting.ChainID,
-		[]uint64{s.valAccWithNumSeq.Num},
-		[]uint64{s.valAccWithNumSeq.Seq},
-		s.valAccWithNumSeq.PrivKey,
+	s.checkLaneWithZeroGas(msg, s.valAccWithNumSeq)
+}
+
+// TestFeedsLaneExactGas tests that transactions with exact gas limit are accepted
+func (s *AppTestSuite) TestFeedsLaneExactGas() {
+	msg := GenMsgSubmitSignalPrices(
+		&s.valAccWithNumSeq,
+		s.app.FeedsKeeper.GetCurrentFeeds(s.ctx).Feeds,
+		s.ctx.BlockTime().Unix(),
 	)
 
-	txBytes, err := s.txConfig.TxEncoder()(tx)
-	require.NoError(err)
-
-	checkTxReq := &abci.RequestCheckTx{Tx: txBytes, Type: abci.CheckTxType_New}
-	res, err := s.app.CheckTx(checkTxReq)
-	require.NoError(err)
-	require.NotNil(res)
-	require.Equal(res.Code, uint32(0))
-	require.Equal(s.app.Mempool().CountTx(), 1)
-
-	mempool := s.app.Mempool().(*mempool.Mempool)
-	require.Equal(mempool.GetLane("feedsLane").CountTx(), 1)
-
-	// Prepare proposal
-	prepareReq := &abci.RequestPrepareProposal{
-		MaxTxBytes:      1000000,
-		Height:          s.app.LastBlockHeight() + 1,
-		Time:            s.ctx.BlockTime(),
-		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
-	}
-	resp, err := s.app.PrepareProposal(prepareReq)
-	require.NoError(err)
-	require.NotNil(resp)
-	require.Equal(len(resp.Txs), 1)
-	require.Equal(resp.Txs[0], txBytes)
+	s.checkLaneWithExactGas(msg, s.valAccWithNumSeq, "feedsLane", 1000000, sdk.Coins{})
 }
 
 // TestFeedsLaneExceedGas tests that transactions with gas exceeding limit are rejected
 func (s *AppTestSuite) TestFeedsLaneExceedGas() {
-	require := s.Require()
-
-	// Tx with gas greater than the tx gas limit of lane
-	tx, _ := bandtesting.GenSignedMockTx(
-		rand.New(rand.NewSource(time.Now().UnixNano())),
-		s.txConfig,
-		[]sdk.Msg{
-			GenMsgSubmitSignalPrices(
-				&s.valAccWithNumSeq,
-				s.app.FeedsKeeper.GetCurrentFeeds(s.ctx).Feeds,
-				s.ctx.BlockTime().Unix(),
-			),
-		},
-		sdk.Coins{},
-		1000001,
-		bandtesting.ChainID,
-		[]uint64{s.valAccWithNumSeq.Num},
-		[]uint64{s.valAccWithNumSeq.Seq},
-		s.valAccWithNumSeq.PrivKey,
+	msg := GenMsgSubmitSignalPrices(
+		&s.valAccWithNumSeq,
+		s.app.FeedsKeeper.GetCurrentFeeds(s.ctx).Feeds,
+		s.ctx.BlockTime().Unix(),
 	)
 
-	txBytes, err := s.txConfig.TxEncoder()(tx)
-	require.NoError(err)
-
-	checkTxReq := &abci.RequestCheckTx{Tx: txBytes, Type: abci.CheckTxType_New}
-	res, err := s.app.CheckTx(checkTxReq)
-	require.NoError(err)
-	require.NotNil(res)
-	require.Equal(res.Code, uint32(1))
-	require.Equal(s.app.Mempool().CountTx(), 0)
-
-	mempool := s.app.Mempool().(*mempool.Mempool)
-	require.Equal(mempool.GetLane("feedsLane").CountTx(), 0)
-
-	// Prepare proposal
-	prepareReq := &abci.RequestPrepareProposal{
-		MaxTxBytes:      1000000,
-		Height:          s.app.LastBlockHeight() + 1,
-		Time:            s.ctx.BlockTime(),
-		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
-	}
-	resp, err := s.app.PrepareProposal(prepareReq)
-	require.NoError(err)
-	require.NotNil(resp)
-	require.Equal(len(resp.Txs), 0)
+	s.checkLaneWithExceedGas(msg, s.valAccWithNumSeq, "feedsLane", 1000001, sdk.Coins{})
 }
 
 // TestFeedsLaneWrappedMsgExactGas tests that transactions with wrapped messages are handled correctly
 func (s *AppTestSuite) TestFeedsLaneWrappedMsgExactGas() {
-	require := s.Require()
-
-	// Tx with msg wrapped in msg Exec
-	msgExec := authz.NewMsgExec(
-		s.feederAccWithNumSeq.Address,
-		[]sdk.Msg{
-			GenMsgSubmitSignalPrices(
-				&s.valAccWithNumSeq,
-				s.app.FeedsKeeper.GetCurrentFeeds(s.ctx).Feeds,
-				s.ctx.BlockTime().Unix(),
-			),
-		},
+	txOwner := s.valAccWithNumSeq
+	sender := s.feederAccWithNumSeq
+	msg := GenMsgSubmitSignalPrices(
+		&txOwner,
+		s.app.FeedsKeeper.GetCurrentFeeds(s.ctx).Feeds,
+		s.ctx.BlockTime().Unix(),
 	)
-	tx, _ := bandtesting.GenSignedMockTx(
-		rand.New(rand.NewSource(time.Now().UnixNano())),
-		s.txConfig,
-		[]sdk.Msg{
-			&msgExec,
-		},
-		sdk.Coins{},
-		1000000,
-		bandtesting.ChainID,
-		[]uint64{s.feederAccWithNumSeq.Num},
-		[]uint64{s.feederAccWithNumSeq.Seq},
-		s.feederAccWithNumSeq.PrivKey,
-	)
-
-	txBytes, err := s.txConfig.TxEncoder()(tx)
-	require.NoError(err)
-
-	checkTxReq := &abci.RequestCheckTx{Tx: txBytes, Type: abci.CheckTxType_New}
-	res, err := s.app.CheckTx(checkTxReq)
-	require.NoError(err)
-	require.NotNil(res)
-	require.Equal(res.Code, uint32(0))
-	require.Equal(s.app.Mempool().CountTx(), 1)
-
-	mempool := s.app.Mempool().(*mempool.Mempool)
-	require.Equal(mempool.GetLane("feedsLane").CountTx(), 1)
-
-	// Prepare proposal
-	prepareReq := &abci.RequestPrepareProposal{
-		MaxTxBytes:      1000000,
-		Height:          s.app.LastBlockHeight() + 1,
-		Time:            s.ctx.BlockTime(),
-		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
-	}
-	resp, err := s.app.PrepareProposal(prepareReq)
-	require.NoError(err)
-	require.NotNil(resp)
-	require.Equal(len(resp.Txs), 1)
-	require.Equal(resp.Txs[0], txBytes)
+	s.checkLaneWrappedMsgWithExactGas(msg, sender, "feedsLane", 1000000, sdk.Coins{})
 }
 
 // TestFeedsLaneWrappedMsgExceedGas tests that transactions with wrapped messages are handled correctly
 func (s *AppTestSuite) TestFeedsLaneWrappedMsgExceedGas() {
-	require := s.Require()
-
-	// Tx with msg wrapped in msg Exec
-	msgExec := authz.NewMsgExec(
-		s.feederAccWithNumSeq.Address,
-		[]sdk.Msg{
-			GenMsgSubmitSignalPrices(
-				&s.valAccWithNumSeq,
-				s.app.FeedsKeeper.GetCurrentFeeds(s.ctx).Feeds,
-				s.ctx.BlockTime().Unix(),
-			),
-		},
-	)
-	tx, _ := bandtesting.GenSignedMockTx(
-		rand.New(rand.NewSource(time.Now().UnixNano())),
-		s.txConfig,
-		[]sdk.Msg{
-			&msgExec,
-		},
-		sdk.Coins{},
-		1000001,
-		bandtesting.ChainID,
-		[]uint64{s.feederAccWithNumSeq.Num},
-		[]uint64{s.feederAccWithNumSeq.Seq},
-		s.feederAccWithNumSeq.PrivKey,
+	txOwner := s.valAccWithNumSeq
+	sender := s.feederAccWithNumSeq
+	msg := GenMsgSubmitSignalPrices(
+		&txOwner,
+		s.app.FeedsKeeper.GetCurrentFeeds(s.ctx).Feeds,
+		s.ctx.BlockTime().Unix(),
 	)
 
-	txBytes, err := s.txConfig.TxEncoder()(tx)
-	require.NoError(err)
-
-	checkTxReq := &abci.RequestCheckTx{Tx: txBytes, Type: abci.CheckTxType_New}
-	res, err := s.app.CheckTx(checkTxReq)
-	require.NoError(err)
-	require.NotNil(res)
-	require.Equal(res.Code, uint32(1))
-	require.Equal(s.app.Mempool().CountTx(), 0)
-
-	mempool := s.app.Mempool().(*mempool.Mempool)
-	require.Equal(mempool.GetLane("feedsLane").CountTx(), 0)
-
-	// Prepare proposal
-	prepareReq := &abci.RequestPrepareProposal{
-		MaxTxBytes:      1000000,
-		Height:          s.app.LastBlockHeight() + 1,
-		Time:            s.ctx.BlockTime(),
-		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
-	}
-	resp, err := s.app.PrepareProposal(prepareReq)
-	require.NoError(err)
-	require.NotNil(resp)
-	require.Equal(len(resp.Txs), 0)
+	s.checkLaneWrappedMsgWithExceedGas(msg, sender, "feedsLane", 1000001, sdk.Coins{})
 }
 
 func GenMsgSubmitSignalPrices(
@@ -525,7 +327,7 @@ func (s *AppTestSuite) TestTSSLaneMsgSubmitDKGRound1ZeroGas() {
 		s.tssGroupCtx.Round1Infos[0],
 	)
 
-	s.checkTSSLaneZeroGas(msg, sender)
+	s.checkLaneWithZeroGas(msg, sender)
 }
 
 // TestTSSLaneMsgSubmitDKGRound2ZeroGas tests that MsgSubmitDKGRound2 transactions with zero gas are rejected
@@ -541,7 +343,7 @@ func (s *AppTestSuite) TestTSSLaneMsgSubmitDKGRound2ZeroGas() {
 		s.tssGroupCtx.EncryptedSecretShares[0],
 	)
 
-	s.checkTSSLaneZeroGas(msg, sender)
+	s.checkLaneWithZeroGas(msg, sender)
 }
 
 // TestTSSLaneMsgConfirmZeroGas tests that MsgConfirm transactions with zero gas are rejected
@@ -560,7 +362,7 @@ func (s *AppTestSuite) TestTSSLaneMsgConfirmZeroGas() {
 		s.tssGroupCtx.OwnPubKeySigs[0],
 	)
 
-	s.checkTSSLaneZeroGas(msg, sender)
+	s.checkLaneWithZeroGas(msg, sender)
 }
 
 // TestTSSLaneMsgComplainZeroGas tests that MsgComplain transactions with zero gas are rejected
@@ -581,7 +383,7 @@ func (s *AppTestSuite) TestTSSLaneMsgComplainZeroGas() {
 	)
 	s.Require().NoError(err)
 
-	s.checkTSSLaneZeroGas(msg, s.tssAccountsWithNumSeq[0])
+	s.checkLaneWithZeroGas(msg, s.tssAccountsWithNumSeq[0])
 }
 
 // TestTSSLaneMsgSubmitDEZeroGas tests that MsgSubmitDE transactions with zero gas are rejected
@@ -601,7 +403,7 @@ func (s *AppTestSuite) TestTSSLaneMsgSubmitDEZeroGas() {
 		[]tsstestutils.DEWithPrivateNonce{de},
 	)
 
-	s.checkTSSLaneZeroGas(msg, s.tssAccountsWithNumSeq[0])
+	s.checkLaneWithZeroGas(msg, s.tssAccountsWithNumSeq[0])
 }
 
 // TestTSSLaneMsgSubmitSignatureZeroGas tests that MsgSubmitSignature transactions with zero gas are rejected
@@ -662,7 +464,7 @@ func (s *AppTestSuite) TestTSSLaneMsgSubmitSignatureZeroGas() {
 		signature,
 	)
 
-	s.checkTSSLaneZeroGas(msg, s.tssAccountsWithNumSeq[0])
+	s.checkLaneWithZeroGas(msg, s.tssAccountsWithNumSeq[0])
 }
 
 // TestTSSLaneMsgSubmitDKGRound1ExactGas tests that MsgSubmitDKGRound1 transactions with exact gas are accepted
@@ -675,7 +477,7 @@ func (s *AppTestSuite) TestTSSLaneMsgSubmitDKGRound1ExactGas() {
 		s.tssGroupCtx.Round1Infos[0],
 	)
 
-	s.checkTSSLaneExactGas(msg, sender)
+	s.checkLaneWithExactGas(msg, sender, "tssLane", 2500000, sdk.Coins{})
 }
 
 // TestTSSLaneMsgSubmitDKGRound2ExactGas tests that MsgSubmitDKGRound2 transactions with exact gas are accepted
@@ -691,7 +493,7 @@ func (s *AppTestSuite) TestTSSLaneMsgSubmitDKGRound2ExactGas() {
 		s.tssGroupCtx.EncryptedSecretShares[0],
 	)
 
-	s.checkTSSLaneExactGas(msg, sender)
+	s.checkLaneWithExactGas(msg, sender, "tssLane", 2500000, sdk.Coins{})
 }
 
 // TestTSSLaneMsgConfirmExactGas tests that MsgConfirm transactions with exact gas are accepted
@@ -710,7 +512,7 @@ func (s *AppTestSuite) TestTSSLaneMsgConfirmExactGas() {
 		s.tssGroupCtx.OwnPubKeySigs[0],
 	)
 
-	s.checkTSSLaneExactGas(msg, sender)
+	s.checkLaneWithExactGas(msg, sender, "tssLane", 2500000, sdk.Coins{})
 }
 
 // TestTSSLaneMsgComplainExactGas tests that MsgComplain transactions with exact gas are accepted
@@ -731,7 +533,7 @@ func (s *AppTestSuite) TestTSSLaneMsgComplainExactGas() {
 	)
 	s.Require().NoError(err)
 
-	s.checkTSSLaneExactGas(msg, s.tssAccountsWithNumSeq[0])
+	s.checkLaneWithExactGas(msg, s.tssAccountsWithNumSeq[0], "tssLane", 2500000, sdk.Coins{})
 }
 
 // TestTSSLaneMsgSubmitDEExactGas tests that MsgSubmitDE transactions with exact gas are accepted
@@ -751,7 +553,7 @@ func (s *AppTestSuite) TestTSSLaneMsgSubmitDEExactGas() {
 		[]tsstestutils.DEWithPrivateNonce{de},
 	)
 
-	s.checkTSSLaneExactGas(msg, s.tssAccountsWithNumSeq[0])
+	s.checkLaneWithExactGas(msg, s.tssAccountsWithNumSeq[0], "tssLane", 2500000, sdk.Coins{})
 }
 
 // TestTSSLaneMsgSubmitSignatureExactGas tests that MsgSubmitSignature transactions with exact gas are accepted
@@ -812,7 +614,7 @@ func (s *AppTestSuite) TestTSSLaneMsgSubmitSignatureExactGas() {
 		signature,
 	)
 
-	s.checkTSSLaneExactGas(msg, s.tssAccountsWithNumSeq[0])
+	s.checkLaneWithExactGas(msg, s.tssAccountsWithNumSeq[0], "tssLane", 2500000, sdk.Coins{})
 }
 
 // TestTSSLaneMsgSubmitDKGRound1ExceedGas tests that MsgSubmitDKGRound1 transactions with gas exceeding limit are rejected
@@ -825,7 +627,7 @@ func (s *AppTestSuite) TestTSSLaneMsgSubmitDKGRound1ExceedGas() {
 		s.tssGroupCtx.Round1Infos[0],
 	)
 
-	s.checkTSSLaneExceedGas(msg, sender)
+	s.checkLaneWithExceedGas(msg, sender, "tssLane", 2500001, sdk.Coins{})
 }
 
 // TestTSSLaneMsgSubmitDKGRound2ExceedGas tests that MsgSubmitDKGRound2 transactions with gas exceeding limit are rejected
@@ -841,7 +643,7 @@ func (s *AppTestSuite) TestTSSLaneMsgSubmitDKGRound2ExceedGas() {
 		s.tssGroupCtx.EncryptedSecretShares[0],
 	)
 
-	s.checkTSSLaneExceedGas(msg, sender)
+	s.checkLaneWithExceedGas(msg, sender, "tssLane", 2500001, sdk.Coins{})
 }
 
 // TestTSSLaneMsgConfirmExceedGas tests that MsgConfirm transactions with gas exceeding limit are rejected
@@ -860,7 +662,7 @@ func (s *AppTestSuite) TestTSSLaneMsgConfirmExceedGas() {
 		s.tssGroupCtx.OwnPubKeySigs[0],
 	)
 
-	s.checkTSSLaneExceedGas(msg, sender)
+	s.checkLaneWithExceedGas(msg, sender, "tssLane", 2500001, sdk.Coins{})
 }
 
 // TestTSSLaneMsgComplainExceedGas tests that MsgComplain transactions with gas exceeding limit are rejected
@@ -881,7 +683,7 @@ func (s *AppTestSuite) TestTSSLaneMsgComplainExceedGas() {
 	)
 	s.Require().NoError(err)
 
-	s.checkTSSLaneExceedGas(msg, s.tssAccountsWithNumSeq[0])
+	s.checkLaneWithExceedGas(msg, s.tssAccountsWithNumSeq[0], "tssLane", 2500001, sdk.Coins{})
 }
 
 // TestTSSLaneMsgSubmitDEExceedGas tests that MsgSubmitDE transactions with gas exceeding limit are rejected
@@ -901,7 +703,7 @@ func (s *AppTestSuite) TestTSSLaneMsgSubmitDEExceedGas() {
 		[]tsstestutils.DEWithPrivateNonce{de},
 	)
 
-	s.checkTSSLaneExceedGas(msg, s.tssAccountsWithNumSeq[0])
+	s.checkLaneWithExceedGas(msg, s.tssAccountsWithNumSeq[0], "tssLane", 2500001, sdk.Coins{})
 }
 
 // TestTSSLaneMsgSubmitSignatureExceedGas tests that MsgSubmitSignature transactions with gas exceeding limit are rejected
@@ -962,7 +764,7 @@ func (s *AppTestSuite) TestTSSLaneMsgSubmitSignatureExceedGas() {
 		signature,
 	)
 
-	s.checkTSSLaneExceedGas(msg, s.tssAccountsWithNumSeq[0])
+	s.checkLaneWithExceedGas(msg, s.tssAccountsWithNumSeq[0], "tssLane", 2500001, sdk.Coins{})
 }
 
 // TestTSSLaneWrappedMsgSubmitDKGRound1ExactGas tests that MsgSubmitDKGRound1 transactions with wrapped messages are handled correctly
@@ -976,7 +778,7 @@ func (s *AppTestSuite) TestTSSLaneWrappedMsgSubmitDKGRound1ExactGas() {
 		s.tssGroupCtx.Round1Infos[0],
 	)
 
-	s.checkTSSLaneWrappedMsgExactGas(msg, sender)
+	s.checkLaneWrappedMsgWithExactGas(msg, sender, "tssLane", 2500000, sdk.Coins{})
 }
 
 // TestTSSLaneWrappedMsgSubmitDKGRound2ExcactGas tests that MsgSubmitDKGRound2 transactions with wrapped messages are handled correctly
@@ -993,7 +795,7 @@ func (s *AppTestSuite) TestTSSLaneWrappedMsgSubmitDKGRound2ExcactGas() {
 		s.tssGroupCtx.EncryptedSecretShares[0],
 	)
 
-	s.checkTSSLaneWrappedMsgExactGas(msg, sender)
+	s.checkLaneWrappedMsgWithExactGas(msg, sender, "tssLane", 2500000, sdk.Coins{})
 }
 
 // TestTSSLaneWrappedMsgConfirmExactGas tests that MsgConfirm transactions with wrapped messages are handled correctly
@@ -1013,7 +815,7 @@ func (s *AppTestSuite) TestTSSLaneWrappedMsgConfirmExactGas() {
 		s.tssGroupCtx.OwnPubKeySigs[0],
 	)
 
-	s.checkTSSLaneWrappedMsgExactGas(msg, sender)
+	s.checkLaneWrappedMsgWithExactGas(msg, sender, "tssLane", 2500000, sdk.Coins{})
 }
 
 // TestTSSLaneWrappedMsgComplainExactGas tests that MsgComplain transactions with wrapped messages are handled correctly
@@ -1036,7 +838,7 @@ func (s *AppTestSuite) TestTSSLaneWrappedMsgComplainExactGas() {
 	)
 	s.Require().NoError(err)
 
-	s.checkTSSLaneWrappedMsgExactGas(msg, sender)
+	s.checkLaneWrappedMsgWithExactGas(msg, sender, "tssLane", 2500000, sdk.Coins{})
 }
 
 // TestTSSLaneWrappedMsgSubmitDEExactGas tests that MsgSubmitDE transactions with wrapped messages are handled correctly
@@ -1058,7 +860,7 @@ func (s *AppTestSuite) TestTSSLaneWrappedMsgSubmitDEExactGas() {
 		[]tsstestutils.DEWithPrivateNonce{de},
 	)
 
-	s.checkTSSLaneWrappedMsgExactGas(msg, sender)
+	s.checkLaneWrappedMsgWithExactGas(msg, sender, "tssLane", 2500000, sdk.Coins{})
 }
 
 // TestTSSLaneWrappedMsgSubmitSignatureExactGas tests that MsgSubmitSignature transactions with wrapped messages are handled correctly
@@ -1121,7 +923,7 @@ func (s *AppTestSuite) TestTSSLaneWrappedMsgSubmitSignatureExactGas() {
 		signature,
 	)
 
-	s.checkTSSLaneWrappedMsgExactGas(msg, sender)
+	s.checkLaneWrappedMsgWithExactGas(msg, sender, "tssLane", 2500000, sdk.Coins{})
 }
 
 // TestTSSLaneWrappedMsgSubmitDKGRound1ExceedGas tests that MsgSubmitDKGRound1 transactions with wrapped messages
@@ -1136,7 +938,7 @@ func (s *AppTestSuite) TestTSSLaneWrappedMsgSubmitDKGRound1ExceedGas() {
 		s.tssGroupCtx.Round1Infos[0],
 	)
 
-	s.checkTSSLaneWrappedMsgExceedGas(msg, sender)
+	s.checkLaneWrappedMsgWithExceedGas(msg, sender, "tssLane", 2500001, sdk.Coins{})
 }
 
 // TestTSSLaneWrappedMsgSubmitDKGRound2ExceedGas tests that MsgSubmitDKGRound2 transactions with wrapped messages
@@ -1154,7 +956,7 @@ func (s *AppTestSuite) TestTSSLaneWrappedMsgSubmitDKGRound2ExceedGas() {
 		s.tssGroupCtx.EncryptedSecretShares[0],
 	)
 
-	s.checkTSSLaneWrappedMsgExceedGas(msg, sender)
+	s.checkLaneWrappedMsgWithExceedGas(msg, sender, "tssLane", 2500001, sdk.Coins{})
 }
 
 // TestTSSLaneWrappedMsgConfirmExceedGas tests that MsgConfirm transactions with wrapped messages
@@ -1175,7 +977,7 @@ func (s *AppTestSuite) TestTSSLaneWrappedMsgConfirmExceedGas() {
 		s.tssGroupCtx.OwnPubKeySigs[0],
 	)
 
-	s.checkTSSLaneWrappedMsgExceedGas(msg, sender)
+	s.checkLaneWrappedMsgWithExceedGas(msg, sender, "tssLane", 2500001, sdk.Coins{})
 }
 
 // TestTSSLaneWrappedMsgComplainExceedGas tests that MsgComplain transactions with wrapped messages
@@ -1199,7 +1001,7 @@ func (s *AppTestSuite) TestTSSLaneWrappedMsgComplainExceedGas() {
 	)
 	s.Require().NoError(err)
 
-	s.checkTSSLaneWrappedMsgExceedGas(msg, sender)
+	s.checkLaneWrappedMsgWithExceedGas(msg, sender, "tssLane", 2500001, sdk.Coins{})
 }
 
 // TestTSSLaneWrappedMsgSubmitDEExceedGas tests that MsgSubmitDE transactions with wrapped messages
@@ -1222,7 +1024,7 @@ func (s *AppTestSuite) TestTSSLaneWrappedMsgSubmitDEExceedGas() {
 		[]tsstestutils.DEWithPrivateNonce{de},
 	)
 
-	s.checkTSSLaneWrappedMsgExceedGas(msg, sender)
+	s.checkLaneWrappedMsgWithExceedGas(msg, sender, "tssLane", 2500001, sdk.Coins{})
 }
 
 // TestTSSLaneWrappedMsgSubmitSignatureExceedGas tests that MsgSubmitSignature transactions with wrapped messages
@@ -1286,10 +1088,10 @@ func (s *AppTestSuite) TestTSSLaneWrappedMsgSubmitSignatureExceedGas() {
 		signature,
 	)
 
-	s.checkTSSLaneWrappedMsgExceedGas(msg, sender)
+	s.checkLaneWrappedMsgWithExceedGas(msg, sender, "tssLane", 2500001, sdk.Coins{})
 }
 
-func (s *AppTestSuite) checkTSSLaneZeroGas(msg sdk.Msg, sender bandtesting.AccountWithNumSeq) {
+func (s *AppTestSuite) checkLaneWithZeroGas(msg sdk.Msg, sender bandtesting.AccountWithNumSeq) {
 	require := s.Require()
 	msgs := []sdk.Msg{msg}
 
@@ -1328,7 +1130,7 @@ func (s *AppTestSuite) checkTSSLaneZeroGas(msg sdk.Msg, sender bandtesting.Accou
 	require.Equal(0, len(resp.Txs))
 }
 
-func (s *AppTestSuite) checkTSSLaneExactGas(msg sdk.Msg, sender bandtesting.AccountWithNumSeq) {
+func (s *AppTestSuite) checkLaneWithExactGas(msg sdk.Msg, sender bandtesting.AccountWithNumSeq, laneName string, gas uint64, feeAmt sdk.Coins) {
 	require := s.Require()
 	msgs := []sdk.Msg{msg}
 
@@ -1336,8 +1138,8 @@ func (s *AppTestSuite) checkTSSLaneExactGas(msg sdk.Msg, sender bandtesting.Acco
 		rand.New(rand.NewSource(time.Now().UnixNano())),
 		s.txConfig,
 		msgs,
-		sdk.Coins{},
-		2500000,
+		feeAmt,
+		gas,
 		bandtesting.ChainID,
 		[]uint64{sender.Num},
 		[]uint64{sender.Seq},
@@ -1355,11 +1157,11 @@ func (s *AppTestSuite) checkTSSLaneExactGas(msg sdk.Msg, sender bandtesting.Acco
 	require.Equal(1, s.app.Mempool().CountTx())
 
 	mempool := s.app.Mempool().(*mempool.Mempool)
-	require.Equal(1, mempool.GetLane("tssLane").CountTx())
+	require.Equal(1, mempool.GetLane(laneName).CountTx())
 
 	// Prepare proposal
 	prepareReq := &abci.RequestPrepareProposal{
-		MaxTxBytes:      2500000,
+		MaxTxBytes:      1000000,
 		Height:          s.app.LastBlockHeight() + 1,
 		Time:            s.ctx.BlockTime(),
 		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
@@ -1371,7 +1173,7 @@ func (s *AppTestSuite) checkTSSLaneExactGas(msg sdk.Msg, sender bandtesting.Acco
 	require.Equal(resp.Txs[0], txBytes)
 }
 
-func (s *AppTestSuite) checkTSSLaneExceedGas(msg sdk.Msg, sender bandtesting.AccountWithNumSeq) {
+func (s *AppTestSuite) checkLaneWithExceedGas(msg sdk.Msg, sender bandtesting.AccountWithNumSeq, laneName string, gas uint64, feeAmt sdk.Coins) {
 	require := s.Require()
 	msgs := []sdk.Msg{msg}
 
@@ -1379,8 +1181,8 @@ func (s *AppTestSuite) checkTSSLaneExceedGas(msg sdk.Msg, sender bandtesting.Acc
 		rand.New(rand.NewSource(time.Now().UnixNano())),
 		s.txConfig,
 		msgs,
-		sdk.Coins{},
-		2500001,
+		feeAmt,
+		gas,
 		bandtesting.ChainID,
 		[]uint64{sender.Num},
 		[]uint64{sender.Seq},
@@ -1398,11 +1200,11 @@ func (s *AppTestSuite) checkTSSLaneExceedGas(msg sdk.Msg, sender bandtesting.Acc
 	require.Equal(0, s.app.Mempool().CountTx())
 
 	mempool := s.app.Mempool().(*mempool.Mempool)
-	require.Equal(0, mempool.GetLane("tssLane").CountTx())
+	require.Equal(0, mempool.GetLane(laneName).CountTx())
 
 	// Prepare proposal
 	prepareReq := &abci.RequestPrepareProposal{
-		MaxTxBytes:      2500001,
+		MaxTxBytes:      1000000,
 		Height:          s.app.LastBlockHeight() + 1,
 		Time:            s.ctx.BlockTime(),
 		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
@@ -1413,7 +1215,7 @@ func (s *AppTestSuite) checkTSSLaneExceedGas(msg sdk.Msg, sender bandtesting.Acc
 	require.Equal(0, len(resp.Txs))
 }
 
-func (s *AppTestSuite) checkTSSLaneWrappedMsgExactGas(msg sdk.Msg, sender bandtesting.AccountWithNumSeq) {
+func (s *AppTestSuite) checkLaneWrappedMsgWithExactGas(msg sdk.Msg, sender bandtesting.AccountWithNumSeq, laneName string, gas uint64, feeAmt sdk.Coins) {
 	require := s.Require()
 	msgs := []sdk.Msg{msg}
 
@@ -1423,8 +1225,8 @@ func (s *AppTestSuite) checkTSSLaneWrappedMsgExactGas(msg sdk.Msg, sender bandte
 		rand.New(rand.NewSource(time.Now().UnixNano())),
 		s.txConfig,
 		[]sdk.Msg{&msgExec},
-		sdk.Coins{},
-		2500000,
+		feeAmt,
+		gas,
 		bandtesting.ChainID,
 		[]uint64{sender.Num},
 		[]uint64{sender.Seq},
@@ -1442,11 +1244,11 @@ func (s *AppTestSuite) checkTSSLaneWrappedMsgExactGas(msg sdk.Msg, sender bandte
 	require.Equal(1, s.app.Mempool().CountTx())
 
 	mempool := s.app.Mempool().(*mempool.Mempool)
-	require.Equal(1, mempool.GetLane("tssLane").CountTx())
+	require.Equal(1, mempool.GetLane(laneName).CountTx())
 
 	// Prepare proposal
 	prepareReq := &abci.RequestPrepareProposal{
-		MaxTxBytes:      2500000,
+		MaxTxBytes:      1000000,
 		Height:          s.app.LastBlockHeight() + 1,
 		Time:            s.ctx.BlockTime(),
 		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
@@ -1458,7 +1260,7 @@ func (s *AppTestSuite) checkTSSLaneWrappedMsgExactGas(msg sdk.Msg, sender bandte
 	require.Equal(txBytes, resp.Txs[0])
 }
 
-func (s *AppTestSuite) checkTSSLaneWrappedMsgExceedGas(msg sdk.Msg, sender bandtesting.AccountWithNumSeq) {
+func (s *AppTestSuite) checkLaneWrappedMsgWithExceedGas(msg sdk.Msg, sender bandtesting.AccountWithNumSeq, laneName string, gas uint64, feeAmt sdk.Coins) {
 	require := s.Require()
 	msgs := []sdk.Msg{msg}
 
@@ -1468,8 +1270,8 @@ func (s *AppTestSuite) checkTSSLaneWrappedMsgExceedGas(msg sdk.Msg, sender bandt
 		rand.New(rand.NewSource(time.Now().UnixNano())),
 		s.txConfig,
 		[]sdk.Msg{&msgExec},
-		sdk.Coins{},
-		2500001,
+		feeAmt,
+		gas,
 		bandtesting.ChainID,
 		[]uint64{sender.Num},
 		[]uint64{sender.Seq},
@@ -1487,11 +1289,11 @@ func (s *AppTestSuite) checkTSSLaneWrappedMsgExceedGas(msg sdk.Msg, sender bandt
 	require.Equal(0, s.app.Mempool().CountTx())
 
 	mempool := s.app.Mempool().(*mempool.Mempool)
-	require.Equal(0, mempool.GetLane("tssLane").CountTx())
+	require.Equal(0, mempool.GetLane(laneName).CountTx())
 
 	// Prepare proposal
 	prepareReq := &abci.RequestPrepareProposal{
-		MaxTxBytes:      2500000,
+		MaxTxBytes:      1000000,
 		Height:          s.app.LastBlockHeight() + 1,
 		Time:            s.ctx.BlockTime(),
 		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
@@ -1611,223 +1413,44 @@ func genMsgSubmitSignature(
 
 // TestOracleReportLaneZeroGas tests that transactions with zero gas are rejected
 func (s *AppTestSuite) TestOracleReportLaneZeroGas() {
-	require := s.Require()
+	sender := s.valAccWithNumSeq
+	msg := GenMsgReportData(&sender)
 
-	tx, _ := bandtesting.GenSignedMockTx(
-		rand.New(rand.NewSource(time.Now().UnixNano())),
-		s.txConfig,
-		[]sdk.Msg{
-			GenMsgReportData(&s.valAccWithNumSeq),
-		},
-		sdk.Coins{},
-		0,
-		bandtesting.ChainID,
-		[]uint64{s.valAccWithNumSeq.Num},
-		[]uint64{s.valAccWithNumSeq.Seq},
-		s.valAccWithNumSeq.PrivKey,
-	)
-
-	txBytes, err := s.txConfig.TxEncoder()(tx)
-	require.NoError(err)
-
-	checkTxReq := &abci.RequestCheckTx{Tx: txBytes, Type: abci.CheckTxType_New}
-	res, err := s.app.CheckTx(checkTxReq)
-	require.NoError(err)
-	require.NotNil(res)
-	require.Equal(res.Code, uint32(11))
-	require.Equal(s.app.Mempool().CountTx(), 0)
-
-	// Prepare proposal
-	prepareReq := &abci.RequestPrepareProposal{
-		MaxTxBytes:      1000000,
-		Height:          s.app.LastBlockHeight() + 1,
-		Time:            s.ctx.BlockTime(),
-		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
-	}
-	resp, err := s.app.PrepareProposal(prepareReq)
-	require.NoError(err)
-	require.NotNil(resp)
-	require.Equal(len(resp.Txs), 0)
+	s.checkLaneWithZeroGas(msg, sender)
 }
 
 // TestOracleReportLaneExactGas tests that transactions with exact gas limit are accepted
 func (s *AppTestSuite) TestOracleReportLaneExactGas() {
-	require := s.Require()
+	sender := s.valAccWithNumSeq
+	msg := GenMsgReportData(&sender)
 
-	tx, _ := bandtesting.GenSignedMockTx(
-		rand.New(rand.NewSource(time.Now().UnixNano())),
-		s.txConfig,
-		[]sdk.Msg{
-			GenMsgReportData(&s.valAccWithNumSeq),
-		},
-		sdk.Coins{},
-		2500000,
-		bandtesting.ChainID,
-		[]uint64{s.valAccWithNumSeq.Num},
-		[]uint64{s.valAccWithNumSeq.Seq},
-		s.valAccWithNumSeq.PrivKey,
-	)
-
-	txBytes, err := s.txConfig.TxEncoder()(tx)
-	require.NoError(err)
-
-	checkTxReq := &abci.RequestCheckTx{Tx: txBytes, Type: abci.CheckTxType_New}
-	res, err := s.app.CheckTx(checkTxReq)
-	require.NoError(err)
-	require.NotNil(res)
-	require.Equal(res.Code, uint32(0))
-	require.Equal(s.app.Mempool().CountTx(), 1)
-
-	mempool := s.app.Mempool().(*mempool.Mempool)
-	require.Equal(mempool.GetLane("oracleReportLane").CountTx(), 1)
-
-	// Prepare proposal
-	prepareReq := &abci.RequestPrepareProposal{
-		MaxTxBytes:      1000000,
-		Height:          s.app.LastBlockHeight() + 1,
-		Time:            s.ctx.BlockTime(),
-		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
-	}
-	resp, err := s.app.PrepareProposal(prepareReq)
-	require.NoError(err)
-	require.NotNil(resp)
-	require.Equal(len(resp.Txs), 1)
-	require.Equal(resp.Txs[0], txBytes)
+	s.checkLaneWithExactGas(msg, sender, "oracleReportLane", 2500000, sdk.Coins{})
 }
 
 // TestOracleReportLaneExceedGas tests that transactions with exceed gas limit are rejected
 func (s *AppTestSuite) TestOracleReportLaneExceedGas() {
-	require := s.Require()
+	sender := s.valAccWithNumSeq
+	msg := GenMsgReportData(&sender)
 
-	tx, _ := bandtesting.GenSignedMockTx(
-		rand.New(rand.NewSource(time.Now().UnixNano())),
-		s.txConfig,
-		[]sdk.Msg{
-			GenMsgReportData(&s.valAccWithNumSeq),
-		},
-		sdk.Coins{},
-		2500001,
-		bandtesting.ChainID,
-		[]uint64{s.valAccWithNumSeq.Num},
-		[]uint64{s.valAccWithNumSeq.Seq},
-		s.valAccWithNumSeq.PrivKey,
-	)
-
-	txBytes, err := s.txConfig.TxEncoder()(tx)
-	require.NoError(err)
-
-	checkTxReq := &abci.RequestCheckTx{Tx: txBytes, Type: abci.CheckTxType_New}
-	res, err := s.app.CheckTx(checkTxReq)
-	require.NoError(err)
-	require.NotNil(res)
-	require.Equal(res.Code, uint32(1))
-	require.Equal(s.app.Mempool().CountTx(), 0)
-
-	// Prepare proposal
-	prepareReq := &abci.RequestPrepareProposal{
-		MaxTxBytes:      1000000,
-		Height:          s.app.LastBlockHeight() + 1,
-		Time:            s.ctx.BlockTime(),
-		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
-	}
-	resp, err := s.app.PrepareProposal(prepareReq)
-	require.NoError(err)
-	require.NotNil(resp)
-	require.Equal(len(resp.Txs), 0)
+	s.checkLaneWithExceedGas(msg, sender, "oracleReportLane", 2500001, sdk.Coins{})
 }
 
 // TestOracleReportLaneWrappedMsgExactGas tests that transactions with wrapped message with exact gas limit are accepted
 func (s *AppTestSuite) TestOracleReportLaneWrappedMsgExactGas() {
-	require := s.Require()
+	txOwner := s.valAccWithNumSeq
+	sender := s.reporterAccWithNumSeq
+	msg := GenMsgReportData(&txOwner)
 
-	msgExec := authz.NewMsgExec(
-		s.reporterAccWithNumSeq.Address,
-		[]sdk.Msg{
-			GenMsgReportData(&s.valAccWithNumSeq),
-		},
-	)
-	tx, _ := bandtesting.GenSignedMockTx(
-		rand.New(rand.NewSource(time.Now().UnixNano())),
-		s.txConfig,
-		[]sdk.Msg{&msgExec},
-		sdk.Coins{},
-		2500000,
-		bandtesting.ChainID,
-		[]uint64{s.reporterAccWithNumSeq.Num},
-		[]uint64{s.reporterAccWithNumSeq.Seq},
-		s.reporterAccWithNumSeq.PrivKey,
-	)
-
-	txBytes, err := s.txConfig.TxEncoder()(tx)
-	require.NoError(err)
-
-	checkTxReq := &abci.RequestCheckTx{Tx: txBytes, Type: abci.CheckTxType_New}
-	res, err := s.app.CheckTx(checkTxReq)
-	require.NoError(err)
-	require.NotNil(res)
-	require.Equal(res.Code, uint32(0))
-	require.Equal(s.app.Mempool().CountTx(), 1)
-
-	mempool := s.app.Mempool().(*mempool.Mempool)
-	require.Equal(mempool.GetLane("oracleReportLane").CountTx(), 1)
-
-	// Prepare proposal
-	prepareReq := &abci.RequestPrepareProposal{
-		MaxTxBytes:      1000000,
-		Height:          s.app.LastBlockHeight() + 1,
-		Time:            s.ctx.BlockTime(),
-		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
-	}
-	resp, err := s.app.PrepareProposal(prepareReq)
-	require.NoError(err)
-	require.NotNil(resp)
-	require.Equal(len(resp.Txs), 1)
-	require.Equal(resp.Txs[0], txBytes)
+	s.checkLaneWrappedMsgWithExactGas(msg, sender, "oracleReportLane", 2500000, sdk.Coins{})
 }
 
 // TestOracleReportLaneWrappedMsgExceedGas tests that transactions with wrapped message with exceed gas limit are rejected
 func (s *AppTestSuite) TestOracleReportLaneWrappedMsgExceedGas() {
-	require := s.Require()
+	txOwner := s.valAccWithNumSeq
+	sender := s.reporterAccWithNumSeq
+	msg := GenMsgReportData(&txOwner)
 
-	msgExec := authz.NewMsgExec(
-		s.reporterAccWithNumSeq.Address,
-		[]sdk.Msg{
-			GenMsgReportData(&s.valAccWithNumSeq),
-		},
-	)
-	tx, _ := bandtesting.GenSignedMockTx(
-		rand.New(rand.NewSource(time.Now().UnixNano())),
-		s.txConfig,
-		[]sdk.Msg{&msgExec},
-		sdk.Coins{},
-		2500001,
-		bandtesting.ChainID,
-		[]uint64{s.reporterAccWithNumSeq.Num},
-		[]uint64{s.reporterAccWithNumSeq.Seq},
-		s.reporterAccWithNumSeq.PrivKey,
-	)
-
-	txBytes, err := s.txConfig.TxEncoder()(tx)
-	require.NoError(err)
-
-	checkTxReq := &abci.RequestCheckTx{Tx: txBytes, Type: abci.CheckTxType_New}
-	res, err := s.app.CheckTx(checkTxReq)
-	require.NoError(err)
-	require.NotNil(res)
-	require.Equal(res.Code, uint32(1))
-	require.Equal(s.app.Mempool().CountTx(), 0)
-
-	// Prepare proposal
-	prepareReq := &abci.RequestPrepareProposal{
-		MaxTxBytes:      1000000,
-		Height:          s.app.LastBlockHeight() + 1,
-		Time:            s.ctx.BlockTime(),
-		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
-	}
-	resp, err := s.app.PrepareProposal(prepareReq)
-	require.NoError(err)
-	require.NotNil(resp)
-	require.Equal(len(resp.Txs), 0)
+	s.checkLaneWrappedMsgWithExceedGas(msg, sender, "oracleReportLane", 2500001, sdk.Coins{})
 }
 
 // GenMsgReportData creates a message for reporting data
@@ -1848,228 +1471,44 @@ func GenMsgReportData(sender *bandtesting.AccountWithNumSeq) sdk.Msg {
 
 // TestOracleRequestLaneZeroGas tests that transactions with zero gas are rejected
 func (s *AppTestSuite) TestOracleRequestLaneZeroGas() {
-	require := s.Require()
+	sender := s.valAccWithNumSeq
+	msg := GenMsgRequestData(&sender)
 
-	tx, _ := bandtesting.GenSignedMockTx(
-		rand.New(rand.NewSource(time.Now().UnixNano())),
-		s.txConfig,
-		[]sdk.Msg{
-			GenMsgRequestData(&s.valAccWithNumSeq),
-		},
-		sdk.Coins{},
-		0,
-		bandtesting.ChainID,
-		[]uint64{s.valAccWithNumSeq.Num},
-		[]uint64{s.valAccWithNumSeq.Seq},
-		s.valAccWithNumSeq.PrivKey,
-	)
-
-	txBytes, err := s.txConfig.TxEncoder()(tx)
-	require.NoError(err)
-
-	checkTxReq := &abci.RequestCheckTx{Tx: txBytes, Type: abci.CheckTxType_New}
-	res, err := s.app.CheckTx(checkTxReq)
-	require.NoError(err)
-	require.NotNil(res)
-	require.Equal(res.Code, uint32(11))
-	require.Equal(s.app.Mempool().CountTx(), 0)
-
-	// Prepare proposal
-	prepareReq := &abci.RequestPrepareProposal{
-		MaxTxBytes:      1000000,
-		Height:          s.app.LastBlockHeight() + 1,
-		Time:            s.ctx.BlockTime(),
-		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
-	}
-	resp, err := s.app.PrepareProposal(prepareReq)
-	require.NoError(err)
-	require.NotNil(resp)
-	require.Equal(len(resp.Txs), 0)
+	s.checkLaneWithZeroGas(msg, sender)
 }
 
 // TestOracleRequestLaneExactGas tests that transactions with exact gas limit are accepted
 func (s *AppTestSuite) TestOracleRequestLaneExactGas() {
-	require := s.Require()
+	sender := s.valAccWithNumSeq
+	msg := GenMsgRequestData(&sender)
 
-	tx, _ := bandtesting.GenSignedMockTx(
-		rand.New(rand.NewSource(time.Now().UnixNano())),
-		s.txConfig,
-		[]sdk.Msg{
-			GenMsgRequestData(&s.valAccWithNumSeq),
-		},
-		sdk.Coins{
-			sdk.NewInt64Coin("uband", 12500),
-		},
-		5000000,
-		bandtesting.ChainID,
-		[]uint64{s.valAccWithNumSeq.Num},
-		[]uint64{s.valAccWithNumSeq.Seq},
-		s.valAccWithNumSeq.PrivKey,
-	)
-
-	txBytes, err := s.txConfig.TxEncoder()(tx)
-	require.NoError(err)
-
-	checkTxReq := &abci.RequestCheckTx{Tx: txBytes, Type: abci.CheckTxType_New}
-	res, err := s.app.CheckTx(checkTxReq)
-	require.NoError(err)
-	require.NotNil(res)
-	require.Equal(res.Code, uint32(0))
-	require.Equal(s.app.Mempool().CountTx(), 1)
-
-	// Prepare proposal
-	prepareReq := &abci.RequestPrepareProposal{
-		MaxTxBytes:      1000000,
-		Height:          s.app.LastBlockHeight() + 1,
-		Time:            s.ctx.BlockTime(),
-		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
-	}
-	resp, err := s.app.PrepareProposal(prepareReq)
-	require.NoError(err)
-	require.NotNil(resp)
-	require.Equal(len(resp.Txs), 1)
-	require.Equal(resp.Txs[0], txBytes)
+	s.checkLaneWithExactGas(msg, sender, "oracleRequestLane", 5000000, sdk.Coins{sdk.NewInt64Coin("uband", 12500)})
 }
 
 // TestOracleRequestLaneExceedGas tests that transactions with exceed gas limit are rejected
 func (s *AppTestSuite) TestOracleRequestLaneExceedGas() {
-	require := s.Require()
+	sender := s.valAccWithNumSeq
+	msg := GenMsgRequestData(&sender)
 
-	tx, _ := bandtesting.GenSignedMockTx(
-		rand.New(rand.NewSource(time.Now().UnixNano())),
-		s.txConfig,
-		[]sdk.Msg{
-			GenMsgRequestData(&s.valAccWithNumSeq),
-		},
-		sdk.Coins{
-			sdk.NewInt64Coin("uband", 12501),
-		},
-		5000001,
-		bandtesting.ChainID,
-		[]uint64{s.valAccWithNumSeq.Num},
-		[]uint64{s.valAccWithNumSeq.Seq},
-		s.valAccWithNumSeq.PrivKey,
-	)
-
-	txBytes, err := s.txConfig.TxEncoder()(tx)
-	require.NoError(err)
-
-	checkTxReq := &abci.RequestCheckTx{Tx: txBytes, Type: abci.CheckTxType_New}
-	res, err := s.app.CheckTx(checkTxReq)
-	require.NoError(err)
-	require.NotNil(res)
-	require.Equal(res.Code, uint32(1))
-	require.Equal(s.app.Mempool().CountTx(), 0)
-
-	// Prepare proposal
-	prepareReq := &abci.RequestPrepareProposal{
-		MaxTxBytes:      1000000,
-		Height:          s.app.LastBlockHeight() + 1,
-		Time:            s.ctx.BlockTime(),
-		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
-	}
-	resp, err := s.app.PrepareProposal(prepareReq)
-	require.NoError(err)
-	require.NotNil(resp)
-	require.Equal(len(resp.Txs), 0)
+	s.checkLaneWithExceedGas(msg, sender, "oracleRequestLane", 5000001, sdk.Coins{sdk.NewInt64Coin("uband", 12501)})
 }
 
 // TestOracleRequestLaneWrappedMsgExactGas tests that transactions with wrapped message with exact gas limit are accepted
 func (s *AppTestSuite) TestOracleRequestLaneWrappedMsgExactGas() {
-	require := s.Require()
+	txOwner := s.valAccWithNumSeq
+	sender := s.reporterAccWithNumSeq
+	msg := GenMsgRequestData(&txOwner)
 
-	msgExec := authz.NewMsgExec(
-		s.reporterAccWithNumSeq.Address,
-		[]sdk.Msg{
-			GenMsgRequestData(&s.valAccWithNumSeq),
-		},
-	)
-	tx, _ := bandtesting.GenSignedMockTx(
-		rand.New(rand.NewSource(time.Now().UnixNano())),
-		s.txConfig,
-		[]sdk.Msg{&msgExec},
-		sdk.Coins{
-			sdk.NewInt64Coin("uband", 12500),
-		},
-		5000000,
-		bandtesting.ChainID,
-		[]uint64{s.reporterAccWithNumSeq.Num},
-		[]uint64{s.reporterAccWithNumSeq.Seq},
-		s.reporterAccWithNumSeq.PrivKey,
-	)
-
-	txBytes, err := s.txConfig.TxEncoder()(tx)
-	require.NoError(err)
-
-	checkTxReq := &abci.RequestCheckTx{Tx: txBytes, Type: abci.CheckTxType_New}
-	res, err := s.app.CheckTx(checkTxReq)
-	require.NoError(err)
-	require.NotNil(res)
-	require.Equal(res.Code, uint32(0))
-	require.Equal(s.app.Mempool().CountTx(), 1)
-
-	mempool := s.app.Mempool().(*mempool.Mempool)
-	require.Equal(mempool.GetLane("oracleRequestLane").CountTx(), 1)
-
-	// Prepare proposal
-	prepareReq := &abci.RequestPrepareProposal{
-		MaxTxBytes:      1000000,
-		Height:          s.app.LastBlockHeight() + 1,
-		Time:            s.ctx.BlockTime(),
-		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
-	}
-	resp, err := s.app.PrepareProposal(prepareReq)
-	require.NoError(err)
-	require.NotNil(resp)
-	require.Equal(len(resp.Txs), 1)
-	require.Equal(resp.Txs[0], txBytes)
+	s.checkLaneWrappedMsgWithExactGas(msg, sender, "oracleRequestLane", 5000000, sdk.Coins{sdk.NewInt64Coin("uband", 12500)})
 }
 
 // TestOracleRequestLaneWrappedMsgExceedGas tests that transactions with wrapped message with exceed gas limit are rejected
 func (s *AppTestSuite) TestOracleRequestLaneWrappedMsgExceedGas() {
-	require := s.Require()
+	txOwner := s.valAccWithNumSeq
+	sender := s.reporterAccWithNumSeq
+	msg := GenMsgRequestData(&txOwner)
 
-	msgExec := authz.NewMsgExec(
-		s.reporterAccWithNumSeq.Address,
-		[]sdk.Msg{
-			GenMsgRequestData(&s.valAccWithNumSeq),
-		},
-	)
-	tx, _ := bandtesting.GenSignedMockTx(
-		rand.New(rand.NewSource(time.Now().UnixNano())),
-		s.txConfig,
-		[]sdk.Msg{&msgExec},
-		sdk.Coins{
-			sdk.NewInt64Coin("uband", 12501),
-		},
-		5000001,
-		bandtesting.ChainID,
-		[]uint64{s.reporterAccWithNumSeq.Num},
-		[]uint64{s.reporterAccWithNumSeq.Seq},
-		s.reporterAccWithNumSeq.PrivKey,
-	)
-
-	txBytes, err := s.txConfig.TxEncoder()(tx)
-	require.NoError(err)
-
-	checkTxReq := &abci.RequestCheckTx{Tx: txBytes, Type: abci.CheckTxType_New}
-	res, err := s.app.CheckTx(checkTxReq)
-	require.NoError(err)
-	require.NotNil(res)
-	require.Equal(res.Code, uint32(1))
-	require.Equal(s.app.Mempool().CountTx(), 0)
-
-	// Prepare proposal
-	prepareReq := &abci.RequestPrepareProposal{
-		MaxTxBytes:      1000000,
-		Height:          s.app.LastBlockHeight() + 1,
-		Time:            s.ctx.BlockTime(),
-		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
-	}
-	resp, err := s.app.PrepareProposal(prepareReq)
-	require.NoError(err)
-	require.NotNil(resp)
-	require.Equal(len(resp.Txs), 0)
+	s.checkLaneWrappedMsgWithExceedGas(msg, sender, "oracleRequestLane", 5000001, sdk.Coins{sdk.NewInt64Coin("uband", 12501)})
 }
 
 // GenMsgRequestData creates a message for requesting data
