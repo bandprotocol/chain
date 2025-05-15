@@ -35,8 +35,8 @@ func CreateUpgradeHandler(
 			acc.GetAccountNumber(),
 			acc.GetSequence(),
 		)
-		maccI := authtypes.NewModuleAccount(baseAcc, tunneltypes.ModuleName, authtypes.Minter)
-		keepers.AccountKeeper.SetModuleAccount(ctx, maccI)
+		macc := authtypes.NewModuleAccount(baseAcc, tunneltypes.ModuleName, authtypes.Minter)
+		keepers.AccountKeeper.SetModuleAccount(ctx, macc)
 
 		return vm, nil
 	}
