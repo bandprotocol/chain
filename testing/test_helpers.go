@@ -36,6 +36,7 @@ import (
 	owasm "github.com/bandprotocol/go-owasm/api"
 
 	band "github.com/bandprotocol/chain/v3/app"
+	"github.com/bandprotocol/chain/v3/app/upgrades"
 	"github.com/bandprotocol/chain/v3/pkg/filecache"
 	"github.com/bandprotocol/chain/v3/testing/testdata"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
@@ -367,4 +368,8 @@ func CreateTestingAppFn(t testing.TB) func() (ibctesting.TestingApp, map[string]
 		g := GenesisStateWithValSet(app, dir)
 		return app, g
 	}
+}
+
+func SetCustomUpgrades(upgrades []upgrades.Upgrade) {
+	band.Upgrades = upgrades
 }

@@ -16,6 +16,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	band "github.com/bandprotocol/chain/v3/app"
+	"github.com/bandprotocol/chain/v3/app/upgrades"
 	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3"
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
 )
@@ -32,6 +33,8 @@ func TestKeeperTestSuite(t *testing.T) {
 }
 
 func (s *UpgradeTestSuite) SetupTest() {
+	bandtesting.SetCustomUpgrades([]upgrades.Upgrade{v3.Upgrade})
+
 	dir := testutil.GetTempDir(s.T())
 	s.app = bandtesting.SetupWithCustomHome(false, dir)
 	s.ctx = s.app.BaseApp.NewUncachedContext(false, cmtproto.Header{})
