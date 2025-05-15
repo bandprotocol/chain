@@ -16,6 +16,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/x/authz"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	band "github.com/bandprotocol/chain/v3/app"
 	"github.com/bandprotocol/chain/v3/app/mempool"
@@ -1562,7 +1563,7 @@ func (s *AppTestSuite) TestRequestLaneBlockedByReportLane() {
 	mempool := s.app.Mempool().(*mempool.Mempool)
 	require.Equal(mempool.GetLane("oracleReportLane").CountTx(), 4)
 
-	// Generate 4 request data transactions
+	// Generate 1 request data transactions
 	requestTxBytes := bandtesting.GenSequenceOfTxs(
 		s.txConfig.TxEncoder(),
 		s.txConfig,
@@ -1601,4 +1602,437 @@ func (s *AppTestSuite) TestRequestLaneBlockedByReportLane() {
 	require.NotNil(resp)
 	require.Equal(len(resp.Txs), 4)
 	require.Equal(resp.Txs, reportTxBytes)
+}
+
+// TestAllLaneFilled tests fill all lanes by their limit
+func (s *AppTestSuite) TestAllLaneFilled() {
+	require := s.Require()
+
+	// Generate 4 bank send transactions
+	bankSendTxBytes := bandtesting.GenSequenceOfTxs(
+		s.txConfig.TxEncoder(),
+		s.txConfig,
+		[]sdk.Msg{
+			GenMsgSend(&s.valAccWithNumSeq, &s.reporterAccWithNumSeq, sdk.Coins{sdk.NewInt64Coin("uband", 1)}),
+		},
+		&s.valAccWithNumSeq,
+		sdk.Coins{sdk.NewInt64Coin("uband", 12500)},
+		5000000,
+		1,
+	)
+
+	s.checkTxAcceptance(bankSendTxBytes, "defaultLane")
+
+	// Generate 1 request data transactions
+	requestTxBytes := bandtesting.GenSequenceOfTxs(
+		s.txConfig.TxEncoder(),
+		s.txConfig,
+		[]sdk.Msg{
+			GenMsgRequestData(&s.valAccWithNumSeq),
+		},
+		&s.valAccWithNumSeq,
+		sdk.Coins{
+			sdk.NewInt64Coin("uband", 12500),
+		},
+		2500000,
+		2,
+	)
+
+	// Check that the request data transactions are accepted
+	s.checkTxAcceptance(requestTxBytes, "oracleRequestLane")
+
+	// Generate 4 report data transactions
+	reportTxBytes := bandtesting.GenSequenceOfTxs(
+		s.txConfig.TxEncoder(),
+		s.txConfig,
+		[]sdk.Msg{
+			GenMsgReportData(&s.valAccWithNumSeq),
+		},
+		&s.valAccWithNumSeq,
+		sdk.Coins{},
+		2500000,
+		4,
+	)
+
+	// Check that the report data transactions are accepted
+	s.checkTxAcceptance(reportTxBytes, "oracleReportLane")
+
+	// Generate 4 tss transactions
+	tssTxBytes := bandtesting.GenSequenceOfTxs(
+		s.txConfig.TxEncoder(),
+		s.txConfig,
+		[]sdk.Msg{
+			genMsgSubmitDKGRound1(
+				&s.tssAccountsWithNumSeq[0],
+				s.tssGroupCtx.GroupID,
+				tss.MemberID(1),
+				s.tssGroupCtx.Round1Infos[0],
+			),
+		},
+		&s.tssAccountsWithNumSeq[0],
+		sdk.Coins{},
+		2500000,
+		4,
+	)
+
+	s.checkTxAcceptance(tssTxBytes, "tssLane")
+
+	// Generate 25 feeds transactions
+	feedsTxBytes := bandtesting.GenSequenceOfTxs(
+		s.txConfig.TxEncoder(),
+		s.txConfig,
+		[]sdk.Msg{
+			GenMsgSubmitSignalPrices(
+				&s.valAccWithNumSeq,
+				s.app.FeedsKeeper.GetCurrentFeeds(s.ctx).Feeds,
+				s.ctx.BlockTime().Unix(),
+			),
+		},
+		&s.valAccWithNumSeq,
+		sdk.Coins{},
+		1000000,
+		25,
+	)
+
+	s.checkTxAcceptance(feedsTxBytes, "feedsLane")
+
+	require.Equal(s.app.Mempool().CountTx(), 36)
+	mempool := s.app.Mempool().(*mempool.Mempool)
+	require.Equal(mempool.GetLane("defaultLane").CountTx(), 1)
+	require.Equal(mempool.GetLane("oracleRequestLane").CountTx(), 2)
+	require.Equal(mempool.GetLane("oracleReportLane").CountTx(), 4)
+	require.Equal(mempool.GetLane("tssLane").CountTx(), 4)
+	require.Equal(mempool.GetLane("feedsLane").CountTx(), 25)
+
+	// Prepare proposal
+	prepareReq := &abci.RequestPrepareProposal{
+		MaxTxBytes:      1000000,
+		Height:          s.app.LastBlockHeight() + 1,
+		Time:            s.ctx.BlockTime(),
+		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
+	}
+
+	resp, err := s.app.PrepareProposal(prepareReq)
+	require.NoError(err)
+	require.NotNil(resp)
+	require.Equal(len(resp.Txs), 34)
+	require.Equal(resp.Txs, append(append(append(feedsTxBytes, tssTxBytes...), reportTxBytes...), bankSendTxBytes...)) // every lane except oracleRequestLane
+}
+
+// TestAllLaneFilledExceptOracleReportLane tests fill all lanes by their limit except oracle report lane
+func (s *AppTestSuite) TestAllLaneFilledExceptOracleReportLane() {
+	require := s.Require()
+
+	// Generate 4 bank send transactions
+	bankSendTxBytes := bandtesting.GenSequenceOfTxs(
+		s.txConfig.TxEncoder(),
+		s.txConfig,
+		[]sdk.Msg{
+			GenMsgSend(&s.valAccWithNumSeq, &s.reporterAccWithNumSeq, sdk.Coins{sdk.NewInt64Coin("uband", 1)}),
+		},
+		&s.valAccWithNumSeq,
+		sdk.Coins{sdk.NewInt64Coin("uband", 6250)},
+		2500000,
+		2,
+	)
+
+	s.checkTxAcceptance(bankSendTxBytes, "defaultLane")
+
+	// Generate 1 request data transactions
+	requestTxBytes := bandtesting.GenSequenceOfTxs(
+		s.txConfig.TxEncoder(),
+		s.txConfig,
+		[]sdk.Msg{
+			GenMsgRequestData(&s.valAccWithNumSeq),
+		},
+		&s.valAccWithNumSeq,
+		sdk.Coins{
+			sdk.NewInt64Coin("uband", 6250),
+		},
+		2500000,
+		2,
+	)
+
+	// Check that the request data transactions are accepted
+	s.checkTxAcceptance(requestTxBytes, "oracleRequestLane")
+
+	// Generate 4 report data transactions
+	reportTxBytes := bandtesting.GenSequenceOfTxs(
+		s.txConfig.TxEncoder(),
+		s.txConfig,
+		[]sdk.Msg{
+			GenMsgReportData(&s.valAccWithNumSeq),
+		},
+		&s.valAccWithNumSeq,
+		sdk.Coins{},
+		2500000,
+		3,
+	)
+
+	// Check that the report data transactions are accepted
+	s.checkTxAcceptance(reportTxBytes, "oracleReportLane")
+
+	// Generate 4 tss transactions
+	tssTxBytes := bandtesting.GenSequenceOfTxs(
+		s.txConfig.TxEncoder(),
+		s.txConfig,
+		[]sdk.Msg{
+			genMsgSubmitDKGRound1(
+				&s.tssAccountsWithNumSeq[0],
+				s.tssGroupCtx.GroupID,
+				tss.MemberID(1),
+				s.tssGroupCtx.Round1Infos[0],
+			),
+		},
+		&s.tssAccountsWithNumSeq[0],
+		sdk.Coins{},
+		2500000,
+		4,
+	)
+
+	s.checkTxAcceptance(tssTxBytes, "tssLane")
+
+	// Generate 25 feeds transactions
+	feedsTxBytes := bandtesting.GenSequenceOfTxs(
+		s.txConfig.TxEncoder(),
+		s.txConfig,
+		[]sdk.Msg{
+			GenMsgSubmitSignalPrices(
+				&s.valAccWithNumSeq,
+				s.app.FeedsKeeper.GetCurrentFeeds(s.ctx).Feeds,
+				s.ctx.BlockTime().Unix(),
+			),
+		},
+		&s.valAccWithNumSeq,
+		sdk.Coins{},
+		1000000,
+		25,
+	)
+
+	s.checkTxAcceptance(feedsTxBytes, "feedsLane")
+
+	require.Equal(s.app.Mempool().CountTx(), 36)
+	mempool := s.app.Mempool().(*mempool.Mempool)
+	require.Equal(mempool.GetLane("defaultLane").CountTx(), 2)
+	require.Equal(mempool.GetLane("oracleRequestLane").CountTx(), 2)
+	require.Equal(mempool.GetLane("oracleReportLane").CountTx(), 3)
+	require.Equal(mempool.GetLane("tssLane").CountTx(), 4)
+	require.Equal(mempool.GetLane("feedsLane").CountTx(), 25)
+
+	// Prepare proposal
+	prepareReq := &abci.RequestPrepareProposal{
+		MaxTxBytes:      1000000,
+		Height:          s.app.LastBlockHeight() + 1,
+		Time:            s.ctx.BlockTime(),
+		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
+	}
+
+	resp, err := s.app.PrepareProposal(prepareReq)
+	require.NoError(err)
+	require.NotNil(resp)
+	require.Equal(len(resp.Txs), 35)
+	// Since the OracleReportLane is not filled, the OracleRequestLane is included
+	require.Equal(resp.Txs, append(append(append(append(feedsTxBytes, tssTxBytes...), reportTxBytes...), requestTxBytes...), bankSendTxBytes[0])) // only the first bank send transaction is included
+}
+
+// TestAllLaneFilledExceed tests fill all lanes exceed their limit
+func (s *AppTestSuite) TestAllLaneFilledExceed() {
+	require := s.Require()
+
+	// Generate 4 bank send transactions
+	bankSendTxBytes := bandtesting.GenSequenceOfTxs(
+		s.txConfig.TxEncoder(),
+		s.txConfig,
+		[]sdk.Msg{
+			GenMsgSend(&s.valAccWithNumSeq, &s.reporterAccWithNumSeq, sdk.Coins{sdk.NewInt64Coin("uband", 1)}),
+		},
+		&s.valAccWithNumSeq,
+		sdk.Coins{sdk.NewInt64Coin("uband", 12500)},
+		4999999,
+		2,
+	)
+
+	s.checkTxAcceptance(bankSendTxBytes, "defaultLane")
+
+	// Generate 1 request data transactions
+	requestTxBytes := bandtesting.GenSequenceOfTxs(
+		s.txConfig.TxEncoder(),
+		s.txConfig,
+		[]sdk.Msg{
+			GenMsgRequestData(&s.valAccWithNumSeq),
+		},
+		&s.valAccWithNumSeq,
+		sdk.Coins{
+			sdk.NewInt64Coin("uband", 12500),
+		},
+		4999999,
+		2,
+	)
+
+	// Check that the request data transactions are accepted
+	s.checkTxAcceptance(requestTxBytes, "oracleRequestLane")
+
+	// Generate 4 report data transactions
+	reportTxBytes := bandtesting.GenSequenceOfTxs(
+		s.txConfig.TxEncoder(),
+		s.txConfig,
+		[]sdk.Msg{
+			GenMsgReportData(&s.valAccWithNumSeq),
+		},
+		&s.valAccWithNumSeq,
+		sdk.Coins{},
+		2499999,
+		5,
+	)
+
+	// Check that the report data transactions are accepted
+	s.checkTxAcceptance(reportTxBytes, "oracleReportLane")
+
+	// Generate 4 tss transactions
+	tssTxBytes := bandtesting.GenSequenceOfTxs(
+		s.txConfig.TxEncoder(),
+		s.txConfig,
+		[]sdk.Msg{
+			genMsgSubmitDKGRound1(
+				&s.tssAccountsWithNumSeq[0],
+				s.tssGroupCtx.GroupID,
+				tss.MemberID(1),
+				s.tssGroupCtx.Round1Infos[0],
+			),
+		},
+		&s.tssAccountsWithNumSeq[0],
+		sdk.Coins{},
+		2499999,
+		5,
+	)
+
+	s.checkTxAcceptance(tssTxBytes, "tssLane")
+
+	// Generate 25 feeds transactions
+	feedsTxBytes := bandtesting.GenSequenceOfTxs(
+		s.txConfig.TxEncoder(),
+		s.txConfig,
+		[]sdk.Msg{
+			GenMsgSubmitSignalPrices(
+				&s.valAccWithNumSeq,
+				s.app.FeedsKeeper.GetCurrentFeeds(s.ctx).Feeds,
+				s.ctx.BlockTime().Unix(),
+			),
+		},
+		&s.valAccWithNumSeq,
+		sdk.Coins{},
+		999999,
+		26,
+	)
+
+	s.checkTxAcceptance(feedsTxBytes, "feedsLane")
+
+	require.Equal(s.app.Mempool().CountTx(), 40)
+	mempool := s.app.Mempool().(*mempool.Mempool)
+	require.Equal(mempool.GetLane("defaultLane").CountTx(), 2)
+	require.Equal(mempool.GetLane("oracleRequestLane").CountTx(), 2)
+	require.Equal(mempool.GetLane("oracleReportLane").CountTx(), 5)
+	require.Equal(mempool.GetLane("tssLane").CountTx(), 5)
+	require.Equal(mempool.GetLane("feedsLane").CountTx(), 26)
+
+	// Prepare proposal
+	prepareReq := &abci.RequestPrepareProposal{
+		MaxTxBytes:      1000000,
+		Height:          s.app.LastBlockHeight() + 1,
+		Time:            s.ctx.BlockTime(),
+		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
+	}
+
+	resp, err := s.app.PrepareProposal(prepareReq)
+	require.NoError(err)
+	require.NotNil(resp)
+	require.Equal(len(resp.Txs), 35)
+	require.Equal(resp.Txs, append(append(feedsTxBytes, tssTxBytes...), reportTxBytes[0:4]...)) // every lane except oracleRequestLane
+}
+
+// TestFillRemainingProposal tests fill the remaining proposal
+func (s *AppTestSuite) TestFillRemainingProposal() {
+	require := s.Require()
+
+	// Generate 2 bank send transactions
+	bankSendTxBytes := bandtesting.GenSequenceOfTxs(
+		s.txConfig.TxEncoder(),
+		s.txConfig,
+		[]sdk.Msg{
+			GenMsgSend(&s.valAccWithNumSeq, &s.reporterAccWithNumSeq, sdk.Coins{sdk.NewInt64Coin("uband", 1)}),
+		},
+		&s.valAccWithNumSeq,
+		sdk.Coins{sdk.NewInt64Coin("uband", 12500)},
+		5000000,
+		3,
+	)
+
+	s.checkTxAcceptance(bankSendTxBytes, "defaultLane")
+
+	// Generate 40 feeds transactions
+	feedsTxBytes := bandtesting.GenSequenceOfTxs(
+		s.txConfig.TxEncoder(),
+		s.txConfig,
+		[]sdk.Msg{
+			GenMsgSubmitSignalPrices(
+				&s.valAccWithNumSeq,
+				s.app.FeedsKeeper.GetCurrentFeeds(s.ctx).Feeds,
+				s.ctx.BlockTime().Unix(),
+			),
+		},
+		&s.valAccWithNumSeq,
+		sdk.Coins{},
+		1000000,
+		40,
+	)
+
+	s.checkTxAcceptance(feedsTxBytes, "feedsLane")
+
+	require.Equal(s.app.Mempool().CountTx(), 43)
+	mempool := s.app.Mempool().(*mempool.Mempool)
+	require.Equal(mempool.GetLane("defaultLane").CountTx(), 3)
+	require.Equal(mempool.GetLane("feedsLane").CountTx(), 40)
+
+	// Prepare proposal
+	prepareReq := &abci.RequestPrepareProposal{
+		MaxTxBytes:      1000000,
+		Height:          s.app.LastBlockHeight() + 1,
+		Time:            s.ctx.BlockTime(),
+		ProposerAddress: bandtesting.Validators[0].Address.Bytes(),
+	}
+
+	resp, err := s.app.PrepareProposal(prepareReq)
+	require.NoError(err)
+	require.NotNil(resp)
+	require.Equal(len(resp.Txs), 42)
+
+	var expectedTxBytes [][]byte
+	expectedTxBytes = append(append(append(append(expectedTxBytes, feedsTxBytes[:25]...), bankSendTxBytes[0]), feedsTxBytes[25:]...), bankSendTxBytes[1])
+
+	require.Equal(resp.Txs, expectedTxBytes)
+}
+
+// checkTxAcceptance checks that the transaction is accepted
+func (s *AppTestSuite) checkTxAcceptance(txBytes [][]byte, laneName string) {
+	require := s.Require()
+
+	mempoolCountBefore := s.app.Mempool().CountTx()
+	mempool := s.app.Mempool().(*mempool.Mempool)
+	laneCountBefore := mempool.GetLane(laneName).CountTx()
+
+	for _, txBytes := range txBytes {
+		checkTxReq := &abci.RequestCheckTx{Tx: txBytes, Type: abci.CheckTxType_New}
+		res, err := s.app.CheckTx(checkTxReq)
+		require.NoError(err)
+		require.NotNil(res)
+		require.Equal(res.Code, uint32(0))
+	}
+
+	require.Equal(mempoolCountBefore+len(txBytes), mempool.CountTx())
+	require.Equal(laneCountBefore+len(txBytes), mempool.GetLane(laneName).CountTx())
+}
+
+// GenMsgSend creates a message for sending coins
+func GenMsgSend(sender *bandtesting.AccountWithNumSeq, recipient *bandtesting.AccountWithNumSeq, amount sdk.Coins) sdk.Msg {
+	return banktypes.NewMsgSend(sender.Address, recipient.Address, amount)
 }
