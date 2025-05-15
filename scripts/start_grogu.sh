@@ -42,7 +42,7 @@ grogu config gas-adjust-step 0.1
 grogu config distribution-start-pct 50
 
 # setup distribution-offset-pct
-grogu config distribution-offset-pct 30
+grogu config distribution-offset-pct 25
 
 # setup metrics listen address to grogu config
 grogu config metrics-listen-addr "$GROGU_METRICS_LISTEN_ADDR"
