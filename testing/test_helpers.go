@@ -351,6 +351,10 @@ func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainID string) *band.Ba
 	return app
 }
 
+func SetCustomUpgrades(upgrades []upgrades.Upgrade) {
+	band.Upgrades = upgrades
+}
+
 func CreateTestingAppFn(t testing.TB) func() (ibctesting.TestingApp, map[string]json.RawMessage) {
 	return func() (ibctesting.TestingApp, map[string]json.RawMessage) {
 		dir := testutil.GetTempDir(t)
@@ -368,8 +372,4 @@ func CreateTestingAppFn(t testing.TB) func() (ibctesting.TestingApp, map[string]
 		g := GenesisStateWithValSet(app, dir)
 		return app, g
 	}
-}
-
-func SetCustomUpgrades(upgrades []upgrades.Upgrade) {
-	band.Upgrades = upgrades
 }
