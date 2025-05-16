@@ -99,7 +99,7 @@ func (bs BlockSpace) Scale(dec sdkmath.LegacyDec) (BlockSpace, error) {
 	gas := dec.MulInt(sdkmath.NewIntFromUint64(bs.gas)).TruncateInt()
 
 	if !txBytes.IsUint64() || !gas.IsUint64() {
-		return BlockSpace{}, fmt.Errorf("overflow")
+		return BlockSpace{}, fmt.Errorf("block space scaling overflow: block_space %s, dec %s", bs, dec)
 	}
 
 	return BlockSpace{
