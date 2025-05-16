@@ -21,7 +21,7 @@ type Lane struct {
 	logger    log.Logger
 	txEncoder sdk.TxEncoder
 	name      string
-	matchFn   func(ctx sdk.Context, tx sdk.Tx) bool
+	txMatchFn func(ctx sdk.Context, tx sdk.Tx) bool
 
 	maxTransactionBlockRatio math.LegacyDec
 	maxLaneBlockRatio        math.LegacyDec
@@ -49,7 +49,7 @@ func NewLane(
 	logger log.Logger,
 	txEncoder sdk.TxEncoder,
 	name string,
-	matchFn TxMatchFn,
+	txMatchFn TxMatchFn,
 	maxTransactionBlockRatio math.LegacyDec,
 	maxLaneBlockRatio math.LegacyDec,
 	mempool sdkmempool.Mempool,
@@ -59,7 +59,7 @@ func NewLane(
 		logger:                    logger,
 		txEncoder:                 txEncoder,
 		name:                      name,
-		matchFn:                   matchFn,
+		txMatchFn:                 txMatchFn,
 		maxTransactionBlockRatio:  maxTransactionBlockRatio,
 		maxLaneBlockRatio:         maxLaneBlockRatio,
 		mempool:                   mempool,
@@ -81,10 +81,14 @@ func (l *Lane) Insert(ctx context.Context, tx sdk.Tx) error {
 
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	consensusParams := sdkCtx.ConsensusParams()
-	transactionLimit := NewBlockSpace(
+
+	transactionLimit, err := NewBlockSpace(
 		uint64(consensusParams.Block.MaxBytes),
 		uint64(consensusParams.Block.MaxGas),
 	).Scale(l.maxTransactionBlockRatio)
+	if err != nil {
+		return err
+	}
 
 	if transactionLimit.IsExceededBy(txInfo.BlockSpace) {
 		return fmt.Errorf(
@@ -146,7 +150,7 @@ func (l *Lane) Contains(tx sdk.Tx) bool {
 
 // Match returns true if the transaction belongs to the lane.
 func (l *Lane) Match(ctx sdk.Context, tx sdk.Tx) bool {
-	return l.matchFn(ctx, tx)
+	return l.txMatchFn(ctx, tx)
 }
 
 // FillProposal fills the proposal with transactions from the lane mempool with its own limit.
@@ -163,7 +167,11 @@ func (l *Lane) FillProposal(
 	}
 
 	// Get the lane limit for the lane.
-	laneLimit := proposal.maxBlockSpace.Scale(l.maxLaneBlockRatio)
+	laneLimit, err := proposal.maxBlockSpace.Scale(l.maxLaneBlockRatio)
+	if err != nil {
+		l.logger.Error("failed to scale lane limit with err:", err)
+		return
+	}
 
 	// Select all transactions in the mempool that are valid and not already in the
 	// partial proposal.
@@ -179,7 +187,7 @@ func (l *Lane) FillProposal(
 		if err != nil {
 			// If the transaction is not valid, we skip it.
 			// This should never happen, but we log it for debugging purposes.
-			l.logger.Error("failed to get tx info", "err", err)
+			l.logger.Error("failed to get tx info with err:", err)
 			continue
 		}
 
@@ -231,7 +239,7 @@ func (l *Lane) FillProposalByIterator(
 		if err != nil {
 			// If the transaction is not valid, we skip it.
 			// This should never happen, but we log it for debugging purposes.
-			l.logger.Error("failed to get tx info", "err", err)
+			l.logger.Error("failed to get tx info with err:", err)
 			continue
 		}
 

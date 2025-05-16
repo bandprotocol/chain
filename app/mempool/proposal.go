@@ -2,13 +2,8 @@ package mempool
 
 import (
 	"fmt"
-	"math"
-
-	comettypes "github.com/cometbft/cometbft/types"
 
 	"cosmossdk.io/log"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // Proposal represents a block proposal under construction.
@@ -21,18 +16,18 @@ type Proposal struct {
 	seen map[string]struct{}
 	// maxBlockSpace is the maximum block space available for this proposal.
 	maxBlockSpace BlockSpace
-	// totalBlockSpace is the total block space used by the proposal.
-	totalBlockSpace BlockSpace
+	// totalBlockSpaceUsed is the total block space used by the proposal.
+	totalBlockSpaceUsed BlockSpace
 }
 
 // NewProposal returns a new empty proposal constrained by max block size and max gas limit.
 func NewProposal(logger log.Logger, maxBlockSize uint64, maxGasLimit uint64) Proposal {
 	return Proposal{
-		logger:          logger,
-		txs:             make([][]byte, 0),
-		seen:            make(map[string]struct{}),
-		maxBlockSpace:   NewBlockSpace(maxBlockSize, maxGasLimit),
-		totalBlockSpace: NewBlockSpace(0, 0),
+		logger:              logger,
+		txs:                 make([][]byte, 0),
+		seen:                make(map[string]struct{}),
+		maxBlockSpace:       NewBlockSpace(maxBlockSize, maxGasLimit),
+		totalBlockSpaceUsed: NewBlockSpace(0, 0),
 	}
 }
 
@@ -48,13 +43,13 @@ func (p *Proposal) Add(txInfo TxWithInfo) error {
 		return fmt.Errorf("transaction already in proposal: %s", txInfo.Hash)
 	}
 
-	currentBlockSpace := p.totalBlockSpace.Add(txInfo.BlockSpace)
+	currentBlockSpaceUsed := p.totalBlockSpaceUsed.Add(txInfo.BlockSpace)
 
 	// Check block size limit
-	if p.maxBlockSpace.IsExceededBy(currentBlockSpace) {
+	if p.maxBlockSpace.IsExceededBy(currentBlockSpaceUsed) {
 		return fmt.Errorf(
 			"transaction space exceeds max block space: %s > %s",
-			currentBlockSpace.String(), p.maxBlockSpace.String(),
+			currentBlockSpaceUsed.String(), p.maxBlockSpace.String(),
 		)
 	}
 
@@ -62,28 +57,12 @@ func (p *Proposal) Add(txInfo TxWithInfo) error {
 	p.txs = append(p.txs, txInfo.TxBytes)
 	p.seen[txInfo.Hash] = struct{}{}
 
-	p.totalBlockSpace = currentBlockSpace
+	p.totalBlockSpaceUsed = currentBlockSpaceUsed
 
 	return nil
 }
 
-// GetBlockLimits retrieves the maximum block size and gas limit from context.
-func GetBlockLimits(ctx sdk.Context) (uint64, uint64) {
-	blockParams := ctx.ConsensusParams().Block
-
-	var maxBytesLimit uint64
-	if blockParams.MaxBytes == -1 {
-		maxBytesLimit = uint64(comettypes.MaxBlockSizeBytes)
-	} else {
-		maxBytesLimit = uint64(blockParams.MaxBytes)
-	}
-
-	var maxGasLimit uint64
-	if blockParams.MaxGas == -1 {
-		maxGasLimit = math.MaxUint64
-	} else {
-		maxGasLimit = uint64(blockParams.MaxGas)
-	}
-
-	return maxBytesLimit, maxGasLimit
+// GetRemainingBlockSpace returns the remaining block space available for the proposal.
+func (p *Proposal) GetRemainingBlockSpace() BlockSpace {
+	return p.maxBlockSpace.Sub(p.totalBlockSpaceUsed)
 }

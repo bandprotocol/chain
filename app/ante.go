@@ -81,14 +81,8 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 
 	if options.TxFeeChecker == nil {
 		feeChecker := feechecker.NewFeeChecker(
-			options.Cdc,
-			options.AuthzKeeper,
-			options.OracleKeeper,
 			options.GlobalfeeKeeper,
 			options.StakingKeeper,
-			options.TSSKeeper,
-			options.BandtssKeeper,
-			options.FeedsKeeper,
 		)
 		options.TxFeeChecker = feeChecker.CheckTxFee
 	}
@@ -144,8 +138,8 @@ func NewIgnoreDecorator(decorator sdk.AnteDecorator, matchFns ...mempool.TxMatch
 func (ig IgnoreDecorator) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
 ) (sdk.Context, error) {
-	// IgnoreDecorator is only used for check tx.
-	if !ctx.IsCheckTx() {
+	// IgnoreDecorator is only used for check tx and re-check tx.
+	if !ctx.IsCheckTx() && !ctx.IsReCheckTx() {
 		return ig.decorator.AnteHandle(ctx, tx, simulate, next)
 	}
 

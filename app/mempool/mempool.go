@@ -96,14 +96,11 @@ func (m *Mempool) Remove(tx sdk.Tx) (err error) {
 func (m *Mempool) PrepareProposal(ctx sdk.Context, proposal Proposal) (Proposal, error) {
 	cacheCtx, _ := ctx.CacheContext()
 
-	// 1) Perform the initial fill of proposals
-	laneIterators, blockUsed := m.fillInitialProposals(cacheCtx, &proposal)
+	// Perform the initial fill of proposals
+	laneIterators, _ := m.fillInitialProposals(cacheCtx, &proposal)
 
-	// 2) Calculate the remaining block space
-	remainderLimit := proposal.maxBlockSpace.Sub(blockUsed)
-
-	// 3) Fill proposals with leftover space
-	m.fillRemainderProposals(&proposal, laneIterators, remainderLimit)
+	// Fill proposals with leftover space
+	m.fillRemainderProposals(&proposal, laneIterators)
 
 	return proposal, nil
 }
@@ -138,17 +135,13 @@ func (m *Mempool) fillInitialProposals(
 func (m *Mempool) fillRemainderProposals(
 	proposal *Proposal,
 	laneIterators []sdkmempool.Iterator,
-	remainderLimit BlockSpace,
 ) {
 	for i, lane := range m.lanes {
-		blockUsed := lane.FillProposalByIterator(
+		lane.FillProposalByIterator(
 			proposal,
 			laneIterators[i],
-			remainderLimit,
+			proposal.GetRemainingBlockSpace(),
 		)
-
-		// Decrement the remainder for subsequent lanes
-		remainderLimit = remainderLimit.Sub(blockUsed)
 	}
 }
 
@@ -168,4 +161,15 @@ func (m *Mempool) Contains(tx sdk.Tx) (contains bool) {
 	}
 
 	return false
+}
+
+// GetLane returns the lane with the given name.
+func (m *Mempool) GetLane(name string) *Lane {
+	for _, lane := range m.lanes {
+		if lane.name == name {
+			return lane
+		}
+	}
+
+	return nil
 }
