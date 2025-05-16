@@ -33,7 +33,6 @@ A lane is created with specific matching criteria and space allocation. Here's a
 bankSendLane := NewLane(
     logger,
     txEncoder,
-    signerExtractor,
     "bankSend",                    // Lane name
     isBankSendTx,                  // Matching function
     math.LegacyMustNewDecFromStr("0.2"),  // Max transaction space ratio
@@ -60,20 +59,19 @@ func isBankSendTx(_ sdk.Context, tx sdk.Tx) bool {
 Key parameters for lane creation:
 - `logger`: Logger instance for lane operations
 - `txEncoder`: Function to encode transactions
-- `signerExtractor`: Adapter to extract signer information
 - `name`: Unique identifier for the lane
 - `matchFn`: Function to determine if a transaction belongs in this lane
-- `maxTransactionSpace`: Maximum space ratio for individual transactions (relative to total block space) more details on [Space management](#space-management) 
-- `maxLaneSpace`: Maximum space ratio for the entire lane (relative to total block space) more details on [Space management](#space-management)
-- `laneMempool`: Underlying Cosmos SDK mempool implementation that handles transaction storage and ordering within the lane. This determines how transactions are stored and selected within the lane
-- `handleLaneLimitCheck`: Optional callback function that is called when the lane exceeds its space limit. This can be used to implement inter-lane dependencies, such as blocking other lanes when a lane exceeds its limit.
+- `maxTransactionBlockRatio`: Maximum space ratio for individual transactions relative to total block space more details on [Space management](#space-management) 
+- `maxLaneBlockRatio`: Maximum space ratio for the entire lane relative to total block space more details on [Space management](#space-management)
+- `mempool`: Underlying Cosmos SDK mempool implementation that handles transaction storage and ordering within the lane. This determines how transactions are stored and selected within the lane
+- `callbackAfterFillProposal`: Optional callback function that is called when the lane fills its space limit. This can be used to implement inter-lane dependencies, such as blocking other lanes when a lane fills its limit.
 
 #### Inter-Lane Dependencies
 
-Lanes can be configured to interact with each other through the `handleLaneLimitCheck` callback. This is useful for implementing priority systems or dependencies between different types of transactions. For example, you might want to block certain lanes when a high-priority lane exceeds its limit:
+Lanes can be configured to interact with each other through the `callbackAfterFillProposal` callback. This is useful for implementing priority systems or dependencies between different types of transactions. For example, you might want to block certain lanes when a high-priority lane fills its limit:
 
 ```go
-// Create a dependent lane that will be blocked when the dependency lane exceeds its limit
+// Create a dependent lane that will be blocked when the dependency lane fills its limit
 dependentLane := NewLane(
     logger,
     txEncoder,
@@ -102,7 +100,7 @@ dependencyLane := NewLane(
 )
 ```
 
-In this example, when the dependency lane exceeds its space limit, it will block the dependent lane from processing transactions. This mechanism allows for sophisticated transaction prioritization and coordination between different types of transactions.
+In this example, when the dependency lane fills its space limit, it will block the dependent lane from processing transactions. This mechanism allows for sophisticated transaction prioritization and coordination between different types of transactions.
 
 ### Creating a Mempool
 
@@ -129,21 +127,20 @@ Key parameters for mempool creation:
 ### Space Management
 
 #### Space Allocation
-Both `maxTransactionSpace` and `maxLaneSpace` are expressed as ratios of the total block space and are used specifically during proposal preparation. For example, a `maxTransactionSpace` of 0.2 means a single transaction can use up to 20% of the total block space in a proposal, while a `maxLaneSpace` of 0.3 means the entire lane can use up to 30% of the total block space in a proposal. These ratios are used to ensure fair distribution of block space among different transaction types during proposal construction.
+Both `maxTransactionBlockRatio` and `maxLaneBlockRatio` are expressed as ratios of the total block space and are used specifically during proposal preparation. For example, a `maxTransactionBlockRatio` of 0.2 means a single transaction can use up to 20% of the total block space in a proposal, while a `maxLaneBlockRatio` of 0.3 means the entire lane can use up to 30% of the total block space in a proposal. These ratios are used to ensure fair distribution of block space among different transaction types during proposal construction.
 
 #### Space Cap Behavior
-- **Transaction Space Cap (Hard Cap)**: The `maxTransactionSpace` ratio enforces a strict limit on individual transaction sizes of each lane. For example, with a `maxTransactionSpace` of 0.2, a transaction requiring more than 20% of the total block space will be deleted from the lane.
-- **Lane Space Cap (Soft Cap)**: The `maxLaneSpace` ratio serves as a guideline for space allocation during the first round of proposal construction. If a lane's `maxLaneSpace` is 0.3, it can still include one last transaction that would cause it to exceed this limit in the proposal, provided each individual transaction respects the `maxTransactionSpace` limit. For instance, a lane with a 0.3 `maxLaneSpace` could include two transactions each using 20% of the block space (totaling 40%) in the proposal, as long as both transactions individually respect the `maxTransactionSpace` limit.
+- **Transaction Space Cap (Hard Cap)**: The `maxTransactionBlockRatio` ratio enforces a strict limit on individual transaction sizes of each lane. For example, with a `maxTransactionBlockRatio` of 0.2, a transaction requiring more than 20% of the total block space will not be accepted.
+- **Lane Space Cap (Soft Cap)**: The `maxLaneBlockRatio` ratio serves as a guideline for space allocation during the first round of proposal construction. If a lane's `maxLaneBlockRatio` is 0.3, it can still include one last transaction that would cause it to exceed this limit in the proposal, provided each individual transaction respects the `maxTransactionBlockRatio` limit. For instance, a lane with a 0.3 `maxLaneBlockRatio` could include two transactions each using 20% of the block space (totaling 40%) in the proposal, as long as both transactions individually respect the `maxTransactionBlockRatio` limit.
 
 #### Proposal Preparation
-The lane space cap (`maxLaneSpace`) is only enforced during the first round of proposal preparation. In subsequent rounds, when filling the remaining block space, the lane cap is not considered, allowing lanes to potentially use more space than their initial allocation if space is available. This two-phase approach ensures both fair initial distribution and efficient use of remaining block space.
+The lane space cap (`maxLaneBlockRatio`) is only enforced during the first round of proposal preparation. In subsequent rounds, when filling the remaining block space, the lane cap is not considered, allowing lanes to potentially use more space than their initial allocation if space is available. This two-phase approach ensures both fair initial distribution and efficient use of remaining block space.
 
 ### Block Proposal Preparation
 
 The mempool provides functionality to prepare block proposals by:
-1. Filling proposals with transactions from each lane with `maxLaneSpace`
-2. Filling remaining proposal space with transactions from each lane in the same order without `maxLaneSpace`
-3. Handling transaction removal of the transactions that violate the `maxTransactionSpace` from all lanes
+1. Filling proposals with transactions from each lane with `maxLaneBlockRatio`
+2. Filling remaining proposal space with transactions from each lane in the same order without `maxLaneBlockRatio`
 
 ## Best Practices
 
