@@ -213,7 +213,7 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 func GetExecutable(c *Context, l *Logger, hash string) ([]byte, error) {
 	resValue, err := c.fileCache.GetFile(hash)
 	if err != nil {
-		l.Debug(":magnifying_glass_tilted_left: Fetching data source hash: %s from bandchain querier", hash)
+		l.Debug(":magnifying_glass_tilted_left: Fetching data source hash: %s from BandChain querier", hash)
 		bz := c.encodingConfig.Codec.MustMarshal(&types.QueryDataRequest{
 			DataHash: hash,
 		})

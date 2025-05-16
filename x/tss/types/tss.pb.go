@@ -1316,7 +1316,7 @@ func (m *PendingProcessGroups) GetGroupIDs() []github_com_bandprotocol_chain_v3_
 	return nil
 }
 
-// PendingProcessSignigns is a list of signings that are waiting to be processed.
+// PendingProcessSignings is a list of signings that are waiting to be processed.
 type PendingProcessSignings struct {
 	// signing_ids is a list of signing IDs.
 	SigningIDs []github_com_bandprotocol_chain_v3_pkg_tss.SigningID `protobuf:"varint,1,rep,packed,name=signing_ids,json=signingIds,proto3,casttype=github.com/bandprotocol/chain/v3/pkg/tss.SigningID" json:"signing_ids,omitempty"`

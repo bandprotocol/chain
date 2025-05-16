@@ -152,7 +152,7 @@ func (suite *KeeperTestSuite) TestSetterGetterRequest() {
 	require.Equal(req2, k.MustGetRequest(ctx, 42))
 }
 
-func (suite *KeeperTestSuite) TestSetterGettterPendingResolveList() {
+func (suite *KeeperTestSuite) TestSetterGetterPendingResolveList() {
 	ctx := suite.ctx
 	k := suite.oracleKeeper
 	require := suite.Require()

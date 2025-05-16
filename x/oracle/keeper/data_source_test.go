@@ -52,7 +52,7 @@ func (suite *KeeperTestSuite) TestSetterGetterDataSource() {
 		bandtesting.EmptyCoins,
 		treasury,
 	)
-	// Sets id 42 with data soure 1 and id 42 with data source 2.
+	// Sets id 42 with data source 1 and id 42 with data source 2.
 	k.SetDataSource(ctx, 42, dataSource1)
 	k.SetDataSource(ctx, 43, dataSource2)
 	// Checks that Get and MustGet perform correctly.
