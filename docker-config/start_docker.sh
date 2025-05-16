@@ -175,7 +175,7 @@ do
     cylinder config node tcp://multi-validator$v-node:26657
     cylinder config chain-id bandchain
     cylinder config granter $(bandd keys show account$v -a --keyring-backend test)
-    cylinder config max-messages 20
+    cylinder config max-messages 10
     cylinder config broadcast-timeout "5m"
     cylinder config rpc-poll-interval "1s"
     cylinder config max-try 5
