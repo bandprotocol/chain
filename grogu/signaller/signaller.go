@@ -15,8 +15,8 @@ import (
 )
 
 const (
-	FixedIntervalOffset int64 = 10
-	TimeBuffer          int64 = 3
+	// FixedIntervalOffset is the offset to be added to the interval to get the deadline
+	FixedIntervalOffset int64 = 15
 )
 
 type Signaller struct {
@@ -36,7 +36,7 @@ type Signaller struct {
 	signalIDToFeed           map[string]types.FeedWithDeviation
 	signalIDToValidatorPrice map[string]types.ValidatorPrice
 	params                   *types.Params
-	blockTime                int64
+	currentBlockTime         time.Time
 }
 
 func New(
@@ -96,31 +96,34 @@ func (s *Signaller) Start() {
 }
 
 func (s *Signaller) updateInternalVariables() bool {
-	resultCh := make(chan bool, 4)
-	var wg sync.WaitGroup
-
-	updater := func(f func() bool) {
-		defer wg.Done()
-		resultCh <- f()
+	updaters := []func() bool{
+		s.updateParams,
+		s.updateFeedMap,
+		s.updateValidatorPriceMap,
+		s.updateBlockTime,
 	}
 
-	wg.Add(4)
-	go updater(s.updateParams)
-	go updater(s.updateFeedMap)
-	go updater(s.updateValidatorPriceMap)
-	go updater(s.updateBlockTime)
+	resultCh := make(chan bool, len(updaters))
+	var wg sync.WaitGroup
+
+	for _, updater := range updaters {
+		wg.Add(1)
+		go func(f func() bool) {
+			defer wg.Done()
+			resultCh <- f()
+		}(updater)
+	}
+
 	wg.Wait()
 	close(resultCh)
 
-	success := true
 	for result := range resultCh {
 		if !result {
-			success = false
-			break
+			return false
 		}
 	}
 
-	return success
+	return true
 }
 
 func (s *Signaller) updateParams() bool {
@@ -169,14 +172,12 @@ func (s *Signaller) updateBlockTime() bool {
 		return false
 	}
 
-	s.blockTime = resp.SdkBlock.Header.Time.Unix()
+	s.currentBlockTime = resp.SdkBlock.Header.Time
 
 	return true
 }
 
 func (s *Signaller) execute() {
-	latestBlockTime := time.Unix(s.blockTime, 0)
-
 	telemetry.IncrementProcessingSignal()
 	s.logger.Debug("[Signaller] starting signal process")
 
@@ -205,7 +206,7 @@ func (s *Signaller) execute() {
 
 	s.logger.Debug("[Signaller] filtering prices")
 
-	signalPrices := s.filterAndPrepareSignalPrices(prices, nonPendingSignalIDs, latestBlockTime)
+	signalPrices := s.filterAndPrepareSignalPrices(prices, nonPendingSignalIDs)
 	telemetry.SetFilteredSignalIDs(len(signalPrices))
 	if len(signalPrices) == 0 {
 		telemetry.IncrementProcessSignalSkipped()
@@ -260,7 +261,6 @@ func (s *Signaller) getNonPendingSignalIDs() []string {
 func (s *Signaller) filterAndPrepareSignalPrices(
 	prices []*bothan.Price,
 	signalIDs []string,
-	currentTime time.Time,
 ) []types.SignalPrice {
 	pricesMap := sliceToMap(prices, func(price *bothan.Price) string {
 		return price.SignalId
@@ -286,11 +286,11 @@ func (s *Signaller) filterAndPrepareSignalPrices(
 			continue
 		}
 
-		if !s.isPriceValid(signalPrice, currentTime) {
+		if !s.isPriceValid(signalPrice) {
 			continue
 		}
 
-		if s.isNonUrgentUnavailablePrices(signalPrice, currentTime.Unix()) {
+		if s.isNonUrgentUnavailablePrices(signalPrice) {
 			nonUrgentUnavailablePriceCnt++
 			s.logger.Debug("[Signaller] non-urgent unavailable price: %v", signalPrice)
 			continue
@@ -308,12 +308,11 @@ func (s *Signaller) filterAndPrepareSignalPrices(
 
 func (s *Signaller) isNonUrgentUnavailablePrices(
 	signalPrice types.SignalPrice,
-	now int64,
 ) bool {
 	switch signalPrice.Status {
 	case types.SIGNAL_PRICE_STATUS_UNAVAILABLE:
 		deadline := s.signalIDToValidatorPrice[signalPrice.SignalID].Timestamp + s.signalIDToFeed[signalPrice.SignalID].Interval
-		if now > deadline-FixedIntervalOffset {
+		if s.currentBlockTime.Unix() >= deadline-FixedIntervalOffset {
 			return false
 		}
 		return true
@@ -324,7 +323,6 @@ func (s *Signaller) isNonUrgentUnavailablePrices(
 
 func (s *Signaller) isPriceValid(
 	newPrice types.SignalPrice,
-	now time.Time,
 ) bool {
 	// Check if the price is supported and required to be submitted
 	feed, ok := s.signalIDToFeed[newPrice.SignalID]
@@ -339,20 +337,18 @@ func (s *Signaller) isPriceValid(
 	}
 
 	// If the last price exists, check if the price can be updated
-	return s.shouldUpdatePrice(feed, oldPrice, newPrice, now)
+	return s.shouldUpdatePrice(feed, oldPrice, newPrice)
 }
 
 func (s *Signaller) shouldUpdatePrice(
 	feed types.FeedWithDeviation,
 	oldPrice types.ValidatorPrice,
 	newPrice types.SignalPrice,
-	now time.Time,
 ) bool {
 	// thresholdTime is the time when the price can be updated.
-	// add TimeBuffer to make sure the thresholdTime is not too early.
-	thresholdTime := time.Unix(oldPrice.Timestamp+s.params.CooldownTime+TimeBuffer, 0)
+	thresholdTime := oldPrice.Timestamp + s.params.CooldownTime
 
-	if now.Before(thresholdTime) {
+	if s.currentBlockTime.Unix() < thresholdTime {
 		return false
 	}
 
@@ -361,11 +357,11 @@ func (s *Signaller) shouldUpdatePrice(
 		s.valAddress,
 		feed.Interval,
 		oldPrice.Timestamp,
-		s.distributionOffsetPercentage,
 		s.distributionStartPercentage,
+		s.distributionOffsetPercentage,
 	)
 
-	if !now.Before(assignedTime) {
+	if !s.currentBlockTime.Before(assignedTime) {
 		return true
 	}
 

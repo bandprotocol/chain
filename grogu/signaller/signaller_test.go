@@ -136,8 +136,8 @@ func (s *SignallerTestSuite) SetupTest() {
 		s.Signaller.valAddress,
 		60,
 		0,
-		s.Signaller.distributionOffsetPercentage,
 		s.Signaller.distributionStartPercentage,
+		s.Signaller.distributionOffsetPercentage,
 	)
 }
 
@@ -163,15 +163,15 @@ func (s *SignallerTestSuite) TestFilterAndPrepareSignalPrices() {
 
 	signalIDs := []string{"signal1"}
 	// Test with time in the middle of the interval
-	middleIntervalTime := time.Unix(30, 0)
+	s.Signaller.currentBlockTime = time.Unix(60/2, 0)
 
-	submitPrices := s.Signaller.filterAndPrepareSignalPrices(prices, signalIDs, middleIntervalTime)
+	submitPrices := s.Signaller.filterAndPrepareSignalPrices(prices, signalIDs)
 	s.Require().Empty(submitPrices)
 
 	// Test with time at the end of the interval
-	endIntervalTime := time.Unix(60, 0)
+	s.Signaller.currentBlockTime = time.Unix(60, 0)
 
-	submitPrices = s.Signaller.filterAndPrepareSignalPrices(prices, signalIDs, endIntervalTime)
+	submitPrices = s.Signaller.filterAndPrepareSignalPrices(prices, signalIDs)
 	s.Require().NotEmpty(submitPrices)
 	s.Require().Equal("signal1", submitPrices[0].SignalID)
 	s.Require().Equal(uint64(10000), submitPrices[0].Price)
@@ -186,15 +186,15 @@ func (s *SignallerTestSuite) TestFilterAndPrepareSignalPrices() {
 	}
 
 	// Test with time after the urgent deadline
-	afterUrgentDeadlineTime := time.Unix(51, 0)
-	submitPrices = s.Signaller.filterAndPrepareSignalPrices(prices, signalIDs, afterUrgentDeadlineTime)
+	s.Signaller.currentBlockTime = time.Unix(60-FixedIntervalOffset+1, 0)
+	submitPrices = s.Signaller.filterAndPrepareSignalPrices(prices, signalIDs)
 	s.Require().NotEmpty(submitPrices)
 	s.Require().Equal("signal1", submitPrices[0].SignalID)
 	s.Require().Equal(uint64(0), submitPrices[0].Price)
 
 	// Test with time before the urgent deadline
-	beforeUrgentDeadlineTime := time.Unix(49, 0)
-	submitPrices = s.Signaller.filterAndPrepareSignalPrices(prices, signalIDs, beforeUrgentDeadlineTime)
+	s.Signaller.currentBlockTime = time.Unix(60-FixedIntervalOffset-1, 0)
+	submitPrices = s.Signaller.filterAndPrepareSignalPrices(prices, signalIDs)
 	s.Require().Empty(submitPrices)
 }
 
@@ -265,11 +265,13 @@ func (s *SignallerTestSuite) TestIsPriceValid() {
 
 	// Test with price is not required to be submitted
 	priceData.SignalID = "signal3"
-	s.Require().False(s.Signaller.isPriceValid(priceData, s.assignedTime))
+	s.Signaller.currentBlockTime = s.assignedTime
+	s.Require().False(s.Signaller.isPriceValid(priceData))
 
 	// Test with price is required to be submitted and not exist yet
 	priceData.SignalID = "signal2"
-	s.Require().True(s.Signaller.isPriceValid(priceData, s.assignedTime))
+	s.Signaller.currentBlockTime = s.assignedTime
+	s.Require().True(s.Signaller.isPriceValid(priceData))
 }
 
 func (s *SignallerTestSuite) TestShouldUpdatePrice() {
@@ -294,33 +296,38 @@ func (s *SignallerTestSuite) TestShouldUpdatePrice() {
 		Status: feeds.SIGNAL_PRICE_STATUS_AVAILABLE,
 	}
 
-	thresholdTime := time.Unix(valPrice.Timestamp+s.Signaller.params.CooldownTime+TimeBuffer, 0)
+	thresholdTime := time.Unix(valPrice.Timestamp+s.Signaller.params.CooldownTime, 0)
 
 	// Test case: Time before thresholdTime, should not update
-	s.Require().False(s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice, thresholdTime.Add(-time.Second)))
+	s.Signaller.currentBlockTime = thresholdTime.Add(-time.Second)
+	s.Require().False(s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice))
 
 	// Test case: Time after thresholdTime and assignedTime
 	assignedTime := calculateAssignedTime(
 		s.Signaller.valAddress,
 		feed.Interval,
 		valPrice.Timestamp,
-		s.Signaller.distributionOffsetPercentage,
 		s.Signaller.distributionStartPercentage,
+		s.Signaller.distributionOffsetPercentage,
 	)
-	s.Require().True(s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice, assignedTime.Add(time.Second)))
+	s.Signaller.currentBlockTime = assignedTime.Add(time.Second)
+	s.Require().True(s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice))
 
 	// Test case: SignalPriceStatus changed, should update
-	newPrice.Status = feeds.SIGNAL_PRICE_STATUS_AVAILABLE
-	s.Require().False(s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice, assignedTime.Add(-time.Second)))
+	s.Signaller.currentBlockTime = assignedTime.Add(-time.Second)
 
+	newPrice.Status = feeds.SIGNAL_PRICE_STATUS_AVAILABLE
+	s.Require().False(s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice))
 	newPrice.Status = feeds.SIGNAL_PRICE_STATUS_UNAVAILABLE
-	s.Require().True(s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice, assignedTime.Add(-time.Second)))
+	s.Require().True(s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice))
 
 	// Test case: Price deviated
+	s.Signaller.currentBlockTime = assignedTime.Add(-time.Second)
 	newPrice.Status = feeds.SIGNAL_PRICE_STATUS_AVAILABLE
+
 	newPrice.Price = 11000 // More than deviationBasisPoint
-	s.Require().True(s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice, assignedTime.Add(-time.Second)))
+	s.Require().True(s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice))
 
 	newPrice.Price = 10025 // Within deviationBasisPoint
-	s.Require().False(s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice, assignedTime.Add(-time.Second)))
+	s.Require().False(s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice))
 }
