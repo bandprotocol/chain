@@ -55,7 +55,7 @@ import (
 	"github.com/bandprotocol/chain/v3/app/keepers"
 	"github.com/bandprotocol/chain/v3/app/upgrades"
 	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3"
-	v3_rc3 "github.com/bandprotocol/chain/v3/app/upgrades/v3_rc3"
+	v3_rc4 "github.com/bandprotocol/chain/v3/app/upgrades/v3_rc4"
 	nodeservice "github.com/bandprotocol/chain/v3/client/grpc/node"
 	proofservice "github.com/bandprotocol/chain/v3/client/grpc/oracle/proof"
 	"github.com/bandprotocol/chain/v3/hooks/common"
@@ -66,7 +66,7 @@ var (
 	// DefaultNodeHome default home directories for the application daemon
 	DefaultNodeHome string
 
-	Upgrades = []upgrades.Upgrade{v3.Upgrade, v3_rc3.Upgrade}
+	Upgrades = []upgrades.Upgrade{v3.Upgrade, v3_rc4.Upgrade}
 )
 
 var (

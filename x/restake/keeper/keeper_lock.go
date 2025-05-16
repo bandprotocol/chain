@@ -116,7 +116,7 @@ func (k Keeper) GetLocksIterator(ctx sdk.Context) storetypes.Iterator {
 	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.LockStoreKeyPrefix)
 }
 
-// GetLocksByAddressIterator gets iterator of locks of the speicfic address.
+// GetLocksByAddressIterator gets iterator of locks of the specific address.
 func (k Keeper) GetLocksByAddressIterator(ctx sdk.Context, addr sdk.AccAddress) storetypes.Iterator {
 	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.LocksByAddressStoreKey(addr))
 }
