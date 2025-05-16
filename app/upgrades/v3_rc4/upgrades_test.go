@@ -1,4 +1,4 @@
-package v3_rc3_test
+package v3_rc4_test
 
 import (
 	"testing"
@@ -12,11 +12,13 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	band "github.com/bandprotocol/chain/v3/app"
 	"github.com/bandprotocol/chain/v3/app/upgrades"
-	"github.com/bandprotocol/chain/v3/app/upgrades/v3_rc3"
+	"github.com/bandprotocol/chain/v3/app/upgrades/v3_rc4"
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	tunneltypes "github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 type UpgradeTestSuite struct {
@@ -31,7 +33,7 @@ func TestKeeperTestSuite(t *testing.T) {
 }
 
 func (s *UpgradeTestSuite) SetupTest() {
-	bandtesting.SetCustomUpgrades([]upgrades.Upgrade{v3_rc3.Upgrade})
+	bandtesting.SetCustomUpgrades([]upgrades.Upgrade{v3_rc4.Upgrade})
 
 	dir := testutil.GetTempDir(s.T())
 	s.app = bandtesting.SetupWithCustomHome(false, dir)
@@ -54,35 +56,21 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 	preUpgradeChecks(s)
 
 	upgradeHeight := int64(2)
-	s.ConfirmUpgradeSucceeded(v3_rc3.UpgradeName, upgradeHeight)
+	s.ConfirmUpgradeSucceeded(v3_rc4.UpgradeName, upgradeHeight)
 
 	postUpgradeChecks(s)
 }
 
 func preUpgradeChecks(s *UpgradeTestSuite) {
-	// check default oracle params
-	oracleParams := s.app.OracleKeeper.GetParams(s.ctx)
-	s.Require().Equal(uint64(512), oracleParams.MaxCalldataSize)
-	s.Require().Equal(uint64(512), oracleParams.MaxReportDataSize)
-
-	// Set oracle params to 1 to test upgrade
-	// this is to ensure that the upgrade handler is called
-	oracleParams.MaxCalldataSize = uint64(1)
-	oracleParams.MaxReportDataSize = uint64(1)
-	err := s.app.OracleKeeper.SetParams(s.ctx, oracleParams)
-	s.Require().NoError(err)
-
-	// check oracle params is set to 1
-	oracleParams = s.app.OracleKeeper.GetParams(s.ctx)
-	s.Require().Equal(uint64(1), oracleParams.MaxCalldataSize)
-	s.Require().Equal(uint64(1), oracleParams.MaxReportDataSize)
 }
 
 func postUpgradeChecks(s *UpgradeTestSuite) {
-	// check oracle params is changed after upgrade
-	oracleParams := s.app.OracleKeeper.GetParams(s.ctx)
-	s.Require().Equal(uint64(512), oracleParams.MaxCalldataSize)
-	s.Require().Equal(uint64(512), oracleParams.MaxReportDataSize)
+	// Verify changes made by the upgrade
+	acc, perms := s.app.AccountKeeper.GetModuleAccountAndPermissions(s.ctx, tunneltypes.ModuleName)
+	s.Require().NotNil(acc)
+	s.Require().Contains(acc.GetPermissions(), authtypes.Minter)
+	s.Require().Equal(perms, acc.GetPermissions())
+	s.Require().Equal(acc.HasPermission(authtypes.Minter), true)
 }
 
 func (s *UpgradeTestSuite) ConfirmUpgradeSucceeded(upgradeName string, upgradeHeight int64) {
