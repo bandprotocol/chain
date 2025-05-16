@@ -81,8 +81,8 @@ func calculateAssignedTime(
 	valAddr sdk.ValAddress,
 	interval int64,
 	timestamp int64,
-	dpOffset uint64,
 	dpStart uint64,
+	dpOffset uint64,
 ) time.Time {
 	hashed := sha256.Sum256(append(valAddr.Bytes(), sdk.Uint64ToBigEndian(uint64(timestamp))...))
 	offset := sdk.BigEndianToUint64(
