@@ -175,7 +175,6 @@ func keysListCmd(ctx *grogu.Context) *cobra.Command {
 	}
 
 	cmd.Flags().BoolP(flagAddress, "a", false, "Output the address only")
-	_ = viper.BindPFlag(flagAddress, cmd.Flags().Lookup(flagAddress))
 
 	flags.AddQueryFlagsToCmd(cmd)
 
@@ -204,7 +203,11 @@ func createKeysListRunE(ctx *grogu.Context) func(cmd *cobra.Command, args []stri
 		if err != nil {
 			return err
 		}
-		isShowAddr := viper.GetBool(flagAddress)
+
+		isShowAddr, err := cmd.Flags().GetBool(flagAddress)
+		if err != nil {
+			return err
+		}
 
 		validatorAddr, err := sdk.ValAddressFromBech32(ctx.Config.Validator)
 		if err != nil {
