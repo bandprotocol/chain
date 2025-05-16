@@ -361,7 +361,7 @@ func (s *Signaller) shouldUpdatePrice(
 		s.distributionOffsetPercentage,
 	)
 
-	if s.currentBlockTime.After(assignedTime) {
+	if !s.currentBlockTime.Before(assignedTime) {
 		return true
 	}
 
