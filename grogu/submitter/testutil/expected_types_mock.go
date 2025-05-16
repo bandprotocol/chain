@@ -736,17 +736,17 @@ func (mr *MockBothanClientMockRecorder) GetPrices(signalIDs any) *gomock.Call {
 }
 
 // PushMonitoringRecords mocks base method.
-func (m *MockBothanClient) PushMonitoringRecords(uuid, txHash string) error {
+func (m *MockBothanClient) PushMonitoringRecords(uuid, txHash string, signalIDs []string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PushMonitoringRecords", uuid, txHash)
+	ret := m.ctrl.Call(m, "PushMonitoringRecords", uuid, txHash, signalIDs)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // PushMonitoringRecords indicates an expected call of PushMonitoringRecords.
-func (mr *MockBothanClientMockRecorder) PushMonitoringRecords(uuid, txHash any) *gomock.Call {
+func (mr *MockBothanClientMockRecorder) PushMonitoringRecords(uuid, txHash, signalIDs any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PushMonitoringRecords", reflect.TypeOf((*MockBothanClient)(nil).PushMonitoringRecords), uuid, txHash)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PushMonitoringRecords", reflect.TypeOf((*MockBothanClient)(nil).PushMonitoringRecords), uuid, txHash, signalIDs)
 }
 
 // UpdateRegistry mocks base method.

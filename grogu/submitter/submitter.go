@@ -120,6 +120,11 @@ func (s *Submitter) submitPrice(pricesSubmission SignalPriceSubmission, keyID st
 	telemetry.IncrementSubmittingTx()
 
 	signalPrices, uuid := pricesSubmission.SignalPrices, pricesSubmission.UUID
+	var signalIDs []string
+	for _, p := range signalPrices {
+		signalIDs = append(signalIDs, p.SignalID)
+	}
+
 	defer func() {
 		s.removePending(signalPrices)
 		s.idleKeyIDChannel <- keyID
@@ -175,7 +180,7 @@ func (s *Submitter) submitPrice(pricesSubmission SignalPriceSubmission, keyID st
 			telemetry.ObserveSubmitTxDuration(time.Since(since).Seconds())
 
 			s.logger.Info("[Submitter] price submitted at %v", finalizedTxResp.TxHash)
-			s.pushMonitoringRecords(uuid, finalizedTxResp.TxHash)
+			s.pushMonitoringRecords(uuid, finalizedTxResp.TxHash, signalIDs)
 
 			// telemetry.Set
 			telemetry.ObserveSignalPriceUpdateInterval(signalPrices)
@@ -193,7 +198,7 @@ func (s *Submitter) submitPrice(pricesSubmission SignalPriceSubmission, keyID st
 	telemetry.IncrementSubmitTxFailed()
 }
 
-func (s *Submitter) pushMonitoringRecords(uuid, txHash string) {
+func (s *Submitter) pushMonitoringRecords(uuid, txHash string, signalIDs []string) {
 	bothanInfo, err := s.bothanClient.GetInfo()
 	if err != nil {
 		s.logger.Error("[Submitter] failed to query Bothan info: %v", err)
@@ -205,7 +210,7 @@ func (s *Submitter) pushMonitoringRecords(uuid, txHash string) {
 		return
 	}
 
-	err = s.bothanClient.PushMonitoringRecords(uuid, txHash)
+	err = s.bothanClient.PushMonitoringRecords(uuid, txHash, signalIDs)
 	if err != nil {
 		s.logger.Error("[Submitter] failed to push monitoring records to Bothan: %v", err)
 		return

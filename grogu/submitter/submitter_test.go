@@ -118,7 +118,7 @@ func (s *SubmitterTestSuite) SetupTest() {
 
 	mockBothanClient := testutil.NewMockBothanClient(ctrl)
 	mockBothanClient.EXPECT().GetInfo().Return(&bothan.GetInfoResponse{MonitoringEnabled: true}, nil).AnyTimes()
-	mockBothanClient.EXPECT().PushMonitoringRecords(gomock.Any(), gomock.Any()).AnyTimes()
+	mockBothanClient.EXPECT().PushMonitoringRecords(gomock.Any(), gomock.Any(), gomock.Any()).AnyTimes()
 
 	mockAuthQuerier := testutil.NewMockAuthQuerier(ctrl)
 	mockAuthQuerier.EXPECT().
