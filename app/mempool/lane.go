@@ -21,7 +21,7 @@ type Lane struct {
 	logger    log.Logger
 	txEncoder sdk.TxEncoder
 	name      string
-	matchFn   func(ctx sdk.Context, tx sdk.Tx) bool
+	txMatchFn func(ctx sdk.Context, tx sdk.Tx) bool
 
 	maxTransactionBlockRatio math.LegacyDec
 	maxLaneBlockRatio        math.LegacyDec
@@ -49,7 +49,7 @@ func NewLane(
 	logger log.Logger,
 	txEncoder sdk.TxEncoder,
 	name string,
-	matchFn TxMatchFn,
+	txMatchFn TxMatchFn,
 	maxTransactionBlockRatio math.LegacyDec,
 	maxLaneBlockRatio math.LegacyDec,
 	mempool sdkmempool.Mempool,
@@ -59,7 +59,7 @@ func NewLane(
 		logger:                    logger,
 		txEncoder:                 txEncoder,
 		name:                      name,
-		matchFn:                   matchFn,
+		txMatchFn:                 txMatchFn,
 		maxTransactionBlockRatio:  maxTransactionBlockRatio,
 		maxLaneBlockRatio:         maxLaneBlockRatio,
 		mempool:                   mempool,
@@ -150,7 +150,7 @@ func (l *Lane) Contains(tx sdk.Tx) bool {
 
 // Match returns true if the transaction belongs to the lane.
 func (l *Lane) Match(ctx sdk.Context, tx sdk.Tx) bool {
-	return l.matchFn(ctx, tx)
+	return l.txMatchFn(ctx, tx)
 }
 
 // FillProposal fills the proposal with transactions from the lane mempool with its own limit.
