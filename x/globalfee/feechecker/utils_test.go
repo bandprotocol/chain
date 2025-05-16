@@ -38,8 +38,8 @@ func (s *utilsTestSuite) TestCombinedGasPricesRequirement() {
 	coinsNewDenom := sdk.DecCoins{coinNewDenom1, coinNewDenom2}.Sort()
 	coinsNewOldDenom := sdk.DecCoins{coin1, coinNewDenom1}.Sort()
 	coinsNewOldDenomHigh := sdk.DecCoins{coin1High, coinNewDenom1}.Sort()
-	coinsCointainZero := sdk.DecCoins{coin1, zeroCoin2}.Sort()
-	coinsCointainZeroNewDenom := sdk.DecCoins{coin1, zeroCoin3}.Sort()
+	coinsContainZero := sdk.DecCoins{coin1, zeroCoin2}.Sort()
+	coinsContainZeroNewDenom := sdk.DecCoins{coin1, zeroCoin3}.Sort()
 	coinsAllZero := sdk.DecCoins{zeroCoin1, zeroCoin2}.Sort()
 	tests := map[string]struct {
 		cGlobal  sdk.DecCoins
@@ -87,19 +87,19 @@ func (s *utilsTestSuite) TestCombinedGasPricesRequirement() {
 			combined: sdk.DecCoins{coin1High, coin2},
 		},
 		"global prices have zero prices, min prices have overlapping non-zero prices, combined prices = overlapping highest": {
-			cGlobal:  coinsCointainZero,
+			cGlobal:  coinsContainZero,
 			c:        coinsNonEmpty,
 			combined: sdk.DecCoins{coin1, coin2},
 		},
 		"global prices have zero prices, min prices have overlapping zero prices": {
-			cGlobal:  coinsCointainZero,
-			c:        coinsCointainZero,
-			combined: coinsCointainZero,
+			cGlobal:  coinsContainZero,
+			c:        coinsContainZero,
+			combined: coinsContainZero,
 		},
 		"global prices have zero prices, min prices have non-overlapping zero prices": {
-			cGlobal:  coinsCointainZero,
-			c:        coinsCointainZeroNewDenom,
-			combined: coinsCointainZero,
+			cGlobal:  coinsContainZero,
+			c:        coinsContainZeroNewDenom,
+			combined: coinsContainZero,
 		},
 		"global prices are all zero prices, min prices have overlapping zero prices": {
 			cGlobal:  coinsAllZero,
@@ -108,13 +108,13 @@ func (s *utilsTestSuite) TestCombinedGasPricesRequirement() {
 		},
 		"global prices are all zero prices, min prices have overlapping non-zero prices, combined price = overlapping highest": {
 			cGlobal:  coinsAllZero,
-			c:        coinsCointainZeroNewDenom,
+			c:        coinsContainZeroNewDenom,
 			combined: sdk.DecCoins{coin1, zeroCoin2},
 		},
 		"global prices are all zero prices, prices have one overlapping non-zero price": {
 			cGlobal:  coinsAllZero,
-			c:        coinsCointainZero,
-			combined: coinsCointainZero,
+			c:        coinsContainZero,
+			combined: coinsContainZero,
 		},
 	}
 
