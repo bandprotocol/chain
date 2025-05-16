@@ -1164,7 +1164,7 @@ func (s *AppTestSuite) TestOracleRequestLaneWrappedMsgExceedGas() {
 func (s *AppTestSuite) TestRequestLaneBlockedByReportLane() {
 	require := s.Require()
 
-	// Generate 4 report data transactions
+	// Generate report data transaction
 	reportTxBytes := bandtesting.GenSequenceOfTxs(
 		s.txConfig.TxEncoder(),
 		s.txConfig,
@@ -1191,7 +1191,7 @@ func (s *AppTestSuite) TestRequestLaneBlockedByReportLane() {
 	mempool := s.app.Mempool().(*mempool.Mempool)
 	require.Equal(mempool.GetLane("oracleReportLane").CountTx(), 4)
 
-	// Generate 1 request data transactions
+	// Generate request data transaction
 	requestTxBytes := bandtesting.GenSequenceOfTxs(
 		s.txConfig.TxEncoder(),
 		s.txConfig,
@@ -1236,7 +1236,7 @@ func (s *AppTestSuite) TestRequestLaneBlockedByReportLane() {
 func (s *AppTestSuite) TestAllLaneFilled() {
 	require := s.Require()
 
-	// Generate 1 bank send transactions
+	// Generate bank send transaction
 	bankSendTxBytes := bandtesting.GenSequenceOfTxs(
 		s.txConfig.TxEncoder(),
 		s.txConfig,
@@ -1251,7 +1251,7 @@ func (s *AppTestSuite) TestAllLaneFilled() {
 
 	s.checkTxAcceptance(bankSendTxBytes, "defaultLane")
 
-	// Generate 1 request data transactions
+	// Generate request data transaction
 	requestTxBytes := bandtesting.GenSequenceOfTxs(
 		s.txConfig.TxEncoder(),
 		s.txConfig,
@@ -1269,7 +1269,7 @@ func (s *AppTestSuite) TestAllLaneFilled() {
 	// Check that the request data transactions are accepted
 	s.checkTxAcceptance(requestTxBytes, "oracleRequestLane")
 
-	// Generate 4 report data transactions
+	// Generate report data transaction
 	reportTxBytes := bandtesting.GenSequenceOfTxs(
 		s.txConfig.TxEncoder(),
 		s.txConfig,
@@ -1285,7 +1285,7 @@ func (s *AppTestSuite) TestAllLaneFilled() {
 	// Check that the report data transactions are accepted
 	s.checkTxAcceptance(reportTxBytes, "oracleReportLane")
 
-	// Generate 4 tss transactions
+	// Generate tss transaction
 	tssTxBytes := bandtesting.GenSequenceOfTxs(
 		s.txConfig.TxEncoder(),
 		s.txConfig,
@@ -1305,7 +1305,7 @@ func (s *AppTestSuite) TestAllLaneFilled() {
 
 	s.checkTxAcceptance(tssTxBytes, "tssLane")
 
-	// Generate 25 feeds transactions
+	// Generate feeds transaction
 	feedsTxBytes := bandtesting.GenSequenceOfTxs(
 		s.txConfig.TxEncoder(),
 		s.txConfig,
@@ -1351,7 +1351,7 @@ func (s *AppTestSuite) TestAllLaneFilled() {
 func (s *AppTestSuite) TestAllLaneFilledExceptOracleReportLane() {
 	require := s.Require()
 
-	// Generate 2 bank send transactions
+	// Generate bank send transaction
 	bankSendTxBytes := bandtesting.GenSequenceOfTxs(
 		s.txConfig.TxEncoder(),
 		s.txConfig,
@@ -1366,7 +1366,7 @@ func (s *AppTestSuite) TestAllLaneFilledExceptOracleReportLane() {
 
 	s.checkTxAcceptance(bankSendTxBytes, "defaultLane")
 
-	// Generate 1 request data transactions
+	// Generate request data transaction
 	requestTxBytes := bandtesting.GenSequenceOfTxs(
 		s.txConfig.TxEncoder(),
 		s.txConfig,
@@ -1384,7 +1384,7 @@ func (s *AppTestSuite) TestAllLaneFilledExceptOracleReportLane() {
 	// Check that the request data transactions are accepted
 	s.checkTxAcceptance(requestTxBytes, "oracleRequestLane")
 
-	// Generate 4 report data transactions
+	// Generate report data transaction
 	reportTxBytes := bandtesting.GenSequenceOfTxs(
 		s.txConfig.TxEncoder(),
 		s.txConfig,
@@ -1400,7 +1400,7 @@ func (s *AppTestSuite) TestAllLaneFilledExceptOracleReportLane() {
 	// Check that the report data transactions are accepted
 	s.checkTxAcceptance(reportTxBytes, "oracleReportLane")
 
-	// Generate 4 tss transactions
+	// Generate tss transaction
 	tssTxBytes := bandtesting.GenSequenceOfTxs(
 		s.txConfig.TxEncoder(),
 		s.txConfig,
@@ -1420,7 +1420,7 @@ func (s *AppTestSuite) TestAllLaneFilledExceptOracleReportLane() {
 
 	s.checkTxAcceptance(tssTxBytes, "tssLane")
 
-	// Generate 25 feeds transactions
+	// Generate feeds transaction
 	feedsTxBytes := bandtesting.GenSequenceOfTxs(
 		s.txConfig.TxEncoder(),
 		s.txConfig,
@@ -1467,7 +1467,7 @@ func (s *AppTestSuite) TestAllLaneFilledExceptOracleReportLane() {
 func (s *AppTestSuite) TestAllLaneFilledExceed() {
 	require := s.Require()
 
-	// Generate 2 bank send transactions
+	// Generate bank send transaction
 	bankSendTxBytes := bandtesting.GenSequenceOfTxs(
 		s.txConfig.TxEncoder(),
 		s.txConfig,
@@ -1482,7 +1482,7 @@ func (s *AppTestSuite) TestAllLaneFilledExceed() {
 
 	s.checkTxAcceptance(bankSendTxBytes, "defaultLane")
 
-	// Generate 1 request data transactions
+	// Generate request data transaction
 	requestTxBytes := bandtesting.GenSequenceOfTxs(
 		s.txConfig.TxEncoder(),
 		s.txConfig,
@@ -1500,7 +1500,7 @@ func (s *AppTestSuite) TestAllLaneFilledExceed() {
 	// Check that the request data transactions are accepted
 	s.checkTxAcceptance(requestTxBytes, "oracleRequestLane")
 
-	// Generate 4 report data transactions
+	// Generate report data transaction
 	reportTxBytes := bandtesting.GenSequenceOfTxs(
 		s.txConfig.TxEncoder(),
 		s.txConfig,
@@ -1516,7 +1516,7 @@ func (s *AppTestSuite) TestAllLaneFilledExceed() {
 	// Check that the report data transactions are accepted
 	s.checkTxAcceptance(reportTxBytes, "oracleReportLane")
 
-	// Generate 4 tss transactions
+	// Generate tss transaction
 	tssTxBytes := bandtesting.GenSequenceOfTxs(
 		s.txConfig.TxEncoder(),
 		s.txConfig,
@@ -1536,7 +1536,7 @@ func (s *AppTestSuite) TestAllLaneFilledExceed() {
 
 	s.checkTxAcceptance(tssTxBytes, "tssLane")
 
-	// Generate 25 feeds transactions
+	// Generate feeds transaction
 	feedsTxBytes := bandtesting.GenSequenceOfTxs(
 		s.txConfig.TxEncoder(),
 		s.txConfig,
@@ -1582,7 +1582,7 @@ func (s *AppTestSuite) TestAllLaneFilledExceed() {
 func (s *AppTestSuite) TestFillRemainingProposal() {
 	require := s.Require()
 
-	// Generate 2 bank send transactions
+	// Generate bank send transaction
 	bankSendTxBytes := bandtesting.GenSequenceOfTxs(
 		s.txConfig.TxEncoder(),
 		s.txConfig,
@@ -1597,7 +1597,7 @@ func (s *AppTestSuite) TestFillRemainingProposal() {
 
 	s.checkTxAcceptance(bankSendTxBytes, "defaultLane")
 
-	// Generate 40 feeds transactions
+	// Generate feeds transaction
 	feedsTxBytes := bandtesting.GenSequenceOfTxs(
 		s.txConfig.TxEncoder(),
 		s.txConfig,
@@ -1644,7 +1644,7 @@ func (s *AppTestSuite) TestFillRemainingProposal() {
 func (s *AppTestSuite) TestLargeTxSizeBlocksSubsequentTx() {
 	require := s.Require()
 
-	// Generate 1 large bank send transactions
+	// Generate large bank send transaction
 	largeBankSendTxBytes := bandtesting.GenSequenceOfTxs(
 		s.txConfig.TxEncoder(),
 		s.txConfig,
@@ -1659,7 +1659,7 @@ func (s *AppTestSuite) TestLargeTxSizeBlocksSubsequentTx() {
 
 	s.checkTxAcceptance(largeBankSendTxBytes, "defaultLane")
 
-	// Generate 1 small bank send transactions
+	// Generate small bank send transaction
 	smallBankSendTxBytes := bandtesting.GenSequenceOfTxs(
 		s.txConfig.TxEncoder(),
 		s.txConfig,
@@ -1674,7 +1674,7 @@ func (s *AppTestSuite) TestLargeTxSizeBlocksSubsequentTx() {
 
 	s.checkTxAcceptance(smallBankSendTxBytes, "defaultLane")
 
-	// Generate 4 report data transactions
+	// Generate report data transaction
 	reportTxBytes := bandtesting.GenSequenceOfTxs(
 		s.txConfig.TxEncoder(),
 		s.txConfig,
@@ -1690,7 +1690,7 @@ func (s *AppTestSuite) TestLargeTxSizeBlocksSubsequentTx() {
 	// Check that the report data transactions are accepted
 	s.checkTxAcceptance(reportTxBytes, "oracleReportLane")
 
-	// Generate 4 tss transactions
+	// Generate tss transaction
 	tssTxBytes := bandtesting.GenSequenceOfTxs(
 		s.txConfig.TxEncoder(),
 		s.txConfig,
@@ -1710,7 +1710,7 @@ func (s *AppTestSuite) TestLargeTxSizeBlocksSubsequentTx() {
 
 	s.checkTxAcceptance(tssTxBytes, "tssLane")
 
-	// Generate 28 feeds transactions
+	// Generate feeds transaction
 	feedsTxBytes := bandtesting.GenSequenceOfTxs(
 		s.txConfig.TxEncoder(),
 		s.txConfig,
