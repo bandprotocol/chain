@@ -222,6 +222,9 @@ require (
 replace (
 	// use cosmos fork of keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
+	// NOTE: this is a temporary fix to use the latest version of the bothan-api/client/go-client
+	// TODO: remove this once the bothan-api/client/go-client is updated to the latest version
+	github.com/bandprotocol/bothan/bothan-api/client/go-client => github.com/bandprotocol/bothan/bothan-api/client/go-client v0.0.0-20250516060802-a32b7247dcdc
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
 	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2
