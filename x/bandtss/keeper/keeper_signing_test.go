@@ -231,10 +231,10 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 				params := s.keeper.GetParams(s.ctx)
 
 				// check mapping of tss signingID -> bandtss signingID
-				bandtssSignignID := s.keeper.GetSigningIDMapping(s.ctx, tss.SigningID(2))
-				s.Require().Equal(types.SigningID(1), bandtssSignignID)
-				bandtssSignignID = s.keeper.GetSigningIDMapping(s.ctx, tss.SigningID(3))
-				s.Require().Equal(types.SigningID(1), bandtssSignignID)
+				bandtssSigningID := s.keeper.GetSigningIDMapping(s.ctx, tss.SigningID(2))
+				s.Require().Equal(types.SigningID(1), bandtssSigningID)
+				bandtssSigningID = s.keeper.GetSigningIDMapping(s.ctx, tss.SigningID(3))
+				s.Require().Equal(types.SigningID(1), bandtssSigningID)
 
 				// check bandtssSigning
 				bandtssSigning, err := s.keeper.GetSigning(s.ctx, types.SigningID(1))
@@ -284,8 +284,8 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 				params := s.keeper.GetParams(s.ctx)
 
 				// check mapping of tss signingID -> bandtss signingID
-				bandtssSignignID := s.keeper.GetSigningIDMapping(s.ctx, tss.SigningID(4))
-				s.Require().Equal(types.SigningID(1), bandtssSignignID)
+				bandtssSigningID := s.keeper.GetSigningIDMapping(s.ctx, tss.SigningID(4))
+				s.Require().Equal(types.SigningID(1), bandtssSigningID)
 
 				// check bandtssSigning
 				bandtssSigning, err := s.keeper.GetSigning(s.ctx, types.SigningID(1))
@@ -321,8 +321,8 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 			},
 			postCheck: func(s *KeeperTestSuite) {
 				// check mapping of tss signingID -> bandtss signingID
-				bandtssSignignID := s.keeper.GetSigningIDMapping(s.ctx, tss.SigningID(1))
-				s.Require().Equal(types.SigningID(1), bandtssSignignID)
+				bandtssSigningID := s.keeper.GetSigningIDMapping(s.ctx, tss.SigningID(1))
+				s.Require().Equal(types.SigningID(1), bandtssSigningID)
 
 				// check bandtssSigning
 				bandtssSigning, err := s.keeper.GetSigning(s.ctx, types.SigningID(1))

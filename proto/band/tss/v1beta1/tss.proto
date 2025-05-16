@@ -265,7 +265,7 @@ message PendingProcessGroups {
       [(gogoproto.customname) = "GroupIDs", (gogoproto.casttype) = "github.com/bandprotocol/chain/v3/pkg/tss.GroupID"];
 }
 
-// PendingProcessSignigns is a list of signings that are waiting to be processed.
+// PendingProcessSignings is a list of signings that are waiting to be processed.
 message PendingProcessSignings {
   // signing_ids is a list of signing IDs.
   repeated uint64 signing_ids = 1 [

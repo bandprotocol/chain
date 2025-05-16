@@ -60,7 +60,7 @@ func RunCmd(ctx *context.Context) *cobra.Command {
 	cmd.Flags().String(flagBroadcastTimeout, "1m", "The timeout duration for transaction commits.")
 	cmd.Flags().String(flagRPCPollInterval, "1s", "The duration to wait between RPC polls.")
 	cmd.Flags().Uint64(flagMaxTry, 5, "The maximum number of attempts to submit a transaction.")
-	cmd.Flags().Float64(flagGasAdjustStart, 1.0, "The gas adjustment start value for transactions.")
+	cmd.Flags().Float64(flagGasAdjustStart, 1.2, "The gas adjustment start value for transactions.")
 	cmd.Flags().Float64(flagGasAdjustStep, 0.1, "The gas adjustment step for transactions.")
 	cmd.Flags().Uint64(flagDistrStartPct, 50, "The starting percentage for the distribution offset range.")
 	cmd.Flags().Uint64(flagDistrOffsetPct, 30, "The offset percentage range from the starting distribution.")

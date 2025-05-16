@@ -137,7 +137,7 @@ func (r *Round2) handleGroup(gid tss.GroupID) {
 		tss.DefaultNonce16Generator{},
 	)
 	if err != nil {
-		logger.Error(":cold_sweat: Failed to genrate encrypted secret shares: %s", err)
+		logger.Error(":cold_sweat: Failed to generate encrypted secret shares: %s", err)
 
 		metrics.IncProcessRound2FailureCount(uint64(gid))
 		return
