@@ -4,9 +4,6 @@ import (
 	"math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
-	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 // getTxPriority returns priority of the provided fee based on gas prices of uband
@@ -56,13 +53,4 @@ func CombinedGasPricesRequirement(globalMinGasPrices, minGasPrices sdk.DecCoins)
 	}
 
 	return allGasPrices.Sort()
-}
-
-func checkValidMsgReport(ctx sdk.Context, oracleKeeper *oraclekeeper.Keeper, msg *oracletypes.MsgReportData) error {
-	validator, err := sdk.ValAddressFromBech32(msg.Validator)
-	if err != nil {
-		return err
-	}
-
-	return oracleKeeper.CheckValidReport(ctx, msg.RequestID, validator, msg.RawReports)
 }

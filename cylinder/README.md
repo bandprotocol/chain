@@ -109,7 +109,7 @@ cylinder config chain-id $CHAIN_ID --home $CYLINDER_HOME_PATH
 cylinder config node $RPC_URL --home $CYLINDER_HOME_PATH
 cylinder config granter $(bandd keys show $WALLET_NAME -a --keyring-backend test) --home $CYLINDER_HOME_PATH
 cylinder config gas-prices "0uband" --home $CYLINDER_HOME_PATH
-cylinder config max-messages 20 --home $CYLINDER_HOME_PATH
+cylinder config max-messages 10 --home $CYLINDER_HOME_PATH
 cylinder config broadcast-timeout "5m" --home $CYLINDER_HOME_PATH
 cylinder config rpc-poll-interval "1s" --home $CYLINDER_HOME_PATH
 cylinder config max-try 5 --home $CYLINDER_HOME_PATH

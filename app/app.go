@@ -53,12 +53,15 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/bandprotocol/chain/v3/app/keepers"
+	"github.com/bandprotocol/chain/v3/app/mempool"
 	"github.com/bandprotocol/chain/v3/app/upgrades"
 	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3"
 	v3_rc4 "github.com/bandprotocol/chain/v3/app/upgrades/v3_rc4"
 	nodeservice "github.com/bandprotocol/chain/v3/client/grpc/node"
 	proofservice "github.com/bandprotocol/chain/v3/client/grpc/oracle/proof"
+	feedskeeper "github.com/bandprotocol/chain/v3/x/feeds/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
+	tsskeeper "github.com/bandprotocol/chain/v3/x/tss/keeper"
 )
 
 var (
@@ -254,10 +257,21 @@ func NewBandApp(
 
 	app.sm.RegisterStoreDecoders()
 
+	lanes := CreateLanes(app)
+
+	// create Band mempool
+	bandMempool := mempool.NewMempool(app.Logger(), lanes)
+	// set the mempool
+	app.SetMempool(bandMempool)
+
 	// Initialize stores.
 	app.MountKVStores(app.GetKVStoreKey())
 	app.MountTransientStores(app.GetTransientStoreKey())
 	app.MountMemoryStores(app.GetMemoryStoreKey())
+
+	feedsMsgServer := feedskeeper.NewMsgServerImpl(app.FeedsKeeper)
+	tssMsgServer := tsskeeper.NewMsgServerImpl(app.TSSKeeper)
+	oracleMsgServer := oraclekeeper.NewMsgServerImpl(app.OracleKeeper)
 
 	anteHandler, err := NewAnteHandler(
 		HandlerOptions{
@@ -277,11 +291,23 @@ func NewBandApp(
 			IBCKeeper:       app.IBCKeeper,
 			StakingKeeper:   app.StakingKeeper,
 			GlobalfeeKeeper: &app.GlobalFeeKeeper,
+			IgnoreDecoratorMatchFns: []mempool.TxMatchFn{
+				feedsSubmitSignalPriceTxMatchHandler(app.appCodec, &app.AuthzKeeper, feedsMsgServer),
+				tssTxMatchHandler(app.appCodec, &app.AuthzKeeper, &app.BandtssKeeper, tssMsgServer),
+				oracleReportTxMatchHandler(app.appCodec, &app.AuthzKeeper, oracleMsgServer),
+			},
 		},
 	)
 	if err != nil {
 		panic(fmt.Errorf("failed to create ante handler: %s", err))
 	}
+
+	// proposal handler
+	proposalHandler := mempool.NewProposalHandler(app.Logger(), txConfig.TxDecoder(), bandMempool)
+
+	// set the Prepare / ProcessProposal Handlers on the app to be the `LanedMempool`'s
+	app.SetPrepareProposal(proposalHandler.PrepareProposalHandler())
+	app.SetProcessProposal(proposalHandler.ProcessProposalHandler())
 
 	postHandler, err := NewPostHandler(
 		PostHandlerOptions{},

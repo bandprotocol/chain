@@ -19,7 +19,7 @@ cylinder config chain-id bandchain --home $HOME_PATH
 cylinder config granter $(bandd keys show $KEY -a --keyring-backend test) --home $HOME_PATH
 
 # setup max-messages to cylinder config
-cylinder config max-messages 20 --home $HOME_PATH
+cylinder config max-messages 10 --home $HOME_PATH
 
 # setup broadcast-timeout to cylinder config
 cylinder config broadcast-timeout "5m" --home $HOME_PATH
