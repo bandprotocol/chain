@@ -17,6 +17,7 @@ const (
 
 type GroupContext struct {
 	GroupID               tss.GroupID
+	Threshold             uint64
 	Accounts              []bandtesting.Account
 	Round1Infos           []tss.Round1Info
 	EncryptedSecretShares []tss.EncSecretShares
@@ -27,54 +28,62 @@ type GroupContext struct {
 }
 
 func NewGroupContext(
-	ctx sdk.Context,
-	k *tsskeeper.Keeper,
-	n uint64,
+	accounts []bandtesting.Account,
+	groupID tss.GroupID,
 	threshold uint64,
+	dkgContext []byte,
 ) (*GroupContext, error) {
-	accounts := GenerateAccounts(n)
-	members := make([]sdk.AccAddress, n)
-	for i := 0; i < len(accounts); i++ {
-		members[i] = accounts[i].Address
-	}
-
-	// Create Group
-	groupID, err := k.CreateGroup(ctx, members, threshold, "test")
+	round1Infos, err := createRound1Info(uint64(len(accounts)), threshold, dkgContext)
 	if err != nil {
 		return nil, err
 	}
 
-	des := make([][]DEWithPrivateNonce, n)
-	for i := 0; i < len(des); i++ {
-		des[i] = make([]DEWithPrivateNonce, 0, maxDE)
+	encSecrets, err := createGroupEncryptedSecretShares(round1Infos)
+	if err != nil {
+		return nil, err
 	}
 
-	secrets := make([]tss.Scalar, n)
-	for i := 0; i < len(secrets); i++ {
-		secrets[i], err = tss.RandomScalar()
+	ownPrivKeys, ownPubKeySigs, err := createOwnPrivatePublicKeys(dkgContext, round1Infos, encSecrets)
+	if err != nil {
+		return nil, err
+	}
+
+	var secrets []tss.Scalar
+	for range accounts {
+		secret, err := tss.RandomScalar()
 		if err != nil {
 			return nil, err
 		}
+		secrets = append(secrets, secret)
+	}
+
+	accountDEs := make([][]DEWithPrivateNonce, len(accounts))
+	for i := range accountDEs {
+		accountDEs[i] = make([]DEWithPrivateNonce, 0, maxDE)
 	}
 
 	return &GroupContext{
-		GroupID:  groupID,
-		Accounts: accounts,
-		DEs:      des,
-		Secrets:  secrets,
+		GroupID:               groupID,
+		Threshold:             threshold,
+		Accounts:              accounts,
+		Round1Infos:           round1Infos,
+		EncryptedSecretShares: encSecrets,
+		OwnPubKeySigs:         ownPubKeySigs,
+		OwnPrivKeys:           ownPrivKeys,
+		Secrets:               secrets,
+		DEs:                   accountDEs,
 	}, nil
 }
 
-func (g *GroupContext) GenerateDE(ctx sdk.Context, k *tsskeeper.Keeper) error {
+func (g *GroupContext) FillDEs(ctx sdk.Context, k *tsskeeper.Keeper) error {
 	msgServer := tsskeeper.NewMsgServerImpl(k)
 
-	for i := 0; i < len(g.Accounts); i++ {
-		newDEs := make([]DEWithPrivateNonce, 0, maxDE)
-		for len(g.DEs[i])+len(newDEs) < maxDE {
-			newDE := GenerateDE(g.Secrets[i])
-			newDEs = append(newDEs, newDE)
+	for i := range g.Accounts {
+		if len(g.DEs[i]) >= maxDE {
+			continue
 		}
 
+		newDEs := createDEs(maxDE-len(g.DEs[i]), g.Secrets[i])
 		pubDEs := make([]types.DE, len(newDEs))
 		for j, newDE := range newDEs {
 			pubDEs[j] = newDE.PubDE
@@ -149,28 +158,14 @@ func (g *GroupContext) SubmitSignature(
 
 func (g *GroupContext) SubmitRound1(ctx sdk.Context, k *tsskeeper.Keeper) error {
 	msgServer := tsskeeper.NewMsgServerImpl(k)
-	dkgContext, err := k.GetDKGContext(ctx, g.GroupID)
-	if err != nil {
-		return err
-	}
-
 	group, err := k.GetGroup(ctx, g.GroupID)
 	if err != nil {
 		return err
 	}
 
-	n := group.Size_
-	threshold := group.Threshold
-
-	round1Infos := make([]tss.Round1Info, n)
-	for i := uint64(0); i < n; i++ {
+	for i := range g.Round1Infos {
 		mid := tss.MemberID(i + 1)
-		r1, err := tss.GenerateRound1Info(mid, threshold, dkgContext)
-		if err != nil {
-			return err
-		}
-
-		round1Infos[i] = *r1
+		r1 := g.Round1Infos[i]
 		r1InfoMsg := types.NewRound1Info(
 			mid,
 			r1.CoefficientCommits,
@@ -191,7 +186,6 @@ func (g *GroupContext) SubmitRound1(ctx sdk.Context, k *tsskeeper.Keeper) error 
 		return fmt.Errorf("unexpected group status: %s", group.Status.String())
 	}
 
-	g.Round1Infos = round1Infos
 	return nil
 }
 
@@ -202,33 +196,9 @@ func (g *GroupContext) SubmitRound2(ctx sdk.Context, k *tsskeeper.Keeper) error 
 		return err
 	}
 
-	n := group.Size_
-	r1Infos := g.Round1Infos
-
-	// Get one-time public keys
-	oneTimePubKeys := make(tss.Points, n)
-	for i := uint64(0); i < n; i++ {
-		oneTimePubKeys[i] = r1Infos[i].OneTimePubKey
-	}
-
-	encSecrets := make([]tss.EncSecretShares, n)
-	for i := uint64(0); i < n; i++ {
+	for i := range g.EncryptedSecretShares {
 		mid := tss.MemberID(i + 1)
-
-		// Compute encrypted secret shares
-		encSecretShares, err := tss.ComputeEncryptedSecretShares(
-			mid,
-			r1Infos[i].OneTimePrivKey,
-			oneTimePubKeys,
-			r1Infos[i].Coefficients,
-			tss.DefaultNonce16Generator{},
-		)
-		if err != nil {
-			return err
-		}
-
-		encSecrets[i] = encSecretShares
-		r2Info := types.NewRound2Info(mid, encSecretShares)
+		r2Info := types.NewRound2Info(mid, g.EncryptedSecretShares[i])
 		msg := types.NewMsgSubmitDKGRound2(g.GroupID, r2Info, g.Accounts[i].Address.String())
 
 		if _, err = msgServer.SubmitDKGRound2(ctx, msg); err != nil {
@@ -243,7 +213,6 @@ func (g *GroupContext) SubmitRound2(ctx sdk.Context, k *tsskeeper.Keeper) error 
 		return fmt.Errorf("unexpected group status: %s", group.Status.String())
 	}
 
-	g.EncryptedSecretShares = encSecrets
 	return nil
 }
 
@@ -253,51 +222,12 @@ func (g *GroupContext) SubmitRound3(ctx sdk.Context, k *tsskeeper.Keeper) error 
 	if err != nil {
 		return err
 	}
-	dkgContext, err := k.GetDKGContext(ctx, g.GroupID)
-	if err != nil {
-		return err
-	}
 
-	n := group.Size_
-	r1Infos := g.Round1Infos
-	encSecrets := g.EncryptedSecretShares
-
-	// Get one-time public keys
-	oneTimePubKeys := make(tss.Points, n)
-	for i := uint64(0); i < n; i++ {
-		oneTimePubKeys[i] = r1Infos[i].OneTimePubKey
-	}
-
-	ownPubKeySigs := make([]tss.Signature, n)
-	ownPrivKeys := make([]tss.Scalar, n)
-	for i := uint64(0); i < n; i++ {
+	for i := range g.Accounts {
 		midI := tss.MemberID(i + 1)
-
-		secretShares, err := computeSecretShares(r1Infos, encSecrets, midI)
-		if err != nil {
-			return err
-		}
-
-		ownPrivKey, err := tss.ComputeOwnPrivateKey(secretShares...)
-		if err != nil {
-			return err
-		}
-
-		ownPubKeySig, err := tss.SignOwnPubKey(
-			midI,
-			dkgContext,
-			ownPrivKey.Point(),
-			ownPrivKey,
-		)
-		if err != nil {
-			return err
-		}
-
-		ownPubKeySigs[i] = ownPubKeySig
-		ownPrivKeys[i] = ownPrivKey
 		_, err = msgServer.Confirm(
 			ctx,
-			types.NewMsgConfirm(g.GroupID, midI, ownPubKeySig, g.Accounts[i].Address.String()),
+			types.NewMsgConfirm(g.GroupID, midI, g.OwnPubKeySigs[i], g.Accounts[i].Address.String()),
 		)
 		if err != nil {
 			return err
@@ -311,19 +241,33 @@ func (g *GroupContext) SubmitRound3(ctx sdk.Context, k *tsskeeper.Keeper) error 
 		return fmt.Errorf("unexpected group status: %s", group.Status.String())
 	}
 
-	g.OwnPubKeySigs = ownPubKeySigs
-	g.OwnPrivKeys = ownPrivKeys
-
 	return nil
 }
 
 func CompleteGroupCreation(
 	ctx sdk.Context,
 	k *tsskeeper.Keeper,
-	n uint64,
+	groupSize uint64,
 	threshold uint64,
 ) (*GroupContext, error) {
-	groupCtx, err := NewGroupContext(ctx, k, n, threshold)
+	accounts := GenerateAccounts(groupSize)
+	members := make([]sdk.AccAddress, groupSize)
+	for i := range accounts {
+		members[i] = accounts[i].Address
+	}
+
+	// Create Group
+	groupID, err := k.CreateGroup(ctx, members, threshold, "test")
+	if err != nil {
+		return nil, err
+	}
+
+	dkgContext, err := k.GetDKGContext(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+
+	groupCtx, err := NewGroupContext(accounts, groupID, threshold, dkgContext)
 	if err != nil {
 		return nil, err
 	}
@@ -340,7 +284,7 @@ func CompleteGroupCreation(
 		return nil, err
 	}
 
-	if err = groupCtx.GenerateDE(ctx, k); err != nil {
+	if err = groupCtx.FillDEs(ctx, k); err != nil {
 		return nil, err
 	}
 
@@ -388,4 +332,101 @@ func computeSecretShares(
 	}
 
 	return secretShares, nil
+}
+
+func createRound1Info(groupSize uint64, threshold uint64, dkgContext []byte) ([]tss.Round1Info, error) {
+	round1Infos := make([]tss.Round1Info, groupSize)
+	for i := range round1Infos {
+		mid := tss.MemberID(i + 1)
+		r1, err := tss.GenerateRound1Info(mid, threshold, dkgContext)
+		if err != nil {
+			return nil, err
+		}
+
+		round1Infos[i] = *r1
+	}
+
+	return round1Infos, nil
+}
+
+func createGroupEncryptedSecretShares(r1Infos []tss.Round1Info) ([]tss.EncSecretShares, error) {
+	// Get one-time public keys
+	oneTimePubKeys := make(tss.Points, len(r1Infos))
+	for i := range r1Infos {
+		oneTimePubKeys[i] = r1Infos[i].OneTimePubKey
+	}
+
+	groupEncSecretShares := make([]tss.EncSecretShares, len(r1Infos))
+	for i := range r1Infos {
+		mid := tss.MemberID(i + 1)
+
+		// Compute encrypted secret shares
+		encSecretShares, err := tss.ComputeEncryptedSecretShares(
+			mid,
+			r1Infos[i].OneTimePrivKey,
+			oneTimePubKeys,
+			r1Infos[i].Coefficients,
+			tss.DefaultNonce16Generator{},
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		groupEncSecretShares[i] = encSecretShares
+	}
+
+	return groupEncSecretShares, nil
+}
+
+func createOwnPrivatePublicKeys(
+	dkgContext []byte,
+	r1Infos []tss.Round1Info,
+	encSecrets []tss.EncSecretShares,
+) ([]tss.Scalar, []tss.Signature, error) {
+	// Get one-time public keys
+	oneTimePubKeys := make(tss.Points, len(r1Infos))
+	for i := range r1Infos {
+		oneTimePubKeys[i] = r1Infos[i].OneTimePubKey
+	}
+
+	ownPubKeySigs := make([]tss.Signature, len(r1Infos))
+	ownPrivKeys := make([]tss.Scalar, len(r1Infos))
+	for i := range r1Infos {
+		midI := tss.MemberID(i + 1)
+
+		secretShares, err := computeSecretShares(r1Infos, encSecrets, midI)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		ownPrivKey, err := tss.ComputeOwnPrivateKey(secretShares...)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		ownPubKeySig, err := tss.SignOwnPubKey(
+			midI,
+			dkgContext,
+			ownPrivKey.Point(),
+			ownPrivKey,
+		)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		ownPubKeySigs[i] = ownPubKeySig
+		ownPrivKeys[i] = ownPrivKey
+	}
+
+	return ownPrivKeys, ownPubKeySigs, nil
+}
+
+func createDEs(n int, secret tss.Scalar) []DEWithPrivateNonce {
+	var des []DEWithPrivateNonce
+	for range n {
+		de := GenerateDE(secret)
+		des = append(des, de)
+	}
+
+	return des
 }

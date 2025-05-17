@@ -36,8 +36,8 @@ func init() {
 
 type BenchmarkApp struct {
 	*band.BandApp
-	Sender         *Account
-	Validator      *Account
+	Sender         *bandtesting.AccountWithNumSeq
+	Validator      *bandtesting.AccountWithNumSeq
 	Oid            uint64
 	Did            uint64
 	TxConfig       client.TxConfig
@@ -73,12 +73,12 @@ func InitializeBenchmarkApp(tb testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 
 	ba := &BenchmarkApp{
 		BandApp: app,
-		Sender: &Account{
+		Sender: &bandtesting.AccountWithNumSeq{
 			Account: bandtesting.Treasury,
 			Num:     1,
 			Seq:     0,
 		},
-		Validator: &Account{
+		Validator: &bandtesting.AccountWithNumSeq{
 			Account: bandtesting.Validators[0],
 			Num:     7,
 			Seq:     0,
@@ -107,20 +107,20 @@ func InitializeBenchmarkApp(tb testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 	require.NoError(tb, err)
 	txs = append(
 		txs,
-		GenSequenceOfTxs(ba.TxEncoder, ba.TxConfig, GenMsgCreateOracleScript(ba.Sender, oCode), ba.Sender, 1)[0],
+		bandtesting.GenSequenceOfTxs(ba.TxEncoder, ba.TxConfig, GenMsgCreateOracleScript(ba.Sender, oCode), ba.Sender, sdk.Coins{sdk.NewInt64Coin("uband", 1)}, math.MaxInt64, 1)[0],
 	)
 
 	// create data source
 	dCode := []byte("hello")
 	txs = append(
 		txs,
-		GenSequenceOfTxs(ba.TxEncoder, ba.TxConfig, GenMsgCreateDataSource(ba.Sender, dCode), ba.Sender, 1)[0],
+		bandtesting.GenSequenceOfTxs(ba.TxEncoder, ba.TxConfig, GenMsgCreateDataSource(ba.Sender, dCode), ba.Sender, sdk.Coins{sdk.NewInt64Coin("uband", 1)}, math.MaxInt64, 1)[0],
 	)
 
 	// activate oracle
 	txs = append(
 		txs,
-		GenSequenceOfTxs(ba.TxEncoder, ba.TxConfig, GenMsgActivate(ba.Validator), ba.Validator, 1)[0],
+		bandtesting.GenSequenceOfTxs(ba.TxEncoder, ba.TxConfig, GenMsgActivate(ba.Validator), ba.Validator, sdk.Coins{sdk.NewInt64Coin("uband", 1)}, math.MaxInt64, 1)[0],
 	)
 
 	res, err := ba.FinalizeBlock(
@@ -159,7 +159,7 @@ func InitializeBenchmarkApp(tb testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 	return ba
 }
 
-func (ba *BenchmarkApp) GetAllPendingRequests(account *Account) *oracletypes.QueryPendingRequestsResponse {
+func (ba *BenchmarkApp) GetAllPendingRequests(account *bandtesting.AccountWithNumSeq) *oracletypes.QueryPendingRequestsResponse {
 	res, err := ba.Querier.PendingRequests(
 		ba.Ctx,
 		&oracletypes.QueryPendingRequestsRequest{
@@ -171,7 +171,7 @@ func (ba *BenchmarkApp) GetAllPendingRequests(account *Account) *oracletypes.Que
 	return res
 }
 
-func (ba *BenchmarkApp) GenMsgReportData(account *Account, rids []uint64) []sdk.Msg {
+func (ba *BenchmarkApp) GenMsgReportData(account *bandtesting.AccountWithNumSeq, rids []uint64) []sdk.Msg {
 	msgs := make([]sdk.Msg, 0)
 
 	for _, rid := range rids {
@@ -311,7 +311,7 @@ func (ba *BenchmarkApp) HandleGenPendingSignTxs(
 }
 
 func (ba *BenchmarkApp) RequestSignature(
-	sender *Account,
+	sender *bandtesting.AccountWithNumSeq,
 	content tsstypes.Content,
 	feeLimit sdk.Coins,
 ) {

@@ -2,6 +2,7 @@ package benchmark
 
 import (
 	"fmt"
+	"math"
 	"testing"
 	"time"
 
@@ -9,10 +10,11 @@ import (
 
 	abci "github.com/cometbft/cometbft/abci/types"
 
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
@@ -22,7 +24,7 @@ var RequestSignCases = map[string]struct {
 }{
 	"request_signature": {
 		byteLength: []int{1, 200, 400, 600},
-		feeLimit:   sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(10000))),
+		feeLimit:   sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(10000))),
 	},
 }
 
@@ -34,7 +36,7 @@ func BenchmarkRequestSignatureDeliver(b *testing.B) {
 				ba.SetupTSSGroup()
 
 				msg := MockByte(blen)
-				txs := GenSequenceOfTxs(
+				txs := bandtesting.GenSequenceOfTxs(
 					ba.TxEncoder,
 					ba.TxConfig,
 					GenMsgRequestSignature(
@@ -43,6 +45,8 @@ func BenchmarkRequestSignatureDeliver(b *testing.B) {
 						tc.feeLimit,
 					),
 					ba.Sender,
+					sdk.Coins{sdk.NewInt64Coin("uband", 1)},
+					math.MaxInt64,
 					b.N,
 				)
 

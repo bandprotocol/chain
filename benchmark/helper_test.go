@@ -2,8 +2,6 @@ package benchmark
 
 import (
 	"fmt"
-	"math"
-	"math/rand"
 	"os"
 	"strconv"
 	"strings"
@@ -16,7 +14,6 @@ import (
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	cmttypes "github.com/cometbft/cometbft/types"
 
-	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
@@ -31,12 +28,6 @@ import (
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-type Account struct {
-	bandtesting.Account
-	Num uint64
-	Seq uint64
-}
-
 type BenchmarkCalldata struct {
 	DataSourceID uint64
 	Scenario     uint64
@@ -50,7 +41,7 @@ func GetBenchmarkWasm() ([]byte, error) {
 }
 
 func GenMsgRequestData(
-	sender *Account,
+	sender *bandtesting.AccountWithNumSeq,
 	oracleScriptID uint64,
 	dataSourceID uint64,
 	scenario uint64,
@@ -80,7 +71,7 @@ func GenMsgRequestData(
 }
 
 func GenMsgSubmitSignalPrices(
-	sender *Account,
+	sender *bandtesting.AccountWithNumSeq,
 	feeds []feedstypes.Feed,
 	timestamp int64,
 ) []sdk.Msg {
@@ -99,8 +90,8 @@ func GenMsgSubmitSignalPrices(
 }
 
 func GenMsgSend(
-	sender *Account,
-	receiver *Account,
+	sender *bandtesting.AccountWithNumSeq,
+	receiver *bandtesting.AccountWithNumSeq,
 ) []sdk.Msg {
 	msg := banktypes.MsgSend{
 		FromAddress: sender.Address.String(),
@@ -111,7 +102,7 @@ func GenMsgSend(
 	return []sdk.Msg{&msg}
 }
 
-func GenMsgCreateOracleScript(sender *Account, code []byte) []sdk.Msg {
+func GenMsgCreateOracleScript(sender *bandtesting.AccountWithNumSeq, code []byte) []sdk.Msg {
 	msg := oracletypes.MsgCreateOracleScript{
 		Name:          "test",
 		Description:   "test",
@@ -125,7 +116,7 @@ func GenMsgCreateOracleScript(sender *Account, code []byte) []sdk.Msg {
 	return []sdk.Msg{&msg}
 }
 
-func GenMsgCreateDataSource(sender *Account, code []byte) []sdk.Msg {
+func GenMsgCreateDataSource(sender *bandtesting.AccountWithNumSeq, code []byte) []sdk.Msg {
 	msg := oracletypes.MsgCreateDataSource{
 		Name:        "test",
 		Description: "test",
@@ -139,7 +130,7 @@ func GenMsgCreateDataSource(sender *Account, code []byte) []sdk.Msg {
 	return []sdk.Msg{&msg}
 }
 
-func GenMsgActivate(account *Account) []sdk.Msg {
+func GenMsgActivate(account *bandtesting.AccountWithNumSeq) []sdk.Msg {
 	msg := oracletypes.MsgActivate{
 		Validator: account.ValAddress.String(),
 	}
@@ -156,7 +147,7 @@ func MockByte(n int) []byte {
 }
 
 func GenMsgRequestSignature(
-	sender *Account,
+	sender *bandtesting.AccountWithNumSeq,
 	content tsstypes.Content,
 	feeLimit sdk.Coins,
 ) []sdk.Msg {
@@ -214,35 +205,6 @@ func CreateSignature(
 	}
 
 	return nil, fmt.Errorf("this member is not assigned members")
-}
-
-func GenSequenceOfTxs(
-	txEncoder sdk.TxEncoder,
-	txConfig client.TxConfig,
-	msgs []sdk.Msg,
-	account *Account,
-	numTxs int,
-) [][]byte {
-	txs := make([][]byte, numTxs)
-
-	for i := 0; i < numTxs; i++ {
-		tx, _ := bandtesting.GenSignedMockTx(
-			rand.New(rand.NewSource(time.Now().UnixNano())),
-			txConfig,
-			msgs,
-			sdk.Coins{sdk.NewInt64Coin("uband", 1)},
-			math.MaxInt64,
-			bandtesting.ChainID,
-			[]uint64{account.Num},
-			[]uint64{account.Seq},
-			account.PrivKey,
-		)
-
-		txs[i], _ = txEncoder(tx)
-		account.Seq++
-	}
-
-	return txs
 }
 
 type Event struct {

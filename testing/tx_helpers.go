@@ -166,3 +166,34 @@ func SignCheckDeliver(
 
 	return gInfo, &txRes, endblockEvent, err
 }
+
+func GenSequenceOfTxs(
+	txEncoder sdk.TxEncoder,
+	txConfig client.TxConfig,
+	msgs []sdk.Msg,
+	account *AccountWithNumSeq,
+	feeAmount sdk.Coins,
+	gas uint64,
+	numTxs int,
+) [][]byte {
+	txs := make([][]byte, numTxs)
+
+	for i := 0; i < numTxs; i++ {
+		tx, _ := GenSignedMockTx(
+			rand.New(rand.NewSource(time.Now().UnixNano())),
+			txConfig,
+			msgs,
+			feeAmount,
+			gas,
+			ChainID,
+			[]uint64{account.Num},
+			[]uint64{account.Seq},
+			account.PrivKey,
+		)
+
+		txs[i], _ = txEncoder(tx)
+		account.Seq++
+	}
+
+	return txs
+}
