@@ -38,7 +38,7 @@ func CreateLanes(app *BandApp) []*mempool.Lane {
 	)
 
 	// tssLane handles TSS transactions.
-	// Each transaction has a gas limit of 5%, and the total gas limit for the lane is 20%.
+	// Each transaction has a gas limit of 10%, and the total gas limit for the lane is 20%.
 	tssLane := mempool.NewLane(
 		app.Logger(),
 		app.txConfig.TxEncoder(),
@@ -54,7 +54,7 @@ func CreateLanes(app *BandApp) []*mempool.Lane {
 			},
 			true,
 		),
-		math.LegacyMustNewDecFromStr("0.05"),
+		math.LegacyMustNewDecFromStr("0.1"),
 		math.LegacyMustNewDecFromStr("0.2"),
 		sdkmempool.DefaultPriorityMempool(),
 		nil,
@@ -81,14 +81,14 @@ func CreateLanes(app *BandApp) []*mempool.Lane {
 	)
 
 	// oracleReportLane handles oracle report data transactions.
-	// Each transaction has a gas limit of 5%, and the total gas limit for the lane is 20%.
+	// Each transaction has a gas limit of 10%, and the total gas limit for the lane is 20%.
 	// It block the oracle request lane if it exceeds its limit.
 	oracleReportLane := mempool.NewLane(
 		app.Logger(),
 		app.txConfig.TxEncoder(),
 		"oracleReportLane",
 		mempool.NewLaneTxMatchFn([]sdk.Msg{&oracletypes.MsgReportData{}}, true),
-		math.LegacyMustNewDecFromStr("0.05"),
+		math.LegacyMustNewDecFromStr("0.1"),
 		math.LegacyMustNewDecFromStr("0.2"),
 		sdkmempool.DefaultPriorityMempool(),
 		func(isLaneLimitExceeded bool) {
