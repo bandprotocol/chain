@@ -122,6 +122,8 @@ cp ~/.band/config/genesis.json $DIR/genesis.json
 cat <<< $(jq '.app_state.gov.params.voting_period = "60s"' $DIR/genesis.json) > $DIR/genesis.json
 cat <<< $(jq '.app_state.feeds.params.current_feeds_update_interval = "10"' $DIR/genesis.json) > $DIR/genesis.json
 cat <<< $(jq '.app_state.bandtss.params.min_transition_duration = "60s"' $DIR/genesis.json) > $DIR/genesis.json
+cat <<< $(jq '.app_state.bandtss.params.inactive_penalty_duration = "60s"' $DIR/genesis.json) > $DIR/genesis.json
+cat <<< $(jq '.app_state.oracle.params.inactive_penalty_duration = "60000000000"' $DIR/genesis.json) > $DIR/genesis.json
 cat <<< $(jq --arg addr "$(bandd keys show requester -a --keyring-backend test)" '.app_state.feeds.params.admin = $addr' $DIR/genesis.json) > $DIR/genesis.json
 cat <<< $(jq '.app_state.restake.params.allowed_denoms = ["uband"]' $DIR/genesis.json) > $DIR/genesis.json
 
@@ -175,7 +177,7 @@ do
     cylinder config node tcp://multi-validator$v-node:26657
     cylinder config chain-id bandchain
     cylinder config granter $(bandd keys show account$v -a --keyring-backend test)
-    cylinder config max-messages 20
+    cylinder config max-messages 10
     cylinder config broadcast-timeout "5m"
     cylinder config rpc-poll-interval "1s"
     cylinder config max-try 5
