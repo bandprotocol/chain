@@ -63,7 +63,7 @@ func RunCmd(ctx *context.Context) *cobra.Command {
 	cmd.Flags().Float64(flagGasAdjustStart, 1.2, "The gas adjustment start value for transactions.")
 	cmd.Flags().Float64(flagGasAdjustStep, 0.1, "The gas adjustment step for transactions.")
 	cmd.Flags().Uint64(flagDistrStartPct, 50, "The starting percentage for the distribution offset range.")
-	cmd.Flags().Uint64(flagDistrOffsetPct, 30, "The offset percentage range from the starting distribution.")
+	cmd.Flags().Uint64(flagDistrOffsetPct, 25, "The offset percentage range from the starting distribution.")
 	cmd.Flags().String(flagBothan, "", "The Bothan URL to connect to.")
 	cmd.Flags().String(flagBothanTimeout, "3s", "The timeout duration for Bothan requests.")
 	cmd.Flags().String(flagLogLevel, "info", "The application's log level.")
