@@ -89,7 +89,7 @@ func TestCalculateAssignedTime(t *testing.T) {
 	dpOffset := uint64(30)
 	dpStart := uint64(50)
 
-	result := calculateAssignedTime(valAddr, interval, timestamp, dpOffset, dpStart)
+	result := calculateAssignedTime(valAddr, interval, timestamp, dpStart, dpOffset)
 	assert.Equal(t, int64(100002016), result.Unix())
 }
 

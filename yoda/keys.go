@@ -7,7 +7,6 @@ import (
 
 	"github.com/kyokomi/emoji"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	bip39 "github.com/cosmos/go-bip39"
 
@@ -154,7 +153,12 @@ func keysListCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			isShowAddr := viper.GetBool(flagAddress)
+
+			isShowAddr, err := cmd.Flags().GetBool(flagAddress)
+			if err != nil {
+				return err
+			}
+
 			for _, key := range keys {
 				address, err := key.GetAddress()
 				if err != nil {
@@ -185,7 +189,6 @@ func keysListCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().BoolP(flagAddress, "a", false, "Output the address only")
-	_ = viper.BindPFlag(flagAddress, cmd.Flags().Lookup(flagAddress))
 
 	flags.AddQueryFlagsToCmd(cmd)
 
