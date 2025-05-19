@@ -1183,13 +1183,13 @@ func (s *AppTestSuite) TestRequestLaneBlockedByReportLane() {
 		res, err := s.app.CheckTx(checkTxReq)
 		require.NoError(err)
 		require.NotNil(res)
-		require.Equal(res.Code, uint32(0))
+		require.Equal(uint32(0), res.Code)
 	}
 
-	require.Equal(s.app.Mempool().CountTx(), 4)
+	require.Equal(4, s.app.Mempool().CountTx())
 
 	mempool := s.app.Mempool().(*mempool.Mempool)
-	require.Equal(mempool.GetLane("oracleReportLane").CountTx(), 4)
+	require.Equal(4, mempool.GetLane("oracleReportLane").CountTx())
 
 	// Generate request data transaction
 	requestTxBytes := bandtesting.GenSequenceOfTxs(
@@ -1215,8 +1215,8 @@ func (s *AppTestSuite) TestRequestLaneBlockedByReportLane() {
 		require.Equal(res.Code, uint32(0))
 	}
 
-	require.Equal(s.app.Mempool().CountTx(), 5)
-	require.Equal(mempool.GetLane("oracleRequestLane").CountTx(), 1)
+	require.Equal(5, s.app.Mempool().CountTx())
+	require.Equal(1, mempool.GetLane("oracleRequestLane").CountTx())
 
 	// Prepare proposal
 	prepareReq := &abci.RequestPrepareProposal{
@@ -1228,8 +1228,8 @@ func (s *AppTestSuite) TestRequestLaneBlockedByReportLane() {
 	resp, err := s.app.PrepareProposal(prepareReq)
 	require.NoError(err)
 	require.NotNil(resp)
-	require.Equal(len(resp.Txs), 4)
-	require.Equal(resp.Txs, reportTxBytes)
+	require.Equal(4, len(resp.Txs))
+	require.Equal(reportTxBytes, resp.Txs)
 }
 
 // TestAllLaneFilled tests fill all lanes by their limit
@@ -1324,13 +1324,13 @@ func (s *AppTestSuite) TestAllLaneFilled() {
 
 	s.checkTxAcceptance(feedsTxBytes, "feedsLane")
 
-	require.Equal(s.app.Mempool().CountTx(), 32)
+	require.Equal(32, s.app.Mempool().CountTx())
 	mempool := s.app.Mempool().(*mempool.Mempool)
-	require.Equal(mempool.GetLane("defaultLane").CountTx(), 1)
-	require.Equal(mempool.GetLane("oracleRequestLane").CountTx(), 2)
-	require.Equal(mempool.GetLane("oracleReportLane").CountTx(), 2)
-	require.Equal(mempool.GetLane("tssLane").CountTx(), 2)
-	require.Equal(mempool.GetLane("feedsLane").CountTx(), 25)
+	require.Equal(1, mempool.GetLane("defaultLane").CountTx())
+	require.Equal(2, mempool.GetLane("oracleRequestLane").CountTx())
+	require.Equal(2, mempool.GetLane("oracleReportLane").CountTx())
+	require.Equal(2, mempool.GetLane("tssLane").CountTx())
+	require.Equal(25, mempool.GetLane("feedsLane").CountTx())
 
 	// Prepare proposal
 	prepareReq := &abci.RequestPrepareProposal{
@@ -1343,8 +1343,16 @@ func (s *AppTestSuite) TestAllLaneFilled() {
 	resp, err := s.app.PrepareProposal(prepareReq)
 	require.NoError(err)
 	require.NotNil(resp)
-	require.Equal(len(resp.Txs), 30)
-	require.Equal(resp.Txs, append(append(append(feedsTxBytes, tssTxBytes...), reportTxBytes...), bankSendTxBytes...)) // every lane except oracleRequestLane
+	require.Equal(30, len(resp.Txs))
+	expectedTxBytes := append(append(append(
+		feedsTxBytes,
+		tssTxBytes...,
+	),
+		reportTxBytes...,
+	),
+		bankSendTxBytes...,
+	) // every lane except oracleRequestLane
+	require.Equal(expectedTxBytes, resp.Txs)
 }
 
 // TestAllLaneFilledExceptOracleReportLane tests fill all lanes by their limit except oracle report lane
@@ -1439,13 +1447,13 @@ func (s *AppTestSuite) TestAllLaneFilledExceptOracleReportLane() {
 
 	s.checkTxAcceptance(feedsTxBytes, "feedsLane")
 
-	require.Equal(s.app.Mempool().CountTx(), 32)
+	require.Equal(32, s.app.Mempool().CountTx())
 	mempool := s.app.Mempool().(*mempool.Mempool)
-	require.Equal(mempool.GetLane("defaultLane").CountTx(), 2)
-	require.Equal(mempool.GetLane("oracleRequestLane").CountTx(), 2)
-	require.Equal(mempool.GetLane("oracleReportLane").CountTx(), 1)
-	require.Equal(mempool.GetLane("tssLane").CountTx(), 2)
-	require.Equal(mempool.GetLane("feedsLane").CountTx(), 25)
+	require.Equal(2, mempool.GetLane("defaultLane").CountTx())
+	require.Equal(2, mempool.GetLane("oracleRequestLane").CountTx())
+	require.Equal(1, mempool.GetLane("oracleReportLane").CountTx())
+	require.Equal(2, mempool.GetLane("tssLane").CountTx())
+	require.Equal(25, mempool.GetLane("feedsLane").CountTx())
 
 	// Prepare proposal
 	prepareReq := &abci.RequestPrepareProposal{
@@ -1458,9 +1466,19 @@ func (s *AppTestSuite) TestAllLaneFilledExceptOracleReportLane() {
 	resp, err := s.app.PrepareProposal(prepareReq)
 	require.NoError(err)
 	require.NotNil(resp)
-	require.Equal(len(resp.Txs), 31)
+	require.Equal(31, len(resp.Txs))
 	// Since the OracleReportLane is not filled, the OracleRequestLane is included
-	require.Equal(resp.Txs, append(append(append(append(feedsTxBytes, tssTxBytes...), reportTxBytes...), requestTxBytes...), bankSendTxBytes[0])) // only the first bank send transaction is included
+	expectedTxBytes := append(append(append(append(
+		feedsTxBytes,
+		tssTxBytes...,
+	),
+		reportTxBytes...,
+	),
+		requestTxBytes...,
+	),
+		bankSendTxBytes[0:1]...,
+	) // only the first bank send transaction is included
+	require.Equal(expectedTxBytes, resp.Txs)
 }
 
 // TestAllLaneFilledExceed tests fill all lanes exceed their limit
@@ -1555,13 +1573,13 @@ func (s *AppTestSuite) TestAllLaneFilledExceed() {
 
 	s.checkTxAcceptance(feedsTxBytes, "feedsLane")
 
-	require.Equal(s.app.Mempool().CountTx(), 40)
+	require.Equal(40, s.app.Mempool().CountTx())
 	mempool := s.app.Mempool().(*mempool.Mempool)
-	require.Equal(mempool.GetLane("defaultLane").CountTx(), 2)
-	require.Equal(mempool.GetLane("oracleRequestLane").CountTx(), 2)
-	require.Equal(mempool.GetLane("oracleReportLane").CountTx(), 5)
-	require.Equal(mempool.GetLane("tssLane").CountTx(), 5)
-	require.Equal(mempool.GetLane("feedsLane").CountTx(), 26)
+	require.Equal(2, mempool.GetLane("defaultLane").CountTx())
+	require.Equal(2, mempool.GetLane("oracleRequestLane").CountTx())
+	require.Equal(5, mempool.GetLane("oracleReportLane").CountTx())
+	require.Equal(5, mempool.GetLane("tssLane").CountTx())
+	require.Equal(26, mempool.GetLane("feedsLane").CountTx())
 
 	// Prepare proposal
 	prepareReq := &abci.RequestPrepareProposal{
@@ -1574,8 +1592,14 @@ func (s *AppTestSuite) TestAllLaneFilledExceed() {
 	resp, err := s.app.PrepareProposal(prepareReq)
 	require.NoError(err)
 	require.NotNil(resp)
-	require.Equal(len(resp.Txs), 35)
-	require.Equal(resp.Txs, append(append(feedsTxBytes, tssTxBytes...), reportTxBytes[0:4]...))
+	require.Equal(35, len(resp.Txs))
+	expectedTxBytes := append(append(
+		feedsTxBytes,
+		tssTxBytes...,
+	),
+		reportTxBytes[0:4]...,
+	)
+	require.Equal(expectedTxBytes, resp.Txs)
 }
 
 // TestFillRemainingProposal tests fill the remaining proposal
@@ -1616,10 +1640,10 @@ func (s *AppTestSuite) TestFillRemainingProposal() {
 
 	s.checkTxAcceptance(feedsTxBytes, "feedsLane")
 
-	require.Equal(s.app.Mempool().CountTx(), 43)
+	require.Equal(43, s.app.Mempool().CountTx())
 	mempool := s.app.Mempool().(*mempool.Mempool)
-	require.Equal(mempool.GetLane("defaultLane").CountTx(), 3)
-	require.Equal(mempool.GetLane("feedsLane").CountTx(), 40)
+	require.Equal(3, mempool.GetLane("defaultLane").CountTx())
+	require.Equal(40, mempool.GetLane("feedsLane").CountTx())
 
 	// Prepare proposal
 	prepareReq := &abci.RequestPrepareProposal{
@@ -1632,12 +1656,11 @@ func (s *AppTestSuite) TestFillRemainingProposal() {
 	resp, err := s.app.PrepareProposal(prepareReq)
 	require.NoError(err)
 	require.NotNil(resp)
-	require.Equal(len(resp.Txs), 42)
+	require.Equal(42, len(resp.Txs))
 
 	var expectedTxBytes [][]byte
 	expectedTxBytes = append(append(append(append(expectedTxBytes, feedsTxBytes[:25]...), bankSendTxBytes[0]), feedsTxBytes[25:]...), bankSendTxBytes[1])
-
-	require.Equal(resp.Txs, expectedTxBytes)
+	require.Equal(expectedTxBytes, resp.Txs)
 }
 
 // TestLargeTxSizeBlocksSubsequentTx tests that a large transaction size blocks subsequent transactions
@@ -1729,12 +1752,12 @@ func (s *AppTestSuite) TestLargeTxSizeBlocksSubsequentTx() {
 
 	s.checkTxAcceptance(feedsTxBytes, "feedsLane")
 
-	require.Equal(s.app.Mempool().CountTx(), 34)
+	require.Equal(34, s.app.Mempool().CountTx())
 	mempool := s.app.Mempool().(*mempool.Mempool)
-	require.Equal(mempool.GetLane("defaultLane").CountTx(), 2)
-	require.Equal(mempool.GetLane("oracleReportLane").CountTx(), 2)
-	require.Equal(mempool.GetLane("tssLane").CountTx(), 2)
-	require.Equal(mempool.GetLane("feedsLane").CountTx(), 28)
+	require.Equal(2, mempool.GetLane("defaultLane").CountTx())
+	require.Equal(2, mempool.GetLane("oracleReportLane").CountTx())
+	require.Equal(2, mempool.GetLane("tssLane").CountTx())
+	require.Equal(28, mempool.GetLane("feedsLane").CountTx())
 
 	// Prepare proposal
 	prepareReq := &abci.RequestPrepareProposal{
@@ -1747,12 +1770,12 @@ func (s *AppTestSuite) TestLargeTxSizeBlocksSubsequentTx() {
 	resp, err := s.app.PrepareProposal(prepareReq)
 	require.NoError(err)
 	require.NotNil(resp)
-	require.Equal(len(resp.Txs), 32)
+	require.Equal(32, len(resp.Txs))
 
 	var expectedTxBytes [][]byte
 	// the bank send txs are blocked by the large bank send tx
 	expectedTxBytes = append(append(append(append(expectedTxBytes, feedsTxBytes[:26]...), tssTxBytes...), reportTxBytes...), feedsTxBytes[26:]...)
-	require.Equal(resp.Txs, expectedTxBytes)
+	require.Equal(expectedTxBytes, resp.Txs)
 }
 
 // -----------------------------------------------
@@ -1838,8 +1861,8 @@ func (s *AppTestSuite) checkLaneWithExactGas(msg sdk.Msg, sender bandtesting.Acc
 	resp, err := s.app.PrepareProposal(prepareReq)
 	require.NoError(err)
 	require.NotNil(resp)
-	require.Equal(len(resp.Txs), 1)
-	require.Equal(resp.Txs[0], txBytes)
+	require.Equal(1, len(resp.Txs))
+	require.Equal(txBytes, resp.Txs[0])
 }
 
 func (s *AppTestSuite) checkLaneWithExceedGas(msg sdk.Msg, sender bandtesting.AccountWithNumSeq, laneName string, gas uint64, feeAmt sdk.Coins) {
@@ -1986,7 +2009,7 @@ func (s *AppTestSuite) checkTxAcceptance(txBytes [][]byte, laneName string) {
 		res, err := s.app.CheckTx(checkTxReq)
 		require.NoError(err)
 		require.NotNil(res)
-		require.Equal(res.Code, uint32(0))
+		require.Equal(uint32(0), res.Code)
 	}
 
 	require.Equal(mempoolCountBefore+len(txBytes), mempool.CountTx())
