@@ -450,7 +450,7 @@ func (s *AppTestSuite) TestTSSLaneMsgSubmitDKGRound1ExactGas() {
 		s.tssGroupCtx.Round1Infos[0],
 	)
 
-	s.checkLaneWithExactGas(msg, sender, "tssLane", 2500000, sdk.Coins{})
+	s.checkLaneWithExactGas(msg, sender, "tssLane", 5000000, sdk.Coins{})
 }
 
 // TestTSSLaneMsgSubmitDKGRound2ExactGas tests that MsgSubmitDKGRound2 transactions with exact gas are accepted
@@ -466,7 +466,7 @@ func (s *AppTestSuite) TestTSSLaneMsgSubmitDKGRound2ExactGas() {
 		s.tssGroupCtx.EncryptedSecretShares[0],
 	)
 
-	s.checkLaneWithExactGas(msg, sender, "tssLane", 2500000, sdk.Coins{})
+	s.checkLaneWithExactGas(msg, sender, "tssLane", 5000000, sdk.Coins{})
 }
 
 // TestTSSLaneMsgConfirmExactGas tests that MsgConfirm transactions with exact gas are accepted
@@ -485,7 +485,7 @@ func (s *AppTestSuite) TestTSSLaneMsgConfirmExactGas() {
 		s.tssGroupCtx.OwnPubKeySigs[0],
 	)
 
-	s.checkLaneWithExactGas(msg, sender, "tssLane", 2500000, sdk.Coins{})
+	s.checkLaneWithExactGas(msg, sender, "tssLane", 5000000, sdk.Coins{})
 }
 
 // TestTSSLaneMsgComplainExactGas tests that MsgComplain transactions with exact gas are accepted
@@ -506,7 +506,7 @@ func (s *AppTestSuite) TestTSSLaneMsgComplainExactGas() {
 	)
 	s.Require().NoError(err)
 
-	s.checkLaneWithExactGas(msg, s.tssAccountsWithNumSeq[0], "tssLane", 2500000, sdk.Coins{})
+	s.checkLaneWithExactGas(msg, s.tssAccountsWithNumSeq[0], "tssLane", 5000000, sdk.Coins{})
 }
 
 // TestTSSLaneMsgSubmitDEExactGas tests that MsgSubmitDE transactions with exact gas are accepted
@@ -526,7 +526,7 @@ func (s *AppTestSuite) TestTSSLaneMsgSubmitDEExactGas() {
 		[]tsstestutils.DEWithPrivateNonce{de},
 	)
 
-	s.checkLaneWithExactGas(msg, s.tssAccountsWithNumSeq[0], "tssLane", 2500000, sdk.Coins{})
+	s.checkLaneWithExactGas(msg, s.tssAccountsWithNumSeq[0], "tssLane", 5000000, sdk.Coins{})
 }
 
 // TestTSSLaneMsgSubmitSignatureExactGas tests that MsgSubmitSignature transactions with exact gas are accepted
@@ -587,7 +587,7 @@ func (s *AppTestSuite) TestTSSLaneMsgSubmitSignatureExactGas() {
 		signature,
 	)
 
-	s.checkLaneWithExactGas(msg, s.tssAccountsWithNumSeq[0], "tssLane", 2500000, sdk.Coins{})
+	s.checkLaneWithExactGas(msg, s.tssAccountsWithNumSeq[0], "tssLane", 5000000, sdk.Coins{})
 }
 
 // TestTSSLaneMsgSubmitDKGRound1ExceedGas tests that MsgSubmitDKGRound1 transactions with gas exceeding limit are rejected
@@ -600,7 +600,7 @@ func (s *AppTestSuite) TestTSSLaneMsgSubmitDKGRound1ExceedGas() {
 		s.tssGroupCtx.Round1Infos[0],
 	)
 
-	s.checkLaneWithExceedGas(msg, sender, "tssLane", 2500001, sdk.Coins{})
+	s.checkLaneWithExceedGas(msg, sender, "tssLane", 5000001, sdk.Coins{})
 }
 
 // TestTSSLaneMsgSubmitDKGRound2ExceedGas tests that MsgSubmitDKGRound2 transactions with gas exceeding limit are rejected
@@ -616,7 +616,7 @@ func (s *AppTestSuite) TestTSSLaneMsgSubmitDKGRound2ExceedGas() {
 		s.tssGroupCtx.EncryptedSecretShares[0],
 	)
 
-	s.checkLaneWithExceedGas(msg, sender, "tssLane", 2500001, sdk.Coins{})
+	s.checkLaneWithExceedGas(msg, sender, "tssLane", 5000001, sdk.Coins{})
 }
 
 // TestTSSLaneMsgConfirmExceedGas tests that MsgConfirm transactions with gas exceeding limit are rejected
@@ -635,7 +635,7 @@ func (s *AppTestSuite) TestTSSLaneMsgConfirmExceedGas() {
 		s.tssGroupCtx.OwnPubKeySigs[0],
 	)
 
-	s.checkLaneWithExceedGas(msg, sender, "tssLane", 2500001, sdk.Coins{})
+	s.checkLaneWithExceedGas(msg, sender, "tssLane", 5000001, sdk.Coins{})
 }
 
 // TestTSSLaneMsgComplainExceedGas tests that MsgComplain transactions with gas exceeding limit are rejected
@@ -656,7 +656,7 @@ func (s *AppTestSuite) TestTSSLaneMsgComplainExceedGas() {
 	)
 	s.Require().NoError(err)
 
-	s.checkLaneWithExceedGas(msg, s.tssAccountsWithNumSeq[0], "tssLane", 2500001, sdk.Coins{})
+	s.checkLaneWithExceedGas(msg, s.tssAccountsWithNumSeq[0], "tssLane", 5000001, sdk.Coins{})
 }
 
 // TestTSSLaneMsgSubmitDEExceedGas tests that MsgSubmitDE transactions with gas exceeding limit are rejected
@@ -676,7 +676,7 @@ func (s *AppTestSuite) TestTSSLaneMsgSubmitDEExceedGas() {
 		[]tsstestutils.DEWithPrivateNonce{de},
 	)
 
-	s.checkLaneWithExceedGas(msg, s.tssAccountsWithNumSeq[0], "tssLane", 2500001, sdk.Coins{})
+	s.checkLaneWithExceedGas(msg, s.tssAccountsWithNumSeq[0], "tssLane", 5000001, sdk.Coins{})
 }
 
 // TestTSSLaneMsgSubmitSignatureExceedGas tests that MsgSubmitSignature transactions with gas exceeding limit are rejected
@@ -737,7 +737,7 @@ func (s *AppTestSuite) TestTSSLaneMsgSubmitSignatureExceedGas() {
 		signature,
 	)
 
-	s.checkLaneWithExceedGas(msg, s.tssAccountsWithNumSeq[0], "tssLane", 2500001, sdk.Coins{})
+	s.checkLaneWithExceedGas(msg, s.tssAccountsWithNumSeq[0], "tssLane", 5000001, sdk.Coins{})
 }
 
 // TestTSSLaneWrappedMsgSubmitDKGRound1ExactGas tests that MsgSubmitDKGRound1 transactions with wrapped messages are handled correctly
@@ -751,7 +751,7 @@ func (s *AppTestSuite) TestTSSLaneWrappedMsgSubmitDKGRound1ExactGas() {
 		s.tssGroupCtx.Round1Infos[0],
 	)
 
-	s.checkLaneWrappedMsgWithExactGas(msg, sender, "tssLane", 2500000, sdk.Coins{})
+	s.checkLaneWrappedMsgWithExactGas(msg, sender, "tssLane", 5000000, sdk.Coins{})
 }
 
 // TestTSSLaneWrappedMsgSubmitDKGRound2ExcactGas tests that MsgSubmitDKGRound2 transactions with wrapped messages are handled correctly
@@ -768,7 +768,7 @@ func (s *AppTestSuite) TestTSSLaneWrappedMsgSubmitDKGRound2ExcactGas() {
 		s.tssGroupCtx.EncryptedSecretShares[0],
 	)
 
-	s.checkLaneWrappedMsgWithExactGas(msg, sender, "tssLane", 2500000, sdk.Coins{})
+	s.checkLaneWrappedMsgWithExactGas(msg, sender, "tssLane", 5000000, sdk.Coins{})
 }
 
 // TestTSSLaneWrappedMsgConfirmExactGas tests that MsgConfirm transactions with wrapped messages are handled correctly
@@ -788,7 +788,7 @@ func (s *AppTestSuite) TestTSSLaneWrappedMsgConfirmExactGas() {
 		s.tssGroupCtx.OwnPubKeySigs[0],
 	)
 
-	s.checkLaneWrappedMsgWithExactGas(msg, sender, "tssLane", 2500000, sdk.Coins{})
+	s.checkLaneWrappedMsgWithExactGas(msg, sender, "tssLane", 5000000, sdk.Coins{})
 }
 
 // TestTSSLaneWrappedMsgComplainExactGas tests that MsgComplain transactions with wrapped messages are handled correctly
@@ -811,7 +811,7 @@ func (s *AppTestSuite) TestTSSLaneWrappedMsgComplainExactGas() {
 	)
 	s.Require().NoError(err)
 
-	s.checkLaneWrappedMsgWithExactGas(msg, sender, "tssLane", 2500000, sdk.Coins{})
+	s.checkLaneWrappedMsgWithExactGas(msg, sender, "tssLane", 5000000, sdk.Coins{})
 }
 
 // TestTSSLaneWrappedMsgSubmitDEExactGas tests that MsgSubmitDE transactions with wrapped messages are handled correctly
@@ -833,7 +833,7 @@ func (s *AppTestSuite) TestTSSLaneWrappedMsgSubmitDEExactGas() {
 		[]tsstestutils.DEWithPrivateNonce{de},
 	)
 
-	s.checkLaneWrappedMsgWithExactGas(msg, sender, "tssLane", 2500000, sdk.Coins{})
+	s.checkLaneWrappedMsgWithExactGas(msg, sender, "tssLane", 5000000, sdk.Coins{})
 }
 
 // TestTSSLaneWrappedMsgSubmitSignatureExactGas tests that MsgSubmitSignature transactions with wrapped messages are handled correctly
@@ -896,7 +896,7 @@ func (s *AppTestSuite) TestTSSLaneWrappedMsgSubmitSignatureExactGas() {
 		signature,
 	)
 
-	s.checkLaneWrappedMsgWithExactGas(msg, sender, "tssLane", 2500000, sdk.Coins{})
+	s.checkLaneWrappedMsgWithExactGas(msg, sender, "tssLane", 5000000, sdk.Coins{})
 }
 
 // TestTSSLaneWrappedMsgSubmitDKGRound1ExceedGas tests that MsgSubmitDKGRound1 transactions with wrapped messages
@@ -911,7 +911,7 @@ func (s *AppTestSuite) TestTSSLaneWrappedMsgSubmitDKGRound1ExceedGas() {
 		s.tssGroupCtx.Round1Infos[0],
 	)
 
-	s.checkLaneWrappedMsgWithExceedGas(msg, sender, "tssLane", 2500001, sdk.Coins{})
+	s.checkLaneWrappedMsgWithExceedGas(msg, sender, "tssLane", 5000001, sdk.Coins{})
 }
 
 // TestTSSLaneWrappedMsgSubmitDKGRound2ExceedGas tests that MsgSubmitDKGRound2 transactions with wrapped messages
@@ -929,7 +929,7 @@ func (s *AppTestSuite) TestTSSLaneWrappedMsgSubmitDKGRound2ExceedGas() {
 		s.tssGroupCtx.EncryptedSecretShares[0],
 	)
 
-	s.checkLaneWrappedMsgWithExceedGas(msg, sender, "tssLane", 2500001, sdk.Coins{})
+	s.checkLaneWrappedMsgWithExceedGas(msg, sender, "tssLane", 5000001, sdk.Coins{})
 }
 
 // TestTSSLaneWrappedMsgConfirmExceedGas tests that MsgConfirm transactions with wrapped messages
@@ -950,7 +950,7 @@ func (s *AppTestSuite) TestTSSLaneWrappedMsgConfirmExceedGas() {
 		s.tssGroupCtx.OwnPubKeySigs[0],
 	)
 
-	s.checkLaneWrappedMsgWithExceedGas(msg, sender, "tssLane", 2500001, sdk.Coins{})
+	s.checkLaneWrappedMsgWithExceedGas(msg, sender, "tssLane", 5000001, sdk.Coins{})
 }
 
 // TestTSSLaneWrappedMsgComplainExceedGas tests that MsgComplain transactions with wrapped messages
@@ -974,7 +974,7 @@ func (s *AppTestSuite) TestTSSLaneWrappedMsgComplainExceedGas() {
 	)
 	s.Require().NoError(err)
 
-	s.checkLaneWrappedMsgWithExceedGas(msg, sender, "tssLane", 2500001, sdk.Coins{})
+	s.checkLaneWrappedMsgWithExceedGas(msg, sender, "tssLane", 5000001, sdk.Coins{})
 }
 
 // TestTSSLaneWrappedMsgSubmitDEExceedGas tests that MsgSubmitDE transactions with wrapped messages
@@ -997,7 +997,7 @@ func (s *AppTestSuite) TestTSSLaneWrappedMsgSubmitDEExceedGas() {
 		[]tsstestutils.DEWithPrivateNonce{de},
 	)
 
-	s.checkLaneWrappedMsgWithExceedGas(msg, sender, "tssLane", 2500001, sdk.Coins{})
+	s.checkLaneWrappedMsgWithExceedGas(msg, sender, "tssLane", 5000001, sdk.Coins{})
 }
 
 // TestTSSLaneWrappedMsgSubmitSignatureExceedGas tests that MsgSubmitSignature transactions with wrapped messages
@@ -1061,7 +1061,7 @@ func (s *AppTestSuite) TestTSSLaneWrappedMsgSubmitSignatureExceedGas() {
 		signature,
 	)
 
-	s.checkLaneWrappedMsgWithExceedGas(msg, sender, "tssLane", 2500001, sdk.Coins{})
+	s.checkLaneWrappedMsgWithExceedGas(msg, sender, "tssLane", 5000001, sdk.Coins{})
 }
 
 // -----------------------------------------------
@@ -1081,7 +1081,7 @@ func (s *AppTestSuite) TestOracleReportLaneExactGas() {
 	sender := s.valAccWithNumSeq
 	msg := genMsgReportData(&sender)
 
-	s.checkLaneWithExactGas(msg, sender, "oracleReportLane", 2500000, sdk.Coins{})
+	s.checkLaneWithExactGas(msg, sender, "oracleReportLane", 5000000, sdk.Coins{})
 }
 
 // TestOracleReportLaneExceedGas tests that transactions with exceed gas limit are rejected
@@ -1089,7 +1089,7 @@ func (s *AppTestSuite) TestOracleReportLaneExceedGas() {
 	sender := s.valAccWithNumSeq
 	msg := genMsgReportData(&sender)
 
-	s.checkLaneWithExceedGas(msg, sender, "oracleReportLane", 2500001, sdk.Coins{})
+	s.checkLaneWithExceedGas(msg, sender, "oracleReportLane", 5000001, sdk.Coins{})
 }
 
 // TestOracleReportLaneWrappedMsgExactGas tests that transactions with wrapped message with exact gas limit are accepted
@@ -1098,7 +1098,7 @@ func (s *AppTestSuite) TestOracleReportLaneWrappedMsgExactGas() {
 	sender := s.reporterAccWithNumSeq
 	msg := genMsgReportData(&txOwner)
 
-	s.checkLaneWrappedMsgWithExactGas(msg, sender, "oracleReportLane", 2500000, sdk.Coins{})
+	s.checkLaneWrappedMsgWithExactGas(msg, sender, "oracleReportLane", 5000000, sdk.Coins{})
 }
 
 // TestOracleReportLaneWrappedMsgExceedGas tests that transactions with wrapped message with exceed gas limit are rejected
@@ -1107,7 +1107,7 @@ func (s *AppTestSuite) TestOracleReportLaneWrappedMsgExceedGas() {
 	sender := s.reporterAccWithNumSeq
 	msg := genMsgReportData(&txOwner)
 
-	s.checkLaneWrappedMsgWithExceedGas(msg, sender, "oracleReportLane", 2500001, sdk.Coins{})
+	s.checkLaneWrappedMsgWithExceedGas(msg, sender, "oracleReportLane", 5000001, sdk.Coins{})
 }
 
 // -----------------------------------------------
@@ -1173,7 +1173,7 @@ func (s *AppTestSuite) TestRequestLaneBlockedByReportLane() {
 		},
 		&s.valAccWithNumSeq,
 		sdk.Coins{},
-		2500000,
+		5000000,
 		4,
 	)
 
@@ -1262,7 +1262,7 @@ func (s *AppTestSuite) TestAllLaneFilled() {
 		sdk.Coins{
 			sdk.NewInt64Coin("uband", 12500),
 		},
-		2500000,
+		5000000,
 		2,
 	)
 
@@ -1278,8 +1278,8 @@ func (s *AppTestSuite) TestAllLaneFilled() {
 		},
 		&s.valAccWithNumSeq,
 		sdk.Coins{},
-		2500000,
-		4,
+		5000000,
+		2,
 	)
 
 	// Check that the report data transactions are accepted
@@ -1299,8 +1299,8 @@ func (s *AppTestSuite) TestAllLaneFilled() {
 		},
 		&s.tssAccountsWithNumSeq[0],
 		sdk.Coins{},
-		2500000,
-		4,
+		5000000,
+		2,
 	)
 
 	s.checkTxAcceptance(tssTxBytes, "tssLane")
@@ -1324,12 +1324,12 @@ func (s *AppTestSuite) TestAllLaneFilled() {
 
 	s.checkTxAcceptance(feedsTxBytes, "feedsLane")
 
-	require.Equal(s.app.Mempool().CountTx(), 36)
+	require.Equal(s.app.Mempool().CountTx(), 32)
 	mempool := s.app.Mempool().(*mempool.Mempool)
 	require.Equal(mempool.GetLane("defaultLane").CountTx(), 1)
 	require.Equal(mempool.GetLane("oracleRequestLane").CountTx(), 2)
-	require.Equal(mempool.GetLane("oracleReportLane").CountTx(), 4)
-	require.Equal(mempool.GetLane("tssLane").CountTx(), 4)
+	require.Equal(mempool.GetLane("oracleReportLane").CountTx(), 2)
+	require.Equal(mempool.GetLane("tssLane").CountTx(), 2)
 	require.Equal(mempool.GetLane("feedsLane").CountTx(), 25)
 
 	// Prepare proposal
@@ -1343,7 +1343,7 @@ func (s *AppTestSuite) TestAllLaneFilled() {
 	resp, err := s.app.PrepareProposal(prepareReq)
 	require.NoError(err)
 	require.NotNil(resp)
-	require.Equal(len(resp.Txs), 34)
+	require.Equal(len(resp.Txs), 30)
 	require.Equal(resp.Txs, append(append(append(feedsTxBytes, tssTxBytes...), reportTxBytes...), bankSendTxBytes...)) // every lane except oracleRequestLane
 }
 
@@ -1359,8 +1359,8 @@ func (s *AppTestSuite) TestAllLaneFilledExceptOracleReportLane() {
 			genMsgSend(&s.valAccWithNumSeq, &s.reporterAccWithNumSeq, sdk.Coins{sdk.NewInt64Coin("uband", 1)}),
 		},
 		&s.valAccWithNumSeq,
-		sdk.Coins{sdk.NewInt64Coin("uband", 6250)},
-		2500000,
+		sdk.Coins{sdk.NewInt64Coin("uband", 12500)},
+		5000000,
 		2,
 	)
 
@@ -1393,8 +1393,8 @@ func (s *AppTestSuite) TestAllLaneFilledExceptOracleReportLane() {
 		},
 		&s.valAccWithNumSeq,
 		sdk.Coins{},
-		2500000,
-		3,
+		5000000,
+		1,
 	)
 
 	// Check that the report data transactions are accepted
@@ -1414,8 +1414,8 @@ func (s *AppTestSuite) TestAllLaneFilledExceptOracleReportLane() {
 		},
 		&s.tssAccountsWithNumSeq[0],
 		sdk.Coins{},
-		2500000,
-		4,
+		5000000,
+		2,
 	)
 
 	s.checkTxAcceptance(tssTxBytes, "tssLane")
@@ -1439,12 +1439,12 @@ func (s *AppTestSuite) TestAllLaneFilledExceptOracleReportLane() {
 
 	s.checkTxAcceptance(feedsTxBytes, "feedsLane")
 
-	require.Equal(s.app.Mempool().CountTx(), 36)
+	require.Equal(s.app.Mempool().CountTx(), 32)
 	mempool := s.app.Mempool().(*mempool.Mempool)
 	require.Equal(mempool.GetLane("defaultLane").CountTx(), 2)
 	require.Equal(mempool.GetLane("oracleRequestLane").CountTx(), 2)
-	require.Equal(mempool.GetLane("oracleReportLane").CountTx(), 3)
-	require.Equal(mempool.GetLane("tssLane").CountTx(), 4)
+	require.Equal(mempool.GetLane("oracleReportLane").CountTx(), 1)
+	require.Equal(mempool.GetLane("tssLane").CountTx(), 2)
 	require.Equal(mempool.GetLane("feedsLane").CountTx(), 25)
 
 	// Prepare proposal
@@ -1458,7 +1458,7 @@ func (s *AppTestSuite) TestAllLaneFilledExceptOracleReportLane() {
 	resp, err := s.app.PrepareProposal(prepareReq)
 	require.NoError(err)
 	require.NotNil(resp)
-	require.Equal(len(resp.Txs), 35)
+	require.Equal(len(resp.Txs), 31)
 	// Since the OracleReportLane is not filled, the OracleRequestLane is included
 	require.Equal(resp.Txs, append(append(append(append(feedsTxBytes, tssTxBytes...), reportTxBytes...), requestTxBytes...), bankSendTxBytes[0])) // only the first bank send transaction is included
 }
@@ -1683,8 +1683,8 @@ func (s *AppTestSuite) TestLargeTxSizeBlocksSubsequentTx() {
 		},
 		&s.valAccWithNumSeq,
 		sdk.Coins{},
-		2500000,
-		4,
+		5000000,
+		2,
 	)
 
 	// Check that the report data transactions are accepted
@@ -1704,8 +1704,8 @@ func (s *AppTestSuite) TestLargeTxSizeBlocksSubsequentTx() {
 		},
 		&s.tssAccountsWithNumSeq[0],
 		sdk.Coins{},
-		2500000,
-		4,
+		5000000,
+		2,
 	)
 
 	s.checkTxAcceptance(tssTxBytes, "tssLane")
@@ -1729,11 +1729,11 @@ func (s *AppTestSuite) TestLargeTxSizeBlocksSubsequentTx() {
 
 	s.checkTxAcceptance(feedsTxBytes, "feedsLane")
 
-	require.Equal(s.app.Mempool().CountTx(), 38)
+	require.Equal(s.app.Mempool().CountTx(), 34)
 	mempool := s.app.Mempool().(*mempool.Mempool)
 	require.Equal(mempool.GetLane("defaultLane").CountTx(), 2)
-	require.Equal(mempool.GetLane("oracleReportLane").CountTx(), 4)
-	require.Equal(mempool.GetLane("tssLane").CountTx(), 4)
+	require.Equal(mempool.GetLane("oracleReportLane").CountTx(), 2)
+	require.Equal(mempool.GetLane("tssLane").CountTx(), 2)
 	require.Equal(mempool.GetLane("feedsLane").CountTx(), 28)
 
 	// Prepare proposal
@@ -1747,7 +1747,7 @@ func (s *AppTestSuite) TestLargeTxSizeBlocksSubsequentTx() {
 	resp, err := s.app.PrepareProposal(prepareReq)
 	require.NoError(err)
 	require.NotNil(resp)
-	require.Equal(len(resp.Txs), 36)
+	require.Equal(len(resp.Txs), 32)
 
 	var expectedTxBytes [][]byte
 	// the bank send txs are blocked by the large bank send tx
