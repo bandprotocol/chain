@@ -196,8 +196,7 @@ func GetTxCmdSubmitDKGRound2() *cobra.Command {
 
 			var encryptedSecretShares tss.EncSecretShares
 			if len(args) > 2 {
-				encryptedSecretSharesStr := strings.Split(args[2], ",")
-				for _, essStr := range encryptedSecretSharesStr {
+				for essStr := range strings.SplitSeq(args[2], ",") {
 					ess, err := hex.DecodeString(essStr)
 					if err != nil {
 						return err
