@@ -754,8 +754,8 @@ func (s *AppTestSuite) TestTSSLaneWrappedMsgSubmitDKGRound1ExactGas() {
 	s.checkLaneWrappedMsgWithExactGas(msg, sender, "tssLane", 5000000, sdk.Coins{})
 }
 
-// TestTSSLaneWrappedMsgSubmitDKGRound2ExcactGas tests that MsgSubmitDKGRound2 transactions with wrapped messages are handled correctly
-func (s *AppTestSuite) TestTSSLaneWrappedMsgSubmitDKGRound2ExcactGas() {
+// TestTSSLaneWrappedMsgSubmitDKGRound2ExactGas tests that MsgSubmitDKGRound2 transactions with wrapped messages are handled correctly
+func (s *AppTestSuite) TestTSSLaneWrappedMsgSubmitDKGRound2ExactGas() {
 	err := s.tssGroupCtx.SubmitRound1(s.ctx, s.app.TSSKeeper)
 	s.Require().NoError(err)
 
@@ -1144,7 +1144,13 @@ func (s *AppTestSuite) TestOracleRequestLaneWrappedMsgExactGas() {
 	sender := s.reporterAccWithNumSeq
 	msg := genMsgRequestData(&txOwner)
 
-	s.checkLaneWrappedMsgWithExactGas(msg, sender, "oracleRequestLane", 5000000, sdk.Coins{sdk.NewInt64Coin("uband", 12500)})
+	s.checkLaneWrappedMsgWithExactGas(
+		msg,
+		sender,
+		"oracleRequestLane",
+		5000000,
+		sdk.Coins{sdk.NewInt64Coin("uband", 12500)},
+	)
 }
 
 // TestOracleRequestLaneWrappedMsgExceedGas tests that transactions with wrapped message with exceed gas limit are rejected
@@ -1153,7 +1159,13 @@ func (s *AppTestSuite) TestOracleRequestLaneWrappedMsgExceedGas() {
 	sender := s.reporterAccWithNumSeq
 	msg := genMsgRequestData(&txOwner)
 
-	s.checkLaneWrappedMsgWithExceedGas(msg, sender, "oracleRequestLane", 5000001, sdk.Coins{sdk.NewInt64Coin("uband", 12501)})
+	s.checkLaneWrappedMsgWithExceedGas(
+		msg,
+		sender,
+		"oracleRequestLane",
+		5000001,
+		sdk.Coins{sdk.NewInt64Coin("uband", 12501)},
+	)
 }
 
 // -----------------------------------------------
@@ -1659,7 +1671,10 @@ func (s *AppTestSuite) TestFillRemainingProposal() {
 	require.Equal(42, len(resp.Txs))
 
 	var expectedTxBytes [][]byte
-	expectedTxBytes = append(append(append(append(expectedTxBytes, feedsTxBytes[:25]...), bankSendTxBytes[0]), feedsTxBytes[25:]...), bankSendTxBytes[1])
+	expectedTxBytes = append(
+		append(append(append(expectedTxBytes, feedsTxBytes[:25]...), bankSendTxBytes[0]), feedsTxBytes[25:]...),
+		bankSendTxBytes[1],
+	)
 	require.Equal(expectedTxBytes, resp.Txs)
 }
 
@@ -1774,7 +1789,9 @@ func (s *AppTestSuite) TestLargeTxSizeBlocksSubsequentTx() {
 
 	var expectedTxBytes [][]byte
 	// the bank send txs are blocked by the large bank send tx
-	expectedTxBytes = append(append(append(append(expectedTxBytes, feedsTxBytes[:26]...), tssTxBytes...), reportTxBytes...), feedsTxBytes[26:]...)
+	expectedTxBytes = append(
+		append(append(append(expectedTxBytes, feedsTxBytes[:26]...), tssTxBytes...), reportTxBytes...),
+		feedsTxBytes[26:]...)
 	require.Equal(expectedTxBytes, resp.Txs)
 }
 
@@ -1821,7 +1838,13 @@ func (s *AppTestSuite) checkLaneWithZeroGas(msg sdk.Msg, sender bandtesting.Acco
 	require.Equal(0, len(resp.Txs))
 }
 
-func (s *AppTestSuite) checkLaneWithExactGas(msg sdk.Msg, sender bandtesting.AccountWithNumSeq, laneName string, gas uint64, feeAmt sdk.Coins) {
+func (s *AppTestSuite) checkLaneWithExactGas(
+	msg sdk.Msg,
+	sender bandtesting.AccountWithNumSeq,
+	laneName string,
+	gas uint64,
+	feeAmt sdk.Coins,
+) {
 	require := s.Require()
 	msgs := []sdk.Msg{msg}
 
@@ -1865,7 +1888,13 @@ func (s *AppTestSuite) checkLaneWithExactGas(msg sdk.Msg, sender bandtesting.Acc
 	require.Equal(txBytes, resp.Txs[0])
 }
 
-func (s *AppTestSuite) checkLaneWithExceedGas(msg sdk.Msg, sender bandtesting.AccountWithNumSeq, laneName string, gas uint64, feeAmt sdk.Coins) {
+func (s *AppTestSuite) checkLaneWithExceedGas(
+	msg sdk.Msg,
+	sender bandtesting.AccountWithNumSeq,
+	laneName string,
+	gas uint64,
+	feeAmt sdk.Coins,
+) {
 	require := s.Require()
 	msgs := []sdk.Msg{msg}
 
@@ -1907,7 +1936,13 @@ func (s *AppTestSuite) checkLaneWithExceedGas(msg sdk.Msg, sender bandtesting.Ac
 	require.Equal(0, len(resp.Txs))
 }
 
-func (s *AppTestSuite) checkLaneWrappedMsgWithExactGas(msg sdk.Msg, sender bandtesting.AccountWithNumSeq, laneName string, gas uint64, feeAmt sdk.Coins) {
+func (s *AppTestSuite) checkLaneWrappedMsgWithExactGas(
+	msg sdk.Msg,
+	sender bandtesting.AccountWithNumSeq,
+	laneName string,
+	gas uint64,
+	feeAmt sdk.Coins,
+) {
 	require := s.Require()
 	msgs := []sdk.Msg{msg}
 
@@ -1952,7 +1987,13 @@ func (s *AppTestSuite) checkLaneWrappedMsgWithExactGas(msg sdk.Msg, sender bandt
 	require.Equal(txBytes, resp.Txs[0])
 }
 
-func (s *AppTestSuite) checkLaneWrappedMsgWithExceedGas(msg sdk.Msg, sender bandtesting.AccountWithNumSeq, laneName string, gas uint64, feeAmt sdk.Coins) {
+func (s *AppTestSuite) checkLaneWrappedMsgWithExceedGas(
+	msg sdk.Msg,
+	sender bandtesting.AccountWithNumSeq,
+	laneName string,
+	gas uint64,
+	feeAmt sdk.Coins,
+) {
 	require := s.Require()
 	msgs := []sdk.Msg{msg}
 
@@ -2017,7 +2058,11 @@ func (s *AppTestSuite) checkTxAcceptance(txBytes [][]byte, laneName string) {
 }
 
 // genMsgSend creates a message for sending coins
-func genMsgSend(sender *bandtesting.AccountWithNumSeq, recipient *bandtesting.AccountWithNumSeq, amount sdk.Coins) sdk.Msg {
+func genMsgSend(
+	sender *bandtesting.AccountWithNumSeq,
+	recipient *bandtesting.AccountWithNumSeq,
+	amount sdk.Coins,
+) sdk.Msg {
 	return banktypes.NewMsgSend(sender.Address, recipient.Address, amount)
 }
 
