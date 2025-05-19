@@ -27,6 +27,8 @@
 * (chain) Add restake module
 * (chain) Separate rolling seed from Oracle module to be a standalone Rolling seed module
 * (chain) Update proof to support newly added module
+* (chain) Introduce new mempool package for flexible transaction processing and block proposal generation
+* (chain) Add transaction prioritization system with dedicated lanes for feeds, TSS, oracle reports, oracle requests, and default transactions
 * (grogu) Add Grogu to provide a service for supporting Feeds price submission
 * (grogu) Use block time instead of local time.
 * (grogu) Add telemetry support for tracking service metrics

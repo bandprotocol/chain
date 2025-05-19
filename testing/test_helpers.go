@@ -50,6 +50,13 @@ type Account struct {
 	ValAddress sdk.ValAddress
 }
 
+// AccountWithNumSeq is a data structure to store key of test account and its account number and sequence.
+type AccountWithNumSeq struct {
+	Account
+	Num uint64
+	Seq uint64
+}
+
 var (
 	Owner           Account
 	Treasury        Account

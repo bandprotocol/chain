@@ -11,6 +11,7 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	"github.com/bandprotocol/chain/v3/app/mempool"
 	bandtsskeeper "github.com/bandprotocol/chain/v3/x/bandtss/keeper"
 	feedskeeper "github.com/bandprotocol/chain/v3/x/feeds/keeper"
 	"github.com/bandprotocol/chain/v3/x/globalfee/feechecker"
@@ -23,15 +24,16 @@ import (
 // channel keeper.
 type HandlerOptions struct {
 	ante.HandlerOptions
-	Cdc             codec.Codec
-	AuthzKeeper     *authzkeeper.Keeper
-	OracleKeeper    *oraclekeeper.Keeper
-	IBCKeeper       *ibckeeper.Keeper
-	StakingKeeper   *stakingkeeper.Keeper
-	GlobalfeeKeeper *globalfeekeeper.Keeper
-	TSSKeeper       *tsskeeper.Keeper
-	BandtssKeeper   *bandtsskeeper.Keeper
-	FeedsKeeper     *feedskeeper.Keeper
+	Cdc                     codec.Codec
+	AuthzKeeper             *authzkeeper.Keeper
+	OracleKeeper            *oraclekeeper.Keeper
+	IBCKeeper               *ibckeeper.Keeper
+	StakingKeeper           *stakingkeeper.Keeper
+	GlobalfeeKeeper         *globalfeekeeper.Keeper
+	TSSKeeper               *tsskeeper.Keeper
+	BandtssKeeper           *bandtsskeeper.Keeper
+	FeedsKeeper             *feedskeeper.Keeper
+	IgnoreDecoratorMatchFns []mempool.TxMatchFn
 }
 
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
@@ -79,14 +81,8 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 
 	if options.TxFeeChecker == nil {
 		feeChecker := feechecker.NewFeeChecker(
-			options.Cdc,
-			options.AuthzKeeper,
-			options.OracleKeeper,
 			options.GlobalfeeKeeper,
 			options.StakingKeeper,
-			options.TSSKeeper,
-			options.BandtssKeeper,
-			options.FeedsKeeper,
 		)
 		options.TxFeeChecker = feeChecker.CheckTxFee
 	}
@@ -98,11 +94,14 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 		ante.NewTxTimeoutHeightDecorator(),
 		ante.NewValidateMemoDecorator(options.AccountKeeper),
 		ante.NewConsumeGasForTxSizeDecorator(options.AccountKeeper),
-		ante.NewDeductFeeDecorator(
-			options.AccountKeeper,
-			options.BankKeeper,
-			options.FeegrantKeeper,
-			options.TxFeeChecker,
+		NewIgnoreDecorator(
+			ante.NewDeductFeeDecorator(
+				options.AccountKeeper,
+				options.BankKeeper,
+				options.FeegrantKeeper,
+				options.TxFeeChecker,
+			),
+			options.IgnoreDecoratorMatchFns...,
 		),
 		// SetPubKeyDecorator must be called before all signature verification decorators
 		ante.NewSetPubKeyDecorator(options.AccountKeeper),
@@ -114,4 +113,42 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	}
 
 	return sdk.ChainAnteDecorators(anteDecorators...), nil
+}
+
+// IgnoreDecorator is an AnteDecorator that wraps an existing AnteDecorator. It allows
+// for the AnteDecorator to be ignored for specified lanes.
+type IgnoreDecorator struct {
+	decorator sdk.AnteDecorator
+	matchFns  []mempool.TxMatchFn
+}
+
+// NewIgnoreDecorator returns a new IgnoreDecorator instance.
+func NewIgnoreDecorator(decorator sdk.AnteDecorator, matchFns ...mempool.TxMatchFn) *IgnoreDecorator {
+	return &IgnoreDecorator{
+		decorator: decorator,
+		matchFns:  matchFns,
+	}
+}
+
+// NewIgnoreDecorator is a wrapper that implements the sdk.AnteDecorator interface,
+// providing two execution paths for processing transactions:
+//   - If a transaction matches one of the designated bypass lanes, it is forwarded
+//     directly to the next AnteHandler.
+//   - Otherwise, the transaction is processed using the embedded decorator’s AnteHandler.
+func (ig IgnoreDecorator) AnteHandle(
+	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
+) (sdk.Context, error) {
+	// IgnoreDecorator is only used for check tx and re-check tx.
+	if !ctx.IsCheckTx() && !ctx.IsReCheckTx() {
+		return ig.decorator.AnteHandle(ctx, tx, simulate, next)
+	}
+
+	cacheCtx, _ := ctx.CacheContext()
+	for _, matchFn := range ig.matchFns {
+		if matchFn(cacheCtx, tx) {
+			return next(ctx, tx, simulate)
+		}
+	}
+
+	return ig.decorator.AnteHandle(ctx, tx, simulate, next)
 }

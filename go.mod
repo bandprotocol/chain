@@ -19,7 +19,7 @@ require (
 	cosmossdk.io/x/upgrade v0.1.4
 	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/axelarnetwork/utils v0.0.0-20230706045331-b7aacc1f4a2f
-	github.com/bandprotocol/bothan/bothan-api/client/go-client v0.0.1-beta.2
+	github.com/bandprotocol/bothan/bothan-api/client/go-client v0.0.1-beta.3
 	github.com/bandprotocol/go-owasm v0.3.1
 	github.com/bytecodealliance/wasmtime-go/v20 v20.0.0
 	github.com/cometbft/cometbft v0.38.17
@@ -118,7 +118,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/dvsekhvalnov/jose2go v1.6.0 // indirect
 	github.com/emicklei/dot v1.6.2 // indirect
-	github.com/fatih/color v1.16.0 // indirect
+	github.com/fatih/color v1.17.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
@@ -162,7 +162,7 @@ require (
 	github.com/hashicorp/go-metrics v0.5.3 // indirect
 	github.com/hashicorp/go-plugin v1.5.2 // indirect
 	github.com/hashicorp/go-safetemp v1.0.0 // indirect
-	github.com/hashicorp/go-version v1.6.0 // indirect
+	github.com/hashicorp/go-version v1.7.0 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
