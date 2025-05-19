@@ -21,7 +21,7 @@ type Lane struct {
 	logger    log.Logger
 	txEncoder sdk.TxEncoder
 	name      string
-	txMatchFn func(ctx sdk.Context, tx sdk.Tx) bool
+	txMatchFn TxMatchFn
 
 	maxTransactionBlockRatio math.LegacyDec
 	maxLaneBlockRatio        math.LegacyDec
