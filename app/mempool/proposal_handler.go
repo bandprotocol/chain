@@ -53,16 +53,13 @@ func (h *ProposalHandler) PrepareProposalHandler() sdk.PrepareProposalHandler {
 
 		// Gather block limits
 		maxBytesLimit, maxGasLimit := getBlockLimits(ctx)
-		var maxTxBytes uint64
-		if req.MaxTxBytes < 0 {
-			maxTxBytes = maxBytesLimit
-		} else {
-			maxTxBytes = uint64(req.MaxTxBytes)
+		if req.MaxTxBytes >= 0 {
+			maxBytesLimit = min(uint64(req.MaxTxBytes), maxBytesLimit)
 		}
 
 		proposal := NewProposal(
 			h.logger,
-			min(maxTxBytes, maxBytesLimit),
+			maxBytesLimit,
 			maxGasLimit,
 		)
 
