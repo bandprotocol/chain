@@ -10,6 +10,9 @@ import (
 
 	abci "github.com/cometbft/cometbft/abci/types"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
 	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
@@ -279,7 +282,7 @@ func BenchmarkBlockOracleMsgRequestData(b *testing.B) {
 							for i := 0; i < b.N; i++ {
 								ba := InitializeBenchmarkApp(b, -1)
 
-								txs := GenSequenceOfTxs(
+								txs := bandtesting.GenSequenceOfTxs(
 									ba.TxEncoder,
 									ba.TxConfig,
 									GenMsgRequestData(
@@ -293,6 +296,8 @@ func BenchmarkBlockOracleMsgRequestData(b *testing.B) {
 										1000,
 									),
 									ba.Sender,
+									sdk.Coins{sdk.NewInt64Coin("uband", 1)},
+									math.MaxInt64,
 									reqPerBlock,
 								)
 
@@ -347,7 +352,7 @@ func BenchmarkBlockOracleMsgReportData(b *testing.B) {
 								ba := InitializeBenchmarkApp(b, BlockMaxGas)
 
 								// add request
-								txs := GenSequenceOfTxs(
+								txs := bandtesting.GenSequenceOfTxs(
 									ba.TxEncoder,
 									ba.TxConfig,
 									GenMsgRequestData(
@@ -361,6 +366,8 @@ func BenchmarkBlockOracleMsgReportData(b *testing.B) {
 										ExecuteGasLimit,
 									),
 									ba.Sender,
+									sdk.Coins{sdk.NewInt64Coin("uband", 1)},
+									math.MaxInt64,
 									reqPerBlock,
 								)
 
@@ -380,11 +387,13 @@ func BenchmarkBlockOracleMsgReportData(b *testing.B) {
 								pendingRequests := ba.GetAllPendingRequests(ba.Validator)
 
 								// create msg report data
-								tx := GenSequenceOfTxs(
+								tx := bandtesting.GenSequenceOfTxs(
 									ba.TxEncoder,
 									ba.TxConfig,
 									ba.GenMsgReportData(ba.Validator, pendingRequests.RequestIDs),
 									ba.Validator,
+									sdk.Coins{sdk.NewInt64Coin("uband", 1)},
+									math.MaxInt64,
 									1,
 								)[0]
 
