@@ -18,7 +18,7 @@ require (
 	cosmossdk.io/x/upgrade v0.1.4
 	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/axelarnetwork/utils v0.0.0-20230706045331-b7aacc1f4a2f
-	github.com/bandprotocol/bothan/bothan-api/client/go-client v0.0.1-beta.2
+	github.com/bandprotocol/bothan/bothan-api/client/go-client v0.0.1-beta.3
 	github.com/bandprotocol/go-owasm v0.3.1
 	github.com/bytecodealliance/wasmtime-go/v20 v20.0.0
 	github.com/cometbft/cometbft v0.38.17
@@ -222,9 +222,6 @@ require (
 replace (
 	// use cosmos fork of keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
-	// NOTE: this is a temporary fix to use the latest version of the bothan-api/client/go-client
-	// TODO: remove this once the bothan-api/client/go-client is updated to the latest version
-	github.com/bandprotocol/bothan/bothan-api/client/go-client => github.com/bandprotocol/bothan/bothan-api/client/go-client v0.0.0-20250516080416-6265537aabe2
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
 	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2
