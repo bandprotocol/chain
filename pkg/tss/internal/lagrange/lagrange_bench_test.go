@@ -69,13 +69,13 @@ func BenchmarkComputeCoefficient(b *testing.B) {
 
 	for _, test := range tests {
 		b.Run(fmt.Sprintf("Direct - %s", test.name), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
+			for b.Loop() {
 				lagrange.ComputeCoefficient(test.i, test.s)
 			}
 		})
 
 		b.Run(fmt.Sprintf("PreCompute - %s", test.name), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
+			for b.Loop() {
 				lagrange.ComputeCoefficientPreCompute(test.i, test.s)
 			}
 		})
