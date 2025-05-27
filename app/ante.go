@@ -139,7 +139,8 @@ func (ig IgnoreDecorator) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
 ) (sdk.Context, error) {
 	// IgnoreDecorator is only used for check tx and re-check tx.
-	if !ctx.IsCheckTx() && !ctx.IsReCheckTx() {
+	// IgnoreDecorator is not used for simulate tx because it affects the gas calculation.
+	if simulate || (!ctx.IsCheckTx() && !ctx.IsReCheckTx()) {
 		return ig.decorator.AnteHandle(ctx, tx, simulate, next)
 	}
 
