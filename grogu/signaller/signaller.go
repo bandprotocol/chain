@@ -21,7 +21,7 @@ const (
 
 type Signaller struct {
 	feedQuerier  FeedQuerier
-	cometQuerier CometQuerier
+	nodeQuerier  NodeQuerier
 	bothanClient BothanClient
 	// How often to check for signal changes
 	interval         time.Duration
@@ -41,7 +41,7 @@ type Signaller struct {
 
 func New(
 	feedQuerier FeedQuerier,
-	cometQuerier CometQuerier,
+	nodeQuerier NodeQuerier,
 	bothanClient BothanClient,
 	interval time.Duration,
 	submitCh chan<- submitter.SignalPriceSubmission,
@@ -53,7 +53,7 @@ func New(
 ) *Signaller {
 	return &Signaller{
 		feedQuerier:                  feedQuerier,
-		cometQuerier:                 cometQuerier,
+		nodeQuerier:                  nodeQuerier,
 		bothanClient:                 bothanClient,
 		interval:                     interval,
 		submitCh:                     submitCh,
@@ -166,13 +166,13 @@ func (s *Signaller) updateValidatorPriceMap() bool {
 }
 
 func (s *Signaller) updateBlockTime() bool {
-	resp, err := s.cometQuerier.GetLatestBlock()
+	resp, err := s.nodeQuerier.QueryStatus()
 	if err != nil {
 		s.logger.Error("[Signaller] failed to query latest block: %v", err)
 		return false
 	}
 
-	s.currentBlockTime = resp.SdkBlock.Header.Time
+	s.currentBlockTime = *resp.Timestamp
 
 	return true
 }
