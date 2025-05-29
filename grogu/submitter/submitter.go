@@ -243,7 +243,7 @@ func (s *Submitter) removePending(prices []types.SignalPrice) {
 	for _, p := range prices {
 		_, loaded := s.pendingSignalIDs.LoadAndDelete(p.SignalID)
 		if !loaded {
-			s.logger.Debug("[Submitter] Attempted to delete Signal ID %s which was not pending", p.SignalID)
+			s.logger.Error("[Submitter] Attempted to delete Signal ID %s which was not pending", p.SignalID)
 		}
 	}
 }

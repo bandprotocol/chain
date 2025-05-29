@@ -225,7 +225,7 @@ func (s *Signaller) submitPrices(prices []types.SignalPrice, uuid string) {
 	for _, p := range prices {
 		_, loaded := s.pendingSignalIDs.LoadOrStore(p.SignalID, struct{}{})
 		if loaded {
-			s.logger.Debug("[Signaller] Attempted to store Signal ID %s which was already pending", p.SignalID)
+			s.logger.Error("[Signaller] Attempted to store Signal ID %s which was already pending", p.SignalID)
 		}
 	}
 
