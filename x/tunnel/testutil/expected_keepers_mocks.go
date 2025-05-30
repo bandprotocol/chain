@@ -409,6 +409,7 @@ func (mr *MockScopedKeeperMockRecorder) GetCapability(ctx, name any) *gomock.Cal
 type MockTransferKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockTransferKeeperMockRecorder
+	isgomock struct{}
 }
 
 // MockTransferKeeperMockRecorder is the mock recorder for MockTransferKeeper.

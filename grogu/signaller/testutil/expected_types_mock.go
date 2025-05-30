@@ -14,7 +14,7 @@ import (
 
 	proto "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/bothan/v1"
 	types "github.com/bandprotocol/chain/v3/x/feeds/types"
-	cmtservice "github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
+	node "github.com/cosmos/cosmos-sdk/client/grpc/node"
 	types0 "github.com/cosmos/cosmos-sdk/types"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -185,41 +185,41 @@ func (mr *MockFeedQuerierMockRecorder) QueryValidatorPrices(valAddress any) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueryValidatorPrices", reflect.TypeOf((*MockFeedQuerier)(nil).QueryValidatorPrices), valAddress)
 }
 
-// MockCometQuerier is a mock of CometQuerier interface.
-type MockCometQuerier struct {
+// MockNodeQuerier is a mock of NodeQuerier interface.
+type MockNodeQuerier struct {
 	ctrl     *gomock.Controller
-	recorder *MockCometQuerierMockRecorder
+	recorder *MockNodeQuerierMockRecorder
 	isgomock struct{}
 }
 
-// MockCometQuerierMockRecorder is the mock recorder for MockCometQuerier.
-type MockCometQuerierMockRecorder struct {
-	mock *MockCometQuerier
+// MockNodeQuerierMockRecorder is the mock recorder for MockNodeQuerier.
+type MockNodeQuerierMockRecorder struct {
+	mock *MockNodeQuerier
 }
 
-// NewMockCometQuerier creates a new mock instance.
-func NewMockCometQuerier(ctrl *gomock.Controller) *MockCometQuerier {
-	mock := &MockCometQuerier{ctrl: ctrl}
-	mock.recorder = &MockCometQuerierMockRecorder{mock}
+// NewMockNodeQuerier creates a new mock instance.
+func NewMockNodeQuerier(ctrl *gomock.Controller) *MockNodeQuerier {
+	mock := &MockNodeQuerier{ctrl: ctrl}
+	mock.recorder = &MockNodeQuerierMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockCometQuerier) EXPECT() *MockCometQuerierMockRecorder {
+func (m *MockNodeQuerier) EXPECT() *MockNodeQuerierMockRecorder {
 	return m.recorder
 }
 
-// GetLatestBlock mocks base method.
-func (m *MockCometQuerier) GetLatestBlock() (*cmtservice.GetLatestBlockResponse, error) {
+// QueryStatus mocks base method.
+func (m *MockNodeQuerier) QueryStatus() (*node.StatusResponse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetLatestBlock")
-	ret0, _ := ret[0].(*cmtservice.GetLatestBlockResponse)
+	ret := m.ctrl.Call(m, "QueryStatus")
+	ret0, _ := ret[0].(*node.StatusResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetLatestBlock indicates an expected call of GetLatestBlock.
-func (mr *MockCometQuerierMockRecorder) GetLatestBlock() *gomock.Call {
+// QueryStatus indicates an expected call of QueryStatus.
+func (mr *MockNodeQuerierMockRecorder) QueryStatus() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLatestBlock", reflect.TypeOf((*MockCometQuerier)(nil).GetLatestBlock))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueryStatus", reflect.TypeOf((*MockNodeQuerier)(nil).QueryStatus))
 }

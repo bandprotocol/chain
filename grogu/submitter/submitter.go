@@ -180,9 +180,8 @@ func (s *Submitter) submitPrice(pricesSubmission SignalPriceSubmission, keyID st
 			telemetry.ObserveSubmitTxDuration(time.Since(since).Seconds())
 
 			s.logger.Info("[Submitter] price submitted at %v", finalizedTxResp.TxHash)
-			s.pushMonitoringRecords(uuid, finalizedTxResp.TxHash, signalIDs)
+			go s.pushMonitoringRecords(uuid, finalizedTxResp.TxHash, signalIDs)
 
-			// telemetry.Set
 			telemetry.ObserveSignalPriceUpdateInterval(signalPrices)
 			telemetry.IncrementSubmitTxSuccess()
 			return
@@ -243,7 +242,7 @@ func (s *Submitter) removePending(prices []types.SignalPrice) {
 	for _, p := range prices {
 		_, loaded := s.pendingSignalIDs.LoadAndDelete(p.SignalID)
 		if !loaded {
-			s.logger.Debug("[Submitter] Attempted to delete Signal ID %s which was not pending", p.SignalID)
+			s.logger.Error("[Submitter] Attempted to delete Signal ID %s which was not pending", p.SignalID)
 		}
 	}
 }

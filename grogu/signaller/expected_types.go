@@ -1,7 +1,7 @@
 package signaller
 
 import (
-	comet "github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
+	"github.com/cosmos/cosmos-sdk/client/grpc/node"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	bothanclient "github.com/bandprotocol/bothan/bothan-api/client/go-client"
@@ -20,6 +20,6 @@ type FeedQuerier interface {
 	QueryCurrentFeeds() (*feeds.QueryCurrentFeedsResponse, error)
 }
 
-type CometQuerier interface {
-	GetLatestBlock() (*comet.GetLatestBlockResponse, error)
+type NodeQuerier interface {
+	QueryStatus() (*node.StatusResponse, error)
 }
