@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"time"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
+	tmtypes "github.com/cometbft/cometbft/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -12,17 +14,19 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder/client"
 	"github.com/bandprotocol/chain/v3/cylinder/context"
 	"github.com/bandprotocol/chain/v3/cylinder/metrics"
+	"github.com/bandprotocol/chain/v3/cylinder/parser"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // UpdateDE is a worker responsible for updating DEs in the store and chains
 type UpdateDE struct {
-	context *context.Context
-	logger  *logger.Logger
-	client  *client.Client
-	eventCh <-chan ctypes.ResultEvent
-	cntUsed uint64
+	context          *context.Context
+	logger           *logger.Logger
+	client           *client.Client
+	eventCh          <-chan ctypes.ResultEvent
+	cntUsed          uint64
+	maxDESizeOnChain uint64
 }
 
 var _ cylinder.Worker = &UpdateDE{}
@@ -34,10 +38,16 @@ func NewUpdateDE(ctx *context.Context) (*UpdateDE, error) {
 		return nil, err
 	}
 
+	params, err := cli.QueryTssParams()
+	if err != nil {
+		return nil, err
+	}
+
 	return &UpdateDE{
-		context: ctx,
-		logger:  ctx.Logger.With("worker", "UpdateDE"),
-		client:  cli,
+		context:          ctx,
+		logger:           ctx.Logger.With("worker", "UpdateDE"),
+		client:           cli,
+		maxDESizeOnChain: params.MaxDESize,
 	}, nil
 }
 
@@ -64,11 +74,33 @@ func (u *UpdateDE) Start() {
 			if err := u.intervalUpdateDE(); err != nil {
 				u.logger.Error(":cold_sweat: Failed to do an interval update DE: %s", err)
 			}
-		case <-u.eventCh:
-			u.cntUsed += 1
-			if u.cntUsed >= u.context.Config.MinDE {
-				u.updateDE(u.cntUsed)
-				u.cntUsed = 0
+		case resultEvent := <-u.eventCh:
+			deUsed := 0
+			var err error
+			switch data := resultEvent.Data.(type) {
+			case tmtypes.EventDataTx:
+				deUsed, err = u.countCreatedSignings(data.TxResult.Result.Events)
+			case tmtypes.EventDataNewBlock:
+				deUsed, err = u.countCreatedSignings(data.ResultFinalizeBlock.Events)
+			default:
+				continue
+			}
+
+			if err != nil {
+				u.logger.Error(":cold_sweat: Failed to count created signings: %s", err)
+				continue
+			}
+			u.cntUsed += uint64(deUsed)
+
+			// if the system used DE over the threshold, add new DEs
+			// the threshold plus the expectedDESize (2/3 maxDESizeOnChain) shouldn't be over
+			// the maxDESizeOnChain to prevent any transaction revert.
+			// The maxDESize params should be set to be at least 3 times of the normal usage (per block).
+			threshold := u.maxDESizeOnChain / 3
+			if u.cntUsed >= threshold {
+				u.logger.Info(":delivery_truck: DEs are used over the threshold, adding new DEs")
+				u.updateDE(threshold)
+				u.cntUsed -= threshold
 			}
 		}
 	}
@@ -170,14 +202,21 @@ func (u *UpdateDE) canUpdateDE() (bool, error) {
 // intervalUpdateDE updates DE on the chain so that the remaining DE is
 // always above the minimum threshold.
 func (u *UpdateDE) intervalUpdateDE() error {
+	// also update the maxDESizeOnChain
+	params, err := u.client.QueryTssParams()
+	if err != nil {
+		return err
+	}
+	u.maxDESizeOnChain = params.MaxDESize
+
 	deCount, err := u.getDECount()
 	if err != nil {
 		return err
 	}
 
-	maxDEOnChain := 2 * u.context.Config.MinDE
-	if deCount < maxDEOnChain {
-		u.updateDE(maxDEOnChain - deCount)
+	expectedDESizeOnChain := (2 * u.maxDESizeOnChain) / 3
+	if deCount < expectedDESizeOnChain {
+		u.updateDE(expectedDESizeOnChain - deCount)
 		u.cntUsed = 0
 	}
 
@@ -196,4 +235,22 @@ func (u *UpdateDE) getDECount() (uint64, error) {
 	}
 
 	return deRes.GetRemaining(), nil
+}
+
+// countCreatedSignings counts the number of signings created from the given events.
+func (u *UpdateDE) countCreatedSignings(abciEvents []abci.Event) (int, error) {
+	cnt := 0
+	events := sdk.StringifyEvents(abciEvents)
+	for _, ev := range events {
+		if ev.Type == types.EventTypeRequestSignature {
+			signatureEvents, err := parser.ParseRequestSignatureEvents(sdk.StringEvents{ev})
+			if err != nil {
+				return 0, err
+			}
+
+			cnt += len(signatureEvents)
+		}
+	}
+
+	return cnt, nil
 }

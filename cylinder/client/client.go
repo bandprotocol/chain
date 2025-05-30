@@ -236,6 +236,18 @@ func (c *Client) QueryPendingSignings(address string) (*tsstypes.QueryPendingSig
 	return res, nil
 }
 
+// QueryTssParams queries the current tss parameters.
+func (c *Client) QueryTssParams() (*tsstypes.Params, error) {
+	queryClient := tsstypes.NewQueryClient(c.context)
+
+	res, err := queryClient.Params(context.Background(), &tsstypes.QueryParamsRequest{})
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Params, nil
+}
+
 // BroadcastAndConfirm broadcasts and confirms the messages by signing and submitting them using the provided key.
 // It returns the transaction response or an error. It retries broadcasting and confirming up to maxTry times.
 func (c *Client) BroadcastAndConfirm(

@@ -1,4 +1,4 @@
-package signing_test
+package parser_test
 
 import (
 	"encoding/hex"
@@ -10,15 +10,15 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v3/cylinder/workers/signing"
+	"github.com/bandprotocol/chain/v3/cylinder/parser"
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-func TestParseEvent(t *testing.T) {
+func TestParseRequestSignatureEvents(t *testing.T) {
 	tests := []struct {
 		name     string
 		events   sdk.StringEvents
-		expEvent []signing.Event
+		expEvent []parser.RequestSignatureEvent
 		expError string
 	}{
 		{
@@ -44,7 +44,7 @@ func TestParseEvent(t *testing.T) {
 					sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString([]byte("pubE2"))),
 				)),
 			}),
-			[]signing.Event{
+			[]parser.RequestSignatureEvent{
 				{
 					SigningID: 1,
 				},
@@ -93,7 +93,7 @@ func TestParseEvent(t *testing.T) {
 					sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString([]byte("pubE2"))),
 				)),
 			}),
-			[]signing.Event{
+			[]parser.RequestSignatureEvent{
 				{
 					SigningID: 1,
 				},
@@ -142,7 +142,7 @@ func TestParseEvent(t *testing.T) {
 					sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString([]byte("pubE2"))),
 				)),
 			}),
-			[]signing.Event{
+			[]parser.RequestSignatureEvent{
 				{
 					SigningID: 1,
 				},
@@ -162,7 +162,7 @@ func TestParseEvent(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			events, err := signing.ParseEvents(test.events)
+			events, err := parser.ParseRequestSignatureEvents(test.events)
 			assert.Equal(t, test.expEvent, events)
 			if test.expError != "" {
 				assert.ErrorContains(t, err, test.expError)
