@@ -134,12 +134,12 @@ func NewIgnoreDecorator(decorator sdk.AnteDecorator, matchFns ...mempool.TxMatch
 // providing two execution paths for processing transactions:
 //   - If a transaction matches one of the designated bypass lanes, it is forwarded
 //     directly to the next AnteHandler.
-//   - Otherwise, the transaction is processed using the embedded decorator’s AnteHandler.
+//   - Otherwise, the transaction is processed using the embedded decorator's AnteHandler.
 func (ig IgnoreDecorator) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
 ) (sdk.Context, error) {
 	// IgnoreDecorator is only used for check tx and re-check tx.
-	// IgnoreDecorator is not used for simulate tx because it affects the gas calculation.
+	// It is also not used for simulate tx because it affects the gas calculation.
 	if simulate || (!ctx.IsCheckTx() && !ctx.IsReCheckTx()) {
 		return ig.decorator.AnteHandle(ctx, tx, simulate, next)
 	}

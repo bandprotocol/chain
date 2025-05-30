@@ -180,7 +180,7 @@ func (s *Submitter) submitPrice(pricesSubmission SignalPriceSubmission, keyID st
 			telemetry.ObserveSubmitTxDuration(time.Since(since).Seconds())
 
 			s.logger.Info("[Submitter] price submitted at %v", finalizedTxResp.TxHash)
-			s.pushMonitoringRecords(uuid, finalizedTxResp.TxHash, signalIDs)
+			go s.pushMonitoringRecords(uuid, finalizedTxResp.TxHash, signalIDs)
 
 			telemetry.ObserveSignalPriceUpdateInterval(signalPrices)
 			telemetry.IncrementSubmitTxSuccess()
