@@ -122,7 +122,7 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 
 		authQuerier := querier.NewAuthQuerier(clientCtx, clients, maxBlockHeight)
 		feedQuerier := querier.NewFeedQuerier(clientCtx, clients, maxBlockHeight)
-		cometQuerier := querier.NewCometQuerier(clientCtx, clients, maxBlockHeight)
+		nodeQuerier := querier.NewNodeQuerier(clientCtx, clients, maxBlockHeight)
 		txQuerier := querier.NewTxQuerier(clientCtx, clients)
 
 		// Setup Bothan service
@@ -147,7 +147,7 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 		// Setup Signaller
 		signallerService := signaller.New(
 			feedQuerier,
-			cometQuerier,
+			nodeQuerier,
 			bothanService,
 			time.Second,
 			submitSignalPriceCh,
