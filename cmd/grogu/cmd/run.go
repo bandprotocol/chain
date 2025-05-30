@@ -57,7 +57,7 @@ func RunCmd(ctx *context.Context) *cobra.Command {
 	cmd.Flags().String(flagNodes, "tcp://localhost:26657", "The RPC URLs to connect to.")
 	cmd.Flags().String(flags.FlagChainID, "", "The chain ID of the connected chain.")
 	cmd.Flags().String(flags.FlagGasPrices, "0uband", "The gas prices for transactions.")
-	cmd.Flags().String(flagBroadcastTimeout, "1m", "The timeout duration for transaction commits.")
+	cmd.Flags().String(flagBroadcastTimeout, "30s", "The timeout duration for transaction commits.")
 	cmd.Flags().String(flagRPCPollInterval, "1s", "The duration to wait between RPC polls.")
 	cmd.Flags().Uint64(flagMaxTry, 5, "The maximum number of attempts to submit a transaction.")
 	cmd.Flags().Float64(flagGasAdjustStart, 1.2, "The gas adjustment start value for transactions.")
