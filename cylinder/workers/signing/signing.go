@@ -196,7 +196,7 @@ func (s *Signing) Start() {
 	for ev := range s.eventCh {
 		switch data := ev.Data.(type) {
 		case tmtypes.EventDataTx:
-			go s.handleABCIEvents(data.TxResult.Result.Events)
+			go s.handleABCIEvents(data.Result.Events)
 		case tmtypes.EventDataNewBlock:
 			go s.handleABCIEvents(data.ResultFinalizeBlock.Events)
 		}

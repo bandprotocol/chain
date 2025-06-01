@@ -79,7 +79,7 @@ func (u *UpdateDE) Start() {
 			var err error
 			switch data := resultEvent.Data.(type) {
 			case tmtypes.EventDataTx:
-				deUsed, err = u.countCreatedSignings(data.TxResult.Result.Events)
+				deUsed, err = u.countCreatedSignings(data.Result.Events)
 			case tmtypes.EventDataNewBlock:
 				deUsed, err = u.countCreatedSignings(data.ResultFinalizeBlock.Events)
 			default:

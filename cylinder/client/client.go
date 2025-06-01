@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"time"
 
+	"google.golang.org/grpc"
+
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	httpclient "github.com/cometbft/cometbft/rpc/client/http"
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
-	"google.golang.org/grpc"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
