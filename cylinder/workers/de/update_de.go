@@ -25,7 +25,7 @@ type UpdateDE struct {
 	logger           *logger.Logger
 	client           *client.Client
 	eventCh          <-chan ctypes.ResultEvent
-	cntUsed          uint64
+	cntUsed          int
 	maxDESizeOnChain uint64
 }
 
@@ -90,17 +90,17 @@ func (u *UpdateDE) Start() {
 				u.logger.Error(":cold_sweat: Failed to count created signings: %s", err)
 				continue
 			}
-			u.cntUsed += uint64(deUsed)
+			u.cntUsed += deUsed
 
 			// if the system used DE over the threshold, add new DEs
 			// the threshold plus the expectedDESize (2/3 maxDESizeOnChain) shouldn't be over
 			// the maxDESizeOnChain to prevent any transaction revert.
 			// The maxDESize params should be set to be at least 3 times of the normal usage (per block).
 			threshold := u.maxDESizeOnChain / 3
-			if u.cntUsed >= threshold {
+			if u.cntUsed >= int(threshold) {
 				u.logger.Info(":delivery_truck: DEs are used over the threshold, adding new DEs")
 				u.updateDE(threshold)
-				u.cntUsed -= threshold
+				u.cntUsed -= int(threshold)
 			}
 		}
 	}
@@ -218,6 +218,9 @@ func (u *UpdateDE) intervalUpdateDE() error {
 	if deCount < expectedDESizeOnChain {
 		u.updateDE(expectedDESizeOnChain - deCount)
 		u.cntUsed = 0
+	} else {
+		// can be negative to represent that the system has more DEs than expected
+		u.cntUsed = int(expectedDESizeOnChain) - int(deCount)
 	}
 
 	metrics.SetOnChainDELeftGauge(float64(deCount))
