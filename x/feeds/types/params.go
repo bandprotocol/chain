@@ -9,7 +9,7 @@ import (
 var (
 	// Default values for Params
 	DefaultAllowableBlockTimeDiscrepancy = int64(60)
-	DefaultGracePeriod                   = int64(30)
+	DefaultGracePeriod                   = int64(60)
 	DefaultMinInterval                   = int64(60)
 	DefaultMaxInterval                   = int64(3600)
 	DefaultPowerStepThreshold            = int64(1_000_000_000)

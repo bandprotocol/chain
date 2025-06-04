@@ -15,7 +15,7 @@ grogu config bothan "$BOTHAN_URL"
 grogu config bothan-timeout "3s"
 
 # setup broadcast-timeout to grogu config
-grogu config broadcast-timeout "1m"
+grogu config broadcast-timeout "30s"
 
 # setup rpc-poll-interval to grogu config
 grogu config rpc-poll-interval "1s"
