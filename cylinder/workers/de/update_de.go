@@ -25,7 +25,7 @@ type UpdateDE struct {
 	logger           *logger.Logger
 	client           *client.Client
 	eventCh          <-chan ctypes.ResultEvent
-	cntUsed          int
+	cntUsed          int64
 	maxDESizeOnChain uint64
 }
 
@@ -75,7 +75,7 @@ func (u *UpdateDE) Start() {
 				u.logger.Error(":cold_sweat: Failed to do an interval update DE: %s", err)
 			}
 		case resultEvent := <-u.eventCh:
-			deUsed := 0
+			deUsed := int64(0)
 			var err error
 			switch data := resultEvent.Data.(type) {
 			case tmtypes.EventDataTx:
@@ -97,10 +97,10 @@ func (u *UpdateDE) Start() {
 			// the maxDESizeOnChain to prevent any transaction revert.
 			// The maxDESize params should be set to be at least 3 times of the normal usage (per block).
 			threshold := u.maxDESizeOnChain / 3
-			if u.cntUsed >= int(threshold) {
+			if u.cntUsed >= int64(threshold) {
 				u.logger.Info(":delivery_truck: DEs are used over the threshold, adding new DEs")
 				u.updateDE(threshold)
-				u.cntUsed -= int(threshold)
+				u.cntUsed -= int64(threshold)
 			}
 		}
 	}
@@ -220,7 +220,7 @@ func (u *UpdateDE) intervalUpdateDE() error {
 		u.cntUsed = 0
 	} else {
 		// can be negative to represent that the system has more DEs than expected
-		u.cntUsed = int(expectedDESizeOnChain) - int(deCount)
+		u.cntUsed = int64(expectedDESizeOnChain) - int64(deCount)
 	}
 
 	metrics.SetOnChainDELeftGauge(float64(deCount))
@@ -241,8 +241,8 @@ func (u *UpdateDE) getDECount() (uint64, error) {
 }
 
 // countCreatedSignings counts the number of signings created from the given events.
-func (u *UpdateDE) countCreatedSignings(abciEvents []abci.Event) (int, error) {
-	cnt := 0
+func (u *UpdateDE) countCreatedSignings(abciEvents []abci.Event) (int64, error) {
+	cnt := int64(0)
 	events := sdk.StringifyEvents(abciEvents)
 	for _, ev := range events {
 		if ev.Type == types.EventTypeRequestSignature {
@@ -251,7 +251,7 @@ func (u *UpdateDE) countCreatedSignings(abciEvents []abci.Event) (int, error) {
 				return 0, err
 			}
 
-			cnt += len(signatureEvents)
+			cnt += int64(len(signatureEvents))
 		}
 	}
 
