@@ -1,4 +1,4 @@
-FROM golang:1.24.2-alpine as go-builder
+FROM golang:1.24.2-alpine3.21 as go-builder
 
 SHELL ["/bin/sh", "-ecuxo", "pipefail"]
 RUN apk add --no-cache ca-certificates build-base linux-headers git gmp gmp-dev
@@ -20,7 +20,7 @@ RUN LEDGER_ENABLED=true BUILD_TAGS=muslc LINK_STATICALLY=true make install \
     && (file /go/bin/bandd | grep "statically linked")
 
 # --------------------------------------------------------
-FROM alpine:3.16
+FROM alpine:3.21
 
 COPY --from=go-builder /go/bin/bandd /usr/bin/bandd
 
