@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"google.golang.org/grpc"
+
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	httpclient "github.com/cometbft/cometbft/rpc/client/http"
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
@@ -32,9 +34,9 @@ type Client struct {
 	context   client.Context   // Context that holds the client's configuration and context.
 	txFactory tx.Factory       // Factory for creating and handling transactions.
 
-	maxTry       uint64        // Maximum number of tries to submit a transaction.
+	maxTry       uint64        // Maximum number of tries to submit a transaction and query.
 	timeout      time.Duration // Timeout duration for waiting for transaction commits.
-	pollInterval time.Duration // Duration between each poll for transaction status.
+	pollInterval time.Duration // Duration between each poll for transaction status or query result.
 
 	gasAdjustStart float64 // Initial value for adjusting the gas price.
 	gasAdjustStep  float64 // Step value for adjusting the gas price.
@@ -117,10 +119,11 @@ func (c *Client) GetTxFromTxHash(txHash string) (txRes *sdk.TxResponse, err erro
 // It returns the group response or an error.
 func (c *Client) QueryGroup(groupID tss.GroupID) (*GroupResult, error) {
 	queryClient := tsstypes.NewQueryClient(c.context)
-
-	gr, err := queryClient.Group(context.Background(), &tsstypes.QueryGroupRequest{
+	input := &tsstypes.QueryGroupRequest{
 		GroupId: uint64(groupID),
-	})
+	}
+
+	gr, err := queryWithRetry(queryClient.Group, input, c.maxTry, c.pollInterval)
 	if err != nil {
 		return nil, err
 	}
@@ -132,10 +135,11 @@ func (c *Client) QueryGroup(groupID tss.GroupID) (*GroupResult, error) {
 // It returns the signing response or an error.
 func (c *Client) QuerySigning(signingID tss.SigningID) (*SigningResponse, error) {
 	queryClient := tsstypes.NewQueryClient(c.context)
-
-	sr, err := queryClient.Signing(context.Background(), &tsstypes.QuerySigningRequest{
+	input := &tsstypes.QuerySigningRequest{
 		SigningId: uint64(signingID),
-	})
+	}
+
+	sr, err := queryWithRetry(queryClient.Signing, input, c.maxTry, c.pollInterval)
 	if err != nil {
 		return nil, err
 	}
@@ -147,15 +151,16 @@ func (c *Client) QuerySigning(signingID tss.SigningID) (*SigningResponse, error)
 // It returns the de response or an error.
 func (c *Client) QueryDE(address string, offset uint64, limit uint64) (*DEResponse, error) {
 	queryClient := tsstypes.NewQueryClient(c.context)
-
-	der, err := queryClient.DE(context.Background(), &tsstypes.QueryDERequest{
+	input := &tsstypes.QueryDERequest{
 		Address: address,
 		Pagination: &query.PageRequest{
 			Offset:     offset,
 			Limit:      limit,
 			CountTotal: true,
 		},
-	})
+	}
+
+	der, err := queryWithRetry(queryClient.DE, input, c.maxTry, c.pollInterval)
 	if err != nil {
 		return nil, err
 	}
@@ -170,12 +175,14 @@ func (c *Client) QueryAllDE(address string) ([]tsstypes.DE, error) {
 
 	var nextKey []byte
 	for {
-		res, err := queryClient.DE(context.Background(), &tsstypes.QueryDERequest{
+		input := &tsstypes.QueryDERequest{
 			Address: address,
 			Pagination: &query.PageRequest{
 				Key: nextKey,
 			},
-		})
+		}
+
+		res, err := queryWithRetry(queryClient.DE, input, c.maxTry, c.pollInterval)
 		if err != nil {
 			return nil, err
 		}
@@ -195,10 +202,11 @@ func (c *Client) QueryAllDE(address string) ([]tsstypes.DE, error) {
 // It returns the member information on current and incoming group or an error.
 func (c *Client) QueryMember(address string) (*bandtsstypes.QueryMemberResponse, error) {
 	queryClient := bandtsstypes.NewQueryClient(c.context)
-
-	res, err := queryClient.Member(context.Background(), &bandtsstypes.QueryMemberRequest{
+	input := &bandtsstypes.QueryMemberRequest{
 		Address: address,
-	})
+	}
+
+	res, err := queryWithRetry(queryClient.Member, input, c.maxTry, c.pollInterval)
 	if err != nil {
 		return nil, err
 	}
@@ -210,10 +218,11 @@ func (c *Client) QueryMember(address string) (*bandtsstypes.QueryMemberResponse,
 // It returns the QueryPendingSignsResponse or an error.
 func (c *Client) QueryPendingGroups(address string) (*tsstypes.QueryPendingGroupsResponse, error) {
 	queryClient := tsstypes.NewQueryClient(c.context)
-
-	res, err := queryClient.PendingGroups(context.Background(), &tsstypes.QueryPendingGroupsRequest{
+	input := &tsstypes.QueryPendingGroupsRequest{
 		Address: address,
-	})
+	}
+
+	res, err := queryWithRetry(queryClient.PendingGroups, input, c.maxTry, c.pollInterval)
 	if err != nil {
 		return nil, err
 	}
@@ -225,15 +234,29 @@ func (c *Client) QueryPendingGroups(address string) (*tsstypes.QueryPendingGroup
 // It returns the QueryPendingSignsResponse or an error.
 func (c *Client) QueryPendingSignings(address string) (*tsstypes.QueryPendingSigningsResponse, error) {
 	queryClient := tsstypes.NewQueryClient(c.context)
-
-	res, err := queryClient.PendingSignings(context.Background(), &tsstypes.QueryPendingSigningsRequest{
+	input := &tsstypes.QueryPendingSigningsRequest{
 		Address: address,
-	})
+	}
+
+	res, err := queryWithRetry(queryClient.PendingSignings, input, c.maxTry, c.pollInterval)
 	if err != nil {
 		return nil, err
 	}
 
 	return res, nil
+}
+
+// QueryTssParams queries the current tss parameters.
+func (c *Client) QueryTssParams() (*tsstypes.Params, error) {
+	queryClient := tsstypes.NewQueryClient(c.context)
+	input := &tsstypes.QueryParamsRequest{}
+
+	res, err := queryWithRetry(queryClient.Params, input, c.maxTry, c.pollInterval)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res.Params, nil
 }
 
 // BroadcastAndConfirm broadcasts and confirms the messages by signing and submitting them using the provided key.
@@ -367,4 +390,24 @@ func (c *Client) QueryAccount(key *keyring.Record) (client.Account, error) {
 // It returns an error if the client cannot be stopped.
 func (c *Client) Stop() error {
 	return c.client.Stop()
+}
+
+// queryWithRetry performs a query with retry and sleeps for the given poll interval if the query fails.
+func queryWithRetry[T any, I any](
+	queryFunc func(ctx context.Context, input I, opts ...grpc.CallOption) (T, error),
+	input I,
+	maxTry uint64,
+	pollInterval time.Duration,
+) (res T, err error) {
+	for try := uint64(1); try <= maxTry; try++ {
+		res, err = queryFunc(context.Background(), input)
+		if err != nil {
+			time.Sleep(pollInterval)
+			continue
+		}
+
+		return res, nil
+	}
+
+	return res, err
 }
