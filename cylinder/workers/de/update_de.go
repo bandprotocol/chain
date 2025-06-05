@@ -197,8 +197,7 @@ func (u *UpdateDE) isTssMember() (bool, error) {
 func (u *UpdateDE) isGasPriceSet() (bool, error) {
 	gasPrices, err := sdk.ParseDecCoins(u.context.Config.GasPrices)
 	if err != nil {
-		u.logger.Debug(":cold_sweat: Failed to parse gas prices from config: %s", err)
-		return false, err
+		return false, fmt.Errorf("failed to parse gas prices from config: %w", err)
 	}
 
 	// If the gas price is non-zero, it indicates that the user is willing to pay
