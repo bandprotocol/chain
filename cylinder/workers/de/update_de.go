@@ -270,7 +270,12 @@ func (u *UpdateDE) countCreatedSignings(abciEvents []abci.Event) (int64, error) 
 		for _, signatureEvent := range signatureEvents {
 			ok, err := u.isGranterSigning(signatureEvent.SigningID)
 			if err != nil {
-				return 0, err
+				u.logger.Error(
+					":cold_sweat: isGranterSigning Failed at SigningID %d: %s",
+					signatureEvent.SigningID,
+					err,
+				)
+				continue
 			}
 			if ok {
 				cnt += 1
