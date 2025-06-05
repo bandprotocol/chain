@@ -1,5 +1,4 @@
 //go:build !muslc
-// +build !muslc
 
 package testdata
 
