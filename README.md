@@ -39,13 +39,13 @@ Please refer to [this documentation](https://docs.bandchain.org/node-validators/
 
 We recommend the following for running a BandChain Validator:
 
-- **2 or more** CPU cores
-- **8 GB** of RAM (16 GB in case on participate in mainnet upgrade)
-- At least **100GB** of disk storage
+- **4 or more** CPU cores
+- **16 GB** of RAM (32 GB in case on participate in mainnet)
+- At least **150GB** of disk storage
 
 **Step 1. Install Golang**
 
-Go v1.18+ or higher is required for BandChain.
+Go v1.24+ or higher is required for BandChain.
 
 If you haven't already, install Golang by following the [official docs](https://golang.org/doc/install). Make sure that your GOPATH and GOBIN environment variables are properly set up.
 
@@ -55,7 +55,7 @@ Use `git` to retrieve BandChain from the [official repo](https://github.com/band
 
 ```bash
 git clone https://github.com/bandprotocol/chain
-cd chain && git checkout v2.5.4
+cd chain && git checkout v3.0.0
 make install
 ```
 
@@ -66,10 +66,9 @@ Using `bandd version` command to verify that your `bandd` has been built success
 ```
 name: bandchain
 server_name: bandd
-version: 2.5.4
-commit: e6548bbf4793829bb8e711e5ed89ba4afc710ded
+version: 3.0.0
 build_tags: netgo,ledger
-go: go version go1.19.1 darwin/amd64
+go: go version go1.24.2 darwin/amd64
 build_deps:
 ...
 ```
@@ -85,6 +84,8 @@ sudo ln -s /opt/homebrew/lib/libgmp.10.dylib /usr/local/lib/
 - `scripts/generate_genesis.sh` to create/reset the default genesis file 
 - `scripts/start_bandd.sh` to start the bandd binary
 - `scripts/start_yoda.sh` to start yoda with reporter(s)
+- `scripts/start_grogu.sh` to start grogu with feeder(s)
+- `scripts/bandtss/start_cylinder.sh` to start cylinder with grantee(s)
 
 ## Resources
 
@@ -98,7 +99,7 @@ sudo ln -s /opt/homebrew/lib/libgmp.10.dylib /usr/local/lib/
     - [Cosmoscan Mainnet](https://cosmoscan.io)
     - [Big Dipper](https://band.bigdipper.live/)
   - Testnet:
-    - [CosmoScan Testnet](https://laozi-testnet6.cosmoscan.io)
+    - [CosmoScan Testnet](https://band-v3-testnet.cosmoscan.io)
 
 ## Community
 
