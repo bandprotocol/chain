@@ -268,10 +268,10 @@ func (u *UpdateDE) countCreatedSignings(abciEvents []abci.Event) (int64, error) 
 		}
 
 		for _, signatureEvent := range signatureEvents {
-			ok, err := u.isGranterSigning(signatureEvent.SigningID)
+			ok, err := u.isGranterSigner(signatureEvent.SigningID)
 			if err != nil {
 				u.logger.Error(
-					":cold_sweat: isGranterSigning Failed at SigningID %d: %s",
+					":cold_sweat: isGranterSigner Failed at SigningID %d: %s",
 					signatureEvent.SigningID,
 					err,
 				)
@@ -286,8 +286,8 @@ func (u *UpdateDE) countCreatedSignings(abciEvents []abci.Event) (int64, error) 
 	return cnt, nil
 }
 
-// isGranterSigning checks if the granter is the assigned member of the signing.
-func (u *UpdateDE) isGranterSigning(signingID tss.SigningID) (bool, error) {
+// isGranterSigner checks if the granter is the assigned member of the signing.
+func (u *UpdateDE) isGranterSigner(signingID tss.SigningID) (bool, error) {
 	signingRes, err := u.client.QuerySigning(signingID)
 	if err != nil {
 		return false, err
