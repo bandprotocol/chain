@@ -16,6 +16,7 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder/metrics"
 	"github.com/bandprotocol/chain/v3/cylinder/parser"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
@@ -99,7 +100,11 @@ func (u *UpdateDE) Start() {
 			threshold := u.maxDESizeOnChain / 3
 			if u.cntUsed >= int64(threshold) {
 				u.logger.Info(":delivery_truck: DEs are used over the threshold, adding new DEs")
-				u.updateDE(threshold)
+				if err := u.updateDE(threshold); err != nil {
+					u.logger.Error(":cold_sweat: Failed to update DE: %s", err)
+					continue
+				}
+
 				u.cntUsed -= int64(threshold)
 			}
 		}
@@ -126,17 +131,20 @@ func (u *UpdateDE) subscribe() (err error) {
 }
 
 // updateDE updates DE if the remaining DE is too low.
-func (u *UpdateDE) updateDE(numNewDE uint64) {
-	canUpdate, err := u.canUpdateDE()
+func (u *UpdateDE) updateDE(numNewDE uint64) error {
+	isTssMember, err := u.isTssMember()
 	if err != nil {
-		u.logger.Error(":cold_sweat: Cannot update DE: %s", err)
-		return
+		return fmt.Errorf("isTssMember error: %s", err)
 	}
-	if !canUpdate {
-		u.logger.Debug(
-			":cold_sweat: Cannot update DE: the granter is not a member of the current or incoming group and gas price isn't set in the config",
-		)
-		return
+
+	isGasPriceSet, err := u.isGasPriceSet()
+	if err != nil {
+		return fmt.Errorf("isGasPriceSet error: %s", err)
+	}
+
+	if !isTssMember && !isGasPriceSet {
+		u.logger.Debug(":cold_sweat: Skip updating DE; not a tss member and gas price isn't set")
+		return nil
 	}
 
 	u.logger.Info(":delivery_truck: Updating DE")
@@ -148,8 +156,7 @@ func (u *UpdateDE) updateDE(numNewDE uint64) {
 		u.context.Store,
 	)
 	if err != nil {
-		u.logger.Error(":cold_sweat: Failed to generate new DE pairs: %s", err)
-		return
+		return fmt.Errorf("failed to generate new DE pairs: %s", err)
 	}
 
 	// Store all DEs in the store
@@ -158,8 +165,7 @@ func (u *UpdateDE) updateDE(numNewDE uint64) {
 		pubDEs = append(pubDEs, privDE.PubDE)
 
 		if err := u.context.Store.SetDE(privDE); err != nil {
-			u.logger.Error(":cold_sweat: Failed to set new DE in the store: %s", err)
-			return
+			return fmt.Errorf("failed to set new DE in the store: %s", err)
 		}
 
 		metrics.IncOffChainDELeftGauge()
@@ -169,23 +175,11 @@ func (u *UpdateDE) updateDE(numNewDE uint64) {
 
 	// Send MsgDE
 	u.context.MsgCh <- types.NewMsgSubmitDEs(pubDEs, u.context.Config.Granter)
+	return nil
 }
 
-// canUpdateDE checks if the system allows to update DEs into the system and chain.
-func (u *UpdateDE) canUpdateDE() (bool, error) {
-	gasPrices, err := sdk.ParseDecCoins(u.context.Config.GasPrices)
-	if err != nil {
-		u.logger.Debug(":cold_sweat: Failed to parse gas prices from config: %s", err)
-	}
-
-	// If the gas price is non-zero, it indicates that the user is willing to pay
-	// a transaction fee for submitting DEs to the chain.
-	if gasPrices != nil && !gasPrices.IsZero() {
-		return true, nil
-	}
-
-	// If the address is a member of the current group, the system can submit DEs to the chain
-	// without paying gas.
+// isTssMember checks if the granter is a tss member.
+func (u *UpdateDE) isTssMember() (bool, error) {
 	resp, err := u.client.QueryMember(u.context.Config.Granter)
 	if err != nil {
 		return false, fmt.Errorf("failed to query member information: %w", err)
@@ -193,6 +187,23 @@ func (u *UpdateDE) canUpdateDE() (bool, error) {
 
 	if resp.CurrentGroupMember.Address == u.context.Config.Granter ||
 		resp.IncomingGroupMember.Address == u.context.Config.Granter {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+// isGasPriceSet checks if the gas price is set.
+func (u *UpdateDE) isGasPriceSet() (bool, error) {
+	gasPrices, err := sdk.ParseDecCoins(u.context.Config.GasPrices)
+	if err != nil {
+		u.logger.Debug(":cold_sweat: Failed to parse gas prices from config: %s", err)
+		return false, err
+	}
+
+	// If the gas price is non-zero, it indicates that the user is willing to pay
+	// a transaction fee for submitting DEs to the chain.
+	if gasPrices != nil && !gasPrices.IsZero() {
 		return true, nil
 	}
 
@@ -216,7 +227,10 @@ func (u *UpdateDE) intervalUpdateDE() error {
 
 	expectedDESizeOnChain := (2 * u.maxDESizeOnChain) / 3
 	if deCount < expectedDESizeOnChain {
-		u.updateDE(expectedDESizeOnChain - deCount)
+		if err := u.updateDE(expectedDESizeOnChain - deCount); err != nil {
+			return err
+		}
+
 		u.cntUsed = 0
 	} else {
 		// can be negative to represent that the system has more DEs than expected
@@ -245,15 +259,39 @@ func (u *UpdateDE) countCreatedSignings(abciEvents []abci.Event) (int64, error) 
 	cnt := int64(0)
 	events := sdk.StringifyEvents(abciEvents)
 	for _, ev := range events {
-		if ev.Type == types.EventTypeRequestSignature {
-			signatureEvents, err := parser.ParseRequestSignatureEvents(sdk.StringEvents{ev})
+		if ev.Type != types.EventTypeRequestSignature {
+			continue
+		}
+
+		signatureEvents, err := parser.ParseRequestSignatureEvents(sdk.StringEvents{ev})
+		if err != nil {
+			return 0, err
+		}
+
+		for _, signatureEvent := range signatureEvents {
+			ok, err := u.isGranterSigning(signatureEvent.SigningID)
 			if err != nil {
 				return 0, err
 			}
-
-			cnt += int64(len(signatureEvents))
+			if ok {
+				cnt += 1
+			}
 		}
 	}
 
 	return cnt, nil
+}
+
+// isGranterSigning checks if the granter is the assigned member of the signing.
+func (u *UpdateDE) isGranterSigning(signingID tss.SigningID) (bool, error) {
+	signingRes, err := u.client.QuerySigning(signingID)
+	if err != nil {
+		return false, err
+	}
+
+	if _, err := signingRes.GetAssignedMember(u.context.Config.Granter); err != nil {
+		return false, nil
+	}
+
+	return true, nil
 }
