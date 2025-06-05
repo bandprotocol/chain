@@ -352,6 +352,11 @@ func (s *Signaller) shouldUpdatePrice(
 		return false
 	}
 
+	// If the current block time is close to the end of the interval, allow update regardless of assigned time
+	if s.currentBlockTime.Unix() >= oldPrice.Timestamp+feed.Interval-FixedIntervalOffset {
+		return true
+	}
+
 	// Check if the price is past the assigned time, if it is, add it to the list of prices to update
 	assignedTime := calculateAssignedTime(
 		s.valAddress,
