@@ -1,8 +1,9 @@
+//go:build !muslc
+
 package testdata
 
 import (
 	owasm "github.com/bandprotocol/go-owasm/api"
-	"github.com/bytecodealliance/wasmtime-go/v20"
 
 	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
@@ -19,13 +20,4 @@ func Compile(code []byte) []byte {
 	}
 
 	return compiled
-}
-
-func wat2wasm(wat string) []byte {
-	wasm, err := wasmtime.Wat2Wasm(wat)
-	if err != nil {
-		panic(err)
-	}
-
-	return wasm
 }
