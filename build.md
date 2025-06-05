@@ -2,7 +2,7 @@
 
 ## Building the `band` application
 
-If you want to build the `band` application in this repo to see the functionalities, **Go 1.13.0+** is required .
+If you want to build the `band` application in this repo to see the functionalities, **Go 1.24.0+** is required .
 
 Add some parameters to environment is necessary if you have never used the `go mod` before.
 
@@ -19,8 +19,8 @@ Now, you can install and run the application.
 
 ```
 # Clone the source of the tutorial repository
-git clone https://github.com/bandprotocol/bandchain.git
-cd bandchain/chain/
+git clone https://github.com/bandprotocol/chain
+cd chain
 ```
 
 ```bash
@@ -37,8 +37,6 @@ You can use the following script to generate a test environment to run BandChain
 
 ```bash
 ./scripts/generate_genesis.sh
-cp ./docker-config/single-validator/priv_validator_key.json ~/.band/config/priv_validator_key.json
-cp ./docker-config/single-validator/node_key.json ~/.band/config/node_key.json
 ```
 
 Once done, you can optionally add data sources or oracle scripts to the genesis file using `bandd`.
@@ -57,7 +55,7 @@ bandd start
 On a separate tab, you should run the oracle daemon script to ensure your validator responds to oracle requests.
 
 ```bash
-./scripts/start_yoda.sh validator
+./scripts/start_yoda.sh
 ```
 
 To send an oracle request to the chain, use `bandd`.

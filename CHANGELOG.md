@@ -2,40 +2,35 @@
 
 ## [v3.0.0](https://github.com/bandprotocol/chain/releases/tag/v3.0.0)
 
-* (bump) Use go 1.24.2
-* (bump) Use cosmos-sdk package v0.50.13 / ibc-go v8.7.0
-* (bump) replace github.com/tendermint/tendermint by github.com/cometbft/cometbft v0.38.17
-* (bump) migrated from gogo/protobuf to cosmos/gogoproto
+* (bump) Use Go 1.24.2
+* (bump) Use Cosmos SDK v0.50.13 / IBC-Go v8.7.0
+* (bump) Replace github.com/tendermint/tendermint with github.com/cometbft/cometbft v0.38.17
+* (bump) Migrate from gogo/protobuf to cosmos/gogoproto
 * (bump) Use go-owasm v0.3.1
-* (chain) Remove disablefeeless flag
+* (chain) Remove --disablefeeless flag
 * (chain) Remove old oracle ante
-* (chain) Remove legacy migrate cmd
-* (chain) Remove `gogoproto.goproto_stringer` option on param
-* (chain) Return error on AllocationToken at beginblock instead of panic
-* (chain) Migrate REST Endpoint to GRPC
-* (chain) Change the allocation of remaining tokens from the community pool to the Proposer
-* (chain) Add consensus module to handle managing Tendermint consensus parameters
-* (chain) Add autocli for oracle module
-* (chain) update oracle params to support cosmos-sdk 0.47+
-* (chain) Add Global fee module to set the min-gas-price on protocol level (MinimumGasPrice param)
+* (chain) Remove legacy migrate command
+* (chain) Remove gogoproto.goproto_stringer option on param
+* (chain) Return error on AllocationToken at BeginBlock instead of panic
+* (chain) Migrate REST endpoints to GRPC
+* (chain) Change the allocation of remaining tokens from the community pool to the proposer
+* (chain) Add consensus module to manage Tendermint consensus parameters
+* (chain) Add AutoCLI for oracle module
+* (chain) Update oracle params to support Cosmos SDK 0.47+
+* (chain) Add GlobalFee module to define protocol-level MinimumGasPrice
 * (chain) Set MinimumGasPrice to 0.0025uband
-* (chain) Use priority based on gas_prices of uband but MsgReport will have the highest priority
 * (chain) Add tss module
 * (chain) Add bandtss module
 * (chain) Add feeds module
 * (chain) Add tunnel module (supports TSS, IBC, IBC Hook, Router, and Axelar routes)
 * (chain) Add restake module
-* (chain) Separate rolling seed from Oracle module to be a standalone Rolling seed module
-* (chain) Update proof to support newly added module
-* (chain) Introduce new mempool package for flexible transaction processing and block proposal generation
-* (chain) Add transaction prioritization system with dedicated lanes for feeds, TSS, oracle reports, oracle requests, and default transactions
-* (grogu) Add Grogu to provide a service for supporting Feeds price submission
-* (grogu) Use block time instead of local time.
-* (grogu) Add telemetry support for tracking service metrics
-* (cylinder) Add Cylinder to provide a service for supporting tss process
-* (cylinder) Add telemetry support for tracking service metrics
-* (cylinder) Allow standalone commands to be able to run when running the program
-* (yoda) Add auto bump gas logic
+* (chain) Separate rolling seed logic into standalone module
+* (chain) Update proof system to support new modules
+* (chain) Introduce new mempool for flexible transaction processing and block proposal
+* (chain) Add transaction prioritization with lanes for feeds, TSS, oracle reports, oracle requests, and default
+* (grogu) Add Grogu service to support feed price submission
+* (cylinder) Add Cylinder service to support TSS process
+* (yoda) Add auto gas bump logic
 
 ## [v2.5.3](https://github.com/bandprotocol/chain/releases/tag/v2.5.3)
 
