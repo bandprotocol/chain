@@ -14,6 +14,7 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder/client"
 	"github.com/bandprotocol/chain/v3/cylinder/context"
 	"github.com/bandprotocol/chain/v3/cylinder/metrics"
+	"github.com/bandprotocol/chain/v3/cylinder/parser"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 	"github.com/bandprotocol/chain/v3/pkg/tss"
 	"github.com/bandprotocol/chain/v3/x/tss/types"
@@ -62,7 +63,7 @@ func (s *Signing) handleABCIEvents(abciEvents []abci.Event) {
 	events := sdk.StringifyEvents(abciEvents)
 	for _, ev := range events {
 		if ev.Type == types.EventTypeRequestSignature {
-			events, err := ParseEvents(sdk.StringEvents{ev})
+			events, err := parser.ParseRequestSignatureEvents(sdk.StringEvents{ev})
 			if err != nil {
 				s.logger.Error(":cold_sweat: Failed to parse event with error: %s", err)
 				return
@@ -195,7 +196,7 @@ func (s *Signing) Start() {
 	for ev := range s.eventCh {
 		switch data := ev.Data.(type) {
 		case tmtypes.EventDataTx:
-			go s.handleABCIEvents(data.TxResult.Result.Events)
+			go s.handleABCIEvents(data.Result.Events)
 		case tmtypes.EventDataNewBlock:
 			go s.handleABCIEvents(data.ResultFinalizeBlock.Events)
 		}
