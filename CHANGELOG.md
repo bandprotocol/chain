@@ -1,6 +1,6 @@
 # Changelog
 
-## [v3.0.0](https://github.com/bandprotocol/chain/releases/tag/v3.0.0)
+## [v3.0.0](https://github.com/bandprotocol/chain/releases/tag/v3.0.0-rc2)
 
 * (bump) Use Go 1.24.2
 * (bump) Use Cosmos SDK v0.50.13 / IBC-Go v8.7.0
