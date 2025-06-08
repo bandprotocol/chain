@@ -18,6 +18,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
+	"github.com/cosmos/cosmos-sdk/version"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -331,10 +332,13 @@ func (c *Client) Broadcast(key *keyring.Record, msgs []sdk.Msg, gasAdjust float6
 		return nil, err
 	}
 
+	memo := fmt.Sprintf("cylinder: %s", version.Version)
+
 	txf := c.txFactory.WithAccountNumber(acc.GetAccountNumber()).
 		WithSequence(acc.GetSequence()).
 		WithGasAdjustment(gasAdjust).
-		WithFromName(key.Name)
+		WithFromName(key.Name).
+		WithMemo(memo)
 
 	execMsg := authz.NewMsgExec(address, msgs)
 
