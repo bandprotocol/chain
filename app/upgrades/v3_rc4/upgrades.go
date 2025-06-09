@@ -19,7 +19,6 @@ func CreateUpgradeHandler(
 	keepers *keepers.AppKeepers,
 ) upgradetypes.UpgradeHandler {
 	return func(c context.Context, _ upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
-		// Set param key table for params module migration
 		ctx := sdk.UnwrapSDKContext(c)
 
 		vm, err := mm.RunMigrations(ctx, configurator, fromVM)

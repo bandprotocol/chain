@@ -139,6 +139,11 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
 
+	// interval must be positive
+	if m.Interval == 0 {
+		return sdkerrors.ErrInvalidRequest.Wrapf("interval must be positive")
+	}
+
 	// signal deviations cannot be empty
 	if len(m.SignalDeviations) == 0 {
 		return sdkerrors.ErrInvalidRequest.Wrapf("signal deviations cannot be empty")
@@ -299,6 +304,11 @@ func (m MsgUpdateSignalsAndInterval) ValidateBasic() error {
 	// creator address must be valid
 	if _, err := sdk.AccAddressFromBech32(m.Creator); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
+	}
+
+	// interval must be positive
+	if m.Interval == 0 {
+		return sdkerrors.ErrInvalidRequest.Wrapf("interval must be positive")
 	}
 
 	// signal deviations cannot be empty

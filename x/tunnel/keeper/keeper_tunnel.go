@@ -229,6 +229,9 @@ func (k Keeper) DeactivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 	tunnel.IsActive = false
 	k.SetTunnel(ctx, tunnel)
 
+	// reset the latest prices for the tunnel
+	k.SetLatestPrices(ctx, types.NewLatestPrices(tunnelID, []feedstypes.Price{}, 0))
+
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeDeactivateTunnel,
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnelID)),
