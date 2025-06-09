@@ -12,6 +12,7 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder"
 	"github.com/bandprotocol/chain/v3/cylinder/context"
 	"github.com/bandprotocol/chain/v3/cylinder/metrics"
+	"github.com/bandprotocol/chain/v3/cylinder/msg"
 	"github.com/bandprotocol/chain/v3/cylinder/workers/de"
 	"github.com/bandprotocol/chain/v3/cylinder/workers/group"
 	"github.com/bandprotocol/chain/v3/cylinder/workers/sender"
@@ -63,12 +64,17 @@ func runCmd(ctx *context.Context) *cobra.Command {
 				return err
 			}
 
-			sender, err := sender.New(ctx)
+			status, err := status.New(ctx)
 			if err != nil {
 				return err
 			}
 
-			status, err := status.New(ctx)
+			var receivers []*msg.ResponseReceiver
+			receivers = append(receivers, group.GetResponseReceivers()...)
+			receivers = append(receivers, de.GetResponseReceivers()...)
+			receivers = append(receivers, signing.GetResponseReceivers()...)
+
+			sender, err := sender.New(ctx, receivers)
 			if err != nil {
 				return err
 			}

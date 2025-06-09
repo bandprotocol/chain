@@ -14,11 +14,14 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder/client"
 	"github.com/bandprotocol/chain/v3/cylinder/context"
 	"github.com/bandprotocol/chain/v3/cylinder/metrics"
+	"github.com/bandprotocol/chain/v3/cylinder/msg"
 	"github.com/bandprotocol/chain/v3/cylinder/parser"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 	"github.com/bandprotocol/chain/v3/pkg/tss"
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
+
+const MAX_DE_BATCH_SIZE = 100
 
 // UpdateDE is a worker responsible for updating DEs in the store and chains
 type UpdateDE struct {
@@ -26,8 +29,11 @@ type UpdateDE struct {
 	logger           *logger.Logger
 	client           *client.Client
 	eventCh          <-chan ctypes.ResultEvent
-	cntUsed          int64
+	deCounter        *DECounter
 	maxDESizeOnChain uint64
+	receiver         msg.ResponseReceiver
+	reqID            uint64
+	cacheDEs         map[uint64][]types.DE
 }
 
 var _ cylinder.Worker = &UpdateDE{}
@@ -44,11 +50,19 @@ func NewUpdateDE(ctx *context.Context) (*UpdateDE, error) {
 		return nil, err
 	}
 
+	receiver := msg.ResponseReceiver{
+		ReqType:    msg.RequestTypeUpdateDE,
+		ResponseCh: make(chan msg.Response),
+	}
+
 	return &UpdateDE{
 		context:          ctx,
 		logger:           ctx.Logger.With("worker", "UpdateDE"),
 		client:           cli,
 		maxDESizeOnChain: params.MaxDESize,
+		receiver:         receiver,
+		deCounter:        NewDECounter(),
+		cacheDEs:         make(map[uint64][]types.DE),
 	}, nil
 }
 
@@ -67,6 +81,8 @@ func (u *UpdateDE) Start() {
 		return
 	}
 
+	go u.ListenMsgResponses()
+
 	// Update DE if there is assigned DE event or DE is used.
 	ticker := time.NewTicker(u.context.Config.CheckDEInterval)
 	for {
@@ -76,36 +92,8 @@ func (u *UpdateDE) Start() {
 				u.logger.Error(":cold_sweat: Failed to do an interval update DE: %s", err)
 			}
 		case resultEvent := <-u.eventCh:
-			deUsed := int64(0)
-			var err error
-			switch data := resultEvent.Data.(type) {
-			case tmtypes.EventDataTx:
-				deUsed, err = u.countCreatedSignings(data.Result.Events)
-			case tmtypes.EventDataNewBlock:
-				deUsed, err = u.countCreatedSignings(data.ResultFinalizeBlock.Events)
-			default:
-				continue
-			}
-
-			if err != nil {
-				u.logger.Error(":cold_sweat: Failed to count created signings: %s", err)
-				continue
-			}
-			u.cntUsed += deUsed
-
-			// if the system used DE over the threshold, add new DEs
-			// the threshold plus the expectedDESize (2/3 maxDESizeOnChain) shouldn't be over
-			// the maxDESizeOnChain to prevent any transaction revert.
-			// The maxDESize params should be set to be at least 3 times of the normal usage (per block).
-			threshold := u.maxDESizeOnChain / 3
-			if u.cntUsed >= int64(threshold) {
-				u.logger.Info(":delivery_truck: DEs are used over the threshold, adding new DEs")
-				if err := u.updateDE(threshold); err != nil {
-					u.logger.Error(":cold_sweat: Failed to update DE: %s", err)
-					continue
-				}
-
-				u.cntUsed -= int64(threshold)
+			if err := u.updateDEFromEvent(resultEvent); err != nil {
+				u.logger.Error(":cold_sweat: Failed to update DE from assigned DE event: %s", err)
 			}
 		}
 	}
@@ -115,6 +103,30 @@ func (u *UpdateDE) Start() {
 func (u *UpdateDE) Stop() error {
 	u.logger.Info("stop")
 	return u.client.Stop()
+}
+
+// ListenMsgResponses listens to the MsgResponseReceiver channel and handle properly.
+func (u *UpdateDE) ListenMsgResponses() {
+	for res := range u.receiver.ResponseCh {
+		des := u.cacheDEs[res.Request.ID]
+
+		if res.Success {
+			u.logger.Info(":smiling_face_with_sunglasses: Successfully submitted DEs")
+			u.deCounter.UpdateCommittedDEs(int64(len(des)))
+		} else {
+			u.logger.Error(":cold_sweat: Failed to submit DEs; need to revert pending DEs (len(DE): %d); error: %s", len(des), res.Err)
+
+			u.deCounter.UpdateRejectedDEs(int64(len(des)))
+			for _, de := range des {
+				err := u.context.Store.DeleteDE(de)
+				if err != nil {
+					u.logger.Error(":cold_sweat: Failed to delete DE: %s", err)
+				}
+			}
+		}
+
+		delete(u.cacheDEs, res.Request.ID)
+	}
 }
 
 // subscribe subscribes to the events that trigger the DE update.
@@ -130,21 +142,18 @@ func (u *UpdateDE) subscribe() (err error) {
 	return err
 }
 
-// updateDE updates DE if the remaining DE is too low.
+// updateDE generates new DEs and submit them to the chain.
 func (u *UpdateDE) updateDE(numNewDE uint64) error {
-	isTssMember, err := u.isTssMember()
+	ok, err := u.shouldContinueUpdateDE()
 	if err != nil {
-		return fmt.Errorf("isTssMember error: %s", err)
-	}
-
-	isGasPriceSet, err := u.isGasPriceSet()
-	if err != nil {
-		return fmt.Errorf("isGasPriceSet error: %s", err)
-	}
-
-	if !isTssMember && !isGasPriceSet {
+		return err
+	} else if !ok {
 		u.logger.Debug(":cold_sweat: Skip updating DE; not a tss member and gas price isn't set")
-		return nil
+
+		// should update the rejected DEs counter as it doesn't return an error.
+		// not returning an error to suppress error logs on the caller function.
+		u.deCounter.UpdateRejectedDEs(int64(numNewDE))
+		return fmt.Errorf("not a tss member and gas price isn't set")
 	}
 
 	u.logger.Info(":delivery_truck: Updating DE")
@@ -173,8 +182,25 @@ func (u *UpdateDE) updateDE(numNewDE uint64) error {
 
 	u.logger.Info(":white_check_mark: Successfully generated %d new DE pairs", numNewDE)
 
-	// Send MsgDE
-	u.context.MsgCh <- types.NewMsgSubmitDEs(pubDEs, u.context.Config.Granter)
+	// Send MsgDEs to the chain (chunked by MAX_DE_BATCH_SIZE)
+	for i := 0; i < len(pubDEs); i += MAX_DE_BATCH_SIZE {
+		u.reqID += 1
+		end_idx := min(i+MAX_DE_BATCH_SIZE, len(pubDEs))
+		u.cacheDEs[u.reqID] = pubDEs[i:end_idx]
+
+		u.logger.Info(
+			":delivery_truck: Forward MsgSubmitDEs to sender with ID: %d len(DEs): %d",
+			u.reqID,
+			end_idx-i,
+		)
+
+		u.context.PriorityMsgRequestCh <- msg.NewRequest(
+			msg.RequestTypeUpdateDE,
+			u.reqID,
+			types.NewMsgSubmitDEs(pubDEs[i:end_idx], u.context.Config.Granter),
+		)
+	}
+
 	return nil
 }
 
@@ -209,6 +235,28 @@ func (u *UpdateDE) isGasPriceSet() (bool, error) {
 	return false, nil
 }
 
+// shouldContinueUpdateDE checks if the program should generate and submit new DEs.
+// It returns true if the user is a tss member or voluntarily pay for the gas
+// (set gas price in the config).
+func (u *UpdateDE) shouldContinueUpdateDE() (bool, error) {
+	isTssMember, err := u.isTssMember()
+	if err != nil {
+		return false, fmt.Errorf("isTssMember error: %s", err)
+	}
+
+	isGasPriceSet, err := u.isGasPriceSet()
+	if err != nil {
+		return false, fmt.Errorf("isGasPriceSet error: %s", err)
+	}
+
+	if !isTssMember && !isGasPriceSet {
+		u.logger.Debug(":cold_sweat: Skip updating DE; not a tss member and gas price isn't set")
+		return false, nil
+	}
+
+	return true, nil
+}
+
 // intervalUpdateDE updates DE on the chain so that the remaining DE is
 // always above the minimum threshold.
 func (u *UpdateDE) intervalUpdateDE() error {
@@ -224,19 +272,60 @@ func (u *UpdateDE) intervalUpdateDE() error {
 		return err
 	}
 
-	expectedDESizeOnChain := (2 * u.maxDESizeOnChain) / 3
-	if deCount < expectedDESizeOnChain {
-		if err := u.updateDE(expectedDESizeOnChain - deCount); err != nil {
-			return err
-		}
+	metrics.SetOnChainDELeftGauge(float64(deCount))
 
-		u.cntUsed = 0
-	} else {
-		// can be negative to represent that the system has more DEs than expected
-		u.cntUsed = int64(expectedDESizeOnChain) - int64(deCount)
+	expectedDESize := (2 * u.maxDESizeOnChain) / 3
+	toBeCreated := u.deCounter.ComputeAndAddMissingDEs(deCount, expectedDESize)
+
+	if ok, err := u.shouldContinueUpdateDE(); err != nil || !ok {
+		u.deCounter.UpdateRejectedDEs(toBeCreated)
+		return err
 	}
 
-	metrics.SetOnChainDELeftGauge(float64(deCount))
+	if toBeCreated > 0 {
+		u.logger.Info(
+			":delivery_truck: DEs are less than the expected size, do an interval update len = %d",
+			toBeCreated,
+		)
+		if err := u.updateDE(uint64(toBeCreated)); err != nil {
+			u.deCounter.UpdateRejectedDEs(toBeCreated)
+			return err
+		}
+	}
+
+	return nil
+}
+
+// updateDEFromEvent updates DEs from the subscribed event.
+func (u *UpdateDE) updateDEFromEvent(resultEvent ctypes.ResultEvent) error {
+	deUsed := int64(0)
+	var err error
+	switch data := resultEvent.Data.(type) {
+	case tmtypes.EventDataTx:
+		deUsed, err = u.countCreatedSignings(data.Result.Events)
+	case tmtypes.EventDataNewBlock:
+		deUsed, err = u.countCreatedSignings(data.ResultFinalizeBlock.Events)
+	default:
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("failed to count created signings: %s", err)
+	}
+
+	// if the system used DE over the threshold, add new DEs
+	// the threshold plus the expectedDESize (2/3 maxDESizeOnChain) shouldn't be over
+	// the maxDESizeOnChain to prevent any transaction revert.
+	threshold := u.maxDESizeOnChain / 6
+	numDEToBECreated := u.deCounter.CheckUsageAndAddPending(deUsed, threshold)
+
+	if numDEToBECreated > 0 {
+		u.logger.Info(":delivery_truck: DEs are used over the threshold, adding new DEs len = %d", numDEToBECreated)
+
+		if err := u.updateDE(uint64(numDEToBECreated)); err != nil {
+			u.deCounter.UpdateRejectedDEs(numDEToBECreated)
+			return err
+		}
+	}
 
 	return nil
 }

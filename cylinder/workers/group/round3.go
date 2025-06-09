@@ -14,7 +14,9 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder/client"
 	"github.com/bandprotocol/chain/v3/cylinder/context"
 	"github.com/bandprotocol/chain/v3/cylinder/metrics"
+	"github.com/bandprotocol/chain/v3/cylinder/msg"
 	"github.com/bandprotocol/chain/v3/cylinder/store"
+	"github.com/bandprotocol/chain/v3/cylinder/workers/utils"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 	"github.com/bandprotocol/chain/v3/pkg/tss"
 	"github.com/bandprotocol/chain/v3/x/tss/types"
@@ -22,10 +24,14 @@ import (
 
 // Round3 is a worker responsible for round3 in the DKG process of tss module
 type Round3 struct {
-	context *context.Context
-	logger  *logger.Logger
-	client  *client.Client
-	eventCh <-chan ctypes.ResultEvent
+	context          *context.Context
+	logger           *logger.Logger
+	client           *client.Client
+	eventCh          <-chan ctypes.ResultEvent
+	confirmReceiver  msg.ResponseReceiver
+	complainReceiver msg.ResponseReceiver
+	confirmReqID     uint64
+	complainReqID    uint64
 }
 
 var _ cylinder.Worker = &Round3{}
@@ -38,10 +44,22 @@ func NewRound3(ctx *context.Context) (*Round3, error) {
 		return nil, err
 	}
 
+	confirmReceiver := msg.ResponseReceiver{
+		ReqType:    msg.RequestTypeCreateGroupConfirm,
+		ResponseCh: make(chan msg.Response, 1000),
+	}
+
+	complainReceiver := msg.ResponseReceiver{
+		ReqType:    msg.RequestTypeCreateGroupComplain,
+		ResponseCh: make(chan msg.Response, 1000),
+	}
+
 	return &Round3{
-		context: ctx,
-		logger:  ctx.Logger.With("worker", "Round3"),
-		client:  cli,
+		context:          ctx,
+		logger:           ctx.Logger.With("worker", "Round3"),
+		client:           cli,
+		confirmReceiver:  confirmReceiver,
+		complainReceiver: complainReceiver,
 	}, nil
 }
 
@@ -137,7 +155,14 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 		// If there is any complaint, send MsgComplain
 		if len(complaints) > 0 {
 			// Send message complaints
-			r.context.MsgCh <- types.NewMsgComplain(gid, complaints, r.context.Config.Granter)
+			r.complainReqID += 1
+			logger.Info(":delivery_truck: Forward MsgComplain to sender with ID: %d", r.complainReqID)
+
+			r.context.MsgRequestCh <- msg.NewRequest(
+				msg.RequestTypeCreateGroupComplain,
+				r.complainReqID,
+				types.NewMsgComplain(gid, complaints, r.context.Config.Granter),
+			)
 
 			metrics.IncProcessRound3ComplainCount(uint64(gid))
 			return
@@ -184,7 +209,14 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 	}
 
 	// Send MsgConfirm
-	r.context.MsgCh <- types.NewMsgConfirm(gid, group.MemberID, ownPubKeySig, r.context.Config.Granter)
+	r.confirmReqID += 1
+	logger.Info(":delivery_truck: Forward MsgConfirm to sender with ID: %d", r.confirmReqID)
+
+	r.context.MsgRequestCh <- msg.NewRequest(
+		msg.RequestTypeCreateGroupConfirm,
+		r.confirmReqID,
+		types.NewMsgConfirm(gid, group.MemberID, ownPubKeySig, r.context.Config.Granter),
+	)
 
 	metrics.ObserveProcessRound3Time(uint64(gid), time.Since(since).Seconds())
 	metrics.IncProcessRound3ConfirmCount(uint64(gid))
@@ -203,6 +235,9 @@ func (r *Round3) Start() {
 
 	r.handlePendingGroups()
 
+	go r.ListenMsgResponsesConfirm()
+	go r.ListenMsgResponsesComplain()
+
 	for ev := range r.eventCh {
 		go r.handleABCIEvents(ev.Data.(tmtypes.EventDataNewBlock).ResultFinalizeBlock.Events)
 	}
@@ -212,4 +247,20 @@ func (r *Round3) Start() {
 func (r *Round3) Stop() error {
 	r.logger.Info("stop")
 	return r.client.Stop()
+}
+
+// ListenMsgResponsesConfirm listens to the MsgResponseReceiver of the confirmRequest
+// channel and handle properly.
+func (r *Round3) ListenMsgResponsesConfirm() {
+	for res := range r.confirmReceiver.ResponseCh {
+		utils.CheckResultAndRetry(r.logger, res, r.context.MsgRequestCh, "MsgConfirm")
+	}
+}
+
+// ListenMsgResponsesComplain listens to the MsgResponseReceiver of the complainRequest
+// channel and handle properly.
+func (r *Round3) ListenMsgResponsesComplain() {
+	for res := range r.complainReceiver.ResponseCh {
+		utils.CheckResultAndRetry(r.logger, res, r.context.MsgRequestCh, "MsgComplain")
+	}
 }
