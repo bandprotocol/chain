@@ -121,6 +121,7 @@ func (s *KeeperTestSuite) TestProducePacket() {
 		SignalDeviations: []types.SignalDeviation{
 			{SignalID: "CS:BAND-USD", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
 		},
+		Interval:  1,
 		CreatedAt: ctx.BlockTime().Unix(),
 	}
 	route := &types.TSSRoute{
@@ -175,6 +176,7 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPackets() {
 		SignalDeviations: []types.SignalDeviation{
 			{SignalID: "CS:BAND-USD", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
 		},
+		Interval:  1,
 		CreatedAt: ctx.BlockTime().Unix(),
 	}
 	route := &types.TSSRoute{
@@ -243,6 +245,7 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPacketsNotEnoughMoney() {
 		SignalDeviations: []types.SignalDeviation{
 			{SignalID: "CS:BAND-USD", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
 		},
+		Interval:  1,
 		CreatedAt: ctx.BlockTime().Unix(),
 	}
 	route := &types.TSSRoute{
