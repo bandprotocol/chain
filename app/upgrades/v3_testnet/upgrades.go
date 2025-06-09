@@ -1,4 +1,4 @@
-package v3_rc3
+package v3_testnet
 
 import (
 	"context"
@@ -20,14 +20,6 @@ func CreateUpgradeHandler(
 		ctx := sdk.UnwrapSDKContext(c)
 
 		vm, err := mm.RunMigrations(ctx, configurator, fromVM)
-		if err != nil {
-			return nil, err
-		}
-
-		oracleParams := keepers.OracleKeeper.GetParams(ctx)
-		oracleParams.MaxCalldataSize = 512
-		oracleParams.MaxReportDataSize = 512
-		err = keepers.OracleKeeper.SetParams(ctx, oracleParams)
 		if err != nil {
 			return nil, err
 		}
