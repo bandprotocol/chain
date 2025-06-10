@@ -43,3 +43,22 @@ func ParsePubDEFromEvents(events sdk.StringEvents, eventType string) ([]PubDE, e
 
 	return pubDEs, nil
 }
+
+// CountAssignedSignings counts the number of assigned signings for the given address.
+func CountAssignedSignings(events sdk.StringEvents, address string) int64 {
+	cnt := int64(0)
+
+	for _, ev := range events {
+		if ev.Type != types.EventTypeRequestSignature {
+			continue
+		}
+
+		for _, attr := range ev.Attributes {
+			if attr.Key == types.AttributeKeyAddress && attr.Value == address {
+				cnt++
+			}
+		}
+	}
+
+	return cnt
+}

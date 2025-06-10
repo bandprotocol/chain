@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	abci "github.com/cometbft/cometbft/abci/types"
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 
@@ -15,9 +14,7 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder/context"
 	"github.com/bandprotocol/chain/v3/cylinder/metrics"
 	"github.com/bandprotocol/chain/v3/cylinder/msg"
-	"github.com/bandprotocol/chain/v3/cylinder/parser"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
-	"github.com/bandprotocol/chain/v3/pkg/tss"
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
@@ -261,20 +258,18 @@ func (u *UpdateDE) intervalUpdateDE() error {
 
 // updateDEFromEvent updates DEs from the subscribed event.
 func (u *UpdateDE) updateDEFromEvent(resultEvent ctypes.ResultEvent) error {
+	memberAddress := u.context.Config.Granter
+
 	var blockHeight, deUsed int64
-	var err error
 	switch data := resultEvent.Data.(type) {
 	case tmtypes.EventDataTx:
 		blockHeight = data.Height
-		deUsed, err = u.countCreatedSignings(data.Result.Events)
+		deUsed = CountAssignedSignings(sdk.StringifyEvents(data.Result.Events), memberAddress)
 	case tmtypes.EventDataNewBlock:
 		blockHeight = data.Block.Height
-		deUsed, err = u.countCreatedSignings(data.ResultFinalizeBlock.Events)
+		deUsed = CountAssignedSignings(sdk.StringifyEvents(data.ResultFinalizeBlock.Events), memberAddress)
 	default:
 		return nil
-	}
-	if err != nil {
-		return fmt.Errorf("failed to count created signings: %s", err)
 	}
 
 	threshold := min(u.maxDESizeOnChain/6, MAX_DE_BATCH_SIZE)
@@ -311,53 +306,6 @@ func (u *UpdateDE) getDECount() (uint64, int64, error) {
 	}
 
 	return deRes.GetRemaining(), deRes.GetBlockHeight(), nil
-}
-
-// countCreatedSignings counts the number of signings created from the given events.
-func (u *UpdateDE) countCreatedSignings(abciEvents []abci.Event) (int64, error) {
-	cnt := int64(0)
-	events := sdk.StringifyEvents(abciEvents)
-	for _, ev := range events {
-		if ev.Type != types.EventTypeRequestSignature {
-			continue
-		}
-
-		signatureEvents, err := parser.ParseRequestSignatureEvents(sdk.StringEvents{ev})
-		if err != nil {
-			return 0, err
-		}
-
-		for _, signatureEvent := range signatureEvents {
-			ok, err := u.isGranterSigner(signatureEvent.SigningID)
-			if err != nil {
-				u.logger.Error(
-					":cold_sweat: isGranterSigner Failed at SigningID %d: %s",
-					signatureEvent.SigningID,
-					err,
-				)
-				continue
-			}
-			if ok {
-				cnt += 1
-			}
-		}
-	}
-
-	return cnt, nil
-}
-
-// isGranterSigner checks if the granter is the assigned member of the signing.
-func (u *UpdateDE) isGranterSigner(signingID tss.SigningID) (bool, error) {
-	signingRes, err := u.client.QuerySigning(signingID)
-	if err != nil {
-		return false, err
-	}
-
-	if _, err := signingRes.GetAssignedMember(u.context.Config.Granter); err != nil {
-		return false, nil
-	}
-
-	return true, nil
 }
 
 // listenMsgResponses listens to the MsgResponseReceiver channel and handle properly.

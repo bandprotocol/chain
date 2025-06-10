@@ -196,3 +196,139 @@ func TestParseSubmitSignEvents(t *testing.T) {
 		})
 	}
 }
+
+func TestCountAssignedSignings(t *testing.T) {
+	tests := []struct {
+		name    string
+		events  sdk.StringEvents
+		address string
+		expOut  int64
+	}{
+		{
+			"success",
+			sdk.StringifyEvents([]abci.Event{
+				abci.Event(sdk.NewEvent(
+					types.EventTypeRequestSignature,
+					sdk.NewAttribute(types.AttributeKeyGroupID, "1"),
+					sdk.NewAttribute(types.AttributeKeySigningID, "1"),
+					sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString([]byte("message"))),
+					sdk.NewAttribute(types.AttributeKeyGroupPubNonce, hex.EncodeToString([]byte("groupPubNonce"))),
+					sdk.NewAttribute(types.AttributeKeyMemberID, "1"),
+					sdk.NewAttribute(types.AttributeKeyAddress, "member 1"),
+					sdk.NewAttribute(types.AttributeKeyBindingFactor, hex.EncodeToString([]byte("bindingFactor1"))),
+					sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString([]byte("pubNonce1"))),
+					sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString([]byte("pubD1"))),
+					sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString([]byte("pubE1"))),
+					sdk.NewAttribute(types.AttributeKeyMemberID, "2"),
+					sdk.NewAttribute(types.AttributeKeyAddress, "member 2"),
+					sdk.NewAttribute(types.AttributeKeyBindingFactor, hex.EncodeToString([]byte("bindingFactor2"))),
+					sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString([]byte("pubNonce2"))),
+					sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString([]byte("pubD2"))),
+					sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString([]byte("pubE2"))),
+				)),
+			}),
+			"member 1",
+			1,
+		},
+		{
+			"success - two events",
+			sdk.StringifyEvents([]abci.Event{
+				abci.Event(sdk.NewEvent(
+					types.EventTypeRequestSignature,
+					sdk.NewAttribute(types.AttributeKeyGroupID, "1"),
+					sdk.NewAttribute(types.AttributeKeySigningID, "1"),
+					sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString([]byte("message"))),
+					sdk.NewAttribute(types.AttributeKeyGroupPubNonce, hex.EncodeToString([]byte("groupPubNonce"))),
+					sdk.NewAttribute(types.AttributeKeyMemberID, "1"),
+					sdk.NewAttribute(types.AttributeKeyAddress, "member 1"),
+					sdk.NewAttribute(types.AttributeKeyBindingFactor, hex.EncodeToString([]byte("bindingFactor1"))),
+					sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString([]byte("pubNonce1"))),
+					sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString([]byte("pubD1"))),
+					sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString([]byte("pubE1"))),
+					sdk.NewAttribute(types.AttributeKeyMemberID, "2"),
+					sdk.NewAttribute(types.AttributeKeyAddress, "member 2"),
+					sdk.NewAttribute(types.AttributeKeyBindingFactor, hex.EncodeToString([]byte("bindingFactor2"))),
+					sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString([]byte("pubNonce2"))),
+					sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString([]byte("pubD2"))),
+					sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString([]byte("pubE2"))),
+				)),
+				abci.Event(sdk.NewEvent(
+					types.EventTypeRequestSignature,
+					sdk.NewAttribute(types.AttributeKeyGroupID, "1"),
+					sdk.NewAttribute(types.AttributeKeySigningID, "2"),
+					sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString([]byte("message"))),
+					sdk.NewAttribute(types.AttributeKeyGroupPubNonce, hex.EncodeToString([]byte("groupPubNonce"))),
+					sdk.NewAttribute(types.AttributeKeyMemberID, "1"),
+					sdk.NewAttribute(types.AttributeKeyAddress, "member 1"),
+					sdk.NewAttribute(types.AttributeKeyBindingFactor, hex.EncodeToString([]byte("bindingFactor1"))),
+					sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString([]byte("pubNonce1"))),
+					sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString([]byte("pubD1"))),
+					sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString([]byte("pubE1"))),
+					sdk.NewAttribute(types.AttributeKeyMemberID, "2"),
+					sdk.NewAttribute(types.AttributeKeyAddress, "member 2"),
+					sdk.NewAttribute(types.AttributeKeyBindingFactor, hex.EncodeToString([]byte("bindingFactor2"))),
+					sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString([]byte("pubNonce2"))),
+					sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString([]byte("pubD2"))),
+					sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString([]byte("pubE2"))),
+				)),
+			}),
+			"member 1",
+			2,
+		},
+		{
+			"success - two events (merge type)",
+			sdk.StringifyEvents([]abci.Event{
+				abci.Event(sdk.NewEvent(
+					types.EventTypeRequestSignature,
+					sdk.NewAttribute(types.AttributeKeyGroupID, "1"),
+					sdk.NewAttribute(types.AttributeKeySigningID, "1"),
+					sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString([]byte("message"))),
+					sdk.NewAttribute(types.AttributeKeyGroupPubNonce, hex.EncodeToString([]byte("groupPubNonce"))),
+					sdk.NewAttribute(types.AttributeKeyMemberID, "1"),
+					sdk.NewAttribute(types.AttributeKeyAddress, "member 1"),
+					sdk.NewAttribute(types.AttributeKeyBindingFactor, hex.EncodeToString([]byte("bindingFactor1"))),
+					sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString([]byte("pubNonce1"))),
+					sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString([]byte("pubD1"))),
+					sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString([]byte("pubE1"))),
+					sdk.NewAttribute(types.AttributeKeyMemberID, "2"),
+					sdk.NewAttribute(types.AttributeKeyAddress, "member 2"),
+					sdk.NewAttribute(types.AttributeKeyBindingFactor, hex.EncodeToString([]byte("bindingFactor2"))),
+					sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString([]byte("pubNonce2"))),
+					sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString([]byte("pubD2"))),
+					sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString([]byte("pubE2"))),
+					sdk.NewAttribute(types.AttributeKeyGroupID, "1"),
+					sdk.NewAttribute(types.AttributeKeySigningID, "2"),
+					sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString([]byte("message"))),
+					sdk.NewAttribute(types.AttributeKeyGroupPubNonce, hex.EncodeToString([]byte("groupPubNonce"))),
+					sdk.NewAttribute(types.AttributeKeyMemberID, "1"),
+					sdk.NewAttribute(types.AttributeKeyAddress, "member 1"),
+					sdk.NewAttribute(types.AttributeKeyBindingFactor, hex.EncodeToString([]byte("bindingFactor1"))),
+					sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString([]byte("pubNonce1"))),
+					sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString([]byte("pubD1"))),
+					sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString([]byte("pubE1"))),
+					sdk.NewAttribute(types.AttributeKeyMemberID, "2"),
+					sdk.NewAttribute(types.AttributeKeyAddress, "member 3"),
+					sdk.NewAttribute(types.AttributeKeyBindingFactor, hex.EncodeToString([]byte("bindingFactor2"))),
+					sdk.NewAttribute(types.AttributeKeyPubNonce, hex.EncodeToString([]byte("pubNonce2"))),
+					sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString([]byte("pubD2"))),
+					sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString([]byte("pubE2"))),
+				)),
+			}),
+			"member 2",
+			1,
+		},
+		{
+			"no event",
+			sdk.StringifyEvents([]abci.Event{}),
+			"member 3",
+			0,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			actual := de.CountAssignedSignings(test.events, test.address)
+			assert.Equal(t, test.expOut, actual)
+		})
+	}
+}
