@@ -1,6 +1,8 @@
 package emitter
 
 import (
+	"strings"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -32,14 +34,25 @@ func getTunnelSenderFeesMap(ctx sdk.Context, hook Hook, events []abci.Event) map
 				continue
 			}
 
+			// Filter out all tunnel minted coins
+			filteredAmount := sdk.NewCoins()
+			for _, coin := range amount {
+				if !strings.HasPrefix(coin.Denom, tunneltypes.HookDenomPrefix) {
+					filteredAmount = filteredAmount.Add(coin)
+				}
+			}
+			if filteredAmount.IsZero() {
+				continue
+			}
+
 			tunnelModuleAcc := hook.accountKeeper.GetModuleAccount(ctx, tunneltypes.ModuleName)
 
 			fees := senderFeesMap[sender]
 
 			if recipient == tunnelModuleAcc.GetAddress().String() {
-				fees.BaseFee = fees.BaseFee.Add(amount...)
+				fees.BaseFee = fees.BaseFee.Add(filteredAmount...)
 			} else {
-				fees.RouteFee = fees.RouteFee.Add(amount...)
+				fees.RouteFee = fees.RouteFee.Add(filteredAmount...)
 			}
 
 			senderFeesMap[sender] = fees
