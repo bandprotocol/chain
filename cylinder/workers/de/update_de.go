@@ -112,11 +112,15 @@ func (u *UpdateDE) ListenMsgResponses() {
 
 		if res.Success {
 			u.logger.Info(":smiling_face_with_sunglasses: Successfully submitted DEs")
+
 			u.deCounter.UpdateCommittedDEs(int64(len(des)))
+			u.logger.Debug("[ListenMsgResponses] updateCommitedDEs %d", len(des))
 		} else {
 			u.logger.Error(":cold_sweat: Failed to submit DEs; need to revert pending DEs (len(DE): %d); error: %s", len(des), res.Err)
 
 			u.deCounter.UpdateRejectedDEs(int64(len(des)))
+			u.logger.Debug("[ListenMsgResponses] updateRejectedDEs %d", len(des))
+
 			for _, de := range des {
 				err := u.context.Store.DeleteDE(de)
 				if err != nil {
@@ -144,18 +148,6 @@ func (u *UpdateDE) subscribe() (err error) {
 
 // updateDE generates new DEs and submit them to the chain.
 func (u *UpdateDE) updateDE(numNewDE uint64) error {
-	ok, err := u.shouldContinueUpdateDE()
-	if err != nil {
-		return err
-	} else if !ok {
-		u.logger.Debug(":cold_sweat: Skip updating DE; not a tss member and gas price isn't set")
-
-		// should update the rejected DEs counter as it doesn't return an error.
-		// not returning an error to suppress error logs on the caller function.
-		u.deCounter.UpdateRejectedDEs(int64(numNewDE))
-		return fmt.Errorf("not a tss member and gas price isn't set")
-	}
-
 	u.logger.Info(":delivery_truck: Updating DE")
 
 	// Generate new DE pairs
@@ -275,20 +267,27 @@ func (u *UpdateDE) intervalUpdateDE() error {
 	metrics.SetOnChainDELeftGauge(float64(deCount))
 
 	expectedDESize := (2 * u.maxDESizeOnChain) / 3
-	toBeCreated := u.deCounter.ComputeAndAddMissingDEs(deCount, expectedDESize)
+	numDEToBECreated := u.deCounter.ComputeAndAddMissingDEs(deCount, expectedDESize)
+
+	u.logger.Debug(
+		"[intervalUpdateDE] expectedDESize: %d, deCount: %d, numDEToBECreated: %d",
+		expectedDESize,
+		deCount,
+		numDEToBECreated,
+	)
 
 	if ok, err := u.shouldContinueUpdateDE(); err != nil || !ok {
-		u.deCounter.UpdateRejectedDEs(toBeCreated)
+		u.deCounter.UpdateRejectedDEs(numDEToBECreated)
 		return err
 	}
 
-	if toBeCreated > 0 {
+	if numDEToBECreated > 0 {
 		u.logger.Info(
 			":delivery_truck: DEs are less than the expected size, do an interval update len = %d",
-			toBeCreated,
+			numDEToBECreated,
 		)
-		if err := u.updateDE(uint64(toBeCreated)); err != nil {
-			u.deCounter.UpdateRejectedDEs(toBeCreated)
+		if err := u.updateDE(uint64(numDEToBECreated)); err != nil {
+			u.deCounter.UpdateRejectedDEs(numDEToBECreated)
 			return err
 		}
 	}
@@ -317,6 +316,18 @@ func (u *UpdateDE) updateDEFromEvent(resultEvent ctypes.ResultEvent) error {
 	// the maxDESizeOnChain to prevent any transaction revert.
 	threshold := u.maxDESizeOnChain / 6
 	numDEToBECreated := u.deCounter.CheckUsageAndAddPending(deUsed, threshold)
+
+	u.logger.Debug(
+		"[updateDEFromEvent] deUsed: %d, threshold: %d, numDEToBECreated: %d",
+		deUsed,
+		threshold,
+		numDEToBECreated,
+	)
+
+	if ok, err := u.shouldContinueUpdateDE(); err != nil || !ok {
+		u.deCounter.UpdateRejectedDEs(numDEToBECreated)
+		return err
+	}
 
 	if numDEToBECreated > 0 {
 		u.logger.Info(":delivery_truck: DEs are used over the threshold, adding new DEs len = %d", numDEToBECreated)

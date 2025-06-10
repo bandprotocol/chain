@@ -4,7 +4,9 @@ import (
 	"sync"
 )
 
-// DECounter is a struct that contains the number of used and pending DEs.
+// DECounter tracks the number of used and pending DEs.
+// It represents the expected on-chain DE count if all MsgSubmitDE
+// transactions are successfully committed.
 type DECounter struct {
 	mu      sync.Mutex
 	used    int64
@@ -27,8 +29,11 @@ func (dec *DECounter) UpdateCommittedDEs(numDE int64) {
 	dec.mu.Lock()
 	defer dec.mu.Unlock()
 
-	// pending cannot be negative as it represents the number of produced DEs by the program
+	// pending cannot be negative as it represents the number of DEs
+	// being created but not committed by the program
 	dec.pending = max(0, dec.pending-numDE)
+
+	// can be negative to represent that DEs on chain is more than expected
 	dec.used -= numDE
 }
 
@@ -38,7 +43,8 @@ func (dec *DECounter) UpdateRejectedDEs(numDE int64) {
 	dec.mu.Lock()
 	defer dec.mu.Unlock()
 
-	// pending cannot be negative as it represents the number of produced DEs by the program
+	// pending cannot be negative as it represents the number of DEs
+	// being created but not committed by the program
 	dec.pending = max(0, dec.pending-numDE)
 }
 
@@ -51,7 +57,7 @@ func (dec *DECounter) CheckUsageAndAddPending(deUsed int64, threshold uint64) in
 
 	dec.used += deUsed
 	toBeCreated := dec.used - dec.pending
-	if toBeCreated > int64(threshold) {
+	if toBeCreated >= int64(threshold) {
 		dec.pending += toBeCreated
 		return toBeCreated
 	}
@@ -65,9 +71,11 @@ func (dec *DECounter) ComputeAndAddMissingDEs(existing uint64, expectedDESize ui
 	dec.mu.Lock()
 	defer dec.mu.Unlock()
 
-	// can be negative to represent that DEs on chain will be more than expected
-	dec.used = int64(expectedDESize) - int64(existing) - dec.pending
-	toBeCreated := max(0, dec.used)
+	// No need to update dec.used here — it will be updated later when a new signing is published
+	// via CheckUsageAndAddPending. It's expected that dec.used will temporarily lag behind
+	// the actual on-chain usage. the sum of dec.used and dec.pending will reflect
+	// the expected DEs on chain in next CheckUsageAndAddPending.
+	toBeCreated := max(0, int64(expectedDESize)-int64(existing)-dec.pending)
 	dec.pending += toBeCreated
 
 	return toBeCreated
