@@ -147,8 +147,6 @@ func (r *Round2) handleGroup(gid tss.GroupID) {
 
 	// Generate message for round 2
 	r.reqID += 1
-	logger.Info(":delivery_truck: Forward MsgSubmitDKGRound2 to sender with ID: %d", r.reqID)
-
 	r.context.MsgRequestCh <- msg.NewRequest(
 		msg.RequestTypeCreateGroupRound2,
 		r.reqID,

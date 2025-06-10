@@ -164,8 +164,6 @@ func (s *Signing) handleSigning(sid tss.SigningID) {
 
 	// Send MsgSigning
 	s.reqID += 1
-	logger.Info(":delivery_truck: Forward MsgSubmitSignature to sender with ID: %d", s.reqID)
-
 	s.context.MsgRequestCh <- msg.NewRequest(
 		msg.RequestTypeSubmitSignature,
 		s.reqID,

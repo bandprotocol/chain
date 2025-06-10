@@ -152,12 +152,6 @@ func (u *UpdateDE) updateDE(numNewDE uint64) error {
 		end_idx := min(i+MAX_DE_BATCH_SIZE, len(pubDEs))
 		u.cacheDEs[u.reqID] = int64(end_idx - i)
 
-		u.logger.Info(
-			":delivery_truck: Forward MsgSubmitDEs to sender with ID: %d len(DEs): %d",
-			u.reqID,
-			end_idx-i,
-		)
-
 		u.context.PriorityMsgRequestCh <- msg.NewRequest(
 			msg.RequestTypeUpdateDE,
 			u.reqID,

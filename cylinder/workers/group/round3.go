@@ -143,8 +143,6 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 		if len(complaints) > 0 {
 			// Send message complaints
 			r.complainReqID += 1
-			logger.Info(":delivery_truck: Forward MsgComplain to sender with ID: %d", r.complainReqID)
-
 			r.context.MsgRequestCh <- msg.NewRequest(
 				msg.RequestTypeCreateGroupComplain,
 				r.complainReqID,
@@ -198,8 +196,6 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 
 	// Send MsgConfirm
 	r.confirmReqID += 1
-	logger.Info(":delivery_truck: Forward MsgConfirm to sender with ID: %d", r.confirmReqID)
-
 	r.context.MsgRequestCh <- msg.NewRequest(
 		msg.RequestTypeCreateGroupConfirm,
 		r.confirmReqID,
