@@ -70,9 +70,7 @@ func runCmd(ctx *context.Context) *cobra.Command {
 			}
 
 			var receivers []*msg.ResponseReceiver
-			receivers = append(receivers, group.GetResponseReceivers()...)
 			receivers = append(receivers, de.GetResponseReceivers()...)
-			receivers = append(receivers, signing.GetResponseReceivers()...)
 
 			sender, err := sender.New(ctx, receivers)
 			if err != nil {
@@ -117,7 +115,7 @@ func runCmd(ctx *context.Context) *cobra.Command {
 	cmd.Flags().String(flags.FlagGasPrices, "", "gas prices for a transaction")
 	cmd.Flags().String(flagLogLevel, "info", "set the logger level")
 	cmd.Flags().Uint64(flagMaxMessages, 10, "The maximum number of messages in a transaction")
-	cmd.Flags().String(flagBroadcastTimeout, "5m", "The time that cylinder will wait for tx commit")
+	cmd.Flags().String(flagBroadcastTimeout, "1m", "The time that cylinder will wait for tx commit")
 	cmd.Flags().String(flagRPCPollInterval, "1s", "The duration of rpc poll interval")
 	cmd.Flags().Uint64(flagMaxTry, 5, "The maximum number of tries to submit a transaction")
 	cmd.Flags().Uint64(flagMinDE, 5, "The minimum number of DE")

@@ -77,7 +77,7 @@ func NewContext(
 		InterfaceRegistry:    interfaceRegistry,
 		ErrCh:                make(chan error, 1),
 		PriorityMsgRequestCh: make(chan msg.Request, 1000),
-		MsgRequestCh:         make(chan msg.Request, 1000),
+		MsgRequestCh:         make(chan msg.Request, 2000),
 		DataDir:              filepath.Join(home, "data"),
 	}, nil
 }

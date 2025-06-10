@@ -16,7 +16,6 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder/metrics"
 	"github.com/bandprotocol/chain/v3/cylinder/msg"
 	"github.com/bandprotocol/chain/v3/cylinder/store"
-	"github.com/bandprotocol/chain/v3/cylinder/workers/utils"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 	"github.com/bandprotocol/chain/v3/pkg/tss"
 	"github.com/bandprotocol/chain/v3/x/tss/types"
@@ -44,22 +43,10 @@ func NewRound3(ctx *context.Context) (*Round3, error) {
 		return nil, err
 	}
 
-	confirmReceiver := msg.ResponseReceiver{
-		ReqType:    msg.RequestTypeCreateGroupConfirm,
-		ResponseCh: make(chan msg.Response, 1000),
-	}
-
-	complainReceiver := msg.ResponseReceiver{
-		ReqType:    msg.RequestTypeCreateGroupComplain,
-		ResponseCh: make(chan msg.Response, 1000),
-	}
-
 	return &Round3{
-		context:          ctx,
-		logger:           ctx.Logger.With("worker", "Round3"),
-		client:           cli,
-		confirmReceiver:  confirmReceiver,
-		complainReceiver: complainReceiver,
+		context: ctx,
+		logger:  ctx.Logger.With("worker", "Round3"),
+		client:  cli,
 	}, nil
 }
 
@@ -162,6 +149,7 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 				msg.RequestTypeCreateGroupComplain,
 				r.complainReqID,
 				types.NewMsgComplain(gid, complaints, r.context.Config.Granter),
+				3,
 			)
 
 			metrics.IncProcessRound3ComplainCount(uint64(gid))
@@ -216,6 +204,7 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 		msg.RequestTypeCreateGroupConfirm,
 		r.confirmReqID,
 		types.NewMsgConfirm(gid, group.MemberID, ownPubKeySig, r.context.Config.Granter),
+		3,
 	)
 
 	metrics.ObserveProcessRound3Time(uint64(gid), time.Since(since).Seconds())
@@ -235,9 +224,6 @@ func (r *Round3) Start() {
 
 	r.handlePendingGroups()
 
-	go r.listenMsgConfirmResponses()
-	go r.listenMsgComplainResponses()
-
 	for ev := range r.eventCh {
 		go r.handleABCIEvents(ev.Data.(tmtypes.EventDataNewBlock).ResultFinalizeBlock.Events)
 	}
@@ -247,20 +233,4 @@ func (r *Round3) Start() {
 func (r *Round3) Stop() error {
 	r.logger.Info("stop")
 	return r.client.Stop()
-}
-
-// listenMsgConfirmResponses listens to the MsgResponseReceiver of the confirmRequest
-// channel and handle properly.
-func (r *Round3) listenMsgConfirmResponses() {
-	for res := range r.confirmReceiver.ResponseCh {
-		utils.CheckResultAndRetry(r.logger, res, r.context.MsgRequestCh, "MsgConfirm")
-	}
-}
-
-// listenMsgComplainResponses listens to the MsgResponseReceiver of the complainRequest
-// channel and handle properly.
-func (r *Round3) listenMsgComplainResponses() {
-	for res := range r.complainReceiver.ResponseCh {
-		utils.CheckResultAndRetry(r.logger, res, r.context.MsgRequestCh, "MsgComplain")
-	}
 }

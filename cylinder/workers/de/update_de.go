@@ -33,7 +33,7 @@ type UpdateDE struct {
 	maxDESizeOnChain uint64
 	receiver         msg.ResponseReceiver
 	reqID            uint64
-	cacheDEs         map[uint64][]types.DE
+	cacheDEs         map[uint64]int64
 }
 
 var _ cylinder.Worker = &UpdateDE{}
@@ -62,7 +62,7 @@ func NewUpdateDE(ctx *context.Context) (*UpdateDE, error) {
 		maxDESizeOnChain: params.MaxDESize,
 		receiver:         receiver,
 		deCounter:        NewDECounter(),
-		cacheDEs:         make(map[uint64][]types.DE),
+		cacheDEs:         make(map[uint64]int64),
 	}, nil
 }
 
@@ -150,7 +150,7 @@ func (u *UpdateDE) updateDE(numNewDE uint64) error {
 	for i := 0; i < len(pubDEs); i += MAX_DE_BATCH_SIZE {
 		u.reqID += 1
 		end_idx := min(i+MAX_DE_BATCH_SIZE, len(pubDEs))
-		u.cacheDEs[u.reqID] = pubDEs[i:end_idx]
+		u.cacheDEs[u.reqID] = int64(end_idx - i)
 
 		u.logger.Info(
 			":delivery_truck: Forward MsgSubmitDEs to sender with ID: %d len(DEs): %d",
@@ -162,6 +162,7 @@ func (u *UpdateDE) updateDE(numNewDE uint64) error {
 			msg.RequestTypeUpdateDE,
 			u.reqID,
 			types.NewMsgSubmitDEs(pubDEs[i:end_idx], u.context.Config.Granter),
+			0,
 		)
 	}
 
@@ -239,25 +240,25 @@ func (u *UpdateDE) intervalUpdateDE() error {
 	metrics.SetOnChainDELeftGauge(float64(deCount))
 
 	expectedDESize := (2 * u.maxDESizeOnChain) / 3
-	numDEToBECreated := u.deCounter.ComputeAndAddMissingDEs(deCount, expectedDESize, blockHeight)
+	numDEToBeCreated := u.deCounter.ComputeAndAddMissingDEs(deCount, expectedDESize, blockHeight)
 	u.logger.Debug(":eyes: deCounter after ComputeAndAddMissingDEs [intervalUpdateDE]: %s", u.deCounter.String())
-	if numDEToBECreated == 0 {
+	if numDEToBeCreated == 0 {
 		u.logger.Debug(":eyes: the number of DEs is sufficient, skip interval update DE")
 		return nil
 	}
 
 	if ok, err := u.shouldContinueUpdateDE(); err != nil || !ok {
-		u.deCounter.UpdateRejectedDEs(numDEToBECreated)
+		u.deCounter.UpdateRejectedDEs(numDEToBeCreated)
 		return err
 	}
 
-	if numDEToBECreated > 0 {
+	if numDEToBeCreated > 0 {
 		u.logger.Info(
 			":delivery_truck: the number of DEs is less than the expected size, do an interval update len = %d",
-			numDEToBECreated,
+			numDEToBeCreated,
 		)
-		if err := u.updateDE(uint64(numDEToBECreated)); err != nil {
-			u.deCounter.UpdateRejectedDEs(numDEToBECreated)
+		if err := u.updateDE(uint64(numDEToBeCreated)); err != nil {
+			u.deCounter.UpdateRejectedDEs(numDEToBeCreated)
 			return err
 		}
 	}
@@ -286,7 +287,7 @@ func (u *UpdateDE) updateDEFromEvent(resultEvent ctypes.ResultEvent) error {
 	// if the system used DE over the threshold, add new DEs
 	// the threshold plus the expectedDESize (2/3 maxDESizeOnChain) shouldn't be over
 	// the maxDESizeOnChain to prevent any transaction revert.
-	threshold := u.maxDESizeOnChain / 6
+	threshold := min(u.maxDESizeOnChain/6, MAX_DE_BATCH_SIZE)
 	numDEToBECreated := u.deCounter.CheckUsageAndAddPending(deUsed, threshold, blockHeight)
 	u.logger.Debug(":eyes: deCounter after CheckUsageAndAddPending [updateDEFromEvent]: %s", u.deCounter.String())
 
@@ -372,12 +373,12 @@ func (u *UpdateDE) isGranterSigner(signingID tss.SigningID) (bool, error) {
 // listenMsgResponses listens to the MsgResponseReceiver channel and handle properly.
 func (u *UpdateDE) listenMsgResponses() {
 	for res := range u.receiver.ResponseCh {
-		des := u.cacheDEs[res.Request.ID]
+		lenDEs := u.cacheDEs[res.Request.ID]
 
 		if res.Success {
 			u.logger.Info(":smiling_face_with_sunglasses: Successfully submitted DEs ReqID: %d", res.Request.ID)
 
-			u.deCounter.UpdateCommittedDEs(int64(len(des)))
+			u.deCounter.UpdateCommittedDEs(lenDEs)
 			u.logger.Debug(
 				":eyes: deCounter after UpdateCommittedDEs [listenMsgResponses] ReqID: %d: %s",
 				res.Request.ID,
@@ -387,19 +388,12 @@ func (u *UpdateDE) listenMsgResponses() {
 			u.logger.Error(
 				":cold_sweat: Failed to submit DEs; need to revert pending DEs ReqID: %d, (len(DE): %d); error: %s",
 				res.Request.ID,
-				len(des),
+				lenDEs,
 				res.Err,
 			)
 
-			u.deCounter.UpdateRejectedDEs(int64(len(des)))
+			u.deCounter.UpdateRejectedDEs(lenDEs)
 			u.logger.Debug(":eyes: deCounter after UpdateRejectedDEs [listenMsgResponses]: %s", u.deCounter.String())
-
-			for _, de := range des {
-				err := u.context.Store.DeleteDE(de)
-				if err != nil {
-					u.logger.Error(":cold_sweat: Failed to delete DE: %s", err)
-				}
-			}
 		}
 
 		delete(u.cacheDEs, res.Request.ID)

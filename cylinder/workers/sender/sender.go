@@ -17,11 +17,11 @@ import (
 
 // Sender is a worker responsible for sending transactions to the node.
 type Sender struct {
-	context           *context.Context
-	logger            *logger.Logger
-	client            *client.Client
-	freeKeys          chan *keyring.Record
-	ResponseReceivers []*msg.ResponseReceiver
+	context   *context.Context
+	logger    *logger.Logger
+	client    *client.Client
+	freeKeys  chan *keyring.Record
+	receivers []*msg.ResponseReceiver
 }
 
 var _ cylinder.Worker = &Sender{}
@@ -46,11 +46,11 @@ func New(ctx *context.Context, receivers []*msg.ResponseReceiver) (*Sender, erro
 	}
 
 	return &Sender{
-		context:           ctx,
-		logger:            ctx.Logger.With("worker", "Sender"),
-		client:            cli,
-		freeKeys:          freeKeys,
-		ResponseReceivers: receivers,
+		context:   ctx,
+		logger:    ctx.Logger.With("worker", "Sender"),
+		client:    cli,
+		freeKeys:  freeKeys,
+		receivers: receivers,
 	}, nil
 }
 
@@ -78,20 +78,37 @@ func (s *Sender) collectMsgs() []msg.Request {
 	maxSize := int(s.context.Config.MaxMessages)
 	var msgs []msg.Request
 
-	for len(msgs) == 0 || (len(msgs) < maxSize && (len(s.context.MsgRequestCh) > 0 || len(s.context.PriorityMsgRequestCh) > 0)) {
-		// drain priority messages first
-		select {
-		case msg := <-s.context.PriorityMsgRequestCh:
-			msgs = append(msgs, msg)
-			continue
-		default:
-		}
-
+	// drain first message (priority channel first)
+	select {
+	case msg := <-s.context.PriorityMsgRequestCh:
+		msgs = append(msgs, msg)
+	default:
 		select {
 		case msg := <-s.context.PriorityMsgRequestCh:
 			msgs = append(msgs, msg)
 		case msg := <-s.context.MsgRequestCh:
 			msgs = append(msgs, msg)
+		}
+	}
+
+	// wait for 0.1 second to collect more messages.
+	timer := time.NewTimer(100 * time.Millisecond)
+	defer timer.Stop()
+	for len(msgs) < maxSize {
+		select {
+		case msg := <-s.context.PriorityMsgRequestCh:
+			msgs = append(msgs, msg)
+		case <-timer.C:
+			return msgs
+		default:
+			select {
+			case msg := <-s.context.PriorityMsgRequestCh:
+				msgs = append(msgs, msg)
+			case msg := <-s.context.MsgRequestCh:
+				msgs = append(msgs, msg)
+			case <-timer.C:
+				return msgs
+			}
 		}
 	}
 
@@ -121,13 +138,13 @@ func (s *Sender) sendMsgs(key *keyring.Record, msgs []msg.Request) {
 		logger.Error(":anxious_face_with_sweat: Cannot send messages with error: %s", err)
 
 		metrics.IncSubmitTxFailedCount()
-		s.forwardResult(msgs, false, "", err)
+		s.retryMsgs(msgs, err)
 		return
 	} else if res.Code != 0 {
 		logger.Error(":anxious_face_with_sweat: Cannot send messages with error code: codespace: %s, code: %d", res.Codespace, res.Code)
 
 		metrics.IncSubmitTxFailedCount()
-		s.forwardResult(msgs, false, "", fmt.Errorf("error with codespace: %s, code: %d", res.Codespace, res.Code))
+		s.retryMsgs(msgs, fmt.Errorf("error with codespace: %s, code: %d", res.Codespace, res.Code))
 		return
 	}
 
@@ -139,10 +156,41 @@ func (s *Sender) sendMsgs(key *keyring.Record, msgs []msg.Request) {
 	s.forwardResult(msgs, true, res.TxHash, nil)
 }
 
+// retryMsgs retries the messages that failed to send, but if the request
+// reaches max retry, it will forward the result to the receiver.
+func (s *Sender) retryMsgs(msgs []msg.Request, err error) {
+	var reachedMaxRetryMsgs []msg.Request
+
+	for _, m := range msgs {
+		msgLog := s.logger.With("msg", GetMsgDetails([]sdk.Msg{m.Msg}...))
+		if m.Retry < m.MaxRetry {
+			msgLog.Warn(
+				":anxious_face_with_sweat: Failed to send ID: %d, retry: %d; %s",
+				m.ID,
+				m.Retry,
+				err,
+			)
+
+			s.context.MsgRequestCh <- m.IncreaseRetry()
+		} else {
+			msgLog.Error(
+				":anxious_face_with_sweat: Failed to send request ID: %d, retry: %d; %s",
+				m.ID,
+				m.Retry,
+				err,
+			)
+
+			reachedMaxRetryMsgs = append(reachedMaxRetryMsgs, m)
+		}
+	}
+
+	s.forwardResult(reachedMaxRetryMsgs, false, "", err)
+}
+
 // forwardResult forwards the result of the message to the receiver.
 func (s *Sender) forwardResult(msgs []msg.Request, success bool, txHash string, err error) {
 	for _, m := range msgs {
-		for _, receiver := range s.ResponseReceivers {
+		for _, receiver := range s.receivers {
 			if receiver.ReqType == m.ReqType {
 				receiver.ResponseCh <- msg.NewResponse(m, success, txHash, err)
 			}

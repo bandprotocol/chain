@@ -15,7 +15,6 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder/context"
 	"github.com/bandprotocol/chain/v3/cylinder/metrics"
 	"github.com/bandprotocol/chain/v3/cylinder/msg"
-	"github.com/bandprotocol/chain/v3/cylinder/workers/utils"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 	"github.com/bandprotocol/chain/v3/pkg/tss"
 	"github.com/bandprotocol/chain/v3/x/tss/types"
@@ -23,12 +22,11 @@ import (
 
 // Round2 is a worker responsible for round2 in the DKG process of tss module
 type Round2 struct {
-	context  *context.Context
-	logger   *logger.Logger
-	client   *client.Client
-	eventCh  <-chan ctypes.ResultEvent
-	receiver msg.ResponseReceiver
-	reqID    uint64
+	context *context.Context
+	logger  *logger.Logger
+	client  *client.Client
+	eventCh <-chan ctypes.ResultEvent
+	reqID   uint64
 }
 
 var _ cylinder.Worker = &Round2{}
@@ -41,16 +39,10 @@ func NewRound2(ctx *context.Context) (*Round2, error) {
 		return nil, err
 	}
 
-	receiver := msg.ResponseReceiver{
-		ReqType:    msg.RequestTypeCreateGroupRound2,
-		ResponseCh: make(chan msg.Response, 1000),
-	}
-
 	return &Round2{
-		context:  ctx,
-		logger:   ctx.Logger.With("worker", "Round2"),
-		client:   cli,
-		receiver: receiver,
+		context: ctx,
+		logger:  ctx.Logger.With("worker", "Round2"),
+		client:  cli,
 	}, nil
 }
 
@@ -168,6 +160,7 @@ func (r *Round2) handleGroup(gid tss.GroupID) {
 			},
 			r.context.Config.Granter,
 		),
+		3,
 	)
 
 	metrics.ObserveProcessRound2Time(uint64(gid), time.Since(since).Seconds())
@@ -187,8 +180,6 @@ func (r *Round2) Start() {
 
 	r.handlePendingGroups()
 
-	go r.listenMsgResponses()
-
 	for ev := range r.eventCh {
 		go r.handleABCIEvents(ev.Data.(tmtypes.EventDataNewBlock).ResultFinalizeBlock.Events)
 	}
@@ -198,11 +189,4 @@ func (r *Round2) Start() {
 func (r *Round2) Stop() error {
 	r.logger.Info("stop")
 	return r.client.Stop()
-}
-
-// listenMsgResponses listens to the MsgResponseReceiver channel and handle properly.
-func (r *Round2) listenMsgResponses() {
-	for res := range r.receiver.ResponseCh {
-		utils.CheckResultAndRetry(r.logger, res, r.context.MsgRequestCh, "MsgSubmitDKGRound2")
-	}
 }

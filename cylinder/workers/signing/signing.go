@@ -16,7 +16,6 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder/metrics"
 	"github.com/bandprotocol/chain/v3/cylinder/msg"
 	"github.com/bandprotocol/chain/v3/cylinder/parser"
-	"github.com/bandprotocol/chain/v3/cylinder/workers/utils"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 	"github.com/bandprotocol/chain/v3/pkg/tss"
 	"github.com/bandprotocol/chain/v3/x/tss/types"
@@ -24,12 +23,11 @@ import (
 
 // Signing is a worker responsible for the signing process of the tss module.
 type Signing struct {
-	context  *context.Context
-	logger   *logger.Logger
-	client   *client.Client
-	eventCh  <-chan ctypes.ResultEvent
-	receiver msg.ResponseReceiver
-	reqID    uint64
+	context *context.Context
+	logger  *logger.Logger
+	client  *client.Client
+	eventCh <-chan ctypes.ResultEvent
+	reqID   uint64
 }
 
 var _ cylinder.Worker = &Signing{}
@@ -42,13 +40,10 @@ func New(ctx *context.Context) (*Signing, error) {
 		return nil, err
 	}
 
-	receiver := msg.NewResponseReceiver(msg.RequestTypeSubmitSignature)
-
 	return &Signing{
-		context:  ctx,
-		logger:   ctx.Logger.With("worker", "Signing"),
-		client:   cli,
-		receiver: receiver,
+		context: ctx,
+		logger:  ctx.Logger.With("worker", "Signing"),
+		client:  cli,
 	}, nil
 }
 
@@ -175,6 +170,7 @@ func (s *Signing) handleSigning(sid tss.SigningID) {
 		msg.RequestTypeSubmitSignature,
 		s.reqID,
 		types.NewMsgSubmitSignature(sid, group.MemberID, sig, s.context.Config.Granter),
+		3,
 	)
 
 	metrics.ObserveProcessSigningTime(uint64(signing.GroupID), time.Since(since).Seconds())
@@ -207,8 +203,6 @@ func (s *Signing) Start() {
 
 	s.handlePendingSignings()
 
-	go s.listenMsgResponses()
-
 	for ev := range s.eventCh {
 		switch data := ev.Data.(type) {
 		case tmtypes.EventDataTx:
@@ -223,16 +217,4 @@ func (s *Signing) Start() {
 func (s *Signing) Stop() error {
 	s.logger.Info("stop")
 	return s.client.Stop()
-}
-
-// GetResponseReceivers returns the message response receivers of the Signing worker.
-func (s *Signing) GetResponseReceivers() []*msg.ResponseReceiver {
-	return []*msg.ResponseReceiver{&s.receiver}
-}
-
-// listenMsgResponses listens to the MsgResponseReceiver channel and handle properly.
-func (s *Signing) listenMsgResponses() {
-	for res := range s.receiver.ResponseCh {
-		utils.CheckResultAndRetry(s.logger, res, s.context.MsgRequestCh, "MsgSubmitSignature")
-	}
 }

@@ -18,19 +18,21 @@ const (
 
 // Request is the struct for sending a request to the sender worker.
 type Request struct {
-	ReqType RequestType
-	ID      uint64
-	Msg     sdk.Msg
-	Retry   uint64
+	ReqType  RequestType
+	ID       uint64
+	Msg      sdk.Msg
+	Retry    uint64
+	MaxRetry uint64
 }
 
 // NewRequest creates a new request object.
-func NewRequest(reqType RequestType, id uint64, msg sdk.Msg) Request {
+func NewRequest(reqType RequestType, id uint64, msg sdk.Msg, maxRetry uint64) Request {
 	return Request{
-		ReqType: reqType,
-		ID:      id,
-		Msg:     msg,
-		Retry:   0,
+		ReqType:  reqType,
+		ID:       id,
+		Msg:      msg,
+		Retry:    0,
+		MaxRetry: maxRetry,
 	}
 }
 
