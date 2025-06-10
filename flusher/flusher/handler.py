@@ -806,7 +806,9 @@ class Handler(object):
         except Exception as e:
             print("An error occurred:", e)
 
-        self.conn.execute(tss_signings.insert(), msg)
+        self.conn.execute(
+            insert(tss_signings).values(**msg).on_conflict_do_update(constraint="tss_signings_pkey", set_=msg)
+        )
 
     def handle_update_tss_signing(self, msg):
         condition = True
@@ -828,7 +830,11 @@ class Handler(object):
         )
 
     def handle_new_tss_assigned_member(self, msg):
-        self.conn.execute(tss_assigned_members.insert(), msg)
+        self.conn.execute(
+            insert(tss_assigned_members)
+            .values(**msg)
+            .on_conflict_do_update(constraint="tss_assigned_members_pkey", set_=msg)
+        )
 
     def handle_update_tss_assigned_member(self, msg):
         condition = True
@@ -909,7 +915,9 @@ class Handler(object):
         msg["account_id"] = self.get_account_id(msg["requester"])
         del msg["requester"]
 
-        self.conn.execute(bandtss_signings.insert(), msg)
+        self.conn.execute(
+            insert(bandtss_signings).values(**msg).on_conflict_do_update(constraint="bandtss_signings_pkey", set_=msg)
+        )
 
     ##################################
     # TUNNEL_HANDLER
