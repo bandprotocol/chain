@@ -239,8 +239,7 @@ func (u *UpdateDE) intervalUpdateDE() error {
 
 	metrics.SetOnChainDELeftGauge(float64(deCount))
 
-	expectedDESize := (2 * u.maxDESizeOnChain) / 3
-	numDEToBeCreated := u.deCounter.ComputeAndAddMissingDEs(deCount, expectedDESize, blockHeight)
+	numDEToBeCreated := u.deCounter.ComputeAndAddMissingDEs(deCount, u.maxDESizeOnChain, blockHeight)
 	u.logger.Debug(":eyes: deCounter after ComputeAndAddMissingDEs [intervalUpdateDE]: %s", u.deCounter.String())
 	if numDEToBeCreated == 0 {
 		u.logger.Debug(":eyes: the number of DEs is sufficient, skip interval update DE")
@@ -284,9 +283,6 @@ func (u *UpdateDE) updateDEFromEvent(resultEvent ctypes.ResultEvent) error {
 		return fmt.Errorf("failed to count created signings: %s", err)
 	}
 
-	// if the system used DE over the threshold, add new DEs
-	// the threshold plus the expectedDESize (2/3 maxDESizeOnChain) shouldn't be over
-	// the maxDESizeOnChain to prevent any transaction revert.
 	threshold := min(u.maxDESizeOnChain/6, MAX_DE_BATCH_SIZE)
 	numDEToBECreated := u.deCounter.CheckUsageAndAddPending(deUsed, threshold, blockHeight)
 	u.logger.Debug(":eyes: deCounter after CheckUsageAndAddPending [updateDEFromEvent]: %s", u.deCounter.String())
