@@ -21,7 +21,7 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-const MAX_DE_BATCH_SIZE = 100
+const MAX_DE_BATCH_SIZE = 50
 
 // UpdateDE is a worker responsible for updating DEs in the store and chains
 type UpdateDE struct {
