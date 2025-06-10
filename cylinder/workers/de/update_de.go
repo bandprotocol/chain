@@ -81,7 +81,7 @@ func (u *UpdateDE) Start() {
 		return
 	}
 
-	go u.ListenMsgResponses()
+	go u.listenMsgResponses()
 
 	// Update DE if there is assigned DE event or DE is used.
 	ticker := time.NewTicker(u.context.Config.CheckDEInterval)
@@ -103,34 +103,6 @@ func (u *UpdateDE) Start() {
 func (u *UpdateDE) Stop() error {
 	u.logger.Info("stop")
 	return u.client.Stop()
-}
-
-// ListenMsgResponses listens to the MsgResponseReceiver channel and handle properly.
-func (u *UpdateDE) ListenMsgResponses() {
-	for res := range u.receiver.ResponseCh {
-		des := u.cacheDEs[res.Request.ID]
-
-		if res.Success {
-			u.logger.Info(":smiling_face_with_sunglasses: Successfully submitted DEs")
-
-			u.deCounter.UpdateCommittedDEs(int64(len(des)))
-			u.logger.Debug("[ListenMsgResponses] updateCommitedDEs %d", len(des))
-		} else {
-			u.logger.Error(":cold_sweat: Failed to submit DEs; need to revert pending DEs (len(DE): %d); error: %s", len(des), res.Err)
-
-			u.deCounter.UpdateRejectedDEs(int64(len(des)))
-			u.logger.Debug("[ListenMsgResponses] updateRejectedDEs %d", len(des))
-
-			for _, de := range des {
-				err := u.context.Store.DeleteDE(de)
-				if err != nil {
-					u.logger.Error(":cold_sweat: Failed to delete DE: %s", err)
-				}
-			}
-		}
-
-		delete(u.cacheDEs, res.Request.ID)
-	}
 }
 
 // subscribe subscribes to the events that trigger the DE update.
@@ -398,4 +370,32 @@ func (u *UpdateDE) isGranterSigner(signingID tss.SigningID) (bool, error) {
 	}
 
 	return true, nil
+}
+
+// listenMsgResponses listens to the MsgResponseReceiver channel and handle properly.
+func (u *UpdateDE) listenMsgResponses() {
+	for res := range u.receiver.ResponseCh {
+		des := u.cacheDEs[res.Request.ID]
+
+		if res.Success {
+			u.logger.Info(":smiling_face_with_sunglasses: Successfully submitted DEs")
+
+			u.deCounter.UpdateCommittedDEs(int64(len(des)))
+			u.logger.Debug("[ListenMsgResponses] updateCommitedDEs %d", len(des))
+		} else {
+			u.logger.Error(":cold_sweat: Failed to submit DEs; need to revert pending DEs (len(DE): %d); error: %s", len(des), res.Err)
+
+			u.deCounter.UpdateRejectedDEs(int64(len(des)))
+			u.logger.Debug("[ListenMsgResponses] updateRejectedDEs %d", len(des))
+
+			for _, de := range des {
+				err := u.context.Store.DeleteDE(de)
+				if err != nil {
+					u.logger.Error(":cold_sweat: Failed to delete DE: %s", err)
+				}
+			}
+		}
+
+		delete(u.cacheDEs, res.Request.ID)
+	}
 }

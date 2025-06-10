@@ -207,7 +207,7 @@ func (s *Signing) Start() {
 
 	s.handlePendingSignings()
 
-	go s.ListenMsgResponses()
+	go s.listenMsgResponses()
 
 	for ev := range s.eventCh {
 		switch data := ev.Data.(type) {
@@ -225,14 +225,14 @@ func (s *Signing) Stop() error {
 	return s.client.Stop()
 }
 
-// ListenMsgResponses listens to the MsgResponseReceiver channel and handle properly.
-func (s *Signing) ListenMsgResponses() {
-	for res := range s.receiver.ResponseCh {
-		utils.CheckResultAndRetry(s.logger, res, s.context.MsgRequestCh, "MsgSubmitSignature")
-	}
-}
-
 // GetResponseReceivers returns the message response receivers of the Signing worker.
 func (s *Signing) GetResponseReceivers() []*msg.ResponseReceiver {
 	return []*msg.ResponseReceiver{&s.receiver}
+}
+
+// listenMsgResponses listens to the MsgResponseReceiver channel and handle properly.
+func (s *Signing) listenMsgResponses() {
+	for res := range s.receiver.ResponseCh {
+		utils.CheckResultAndRetry(s.logger, res, s.context.MsgRequestCh, "MsgSubmitSignature")
+	}
 }

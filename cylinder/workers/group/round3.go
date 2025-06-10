@@ -235,8 +235,8 @@ func (r *Round3) Start() {
 
 	r.handlePendingGroups()
 
-	go r.ListenMsgResponsesConfirm()
-	go r.ListenMsgResponsesComplain()
+	go r.listenMsgConfirmResponses()
+	go r.listenMsgComplainResponses()
 
 	for ev := range r.eventCh {
 		go r.handleABCIEvents(ev.Data.(tmtypes.EventDataNewBlock).ResultFinalizeBlock.Events)
@@ -249,17 +249,17 @@ func (r *Round3) Stop() error {
 	return r.client.Stop()
 }
 
-// ListenMsgResponsesConfirm listens to the MsgResponseReceiver of the confirmRequest
+// listenMsgConfirmResponses listens to the MsgResponseReceiver of the confirmRequest
 // channel and handle properly.
-func (r *Round3) ListenMsgResponsesConfirm() {
+func (r *Round3) listenMsgConfirmResponses() {
 	for res := range r.confirmReceiver.ResponseCh {
 		utils.CheckResultAndRetry(r.logger, res, r.context.MsgRequestCh, "MsgConfirm")
 	}
 }
 
-// ListenMsgResponsesComplain listens to the MsgResponseReceiver of the complainRequest
+// listenMsgComplainResponses listens to the MsgResponseReceiver of the complainRequest
 // channel and handle properly.
-func (r *Round3) ListenMsgResponsesComplain() {
+func (r *Round3) listenMsgComplainResponses() {
 	for res := range r.complainReceiver.ResponseCh {
 		utils.CheckResultAndRetry(r.logger, res, r.context.MsgRequestCh, "MsgComplain")
 	}

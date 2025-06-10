@@ -190,7 +190,7 @@ func (r *Round1) Start() {
 
 	r.handlePendingGroups()
 
-	go r.ListenMsgResponses()
+	go r.listenMsgResponses()
 
 	for ev := range r.eventCh {
 		go r.handleABCIEvents(ev.Data.(tmtypes.EventDataNewBlock).ResultFinalizeBlock.Events)
@@ -203,8 +203,8 @@ func (r *Round1) Stop() error {
 	return r.client.Stop()
 }
 
-// ListenMsgResponses listens to the MsgResponseReceiver channel and handle properly.
-func (r *Round1) ListenMsgResponses() {
+// listenMsgResponses listens to the MsgResponseReceiver channel and handle properly.
+func (r *Round1) listenMsgResponses() {
 	for res := range r.receiver.ResponseCh {
 		utils.CheckResultAndRetry(r.logger, res, r.context.MsgRequestCh, "MsgSubmitDKGRound1")
 	}
