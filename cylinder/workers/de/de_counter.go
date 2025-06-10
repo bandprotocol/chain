@@ -1,6 +1,7 @@
 package de
 
 import (
+	"fmt"
 	"sync"
 )
 
@@ -8,17 +9,19 @@ import (
 // It represents the expected on-chain DE count if all MsgSubmitDE
 // transactions are successfully committed.
 type DECounter struct {
-	mu      sync.Mutex
-	used    int64
-	pending int64
+	mu          sync.Mutex
+	used        int64
+	pending     int64
+	blockHeight int64
 }
 
 // NewDECounter creates a new DECounter.
 func NewDECounter() *DECounter {
 	return &DECounter{
-		mu:      sync.Mutex{},
-		used:    0,
-		pending: 0,
+		mu:          sync.Mutex{},
+		used:        0,
+		pending:     0,
+		blockHeight: 0,
 	}
 }
 
@@ -51,9 +54,18 @@ func (dec *DECounter) UpdateRejectedDEs(numDE int64) {
 // CheckUsageAndAddPending checks if the sum of used and pending DEs is
 // greater than the threshold and update the number of pending DEs if so.
 // It returns the number of DEs that were added to the pending count.
-func (dec *DECounter) CheckUsageAndAddPending(deUsed int64, threshold uint64) int64 {
+func (dec *DECounter) CheckUsageAndAddPending(
+	deUsed int64,
+	threshold uint64,
+	blockHeight int64,
+) int64 {
 	dec.mu.Lock()
 	defer dec.mu.Unlock()
+
+	// skip if the block height is less than the latest updated block height
+	if dec.blockHeight >= blockHeight {
+		return 0
+	}
 
 	dec.used += deUsed
 	toBeCreated := dec.used - dec.pending
@@ -67,16 +79,22 @@ func (dec *DECounter) CheckUsageAndAddPending(deUsed int64, threshold uint64) in
 
 // ComputeAndAddMissingDEs recalculates the number of used DEs and
 // adds and return the missing DEs to the pending count if there is any.
-func (dec *DECounter) ComputeAndAddMissingDEs(existing uint64, expectedDESize uint64) int64 {
+func (dec *DECounter) ComputeAndAddMissingDEs(
+	existing uint64,
+	expectedDESize uint64,
+	blockHeight int64,
+) int64 {
 	dec.mu.Lock()
 	defer dec.mu.Unlock()
 
-	// No need to update dec.used here — it will be updated later when a new signing is published
-	// via CheckUsageAndAddPending. It's expected that dec.used will temporarily lag behind
-	// the actual on-chain usage. the sum of dec.used and dec.pending will reflect
-	// the expected DEs on chain in next CheckUsageAndAddPending.
-	toBeCreated := max(0, int64(expectedDESize)-int64(existing)-dec.pending)
+	dec.blockHeight = blockHeight
+	dec.used = int64(expectedDESize) - int64(existing)
+	toBeCreated := max(0, dec.used-dec.pending)
 	dec.pending += toBeCreated
 
 	return toBeCreated
+}
+
+func (dec *DECounter) String() string {
+	return fmt.Sprintf("DECounter{used: %d, pending: %d, blockHeight: %d}", dec.used, dec.pending, dec.blockHeight)
 }

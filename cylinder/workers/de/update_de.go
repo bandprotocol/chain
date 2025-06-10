@@ -231,7 +231,7 @@ func (u *UpdateDE) intervalUpdateDE() error {
 	}
 	u.maxDESizeOnChain = params.MaxDESize
 
-	deCount, err := u.getDECount()
+	deCount, blockHeight, err := u.getDECount()
 	if err != nil {
 		return err
 	}
@@ -239,14 +239,12 @@ func (u *UpdateDE) intervalUpdateDE() error {
 	metrics.SetOnChainDELeftGauge(float64(deCount))
 
 	expectedDESize := (2 * u.maxDESizeOnChain) / 3
-	numDEToBECreated := u.deCounter.ComputeAndAddMissingDEs(deCount, expectedDESize)
-
-	u.logger.Debug(
-		"[intervalUpdateDE] expectedDESize: %d, deCount: %d, numDEToBECreated: %d",
-		expectedDESize,
-		deCount,
-		numDEToBECreated,
-	)
+	numDEToBECreated := u.deCounter.ComputeAndAddMissingDEs(deCount, expectedDESize, blockHeight)
+	u.logger.Debug(":eyes: deCounter after ComputeAndAddMissingDEs [intervalUpdateDE]: %s", u.deCounter.String())
+	if numDEToBECreated == 0 {
+		u.logger.Debug(":eyes: the number of DEs is sufficient, skip interval update DE")
+		return nil
+	}
 
 	if ok, err := u.shouldContinueUpdateDE(); err != nil || !ok {
 		u.deCounter.UpdateRejectedDEs(numDEToBECreated)
@@ -255,7 +253,7 @@ func (u *UpdateDE) intervalUpdateDE() error {
 
 	if numDEToBECreated > 0 {
 		u.logger.Info(
-			":delivery_truck: DEs are less than the expected size, do an interval update len = %d",
+			":delivery_truck: the number of DEs is less than the expected size, do an interval update len = %d",
 			numDEToBECreated,
 		)
 		if err := u.updateDE(uint64(numDEToBECreated)); err != nil {
@@ -269,12 +267,14 @@ func (u *UpdateDE) intervalUpdateDE() error {
 
 // updateDEFromEvent updates DEs from the subscribed event.
 func (u *UpdateDE) updateDEFromEvent(resultEvent ctypes.ResultEvent) error {
-	deUsed := int64(0)
+	var blockHeight, deUsed int64
 	var err error
 	switch data := resultEvent.Data.(type) {
 	case tmtypes.EventDataTx:
+		blockHeight = data.Height
 		deUsed, err = u.countCreatedSignings(data.Result.Events)
 	case tmtypes.EventDataNewBlock:
+		blockHeight = data.Block.Height
 		deUsed, err = u.countCreatedSignings(data.ResultFinalizeBlock.Events)
 	default:
 		return nil
@@ -287,42 +287,39 @@ func (u *UpdateDE) updateDEFromEvent(resultEvent ctypes.ResultEvent) error {
 	// the threshold plus the expectedDESize (2/3 maxDESizeOnChain) shouldn't be over
 	// the maxDESizeOnChain to prevent any transaction revert.
 	threshold := u.maxDESizeOnChain / 6
-	numDEToBECreated := u.deCounter.CheckUsageAndAddPending(deUsed, threshold)
+	numDEToBECreated := u.deCounter.CheckUsageAndAddPending(deUsed, threshold, blockHeight)
+	u.logger.Debug(":eyes: deCounter after CheckUsageAndAddPending [updateDEFromEvent]: %s", u.deCounter.String())
 
-	u.logger.Debug(
-		"[updateDEFromEvent] deUsed: %d, threshold: %d, numDEToBECreated: %d",
-		deUsed,
-		threshold,
-		numDEToBECreated,
-	)
+	if numDEToBECreated == 0 {
+		u.logger.Debug(":eyes: DEs are sufficient, skip update DE from event")
+		return nil
+	}
 
 	if ok, err := u.shouldContinueUpdateDE(); err != nil || !ok {
 		u.deCounter.UpdateRejectedDEs(numDEToBECreated)
 		return err
 	}
 
-	if numDEToBECreated > 0 {
-		u.logger.Info(":delivery_truck: DEs are used over the threshold, adding new DEs len = %d", numDEToBECreated)
+	u.logger.Info(":delivery_truck: DEs are used over the threshold, adding new DEs len = %d", numDEToBECreated)
 
-		if err := u.updateDE(uint64(numDEToBECreated)); err != nil {
-			u.deCounter.UpdateRejectedDEs(numDEToBECreated)
-			return err
-		}
+	if err := u.updateDE(uint64(numDEToBECreated)); err != nil {
+		u.deCounter.UpdateRejectedDEs(numDEToBECreated)
+		return err
 	}
 
 	return nil
 }
 
 // getDECount queries the number of DEs on the chain.
-func (u *UpdateDE) getDECount() (uint64, error) {
+func (u *UpdateDE) getDECount() (uint64, int64, error) {
 	// Query DE information
 	deRes, err := u.client.QueryDE(u.context.Config.Granter, 0, 1)
 	if err != nil {
 		u.logger.Error(":cold_sweat: Failed to query DE information: %s", err)
-		return 0, err
+		return 0, 0, err
 	}
 
-	return deRes.GetRemaining(), nil
+	return deRes.GetRemaining(), deRes.GetBlockHeight(), nil
 }
 
 // countCreatedSignings counts the number of signings created from the given events.
@@ -378,15 +375,24 @@ func (u *UpdateDE) listenMsgResponses() {
 		des := u.cacheDEs[res.Request.ID]
 
 		if res.Success {
-			u.logger.Info(":smiling_face_with_sunglasses: Successfully submitted DEs")
+			u.logger.Info(":smiling_face_with_sunglasses: Successfully submitted DEs ReqID: %d", res.Request.ID)
 
 			u.deCounter.UpdateCommittedDEs(int64(len(des)))
-			u.logger.Debug("[ListenMsgResponses] updateCommitedDEs %d", len(des))
+			u.logger.Debug(
+				":eyes: deCounter after UpdateCommittedDEs [listenMsgResponses] ReqID: %d: %s",
+				res.Request.ID,
+				u.deCounter.String(),
+			)
 		} else {
-			u.logger.Error(":cold_sweat: Failed to submit DEs; need to revert pending DEs (len(DE): %d); error: %s", len(des), res.Err)
+			u.logger.Error(
+				":cold_sweat: Failed to submit DEs; need to revert pending DEs ReqID: %d, (len(DE): %d); error: %s",
+				res.Request.ID,
+				len(des),
+				res.Err,
+			)
 
 			u.deCounter.UpdateRejectedDEs(int64(len(des)))
-			u.logger.Debug("[ListenMsgResponses] updateRejectedDEs %d", len(des))
+			u.logger.Debug(":eyes: deCounter after UpdateRejectedDEs [listenMsgResponses]: %s", u.deCounter.String())
 
 			for _, de := range des {
 				err := u.context.Store.DeleteDE(de)

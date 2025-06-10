@@ -3,9 +3,11 @@ package client
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"time"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	httpclient "github.com/cometbft/cometbft/rpc/client/http"
@@ -17,6 +19,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -151,6 +154,7 @@ func (c *Client) QuerySigning(signingID tss.SigningID) (*SigningResponse, error)
 // It returns the de response or an error.
 func (c *Client) QueryDE(address string, offset uint64, limit uint64) (*DEResponse, error) {
 	queryClient := tsstypes.NewQueryClient(c.context)
+
 	input := &tsstypes.QueryDERequest{
 		Address: address,
 		Pagination: &query.PageRequest{
@@ -160,12 +164,39 @@ func (c *Client) QueryDE(address string, offset uint64, limit uint64) (*DERespon
 		},
 	}
 
-	der, err := queryWithRetry(queryClient.DE, input, c.maxTry, c.pollInterval)
+	queryDEWithBlockHeightFunc := func(
+		ctx context.Context,
+		input *tsstypes.QueryDERequest,
+		opts ...grpc.CallOption,
+	) (*DEResponse, error) {
+		var header metadata.MD
+		opts = append(opts, grpc.Header(&header))
+
+		deResponse, err := queryClient.DE(ctx, input, opts...)
+		if err != nil {
+			return nil, err
+		}
+
+		blockHeightArr := header.Get(grpctypes.GRPCBlockHeightHeader)
+		if len(blockHeightArr) == 0 {
+			return nil, fmt.Errorf("block height not found in header")
+		}
+
+		blockHeight, err := strconv.ParseInt(blockHeightArr[0], 10, 64)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse block height with error: %v", err)
+		}
+
+		out := NewDEResponse(deResponse, blockHeight)
+		return out, nil
+	}
+
+	resp, err := queryWithRetry(queryDEWithBlockHeightFunc, input, c.maxTry, c.pollInterval)
 	if err != nil {
 		return nil, err
 	}
 
-	return NewDEResponse(der), nil
+	return resp, nil
 }
 
 // QueryAllDE queries all DEs with the given address.
