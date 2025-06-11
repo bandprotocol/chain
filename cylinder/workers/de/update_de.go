@@ -18,7 +18,7 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-const MAX_DE_BATCH_SIZE = 50
+const MAX_DE_BATCH_SIZE = int64(50)
 
 // UpdateDE is a worker responsible for updating DEs in the store and chains
 type UpdateDE struct {
@@ -116,17 +116,41 @@ func (u *UpdateDE) subscribe() (err error) {
 }
 
 // updateDE generates new DEs and submit them to the chain.
-func (u *UpdateDE) updateDE(numNewDE uint64) error {
+func (u *UpdateDE) updateDE(numNewDE int64) error {
 	u.logger.Info(":delivery_truck: Updating DE")
 
+	for i := int64(0); i < numNewDE; i += MAX_DE_BATCH_SIZE {
+		size := min(MAX_DE_BATCH_SIZE, numNewDE-i)
+
+		pubDEs, err := u.generateAndSaveDEs(size)
+		if err != nil {
+			u.logger.Error(":cold_sweat: Failed to generate and save DEs: %s", err)
+			continue
+		}
+
+		u.reqID += 1
+		u.cacheDEs[u.reqID] = size
+		u.context.PriorityMsgRequestCh <- msg.NewRequest(
+			msg.RequestTypeUpdateDE,
+			u.reqID,
+			types.NewMsgSubmitDEs(pubDEs, u.context.Config.Granter),
+			0,
+		)
+	}
+
+	return nil
+}
+
+// generateAndSaveDEs generates new DE pairs and saves them into the store.
+func (u *UpdateDE) generateAndSaveDEs(numNewDE int64) ([]types.DE, error) {
 	// Generate new DE pairs
 	privDEs, err := GenerateDEs(
-		numNewDE,
+		uint64(numNewDE),
 		u.context.Config.RandomSecret,
 		u.context.Store,
 	)
 	if err != nil {
-		return fmt.Errorf("failed to generate new DE pairs: %s", err)
+		return nil, fmt.Errorf("failed to generate new DE pairs: %s", err)
 	}
 
 	// Store all DEs in the store
@@ -135,29 +159,14 @@ func (u *UpdateDE) updateDE(numNewDE uint64) error {
 		pubDEs = append(pubDEs, privDE.PubDE)
 
 		if err := u.context.Store.SetDE(privDE); err != nil {
-			return fmt.Errorf("failed to set new DE in the store: %s", err)
+			return nil, fmt.Errorf("failed to set new DE in the store: %s", err)
 		}
 
 		metrics.IncOffChainDELeftGauge()
 	}
 
 	u.logger.Info(":white_check_mark: Successfully generated %d new DE pairs", numNewDE)
-
-	// Send MsgDEs to the chain (chunked by MAX_DE_BATCH_SIZE)
-	for i := 0; i < len(pubDEs); i += MAX_DE_BATCH_SIZE {
-		u.reqID += 1
-		end_idx := min(i+MAX_DE_BATCH_SIZE, len(pubDEs))
-		u.cacheDEs[u.reqID] = int64(end_idx - i)
-
-		u.context.PriorityMsgRequestCh <- msg.NewRequest(
-			msg.RequestTypeUpdateDE,
-			u.reqID,
-			types.NewMsgSubmitDEs(pubDEs[i:end_idx], u.context.Config.Granter),
-			0,
-		)
-	}
-
-	return nil
+	return pubDEs, nil
 }
 
 // isTssMember checks if the granter is a tss member.
@@ -247,7 +256,7 @@ func (u *UpdateDE) intervalUpdateDE() error {
 			":delivery_truck: the number of DEs is less than the expected size, do an interval update len = %d",
 			numDEToBeCreated,
 		)
-		if err := u.updateDE(uint64(numDEToBeCreated)); err != nil {
+		if err := u.updateDE(numDEToBeCreated); err != nil {
 			u.deCounter.AfterDEsRejected(numDEToBeCreated)
 			return err
 		}
@@ -272,7 +281,7 @@ func (u *UpdateDE) updateDEFromEvent(resultEvent ctypes.ResultEvent) error {
 		return nil
 	}
 
-	threshold := min(u.maxDESizeOnChain/6, MAX_DE_BATCH_SIZE)
+	threshold := min(u.maxDESizeOnChain/6, uint64(MAX_DE_BATCH_SIZE))
 	numDEToBECreated := u.deCounter.EvaluateDECreationFromUsage(deUsed, threshold, blockHeight)
 	u.logger.Debug(":eyes: deCounter after EvaluateDECreationFromUsage [updateDEFromEvent]: %s", u.deCounter.String())
 
@@ -288,7 +297,7 @@ func (u *UpdateDE) updateDEFromEvent(resultEvent ctypes.ResultEvent) error {
 
 	u.logger.Info(":delivery_truck: DEs are used over the threshold, adding new DEs len = %d", numDEToBECreated)
 
-	if err := u.updateDE(uint64(numDEToBECreated)); err != nil {
+	if err := u.updateDE(numDEToBECreated); err != nil {
 		u.deCounter.AfterDEsRejected(numDEToBECreated)
 		return err
 	}
