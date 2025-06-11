@@ -191,3 +191,8 @@ func (r *Round1) Stop() error {
 	r.logger.Info("stop")
 	return r.client.Stop()
 }
+
+// GetResponseReceivers returns the message response receivers of the worker.
+func (r *Round1) GetResponseReceivers() []*msg.ResponseReceiver {
+	return nil
+}

@@ -3,6 +3,7 @@ package group
 import (
 	"github.com/bandprotocol/chain/v3/cylinder"
 	"github.com/bandprotocol/chain/v3/cylinder/context"
+	"github.com/bandprotocol/chain/v3/cylinder/msg"
 )
 
 // Group is a worker responsible for group creation process of tss module
@@ -31,11 +32,9 @@ func New(ctx *context.Context) (*Group, error) {
 		return nil, err
 	}
 
-	workers := []cylinder.Worker{round1, round2, round3}
-
 	return &Group{
 		context: ctx,
-		workers: workers,
+		workers: []cylinder.Worker{round1, round2, round3},
 	}, nil
 }
 
@@ -56,4 +55,14 @@ func (g *Group) Stop() error {
 	}
 
 	return nil
+}
+
+// GetResponseReceivers returns the message response receivers of the worker.
+func (g *Group) GetResponseReceivers() []*msg.ResponseReceiver {
+	receivers := []*msg.ResponseReceiver{}
+	for _, w := range g.workers {
+		receivers = append(receivers, w.GetResponseReceivers()...)
+	}
+
+	return receivers
 }

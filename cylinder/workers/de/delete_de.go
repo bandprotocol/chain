@@ -14,6 +14,7 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder/client"
 	"github.com/bandprotocol/chain/v3/cylinder/context"
 	"github.com/bandprotocol/chain/v3/cylinder/metrics"
+	"github.com/bandprotocol/chain/v3/cylinder/msg"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
@@ -129,4 +130,9 @@ func (d *DeleteDE) deleteDE(pubDE types.DE) {
 	}
 
 	metrics.DecOffChainDELeftGauge()
+}
+
+// GetResponseReceivers returns the message response receivers of the worker.
+func (d *DeleteDE) GetResponseReceivers() []*msg.ResponseReceiver {
+	return nil
 }

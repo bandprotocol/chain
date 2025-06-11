@@ -216,3 +216,8 @@ func (s *Signing) Stop() error {
 	s.logger.Info("stop")
 	return s.client.Stop()
 }
+
+// GetResponseReceivers returns the message response receivers of the worker.
+func (s *Signing) GetResponseReceivers() []*msg.ResponseReceiver {
+	return nil
+}

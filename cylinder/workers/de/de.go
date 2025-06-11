@@ -10,9 +10,8 @@ var _ cylinder.Worker = &DE{}
 
 // DE is a worker responsible for managing own nonce (DE) that being used for signing process
 type DE struct {
-	context   *context.Context
-	workers   []cylinder.Worker
-	receivers []*msg.ResponseReceiver
+	context *context.Context
+	workers []cylinder.Worker
 }
 
 // New creates a new instance of the DE-related workers.
@@ -28,13 +27,9 @@ func New(ctx *context.Context) (*DE, error) {
 		return nil, err
 	}
 
-	workers := []cylinder.Worker{updateDE, deleteDE}
-	receivers := []*msg.ResponseReceiver{&updateDE.receiver}
-
 	return &DE{
-		context:   ctx,
-		workers:   workers,
-		receivers: receivers,
+		context: ctx,
+		workers: []cylinder.Worker{updateDE, deleteDE},
 	}, nil
 }
 
@@ -56,7 +51,12 @@ func (de *DE) Stop() error {
 	return nil
 }
 
-// GetResponseReceivers returns the message response receivers of the DE worker.
+// GetResponseReceivers returns the message response receivers of the worker.
 func (de *DE) GetResponseReceivers() []*msg.ResponseReceiver {
-	return de.receivers
+	receivers := []*msg.ResponseReceiver{}
+	for _, w := range de.workers {
+		receivers = append(receivers, w.GetResponseReceivers()...)
+	}
+
+	return receivers
 }

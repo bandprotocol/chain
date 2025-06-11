@@ -203,3 +203,8 @@ func (s *Sender) Stop() error {
 	s.logger.Info("stop")
 	return s.client.Stop()
 }
+
+// GetResponseReceivers returns the message response receivers of the worker.
+func (s *Sender) GetResponseReceivers() []*msg.ResponseReceiver {
+	return s.receivers
+}

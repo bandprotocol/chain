@@ -71,6 +71,9 @@ func runCmd(ctx *context.Context) *cobra.Command {
 
 			var receivers []*msg.ResponseReceiver
 			receivers = append(receivers, de.GetResponseReceivers()...)
+			receivers = append(receivers, group.GetResponseReceivers()...)
+			receivers = append(receivers, signing.GetResponseReceivers()...)
+			receivers = append(receivers, status.GetResponseReceivers()...)
 
 			sender, err := sender.New(ctx, receivers)
 			if err != nil {

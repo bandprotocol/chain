@@ -23,14 +23,12 @@ import (
 
 // Round3 is a worker responsible for round3 in the DKG process of tss module
 type Round3 struct {
-	context          *context.Context
-	logger           *logger.Logger
-	client           *client.Client
-	eventCh          <-chan ctypes.ResultEvent
-	confirmReceiver  msg.ResponseReceiver
-	complainReceiver msg.ResponseReceiver
-	confirmReqID     uint64
-	complainReqID    uint64
+	context       *context.Context
+	logger        *logger.Logger
+	client        *client.Client
+	eventCh       <-chan ctypes.ResultEvent
+	confirmReqID  uint64
+	complainReqID uint64
 }
 
 var _ cylinder.Worker = &Round3{}
@@ -229,4 +227,9 @@ func (r *Round3) Start() {
 func (r *Round3) Stop() error {
 	r.logger.Info("stop")
 	return r.client.Stop()
+}
+
+// GetResponseReceivers returns the message response receivers of the worker.
+func (r *Round3) GetResponseReceivers() []*msg.ResponseReceiver {
+	return nil
 }

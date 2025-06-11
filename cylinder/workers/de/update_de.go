@@ -337,3 +337,8 @@ func (u *UpdateDE) listenMsgResponses() {
 		delete(u.cacheDEs, res.Request.ID)
 	}
 }
+
+// GetResponseReceivers returns the message response receivers of the worker.
+func (u *UpdateDE) GetResponseReceivers() []*msg.ResponseReceiver {
+	return []*msg.ResponseReceiver{&u.receiver}
+}
