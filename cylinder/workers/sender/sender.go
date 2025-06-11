@@ -75,37 +75,50 @@ func (s *Sender) Start() {
 // collectMsgs collects messages from the message channel up to a limit size.
 // It will block until got at least one message, then return non-empty message list.
 func (s *Sender) collectMsgs() []msg.Request {
-	maxSize := int(s.context.Config.MaxMessages)
+	allocatedGas := uint64(0)
 	var msgs []msg.Request
 
-	// drain first message (priority channel first)
-	select {
-	case msg := <-s.context.PriorityMsgRequestCh:
+	collectMsg := func(msg msg.Request) {
+		gas, err := EstimateGas(msg.Msg)
+		if err != nil {
+			s.logger.Error("failed to estimate gas with error: %s", err)
+			return
+		}
+
+		allocatedGas += gas
 		msgs = append(msgs, msg)
-	default:
+	}
+
+	// drain first message (priority channel first)
+	for len(msgs) == 0 {
 		select {
 		case msg := <-s.context.PriorityMsgRequestCh:
-			msgs = append(msgs, msg)
-		case msg := <-s.context.MsgRequestCh:
-			msgs = append(msgs, msg)
+			collectMsg(msg)
+		default:
+			select {
+			case msg := <-s.context.PriorityMsgRequestCh:
+				collectMsg(msg)
+			case msg := <-s.context.MsgRequestCh:
+				collectMsg(msg)
+			}
 		}
 	}
 
 	// wait for 0.1 second to collect more messages.
 	timer := time.NewTimer(100 * time.Millisecond)
 	defer timer.Stop()
-	for len(msgs) < maxSize {
+	for allocatedGas < MAX_ALLOWED_GAS {
 		select {
 		case msg := <-s.context.PriorityMsgRequestCh:
-			msgs = append(msgs, msg)
+			collectMsg(msg)
 		case <-timer.C:
 			return msgs
 		default:
 			select {
 			case msg := <-s.context.PriorityMsgRequestCh:
-				msgs = append(msgs, msg)
+				collectMsg(msg)
 			case msg := <-s.context.MsgRequestCh:
-				msgs = append(msgs, msg)
+				collectMsg(msg)
 			case <-timer.C:
 				return msgs
 			}
