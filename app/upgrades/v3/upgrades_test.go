@@ -2,6 +2,7 @@ package v3_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/suite"
 
@@ -100,6 +101,14 @@ func postUpgradeChecks(s *UpgradeTestSuite) {
 	// check global fee params
 	s.Require().
 		Equal(sdk.DecCoins{sdk.NewDecCoinFromDec("uband", sdkmath.LegacyNewDecWithPrec(25, 4))}, s.app.GlobalFeeKeeper.GetParams(s.ctx).MinimumGasPrices)
+
+	// check gov params
+	govParams, err := s.app.GovKeeper.Params.Get(s.ctx)
+	s.Require().NoError(err)
+	s.Require().
+		Equal(sdk.Coins{sdk.NewCoin("uband", sdkmath.NewInt(5000*1000000))}, sdk.Coins(govParams.ExpeditedMinDeposit))
+	s.Require().
+		Equal(1*24*time.Hour, *govParams.ExpeditedVotingPeriod)
 }
 
 func (s *UpgradeTestSuite) ConfirmUpgradeSucceeded(upgradeName string, upgradeHeight int64) {
