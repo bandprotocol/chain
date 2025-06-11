@@ -5,12 +5,12 @@ import (
 	"sync"
 )
 
-// DECounter tracks the number of used and pending Data Entries (DEs).
+// DECounter tracks the number of vacant and pending DEs.
 // It estimates the expected on-chain DE count, assuming all MsgSubmitDE
 // transactions are eventually committed.
 type DECounter struct {
 	mu          sync.Mutex
-	used        int64
+	vacant      int64
 	pending     int64
 	blockHeight int64
 }
@@ -19,7 +19,7 @@ type DECounter struct {
 func NewDECounter() *DECounter {
 	return &DECounter{
 		mu:          sync.Mutex{},
-		used:        0,
+		vacant:      0,
 		pending:     0,
 		blockHeight: 0,
 	}
@@ -35,7 +35,7 @@ func (dec *DECounter) AfterDEsCommitted(numDE int64) {
 	dec.pending = max(0, dec.pending-numDE)
 
 	// can be negative to represent that DEs on chain is more than expected
-	dec.used -= numDE
+	dec.vacant -= numDE
 }
 
 // AfterDEsRejected updates internal counters after DEs are rejected.
@@ -63,8 +63,8 @@ func (dec *DECounter) EvaluateDECreationFromUsage(
 		return 0
 	}
 
-	dec.used += deUsed
-	toBeCreated := dec.used - dec.pending
+	dec.vacant += deUsed
+	toBeCreated := dec.vacant - dec.pending
 	if toBeCreated >= int64(threshold) {
 		dec.pending += toBeCreated
 		return toBeCreated
@@ -84,8 +84,8 @@ func (dec *DECounter) AfterSyncWithChain(
 	defer dec.mu.Unlock()
 
 	dec.blockHeight = blockHeight
-	dec.used = int64(expectedDESize) - int64(existing)
-	toBeCreated := max(0, dec.used-dec.pending)
+	dec.vacant = int64(expectedDESize) - int64(existing)
+	toBeCreated := max(0, dec.vacant-dec.pending)
 	dec.pending += toBeCreated
 
 	return toBeCreated
@@ -93,8 +93,8 @@ func (dec *DECounter) AfterSyncWithChain(
 
 func (dec *DECounter) String() string {
 	return fmt.Sprintf(
-		"DECounter{used: %d, pending: %d, blockHeight: %d}",
-		dec.used,
+		"DECounter{vacant: %d, pending: %d, blockHeight: %d}",
+		dec.vacant,
 		dec.pending,
 		dec.blockHeight,
 	)
