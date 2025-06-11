@@ -230,15 +230,15 @@ func (u *UpdateDE) intervalUpdateDE() error {
 
 	metrics.SetOnChainDELeftGauge(float64(deCount))
 
-	numDEToBeCreated := u.deCounter.ComputeAndAddMissingDEs(deCount, u.maxDESizeOnChain, blockHeight)
-	u.logger.Debug(":eyes: deCounter after ComputeAndAddMissingDEs [intervalUpdateDE]: %s", u.deCounter.String())
+	numDEToBeCreated := u.deCounter.AfterSyncWithChain(deCount, u.maxDESizeOnChain, blockHeight)
+	u.logger.Debug(":eyes: deCounter after AfterSyncWithChain [intervalUpdateDE]: %s", u.deCounter.String())
 	if numDEToBeCreated == 0 {
 		u.logger.Debug(":eyes: the number of DEs is sufficient, skip interval update DE")
 		return nil
 	}
 
 	if ok, err := u.shouldContinueUpdateDE(); err != nil || !ok {
-		u.deCounter.UpdateRejectedDEs(numDEToBeCreated)
+		u.deCounter.AfterDEsRejected(numDEToBeCreated)
 		return err
 	}
 
@@ -248,7 +248,7 @@ func (u *UpdateDE) intervalUpdateDE() error {
 			numDEToBeCreated,
 		)
 		if err := u.updateDE(uint64(numDEToBeCreated)); err != nil {
-			u.deCounter.UpdateRejectedDEs(numDEToBeCreated)
+			u.deCounter.AfterDEsRejected(numDEToBeCreated)
 			return err
 		}
 	}
@@ -273,8 +273,8 @@ func (u *UpdateDE) updateDEFromEvent(resultEvent ctypes.ResultEvent) error {
 	}
 
 	threshold := min(u.maxDESizeOnChain/6, MAX_DE_BATCH_SIZE)
-	numDEToBECreated := u.deCounter.CheckUsageAndAddPending(deUsed, threshold, blockHeight)
-	u.logger.Debug(":eyes: deCounter after CheckUsageAndAddPending [updateDEFromEvent]: %s", u.deCounter.String())
+	numDEToBECreated := u.deCounter.EvaluateDECreationFromUsage(deUsed, threshold, blockHeight)
+	u.logger.Debug(":eyes: deCounter after EvaluateDECreationFromUsage [updateDEFromEvent]: %s", u.deCounter.String())
 
 	if numDEToBECreated == 0 {
 		u.logger.Debug(":eyes: DEs are sufficient, skip update DE from event")
@@ -282,14 +282,14 @@ func (u *UpdateDE) updateDEFromEvent(resultEvent ctypes.ResultEvent) error {
 	}
 
 	if ok, err := u.shouldContinueUpdateDE(); err != nil || !ok {
-		u.deCounter.UpdateRejectedDEs(numDEToBECreated)
+		u.deCounter.AfterDEsRejected(numDEToBECreated)
 		return err
 	}
 
 	u.logger.Info(":delivery_truck: DEs are used over the threshold, adding new DEs len = %d", numDEToBECreated)
 
 	if err := u.updateDE(uint64(numDEToBECreated)); err != nil {
-		u.deCounter.UpdateRejectedDEs(numDEToBECreated)
+		u.deCounter.AfterDEsRejected(numDEToBECreated)
 		return err
 	}
 
@@ -316,9 +316,9 @@ func (u *UpdateDE) listenMsgResponses() {
 		if res.Success {
 			u.logger.Info(":smiling_face_with_sunglasses: Successfully submitted DEs ReqID: %d", res.Request.ID)
 
-			u.deCounter.UpdateCommittedDEs(lenDEs)
+			u.deCounter.AfterDEsCommitted(lenDEs)
 			u.logger.Debug(
-				":eyes: deCounter after UpdateCommittedDEs [listenMsgResponses] ReqID: %d: %s",
+				":eyes: deCounter after AfterDEsCommitted [listenMsgResponses] ReqID: %d: %s",
 				res.Request.ID,
 				u.deCounter.String(),
 			)
@@ -330,8 +330,8 @@ func (u *UpdateDE) listenMsgResponses() {
 				res.Err,
 			)
 
-			u.deCounter.UpdateRejectedDEs(lenDEs)
-			u.logger.Debug(":eyes: deCounter after UpdateRejectedDEs [listenMsgResponses]: %s", u.deCounter.String())
+			u.deCounter.AfterDEsRejected(lenDEs)
+			u.logger.Debug(":eyes: deCounter after AfterDEsRejected [listenMsgResponses]: %s", u.deCounter.String())
 		}
 
 		delete(u.cacheDEs, res.Request.ID)

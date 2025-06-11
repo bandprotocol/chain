@@ -5,9 +5,9 @@ import (
 	"sync"
 )
 
-// DECounter tracks the number of used and pending DEs.
-// It represents the expected on-chain DE count if all MsgSubmitDE
-// transactions are successfully committed.
+// DECounter tracks the number of used and pending Data Entries (DEs).
+// It estimates the expected on-chain DE count, assuming all MsgSubmitDE
+// transactions are eventually committed.
 type DECounter struct {
 	mu          sync.Mutex
 	used        int64
@@ -25,10 +25,8 @@ func NewDECounter() *DECounter {
 	}
 }
 
-// UpdateCommittedDEs updates the number of created DEs that being stored on chain.
-// It decreases both the used and pending DE counts to reflect thatsome of the demand
-// has been fulfilled.
-func (dec *DECounter) UpdateCommittedDEs(numDE int64) {
+// AfterDEsCommitted updates internal counters after DEs are successfully committed.
+func (dec *DECounter) AfterDEsCommitted(numDE int64) {
 	dec.mu.Lock()
 	defer dec.mu.Unlock()
 
@@ -40,9 +38,8 @@ func (dec *DECounter) UpdateCommittedDEs(numDE int64) {
 	dec.used -= numDE
 }
 
-// UpdateRejectedDEs updates the number of rejected DEs. It decreases
-// the number of pending DEs to reflect that the supply has been rejected
-func (dec *DECounter) UpdateRejectedDEs(numDE int64) {
+// AfterDEsRejected updates internal counters after DEs are rejected.
+func (dec *DECounter) AfterDEsRejected(numDE int64) {
 	dec.mu.Lock()
 	defer dec.mu.Unlock()
 
@@ -51,10 +48,9 @@ func (dec *DECounter) UpdateRejectedDEs(numDE int64) {
 	dec.pending = max(0, dec.pending-numDE)
 }
 
-// CheckUsageAndAddPending checks if the sum of used and pending DEs is
-// greater than the threshold and update the number of pending DEs if so.
-// It returns the number of DEs that were added to the pending count.
-func (dec *DECounter) CheckUsageAndAddPending(
+// EvaluateDECreationFromUsage updates the internal counters based on the usage data.
+// and return the number of DEs that needs to be created based on the given threshold.
+func (dec *DECounter) EvaluateDECreationFromUsage(
 	deUsed int64,
 	threshold uint64,
 	blockHeight int64,
@@ -77,9 +73,9 @@ func (dec *DECounter) CheckUsageAndAddPending(
 	return 0
 }
 
-// ComputeAndAddMissingDEs recalculates the number of used DEs and
-// adds and return the missing DEs to the pending count if there is any.
-func (dec *DECounter) ComputeAndAddMissingDEs(
+// AfterSyncWithChain syncs local state with actual on-chain DE count
+// and updates internal counters.
+func (dec *DECounter) AfterSyncWithChain(
 	existing uint64,
 	expectedDESize uint64,
 	blockHeight int64,
@@ -96,5 +92,10 @@ func (dec *DECounter) ComputeAndAddMissingDEs(
 }
 
 func (dec *DECounter) String() string {
-	return fmt.Sprintf("DECounter{used: %d, pending: %d, blockHeight: %d}", dec.used, dec.pending, dec.blockHeight)
+	return fmt.Sprintf(
+		"DECounter{used: %d, pending: %d, blockHeight: %d}",
+		dec.used,
+		dec.pending,
+		dec.blockHeight,
+	)
 }
