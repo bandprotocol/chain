@@ -2,6 +2,7 @@ package v3
 
 import (
 	"context"
+	"time"
 
 	cmttypes "github.com/cometbft/cometbft/types"
 
@@ -133,6 +134,23 @@ func CreateUpgradeHandler(
 		err = keepers.GlobalFeeKeeper.SetParams(ctx, globalfeetypes.Params{
 			MinimumGasPrices: sdk.DecCoins{sdk.NewDecCoinFromDec("uband", sdkmath.LegacyNewDecWithPrec(25, 4))},
 		})
+		if err != nil {
+			return nil, err
+		}
+
+		govParams, err := keepers.GovKeeper.Params.Get(ctx)
+		if err != nil {
+			return nil, err
+		}
+		govParams.ExpeditedMinDeposit = sdk.NewCoins(
+			sdk.NewCoin(
+				"uband",
+				sdk.TokensFromConsensusPower(5000, sdk.DefaultPowerReduction)), // 5000 band
+		)
+		duration := 1 * 24 * time.Hour
+		govParams.ExpeditedVotingPeriod = &duration // 1 day
+
+		err = keepers.GovKeeper.Params.Set(ctx, govParams)
 		if err != nil {
 			return nil, err
 		}
