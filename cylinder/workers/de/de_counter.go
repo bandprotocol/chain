@@ -83,6 +83,11 @@ func (dec *DECounter) AfterSyncWithChain(
 	dec.mu.Lock()
 	defer dec.mu.Unlock()
 
+	// skip if the block height is less than the latest updated block height
+	if dec.blockHeight >= blockHeight {
+		return 0
+	}
+
 	dec.blockHeight = blockHeight
 	dec.vacant = int64(expectedDESize) - int64(existing)
 	toBeCreated := max(0, dec.vacant-dec.pending)
