@@ -314,8 +314,8 @@ func TestCountAssignedSignings(t *testing.T) {
 					sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString([]byte("pubE2"))),
 				)),
 			}),
-			"member 2",
-			1,
+			"member 1",
+			2,
 		},
 		{
 			"no event",
