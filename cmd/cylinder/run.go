@@ -12,6 +12,7 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder"
 	"github.com/bandprotocol/chain/v3/cylinder/context"
 	"github.com/bandprotocol/chain/v3/cylinder/metrics"
+	"github.com/bandprotocol/chain/v3/cylinder/msg"
 	"github.com/bandprotocol/chain/v3/cylinder/workers/de"
 	"github.com/bandprotocol/chain/v3/cylinder/workers/group"
 	"github.com/bandprotocol/chain/v3/cylinder/workers/sender"
@@ -22,11 +23,9 @@ import (
 const (
 	flagGranter             = "granter"
 	flagLogLevel            = "log-level"
-	flagMaxMessages         = "max-messages"
 	flagBroadcastTimeout    = "broadcast-timeout"
 	flagRPCPollInterval     = "rpc-poll-interval"
 	flagMaxTry              = "max-try"
-	flagMinDE               = "min-de"
 	flagGasAdjustStart      = "gas-adjust-start"
 	flagGasAdjustStep       = "gas-adjust-step"
 	flagRandomSecret        = "random-secret"
@@ -63,17 +62,22 @@ func runCmd(ctx *context.Context) *cobra.Command {
 				return err
 			}
 
-			sender, err := sender.New(ctx)
-			if err != nil {
-				return err
-			}
-
 			status, err := status.New(ctx)
 			if err != nil {
 				return err
 			}
 
-			workers := cylinder.Workers{group, de, signing, sender, status}
+			var receivers []*msg.ResponseReceiver
+			workers := cylinder.Workers{group, de, signing, status}
+			for _, worker := range workers {
+				receivers = append(receivers, worker.GetResponseReceivers()...)
+			}
+
+			sender, err := sender.New(ctx, receivers)
+			if err != nil {
+				return err
+			}
+			workers = append(workers, sender)
 
 			// Start metrics server if enabled
 			if ctx.Config.MetricsListenAddr != "" {
@@ -110,11 +114,9 @@ func runCmd(ctx *context.Context) *cobra.Command {
 	cmd.Flags().String(flagGranter, "", "granter address")
 	cmd.Flags().String(flags.FlagGasPrices, "", "gas prices for a transaction")
 	cmd.Flags().String(flagLogLevel, "info", "set the logger level")
-	cmd.Flags().Uint64(flagMaxMessages, 10, "The maximum number of messages in a transaction")
-	cmd.Flags().String(flagBroadcastTimeout, "5m", "The time that cylinder will wait for tx commit")
+	cmd.Flags().String(flagBroadcastTimeout, "1m", "The time that cylinder will wait for tx commit")
 	cmd.Flags().String(flagRPCPollInterval, "1s", "The duration of rpc poll interval")
 	cmd.Flags().Uint64(flagMaxTry, 5, "The maximum number of tries to submit a transaction")
-	cmd.Flags().Uint64(flagMinDE, 5, "The minimum number of DE")
 	cmd.Flags().Float64(flagGasAdjustStart, 1.6, "The start value of gas adjustment")
 	cmd.Flags().Float64(flagGasAdjustStep, 0.2, "The increment step of gad adjustment")
 	cmd.Flags().BytesHex(flagRandomSecret, nil, "The secret value that is used for random D,E")
@@ -124,7 +126,7 @@ func runCmd(ctx *context.Context) *cobra.Command {
 
 	flagNames := []string{
 		flags.FlagChainID, flags.FlagNode, flagGranter, flags.FlagGasPrices, flagLogLevel,
-		flagMaxMessages, flagBroadcastTimeout, flagRPCPollInterval, flagMaxTry, flagMinDE,
+		flagBroadcastTimeout, flagRPCPollInterval, flagMaxTry,
 		flagGasAdjustStart, flagGasAdjustStep, flagRandomSecret, flagCheckDEInterval,
 		flagCheckStatusInterval, flagMetricsListenAddr,
 	}

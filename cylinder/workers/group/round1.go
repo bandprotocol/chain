@@ -14,6 +14,7 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder/client"
 	"github.com/bandprotocol/chain/v3/cylinder/context"
 	"github.com/bandprotocol/chain/v3/cylinder/metrics"
+	"github.com/bandprotocol/chain/v3/cylinder/msg"
 	"github.com/bandprotocol/chain/v3/cylinder/store"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 	"github.com/bandprotocol/chain/v3/pkg/tss"
@@ -26,6 +27,7 @@ type Round1 struct {
 	logger  *logger.Logger
 	client  *client.Client
 	eventCh <-chan ctypes.ResultEvent
+	reqID   uint64
 }
 
 var _ cylinder.Worker = &Round1{}
@@ -143,21 +145,24 @@ func (r *Round1) handleGroup(gid tss.GroupID) {
 
 	metrics.IncDKGLeftGauge()
 
-	// Generate message
-	msg := types.NewMsgSubmitDKGRound1(
-		gid,
-		types.Round1Info{
-			MemberID:           mid,
-			CoefficientCommits: data.CoefficientCommits,
-			OneTimePubKey:      data.OneTimePubKey,
-			A0Signature:        data.A0Signature,
-			OneTimeSignature:   data.OneTimeSignature,
-		},
-		r.context.Config.Granter,
-	)
-
 	// Send the message to the message channel
-	r.context.MsgCh <- msg
+	r.reqID += 1
+	r.context.MsgRequestCh <- msg.NewRequest(
+		msg.RequestTypeCreateGroupRound1,
+		r.reqID,
+		types.NewMsgSubmitDKGRound1(
+			gid,
+			types.Round1Info{
+				MemberID:           mid,
+				CoefficientCommits: data.CoefficientCommits,
+				OneTimePubKey:      data.OneTimePubKey,
+				A0Signature:        data.A0Signature,
+				OneTimeSignature:   data.OneTimeSignature,
+			},
+			r.context.Config.Granter,
+		),
+		3,
+	)
 
 	metrics.ObserveProcessRound1Time(uint64(gid), time.Since(since).Seconds())
 	metrics.IncProcessRound1SuccessCount(uint64(gid))
@@ -185,4 +190,9 @@ func (r *Round1) Start() {
 func (r *Round1) Stop() error {
 	r.logger.Info("stop")
 	return r.client.Stop()
+}
+
+// GetResponseReceivers returns the message response receivers of the worker.
+func (r *Round1) GetResponseReceivers() []*msg.ResponseReceiver {
+	return nil
 }

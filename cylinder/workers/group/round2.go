@@ -14,6 +14,7 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder/client"
 	"github.com/bandprotocol/chain/v3/cylinder/context"
 	"github.com/bandprotocol/chain/v3/cylinder/metrics"
+	"github.com/bandprotocol/chain/v3/cylinder/msg"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 	"github.com/bandprotocol/chain/v3/pkg/tss"
 	"github.com/bandprotocol/chain/v3/x/tss/types"
@@ -25,6 +26,7 @@ type Round2 struct {
 	logger  *logger.Logger
 	client  *client.Client
 	eventCh <-chan ctypes.ResultEvent
+	reqID   uint64
 }
 
 var _ cylinder.Worker = &Round2{}
@@ -144,16 +146,20 @@ func (r *Round2) handleGroup(gid tss.GroupID) {
 	}
 
 	// Generate message for round 2
-	msg := types.NewMsgSubmitDKGRound2(
-		gid,
-		types.Round2Info{
-			MemberID:              dkg.MemberID,
-			EncryptedSecretShares: encSecretShares,
-		},
-		r.context.Config.Granter,
+	r.reqID += 1
+	r.context.MsgRequestCh <- msg.NewRequest(
+		msg.RequestTypeCreateGroupRound2,
+		r.reqID,
+		types.NewMsgSubmitDKGRound2(
+			gid,
+			types.Round2Info{
+				MemberID:              dkg.MemberID,
+				EncryptedSecretShares: encSecretShares,
+			},
+			r.context.Config.Granter,
+		),
+		3,
 	)
-
-	r.context.MsgCh <- msg
 
 	metrics.ObserveProcessRound2Time(uint64(gid), time.Since(since).Seconds())
 	metrics.IncProcessRound2SuccessCount(uint64(gid))
@@ -181,4 +187,9 @@ func (r *Round2) Start() {
 func (r *Round2) Stop() error {
 	r.logger.Info("stop")
 	return r.client.Stop()
+}
+
+// GetResponseReceivers returns the message response receivers of the worker.
+func (r *Round2) GetResponseReceivers() []*msg.ResponseReceiver {
+	return nil
 }

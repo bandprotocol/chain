@@ -7,6 +7,7 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder/client"
 	"github.com/bandprotocol/chain/v3/cylinder/context"
 	"github.com/bandprotocol/chain/v3/cylinder/metrics"
+	"github.com/bandprotocol/chain/v3/cylinder/msg"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 )
 
@@ -79,4 +80,9 @@ func (s *Status) Start() {
 func (s *Status) Stop() error {
 	s.logger.Info("Stopping status worker")
 	return s.client.Stop()
+}
+
+// GetResponseReceivers returns the message response receivers of the worker.
+func (s *Status) GetResponseReceivers() []*msg.ResponseReceiver {
+	return nil
 }

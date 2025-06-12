@@ -14,6 +14,7 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder/client"
 	"github.com/bandprotocol/chain/v3/cylinder/context"
 	"github.com/bandprotocol/chain/v3/cylinder/metrics"
+	"github.com/bandprotocol/chain/v3/cylinder/msg"
 	"github.com/bandprotocol/chain/v3/cylinder/store"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 	"github.com/bandprotocol/chain/v3/pkg/tss"
@@ -22,10 +23,12 @@ import (
 
 // Round3 is a worker responsible for round3 in the DKG process of tss module
 type Round3 struct {
-	context *context.Context
-	logger  *logger.Logger
-	client  *client.Client
-	eventCh <-chan ctypes.ResultEvent
+	context       *context.Context
+	logger        *logger.Logger
+	client        *client.Client
+	eventCh       <-chan ctypes.ResultEvent
+	confirmReqID  uint64
+	complainReqID uint64
 }
 
 var _ cylinder.Worker = &Round3{}
@@ -137,7 +140,13 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 		// If there is any complaint, send MsgComplain
 		if len(complaints) > 0 {
 			// Send message complaints
-			r.context.MsgCh <- types.NewMsgComplain(gid, complaints, r.context.Config.Granter)
+			r.complainReqID += 1
+			r.context.MsgRequestCh <- msg.NewRequest(
+				msg.RequestTypeCreateGroupComplain,
+				r.complainReqID,
+				types.NewMsgComplain(gid, complaints, r.context.Config.Granter),
+				3,
+			)
 
 			metrics.IncProcessRound3ComplainCount(uint64(gid))
 			return
@@ -184,7 +193,13 @@ func (r *Round3) handleGroup(gid tss.GroupID) {
 	}
 
 	// Send MsgConfirm
-	r.context.MsgCh <- types.NewMsgConfirm(gid, group.MemberID, ownPubKeySig, r.context.Config.Granter)
+	r.confirmReqID += 1
+	r.context.MsgRequestCh <- msg.NewRequest(
+		msg.RequestTypeCreateGroupConfirm,
+		r.confirmReqID,
+		types.NewMsgConfirm(gid, group.MemberID, ownPubKeySig, r.context.Config.Granter),
+		3,
+	)
 
 	metrics.ObserveProcessRound3Time(uint64(gid), time.Since(since).Seconds())
 	metrics.IncProcessRound3ConfirmCount(uint64(gid))
@@ -212,4 +227,9 @@ func (r *Round3) Start() {
 func (r *Round3) Stop() error {
 	r.logger.Info("stop")
 	return r.client.Stop()
+}
+
+// GetResponseReceivers returns the message response receivers of the worker.
+func (r *Round3) GetResponseReceivers() []*msg.ResponseReceiver {
+	return nil
 }

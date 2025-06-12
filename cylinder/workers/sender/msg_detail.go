@@ -8,6 +8,8 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
+const MAX_ALLOWED_GAS = uint64(2_500_000)
+
 // GetMsgDetail represents the detail string of a message for logging.
 func GetMsgDetail(msg sdk.Msg) (detail string) {
 	switch t := msg.(type) {
@@ -28,6 +30,22 @@ func GetMsgDetail(msg sdk.Msg) (detail string) {
 	}
 
 	return detail
+}
+
+// EstimateGas estimates the gas of the given message.
+func EstimateGas(msg sdk.Msg) (gas uint64, err error) {
+	switch msg.(type) {
+	case *types.MsgSubmitDKGRound1, *types.MsgSubmitDKGRound2, *types.MsgConfirm, *types.MsgComplain:
+		gas = 500_000
+	case *types.MsgSubmitDEs:
+		gas = 500_000
+	case *types.MsgSubmitSignature:
+		gas = 75_000
+	default:
+		return 0, fmt.Errorf("unsupported message type: %T", msg)
+	}
+
+	return gas, nil
 }
 
 // GetMsgDetails extracts the detail from SDK messages.

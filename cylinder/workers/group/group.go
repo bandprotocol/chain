@@ -3,6 +3,7 @@ package group
 import (
 	"github.com/bandprotocol/chain/v3/cylinder"
 	"github.com/bandprotocol/chain/v3/cylinder/context"
+	"github.com/bandprotocol/chain/v3/cylinder/msg"
 )
 
 // Group is a worker responsible for group creation process of tss module
@@ -16,34 +17,30 @@ var _ cylinder.Worker = &Group{}
 // New creates a new instance of the Group worker.
 // It initializes the necessary components and returns the created Group instance or an error if initialization fails.
 func New(ctx *context.Context) (*Group, error) {
+	round1, err := NewRound1(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	round2, err := NewRound2(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	round3, err := NewRound3(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Group{
 		context: ctx,
+		workers: []cylinder.Worker{round1, round2, round3},
 	}, nil
 }
 
 // Start starts the Group worker.
 // It start worker of each round of group creation process.
 func (g *Group) Start() {
-	round1, err := NewRound1(g.context)
-	if err != nil {
-		g.context.ErrCh <- err
-		return
-	}
-
-	round2, err := NewRound2(g.context)
-	if err != nil {
-		g.context.ErrCh <- err
-		return
-	}
-
-	round3, err := NewRound3(g.context)
-	if err != nil {
-		g.context.ErrCh <- err
-		return
-	}
-
-	g.workers = []cylinder.Worker{round1, round2, round3}
-
 	for _, w := range g.workers {
 		go w.Start()
 	}
@@ -58,4 +55,14 @@ func (g *Group) Stop() error {
 	}
 
 	return nil
+}
+
+// GetResponseReceivers returns the message response receivers of the worker.
+func (g *Group) GetResponseReceivers() []*msg.ResponseReceiver {
+	receivers := []*msg.ResponseReceiver{}
+	for _, w := range g.workers {
+		receivers = append(receivers, w.GetResponseReceivers()...)
+	}
+
+	return receivers
 }
