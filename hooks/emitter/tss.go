@@ -126,7 +126,7 @@ func (h *Hook) handleInitTSSModule(ctx sdk.Context) {
 	}
 }
 
-// handleTSSEventCreateGroup implements emitter handler for CreateGroup event.
+// handleTSSEventCreateSigning implements emitter handler for CreateSigning event.
 func (h *Hook) handleTSSEventCreateSigning(ctx sdk.Context, evMap common.EvMap) {
 	sids := evMap[types.EventTypeCreateSigning+"."+types.AttributeKeySigningID]
 	contentTypes := evMap[types.EventTypeCreateSigning+"."+types.AttributeKeyContentType]
