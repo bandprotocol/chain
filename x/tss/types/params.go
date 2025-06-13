@@ -7,7 +7,7 @@ import (
 const (
 	DefaultMaxGroupSize      = uint64(20)
 	DefaultMaxDESize         = uint64(600)
-	DefaultCreationPeriod    = uint64(30000)
+	DefaultCreationPeriod    = uint64(43200) // 12 hours
 	DefaultSigningPeriod     = uint64(100)
 	DefaultMaxSigningAttempt = uint64(5)
 	DefaultMaxMemoLength     = uint64(100)
