@@ -109,6 +109,10 @@ func postUpgradeChecks(s *UpgradeTestSuite) {
 		Equal(sdk.Coins{sdk.NewCoin("uband", sdkmath.NewInt(5000*1000000))}, sdk.Coins(govParams.ExpeditedMinDeposit))
 	s.Require().
 		Equal(1*24*time.Hour, *govParams.ExpeditedVotingPeriod)
+	s.Require().
+		Equal(5*24*time.Hour, *govParams.MaxDepositPeriod)
+	s.Require().
+		Equal(5*24*time.Hour, *govParams.VotingPeriod)
 }
 
 func (s *UpgradeTestSuite) ConfirmUpgradeSucceeded(upgradeName string, upgradeHeight int64) {
