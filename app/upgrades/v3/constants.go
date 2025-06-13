@@ -75,15 +75,6 @@ var ICAAllowMessages = []string{
 	sdk.MsgTypeURL(&govv1beta1.MsgSubmitProposal{}),
 	sdk.MsgTypeURL(&govv1beta1.MsgDeposit{}),
 	sdk.MsgTypeURL(&govv1beta1.MsgVote{}),
-	// Change: add messages from Oracle module
-	sdk.MsgTypeURL(&oracletypes.MsgActivate{}),
-	sdk.MsgTypeURL(&oracletypes.MsgCreateDataSource{}),
-	sdk.MsgTypeURL(&oracletypes.MsgCreateOracleScript{}),
-	sdk.MsgTypeURL(&oracletypes.MsgEditDataSource{}),
-	sdk.MsgTypeURL(&oracletypes.MsgEditOracleScript{}),
-	sdk.MsgTypeURL(&oracletypes.MsgReportData{}),
-	sdk.MsgTypeURL(&oracletypes.MsgRequestData{}),
-
 	sdk.MsgTypeURL(&stakingtypes.MsgEditValidator{}),
 	sdk.MsgTypeURL(&stakingtypes.MsgDelegate{}),
 	sdk.MsgTypeURL(&stakingtypes.MsgUndelegate{}),
@@ -91,4 +82,10 @@ var ICAAllowMessages = []string{
 	sdk.MsgTypeURL(&stakingtypes.MsgCreateValidator{}),
 	sdk.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
 	sdk.MsgTypeURL(&ibctransfertypes.MsgTransfer{}),
+	// Change: add messages from Oracle module
+	sdk.MsgTypeURL(&oracletypes.MsgCreateDataSource{}),
+	sdk.MsgTypeURL(&oracletypes.MsgCreateOracleScript{}),
+	sdk.MsgTypeURL(&oracletypes.MsgEditDataSource{}),
+	sdk.MsgTypeURL(&oracletypes.MsgEditOracleScript{}),
+	sdk.MsgTypeURL(&oracletypes.MsgRequestData{}),
 }

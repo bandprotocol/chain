@@ -12,9 +12,9 @@ var (
 	// Each value below is the default value for each parameter when generating the default
 	// genesis file. See comments in types.proto for explanation for each parameter.
 	DefaultMinInterval               = uint64(60)
-	DefaultMaxInterval               = uint64(3600)
+	DefaultMaxInterval               = uint64(86400)
 	DefaultMinDeviationBPS           = uint64(50)
-	DefaultMaxDeviationBPS           = uint64(3000)
+	DefaultMaxDeviationBPS           = uint64(10000)
 	DefaultMinDeposit                = sdk.NewCoins(sdk.NewInt64Coin("uband", 1_000_000_000))
 	DefaultMaxSignals                = uint64(25)
 	DefaultBasePacketFee             = sdk.NewCoins(sdk.NewInt64Coin("uband", 500))
