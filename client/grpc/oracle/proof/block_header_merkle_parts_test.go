@@ -47,6 +47,7 @@ import (
 		}
 	}
 */
+
 func TestBlockHeaderMerkleParts(t *testing.T) {
 	// Copy block header Merkle Part here
 	header := types.Header{

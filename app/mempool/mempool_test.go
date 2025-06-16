@@ -638,7 +638,7 @@ func CreateDelegateTx(
 	return buildTx(txCfg, account, msgs, nonce, timeout, gasLimit, fees...)
 }
 
-// MixedTx includes both a bank send and delegate to ensure it goes to "other".
+// CreateMixedTx includes both a bank send and delegate to ensure it goes to "other".
 func CreateMixedTx(
 	txCfg client.TxConfig,
 	account Account,

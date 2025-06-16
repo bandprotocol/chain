@@ -55,7 +55,7 @@ func BenchmarkSortMap(b *testing.B) {
 	}
 }
 
-// benchmark test for delivering MsgSubmitSignalPrices
+// BenchmarkSubmitSignalPricesDeliver benchmarks the MsgSubmitSignalPrices of feeds module
 func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 	b.ResetTimer()
 	b.StopTimer()
@@ -125,7 +125,7 @@ func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 	}
 }
 
-// benchmark test for endblock of feeds module
+// BenchmarkFeedsEndBlock benchmarks the endblock of feeds module
 func BenchmarkFeedsEndBlock(b *testing.B) {
 	ba := InitializeBenchmarkApp(b, -1)
 

@@ -122,7 +122,11 @@ type IgnoreDecorator struct {
 	matchFns  []mempool.TxMatchFn
 }
 
-// NewIgnoreDecorator returns a new IgnoreDecorator instance.
+// NewIgnoreDecorator is a wrapper that implements the sdk.AnteDecorator interface,
+// providing two execution paths for processing transactions:
+//   - If a transaction matches one of the designated bypass lanes, it is forwarded
+//     directly to the next AnteHandler.
+//   - Otherwise, the transaction is processed using the embedded decorator's AnteHandler.
 func NewIgnoreDecorator(decorator sdk.AnteDecorator, matchFns ...mempool.TxMatchFn) *IgnoreDecorator {
 	return &IgnoreDecorator{
 		decorator: decorator,
@@ -130,11 +134,12 @@ func NewIgnoreDecorator(decorator sdk.AnteDecorator, matchFns ...mempool.TxMatch
 	}
 }
 
-// NewIgnoreDecorator is a wrapper that implements the sdk.AnteDecorator interface,
-// providing two execution paths for processing transactions:
-//   - If a transaction matches one of the designated bypass lanes, it is forwarded
-//     directly to the next AnteHandler.
-//   - Otherwise, the transaction is processed using the embedded decorator's AnteHandler.
+// AnteHandle implements the sdk.AnteDecorator interface for IgnoreDecorator.
+// It processes transactions with special handling for bypass lanes:
+// - For simulate transactions or non-check/recheck transactions, it directly uses the wrapped decorator
+// - For check/recheck transactions, it evaluates if the transaction matches any bypass lanes:
+//   - If a match is found, the transaction bypasses the wrapped decorator
+//   - If no match is found, the transaction is processed by the wrapped decorator
 func (ig IgnoreDecorator) AnteHandle(
 	ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler,
 ) (sdk.Context, error) {
