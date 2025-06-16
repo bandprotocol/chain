@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// Using for evm test to show how to encode result
+// TestEncodeResult is used for evm test to show how to encode result
 func TestEncodeResult(t *testing.T) {
 	result := NewResult(
 		"test",

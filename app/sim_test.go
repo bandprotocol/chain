@@ -422,9 +422,9 @@ func TestAppSimulationAfterImport(t *testing.T) {
 	require.NoError(t, err)
 }
 
-// TODO: Make another test for the fuzzer itself, which just has noOp txs
-// and doesn't depend on the application.
 func TestAppStateDeterminism(t *testing.T) {
+	// TODO: Make another test for the fuzzer itself, which just has noOp txs
+	// and doesn't depend on the application.
 	if !simcli.FlagEnabledValue {
 		t.Skip("skipping application simulation")
 	}

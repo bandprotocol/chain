@@ -24,6 +24,7 @@ func NewBlockSpace(txBytes uint64, gas uint64) BlockSpace {
 }
 
 // --- Getters ---
+
 func (bs BlockSpace) TxBytes() uint64 {
 	return bs.txBytes
 }

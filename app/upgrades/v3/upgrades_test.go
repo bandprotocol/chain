@@ -51,7 +51,7 @@ func (s *UpgradeTestSuite) SetupTest() {
 	s.Require().NoError(err)
 }
 
-// Ensures the test does not error out.
+// TestUpgrade ensures the test that does not error out.
 func (s *UpgradeTestSuite) TestUpgrade() {
 	preUpgradeChecks(s)
 

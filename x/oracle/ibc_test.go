@@ -118,8 +118,8 @@ func (suite *IBCTestSuite) checkChainBSenderBalances(expect sdk.Coins) {
 	suite.Require().Equal(expect, b)
 }
 
-// constructs a send from chainA to chainB on the established channel/connection
-// and sends the same coin back from chainB to chainA.
+// TestHandleIBCRequestSuccess constructs a send from chainA to chainB
+// on the established channel/connection and sends the same coin back from chainB to chainA.
 func (suite *IBCTestSuite) TestHandleIBCRequestSuccess() {
 	path := suite.path
 	// send request from A to B

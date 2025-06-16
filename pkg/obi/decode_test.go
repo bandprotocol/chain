@@ -6,7 +6,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// =======================================
 // Uint8
+// =======================================
+
 func TestDecodeUint8(t *testing.T) {
 	var actual uint8
 	byteArray := []byte{0x7b}
@@ -28,7 +31,10 @@ func TestDecodeUint8Fail(t *testing.T) {
 	require.PanicsWithError(t, "obi: out of range", func() { MustDecode(byteArray, &actual) })
 }
 
+// =======================================
 // Uint16
+// =======================================
+
 func TestDecodeUint16(t *testing.T) {
 	var actual uint16
 	byteArray := []byte{0x00, 0x7b}
@@ -50,7 +56,10 @@ func TestDecodeUint16Fail(t *testing.T) {
 	require.PanicsWithError(t, "obi: out of range", func() { MustDecode(byteArray, &actual) })
 }
 
+// =======================================
 // Uint32
+// =======================================
+
 func TestDecodeUint32(t *testing.T) {
 	var actual uint32
 	byteArray := []byte{0x0, 0x0, 0x0, 0x7b}
@@ -72,7 +81,10 @@ func TestDecodeUint32Fail(t *testing.T) {
 	require.PanicsWithError(t, "obi: out of range", func() { MustDecode(byteArray, &actual) })
 }
 
+// =======================================
 // Uint64
+// =======================================
+
 func TestDecodeUint64(t *testing.T) {
 	var actual uint64
 	byteArray := []byte{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x7b}
@@ -94,7 +106,10 @@ func TestDecodeUint64Fail(t *testing.T) {
 	require.PanicsWithError(t, "obi: out of range", func() { MustDecode(byteArray, &actual) })
 }
 
+// =======================================
 // Int8
+// =======================================
+
 func TestDecodeInt8(t *testing.T) {
 	var actual int8
 	byteArray := []byte{0x85}
@@ -116,7 +131,10 @@ func TestDecodeInt8Fail(t *testing.T) {
 	require.PanicsWithError(t, "obi: out of range", func() { MustDecode(byteArray, &actual) })
 }
 
+// =======================================
 // Int16
+// =======================================
+
 func TestDecodeInt16(t *testing.T) {
 	var actual int16
 	byteArray := []byte{0xff, 0x85}
@@ -138,7 +156,10 @@ func TestDecodeInt16Fail(t *testing.T) {
 	require.PanicsWithError(t, "obi: out of range", func() { MustDecode(byteArray, &actual) })
 }
 
+// =======================================
 // Int32
+// =======================================
+
 func TestDecodeInt32(t *testing.T) {
 	var actual int32
 	byteArray := []byte{0xff, 0xff, 0xff, 0x85}
@@ -160,7 +181,10 @@ func TestDecodeInt32Fail(t *testing.T) {
 	require.PanicsWithError(t, "obi: out of range", func() { MustDecode(byteArray, &actual) })
 }
 
+// =======================================
 // Int64
+// =======================================
+
 func TestDecodeInt64(t *testing.T) {
 	var actual int64
 	byteArray := []byte{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x85}
