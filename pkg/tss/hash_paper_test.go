@@ -147,7 +147,7 @@ func (suite *TSSTestSuite) TestOS2IP() {
 	}
 }
 
-// Using test vectors from https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-hash-to-curve-16#name-expand_message_xmdsha-256
+// TestExpandMessageXMD tests vectors from https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-hash-to-curve-16#name-expand_message_xmdsha-256
 func (suite *TSSTestSuite) TestExpandMessageXMD() {
 	hashSha256 := func(data ...[]byte) []byte {
 		var combined []byte
@@ -297,7 +297,7 @@ func (suite *TSSTestSuite) TestExpandMessageXMD() {
 	}
 }
 
-// Using test vectors from https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-hash-to-curve-16#name-secp256k1
+// TestH_M1_L48 tests vectors from https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-hash-to-curve-16#name-secp256k1
 func (suite *TSSTestSuite) TestH_M1_L48() {
 	p := crypto.S256().Params().P
 	hashSha256 := func(data ...[]byte) []byte {

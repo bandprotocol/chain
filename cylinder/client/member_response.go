@@ -9,7 +9,7 @@ type MemberResponse struct {
 	Members []bandtsstypes.Member
 }
 
-// NewMembersResponse creates a new instance of MembersResponse.
+// NewMemberResponse creates a new instance of MembersResponse.
 func NewMemberResponse(mr *bandtsstypes.QueryMemberResponse) *MemberResponse {
 	members := []bandtsstypes.Member{}
 	if mr.CurrentGroupMember.Address != "" {

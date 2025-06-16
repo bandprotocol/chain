@@ -164,7 +164,7 @@ var (
 	NumRequestRanges        = []int{0, 1, 5, 10, 20}
 )
 
-// benchmark test for prepare function of owasm vm
+// BenchmarkOwasmVMPrepare benchmarks the prepare function of owasm vm
 func BenchmarkOwasmVMPrepare(b *testing.B) {
 	for cache, cacheSize := range CacheCases {
 		for name, tc := range PrepareCases {
@@ -212,7 +212,7 @@ func BenchmarkOwasmVMPrepare(b *testing.B) {
 	}
 }
 
-// benchmark test for execute function of owasm vm
+// BenchmarkOwasmVMExecute benchmarks the execute function of owasm vm
 func BenchmarkOwasmVMExecute(b *testing.B) {
 	for cache, cacheSize := range CacheCases {
 		for name, tc := range ExecuteCases {
@@ -261,7 +261,7 @@ func BenchmarkOwasmVMExecute(b *testing.B) {
 	}
 }
 
-// BenchmarkBlockOracleMsgRequestData benchmarks MsgRequestData of oracle module
+// BenchmarkBlockOracleMsgRequestData benchmarks the MsgRequestData of oracle module
 func BenchmarkBlockOracleMsgRequestData(b *testing.B) {
 	for name, tc := range PrepareCases {
 		for _, pm := range tc.parameters {
