@@ -39,7 +39,7 @@ func TestGetRemaining(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			deResponse := client.NewDEResponse(test.queryDEResponse)
+			deResponse := client.NewDEResponse(test.queryDEResponse, 10)
 			remaining := deResponse.GetRemaining()
 			assert.Equal(t, test.exp, remaining)
 		})

@@ -13,8 +13,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/bandprotocol/chain/v3/cylinder/msg"
 	"github.com/bandprotocol/chain/v3/cylinder/store"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 	"github.com/bandprotocol/chain/v3/pkg/tss"
@@ -27,7 +27,6 @@ type Config struct {
 	Granter             string        `mapstructure:"granter"`               // The granter address
 	GasPrices           string        `mapstructure:"gas-prices"`            // Gas prices of the transaction
 	LogLevel            string        `mapstructure:"log-level"`             // Log level of the logger
-	MaxMessages         uint64        `mapstructure:"max-messages"`          // The maximum number of messages in a transaction
 	BroadcastTimeout    time.Duration `mapstructure:"broadcast-timeout"`     // The time that cylinder will wait for tx commit
 	RPCPollInterval     time.Duration `mapstructure:"rpc-poll-interval"`     // The duration of rpc poll interval
 	MaxTry              uint64        `mapstructure:"max-try"`               // The maximum number of tries to submit a report transaction
@@ -50,8 +49,9 @@ type Context struct {
 
 	Logger *logger.Logger
 
-	ErrCh chan error
-	MsgCh chan sdk.Msg
+	ErrCh                chan error
+	PriorityMsgRequestCh chan msg.Request
+	MsgRequestCh         chan msg.Request
 
 	DataDir string
 	Store   *store.Store
@@ -68,15 +68,16 @@ func NewContext(
 ) (*Context, error) {
 	// Initialize the context
 	return &Context{
-		Config:            cfg,
-		Keyring:           kr,
-		Home:              home,
-		Cdc:               cdc,
-		TxConfig:          txConfig,
-		InterfaceRegistry: interfaceRegistry,
-		ErrCh:             make(chan error, 1),
-		MsgCh:             make(chan sdk.Msg, 1000),
-		DataDir:           filepath.Join(home, "data"),
+		Config:               cfg,
+		Keyring:              kr,
+		Home:                 home,
+		Cdc:                  cdc,
+		TxConfig:             txConfig,
+		InterfaceRegistry:    interfaceRegistry,
+		ErrCh:                make(chan error, 1),
+		PriorityMsgRequestCh: make(chan msg.Request, 1000),
+		MsgRequestCh:         make(chan msg.Request, 2000),
+		DataDir:              filepath.Join(home, "data"),
 	}, nil
 }
 
