@@ -359,7 +359,7 @@ func (s *AppTestSuite) TestFailedRequestSignatureReq() {
 			PreProcess: func() {
 				req, err = types.NewMsgRequestSignature(
 					tsstypes.NewTextSignatureOrder([]byte("msg")),
-					sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
+					sdk.NewCoins(sdk.NewInt64Coin("uband", 1)),
 					bandtesting.FeePayer.Address.String(),
 				)
 			},
