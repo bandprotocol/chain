@@ -1,7 +1,7 @@
 package testutil
 
 import (
-	"fmt"
+	"errors"
 	"math/rand"
 	"time"
 
@@ -57,7 +57,7 @@ func GenerateSignature(
 	}
 
 	if member.MemberID == 0 {
-		return nil, fmt.Errorf("member not found")
+		return nil, errors.New("member not found")
 	}
 
 	// Compute own private nonce
