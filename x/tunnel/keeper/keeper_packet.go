@@ -96,7 +96,8 @@ func (k Keeper) ProducePacket(
 	latestPricesMap := CreatePricesMap(latestPrices.Prices)
 
 	// check if the interval has passed
-	sendAll := unixNow >= int64(tunnel.Interval)+latestPrices.LastInterval
+	diffCycle := (unixNow - latestPrices.LastInterval) / int64(tunnel.Interval)
+	sendAll := diffCycle > 0
 
 	// generate newPrices; if no newPrices, stop the process.
 	newPrices := GenerateNewPrices(
@@ -124,8 +125,15 @@ func (k Keeper) ProducePacket(
 	// update latest price info.
 	latestPrices.UpdatePrices(newPrices)
 	if sendAll {
-		latestPrices.LastInterval = unixNow
+		if latestPrices.LastInterval == 0 {
+			// If the last interval is 0, it means this is the first time we are producing a packet.
+			// We set the last interval to the current time.
+			latestPrices.LastInterval = unixNow
+		} else {
+			latestPrices.LastInterval += diffCycle * int64(tunnel.Interval)
+		}
 	}
+
 	k.SetLatestPrices(ctx, latestPrices)
 
 	// emit an event

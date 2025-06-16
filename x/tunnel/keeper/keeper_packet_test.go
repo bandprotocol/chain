@@ -1,6 +1,8 @@
 package keeper_test
 
 import (
+	"time"
+
 	"go.uber.org/mock/gomock"
 
 	sdkmath "cosmossdk.io/math"
@@ -121,6 +123,7 @@ func (s *KeeperTestSuite) TestProducePacket() {
 		SignalDeviations: []types.SignalDeviation{
 			{SignalID: "CS:BAND-USD", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
 		},
+		Interval:  1,
 		CreatedAt: ctx.BlockTime().Unix(),
 	}
 	route := &types.TSSRoute{
@@ -163,6 +166,85 @@ func (s *KeeperTestSuite) TestProducePacket() {
 	s.Require().NoError(err)
 }
 
+func (s *KeeperTestSuite) TestProducePacketTriggerInterval() {
+	ctx, k := s.ctx, s.keeper
+
+	tunnelID := uint64(1)
+	pricesMap := map[string]feedstypes.Price{
+		"CS:BAND-USD": {
+			Status:    feedstypes.PRICE_STATUS_AVAILABLE,
+			SignalID:  "CS:BAND-USD",
+			Price:     50000,
+			Timestamp: 1733000000,
+		},
+	}
+	feePayer := sdk.AccAddress([]byte("fee_payer_address"))
+	tunnel := types.Tunnel{
+		ID:       1,
+		FeePayer: feePayer.String(),
+		IsActive: true,
+		SignalDeviations: []types.SignalDeviation{
+			{SignalID: "CS:BAND-USD", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
+		},
+		Interval:  60,
+		CreatedAt: ctx.BlockTime().Unix(),
+	}
+	route := &types.TSSRoute{
+		DestinationChainID:         "chain-1",
+		DestinationContractAddress: "0x1234567890abcdef",
+	}
+
+	s.bankKeeper.EXPECT().
+		SendCoinsFromAccountToModule(gomock.Any(), feePayer, types.ModuleName, k.GetParams(ctx).BasePacketFee).
+		Return(nil).Times(2)
+
+	s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
+		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
+	).Times(2)
+	s.bandtssKeeper.EXPECT().CreateTunnelSigningRequest(
+		gomock.Any(),
+		uint64(1),
+		"chain-1",
+		"0x1234567890abcdef",
+		gomock.Any(),
+		feePayer,
+		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))),
+	).Return(bandtsstypes.SigningID(1), nil).Times(2)
+
+	err := tunnel.SetRoute(route)
+	s.Require().NoError(err)
+
+	// set deposit to the tunnel to be able to activate
+	tunnel.TotalDeposit = append(tunnel.TotalDeposit, k.GetParams(ctx).MinDeposit...)
+
+	k.SetTunnel(ctx, tunnel)
+	k.SetLatestPrices(ctx, types.NewLatestPrices(tunnelID, []feedstypes.Price{}, 0))
+
+	err = k.ActivateTunnel(ctx, tunnelID)
+	s.Require().NoError(err)
+
+	// first time trigger, lastInterval should be set to block time
+	err = k.ProducePacket(ctx, tunnelID, pricesMap)
+	s.Require().NoError(err)
+
+	latestPrices, err := k.GetLatestPrices(ctx, tunnelID)
+	s.Require().NoError(err)
+	s.Require().Equal(types.NewLatestPrices(tunnelID, []feedstypes.Price{
+		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "CS:BAND-USD", Price: 50000, Timestamp: 1733000000},
+	}, ctx.BlockTime().Unix()), latestPrices)
+
+	// next trigger, lastInterval should be updated to next cycle (block time + 60 -> new block time - 20)
+	ctx = ctx.WithBlockTime(ctx.BlockTime().Add(80 * time.Second))
+	err = k.ProducePacket(ctx, tunnelID, pricesMap)
+	s.Require().NoError(err)
+
+	latestPrices, err = k.GetLatestPrices(ctx, tunnelID)
+	s.Require().NoError(err)
+	s.Require().Equal(types.NewLatestPrices(tunnelID, []feedstypes.Price{
+		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "CS:BAND-USD", Price: 50000, Timestamp: 1733000000},
+	}, ctx.BlockTime().Unix()-20), latestPrices)
+}
+
 func (s *KeeperTestSuite) TestProduceActiveTunnelPackets() {
 	ctx, k := s.ctx, s.keeper
 
@@ -175,6 +257,7 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPackets() {
 		SignalDeviations: []types.SignalDeviation{
 			{SignalID: "CS:BAND-USD", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
 		},
+		Interval:  1,
 		CreatedAt: ctx.BlockTime().Unix(),
 	}
 	route := &types.TSSRoute{
@@ -243,6 +326,7 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPacketsNotEnoughMoney() {
 		SignalDeviations: []types.SignalDeviation{
 			{SignalID: "CS:BAND-USD", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
 		},
+		Interval:  1,
 		CreatedAt: ctx.BlockTime().Unix(),
 	}
 	route := &types.TSSRoute{
