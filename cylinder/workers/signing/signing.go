@@ -14,6 +14,7 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder/client"
 	"github.com/bandprotocol/chain/v3/cylinder/context"
 	"github.com/bandprotocol/chain/v3/cylinder/metrics"
+	"github.com/bandprotocol/chain/v3/cylinder/msg"
 	"github.com/bandprotocol/chain/v3/cylinder/parser"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 	"github.com/bandprotocol/chain/v3/pkg/tss"
@@ -26,6 +27,7 @@ type Signing struct {
 	logger  *logger.Logger
 	client  *client.Client
 	eventCh <-chan ctypes.ResultEvent
+	reqID   uint64
 }
 
 var _ cylinder.Worker = &Signing{}
@@ -161,7 +163,13 @@ func (s *Signing) handleSigning(sid tss.SigningID) {
 	}
 
 	// Send MsgSigning
-	s.context.MsgCh <- types.NewMsgSubmitSignature(sid, group.MemberID, sig, s.context.Config.Granter)
+	s.reqID += 1
+	s.context.MsgRequestCh <- msg.NewRequest(
+		msg.RequestTypeSubmitSignature,
+		s.reqID,
+		types.NewMsgSubmitSignature(sid, group.MemberID, sig, s.context.Config.Granter),
+		3,
+	)
 
 	metrics.ObserveProcessSigningTime(uint64(signing.GroupID), time.Since(since).Seconds())
 	metrics.IncProcessSigningSuccessCount(uint64(signing.GroupID))
@@ -207,4 +215,9 @@ func (s *Signing) Start() {
 func (s *Signing) Stop() error {
 	s.logger.Info("stop")
 	return s.client.Stop()
+}
+
+// GetResponseReceivers returns the message response receivers of the worker.
+func (s *Signing) GetResponseReceivers() []*msg.ResponseReceiver {
+	return nil
 }
