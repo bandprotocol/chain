@@ -147,14 +147,14 @@ func CreateUpgradeHandler(
 				"uband",
 				sdk.TokensFromConsensusPower(5000, sdk.DefaultPowerReduction)), // 5000 band
 		)
-		expeditedVotingPeriod := 1 * 24 * time.Hour
-		govParams.ExpeditedVotingPeriod = &expeditedVotingPeriod // 1 day
+		expeditedVotingPeriod := 5 * time.Minute
+		govParams.ExpeditedVotingPeriod = &expeditedVotingPeriod // 5 minutes
 
-		maxDepositPeriod := 5 * 24 * time.Hour
-		govParams.MaxDepositPeriod = &maxDepositPeriod // 5 days
+		maxDepositPeriod := 15 * time.Minute
+		govParams.MaxDepositPeriod = &maxDepositPeriod // 15 minutes
 
-		votingPeriod := 5 * 24 * time.Hour
-		govParams.VotingPeriod = &votingPeriod // 5 days
+		votingPeriod := 15 * time.Minute
+		govParams.VotingPeriod = &votingPeriod // 15 minutes
 
 		err = keepers.GovKeeper.Params.Set(ctx, govParams)
 		if err != nil {
