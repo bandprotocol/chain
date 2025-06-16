@@ -12,7 +12,7 @@ import (
 	"github.com/bandprotocol/chain/v3/pkg/tickmath"
 )
 
-// PriceToTick converts the price to tick
+// PriceToTickUsingLog converts the price to tick
 func PriceToTickUsingLog(priceX1E9 uint64) (uint64, error) {
 	price := float64(priceX1E9) / float64(1000000000)
 
