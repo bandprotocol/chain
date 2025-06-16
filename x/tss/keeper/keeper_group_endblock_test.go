@@ -79,7 +79,7 @@ func (s *KeeperTestSuite) TestProcessExpiredGroups() {
 	})
 
 	// Set the current block height
-	ctx = ctx.WithBlockHeight(30001)
+	ctx = ctx.WithBlockHeight(43201)
 
 	// Handle expired groups
 	k.HandleExpiredGroups(ctx)
