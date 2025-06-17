@@ -1,5 +1,8 @@
 # Changelog
 
+## [v3.0.1](https://github.com/bandprotocol/chain/releases/tag/v3.0.1)
+* (chain) Fix syncing interval trigger for tunnels
+
 ## [v3.0.0](https://github.com/bandprotocol/chain/releases/tag/v3.0.0)
 
 * (bump) Use Go 1.24.2
