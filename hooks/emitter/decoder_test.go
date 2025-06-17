@@ -1178,7 +1178,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgUpdateParams() {
 	}
 
 	emitter.DecodeTSSMsgUpdateParams(&msg, detail)
-	expectedJSON := `{"authority":"band1g96hg6r0wf5hg7gqqqqqqqqqqqqqqqqq4rjgsx","params":{"max_group_size":20,"max_de_size":300,"creation_period":30000,"signing_period":100,"max_signing_attempt":5,"max_memo_length":100,"max_message_length":1000}}`
+	expectedJSON := `{"authority":"band1g96hg6r0wf5hg7gqqqqqqqqqqqqqqqqq4rjgsx","params":{"max_group_size":20,"max_de_size":600,"creation_period":43200,"signing_period":100,"max_signing_attempt":5,"max_memo_length":100,"max_message_length":1000}}`
 	suite.testCompareJson(detail, expectedJSON)
 }
 
@@ -1370,7 +1370,7 @@ func (suite *DecoderTestSuite) TestDecodeTunnelMsgUpdateParams() {
 	emitter.DecodeTunnelMsgUpdateParams(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"authority\":\"band1g96hg6r0wf5hg7gqqqqqqqqqqqqqqqqq4rjgsx\",\"params\":{\"min_deposit\":[{\"denom\":\"uband\",\"amount\":\"1000000000\"}],\"min_interval\":60,\"max_interval\":3600,\"min_deviation_bps\":50,\"max_deviation_bps\":3000,\"max_signals\":25,\"base_packet_fee\":[{\"denom\":\"uband\",\"amount\":\"500\"}],\"axelar_gmp_account\":\"axelar1dv4u5k73pzqrxlzujxg3qp8kvc3pje7jtdvu72npnt5zhq05ejcsn5qme5\"}}",
+		"{\"authority\":\"band1g96hg6r0wf5hg7gqqqqqqqqqqqqqqqqq4rjgsx\",\"params\":{\"min_deposit\":[{\"denom\":\"uband\",\"amount\":\"500000000\"}],\"min_interval\":60,\"max_interval\":86400,\"min_deviation_bps\":50,\"max_deviation_bps\":10000,\"max_signals\":25,\"base_packet_fee\":[{\"denom\":\"uband\",\"amount\":\"100\"}],\"axelar_gmp_account\":\"axelar1dv4u5k73pzqrxlzujxg3qp8kvc3pje7jtdvu72npnt5zhq05ejcsn5qme5\"}}",
 	)
 }
 
