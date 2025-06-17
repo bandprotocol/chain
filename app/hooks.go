@@ -140,9 +140,10 @@ func splitEvents(events []abci.Event) (begins []abci.Event, ends []abci.Event) {
 		n := len(event.Attributes)
 		attrType := event.Attributes[n-1]
 		if attrType.Key != "mode" {
-			panic("The last attribute of begin/end block event should be mode")
-		}
-		if attrType.Value == "BeginBlock" {
+			// NOTE: There is an event that is emitted when initGenesis (e.g. update_current_feeds)
+			// put it in the begins block for now.
+			begins = append(begins, event)
+		} else if attrType.Value == "BeginBlock" {
 			begins = append(begins, event)
 		} else if attrType.Value == "EndBlock" {
 			ends = append(ends, event)
