@@ -2,6 +2,8 @@
 
 ## [v3.0.1](https://github.com/bandprotocol/chain/releases/tag/v3.0.1)
 * (chain) Fix syncing interval trigger for tunnels
+* (cylinder) Add memo on transaction
+* (cylinder) Increase throughput on signing and DE generation
 
 ## [v3.0.0](https://github.com/bandprotocol/chain/releases/tag/v3.0.0)
 
