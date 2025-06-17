@@ -1,4 +1,4 @@
-package v3_testnet
+package v3_0_1_rc1_testnet
 
 import (
 	"context"

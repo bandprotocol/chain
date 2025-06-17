@@ -56,7 +56,7 @@ import (
 	"github.com/bandprotocol/chain/v3/app/mempool"
 	"github.com/bandprotocol/chain/v3/app/upgrades"
 	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3"
-	"github.com/bandprotocol/chain/v3/app/upgrades/v3_testnet"
+	"github.com/bandprotocol/chain/v3/app/upgrades/v3_0_1_rc1_testnet"
 	nodeservice "github.com/bandprotocol/chain/v3/client/grpc/node"
 	proofservice "github.com/bandprotocol/chain/v3/client/grpc/oracle/proof"
 	"github.com/bandprotocol/chain/v3/hooks/common"
@@ -69,7 +69,7 @@ var (
 	// DefaultNodeHome default home directories for the application daemon
 	DefaultNodeHome string
 
-	Upgrades = []upgrades.Upgrade{v3.Upgrade, v3_testnet.Upgrade}
+	Upgrades = []upgrades.Upgrade{v3.Upgrade, v3_0_1_rc1_testnet.Upgrade}
 )
 
 var (
