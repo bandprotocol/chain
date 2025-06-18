@@ -169,6 +169,13 @@ func CreateUpgradeHandler(
 			return nil, err
 		}
 
+		feedParams := keepers.FeedsKeeper.GetParams(ctx)
+		feedParams.Admin = "band16ewcf042mtkvhsp84p59n3pt2vps0jqxl0l6gl"
+		err = keepers.FeedsKeeper.SetParams(ctx, feedParams)
+		if err != nil {
+			return nil, err
+		}
+
 		return vm, nil
 	}
 }
