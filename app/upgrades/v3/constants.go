@@ -30,7 +30,7 @@ import (
 
 // UpgradeName defines the on-chain upgrade name.
 const (
-	UpgradeName = "v3.0.0"
+	UpgradeName = "v3"
 
 	// BlockMaxBytes is the max bytes for a block, 3mb
 	BlockMaxBytes = int64(3000000)
