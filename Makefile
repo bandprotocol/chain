@@ -42,6 +42,9 @@ include contrib/devtools/Makefile
 
 all: install
 
+bandd: go.sum
+	go install -mod=readonly $(BUILD_FLAGS) ./cmd/bandd
+
 install: go.sum
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/bandd
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/yoda
