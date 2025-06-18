@@ -14,6 +14,7 @@ import (
 	sdkmath "cosmossdk.io/math"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -79,6 +80,13 @@ func CreateUpgradeHandler(
 			if !subspace.HasKeyTable() {
 				subspace.WithKeyTable(keyTable)
 			}
+		}
+
+		// Move consensus parameters from the x/params module to the x/consensus module.
+		baseAppLegacySS := keepers.ParamsKeeper.Subspace(baseapp.Paramspace).WithKeyTable(paramstypes.ConsensusParamsKeyTable())
+		err := baseapp.MigrateParams(ctx, baseAppLegacySS, keepers.ConsensusParamsKeeper.ParamsStore)
+		if err != nil {
+			return nil, err
 		}
 
 		vm, err := mm.RunMigrations(ctx, configurator, fromVM)
@@ -157,6 +165,13 @@ func CreateUpgradeHandler(
 		govParams.VotingPeriod = &votingPeriod // 15 minutes
 
 		err = keepers.GovKeeper.Params.Set(ctx, govParams)
+		if err != nil {
+			return nil, err
+		}
+
+		feedParams := keepers.FeedsKeeper.GetParams(ctx)
+		feedParams.Admin = "band16ewcf042mtkvhsp84p59n3pt2vps0jqxl0l6gl"
+		err = keepers.FeedsKeeper.SetParams(ctx, feedParams)
 		if err != nil {
 			return nil, err
 		}
