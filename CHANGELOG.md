@@ -1,5 +1,13 @@
 # Changelog
 
+## [v2.5.5](https://github.com/bandprotocol/chain/releases/tag/v2.5.5)
+
+- (chain) Bind flag iavl-cache-size disable-iavl-fastnode to app
+
+## [v2.5.4](https://github.com/bandprotocol/chain/releases/tag/v2.5.4)
+
+- (yoda) Remove the cacher of data source hash
+
 ## [v2.5.3](https://github.com/bandprotocol/chain/releases/tag/v2.5.3)
 
 - (bump) Use cometbft v0.34.29
