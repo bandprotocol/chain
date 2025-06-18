@@ -1,4 +1,4 @@
-package v3_testnet_test
+package v3_0_1_rc1_testnet_test
 
 import (
 	"testing"
@@ -15,7 +15,7 @@ import (
 
 	band "github.com/bandprotocol/chain/v3/app"
 	"github.com/bandprotocol/chain/v3/app/upgrades"
-	"github.com/bandprotocol/chain/v3/app/upgrades/v3_testnet"
+	"github.com/bandprotocol/chain/v3/app/upgrades/v3_0_1_rc1_testnet"
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
 )
 
@@ -31,7 +31,7 @@ func TestKeeperTestSuite(t *testing.T) {
 }
 
 func (s *UpgradeTestSuite) SetupTest() {
-	bandtesting.SetCustomUpgrades([]upgrades.Upgrade{v3_testnet.Upgrade})
+	bandtesting.SetCustomUpgrades([]upgrades.Upgrade{v3_0_1_rc1_testnet.Upgrade})
 
 	dir := testutil.GetTempDir(s.T())
 	s.app = bandtesting.SetupWithCustomHome(false, dir)
@@ -52,7 +52,7 @@ func (s *UpgradeTestSuite) SetupTest() {
 // Ensures the test does not error out.
 func (s *UpgradeTestSuite) TestUpgrade() {
 	upgradeHeight := int64(2)
-	s.ConfirmUpgradeSucceeded(v3_testnet.UpgradeName, upgradeHeight)
+	s.ConfirmUpgradeSucceeded(v3_0_1_rc1_testnet.UpgradeName, upgradeHeight)
 }
 
 func (s *UpgradeTestSuite) ConfirmUpgradeSucceeded(upgradeName string, upgradeHeight int64) {
