@@ -44,7 +44,7 @@ all: install
 
 install: go.sum
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/bandd
-	go install -mod=readonly $(BUILD_FLAGS) ./cmd/yoda
+	go install -mod=readonly $(BUILD_FLAGS) ./cmd/yoda3
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/cylinder
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/grogu
 
