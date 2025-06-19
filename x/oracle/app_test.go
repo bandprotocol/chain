@@ -302,7 +302,7 @@ func (s *AppTestSuite) TestExpiredRequestOracleData() {
 	require.Equal(expectRequest, request)
 
 	// Set context to later block height and time to trigger expiration
-	ctx = ctx.WithBlockHeight(132).WithBlockTime(ctx.BlockTime().Add(time.Minute))
+	ctx = ctx.WithBlockHeight(332).WithBlockTime(ctx.BlockTime().Add(time.Minute))
 	result, err := s.app.EndBlocker(ctx)
 	require.NoError(err)
 
