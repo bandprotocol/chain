@@ -196,23 +196,23 @@ func CreateUpgradeHandler(
 		})
 
 		for _, g := range grants {
-			author, err := g.Grant.GetAuthorization()
+			auth, err := g.Grant.GetAuthorization()
 			if err != nil {
 				return nil, err
 			}
 
-			msgTypeURL := author.MsgTypeURL()
+			msgTypeURL := auth.MsgTypeURL()
 
 			// Check if author is a generic authorization and oracle messages
-			if genAuth, ok := author.(*authz.GenericAuthorization); ok && strings.HasPrefix(msgTypeURL, "/oracle.v1.") {
-				newMsgTypeURL := strings.Replace(msgTypeURL, "/oracle.v1.", "/band.oracle.v1.", 1)
-				genAuth.Msg = newMsgTypeURL
-
+			if genAuth, ok := auth.(*authz.GenericAuthorization); ok && strings.HasPrefix(msgTypeURL, "/oracle.v1.") {
 				// Delete the old grant
 				err = keepers.AuthzKeeper.DeleteGrant(ctx, g.Grantee, g.Granter, msgTypeURL)
 				if err != nil {
 					return nil, err
 				}
+
+				newMsgTypeURL := strings.Replace(msgTypeURL, "/oracle.v1.", "/band.oracle.v1.", 1)
+				genAuth.Msg = newMsgTypeURL
 
 				// Save the new grant
 				err = keepers.AuthzKeeper.SaveGrant(ctx, g.Grantee, g.Granter, genAuth, g.Grant.Expiration)
