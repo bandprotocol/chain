@@ -134,6 +134,7 @@ func CreateUpgradeHandler(
 		oracleParams := keepers.OracleKeeper.GetParams(ctx)
 		oracleParams.MaxCalldataSize = 512
 		oracleParams.MaxReportDataSize = 512
+		oracleParams.ExpirationBlockCount = 300
 		err = keepers.OracleKeeper.SetParams(ctx, oracleParams)
 		if err != nil {
 			return nil, err
