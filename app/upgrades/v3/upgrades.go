@@ -209,13 +209,13 @@ func CreateUpgradeHandler(
 				genAuth.Msg = newMsgTypeURL
 
 				// Delete the old grant
-				err = keepers.AuthzKeeper.DeleteGrant(ctx, g.Granter, g.Grantee, msgTypeURL)
+				err = keepers.AuthzKeeper.DeleteGrant(ctx, g.Grantee, g.Granter, msgTypeURL)
 				if err != nil {
 					return nil, err
 				}
 
 				// Save the new grant
-				err = keepers.AuthzKeeper.SaveGrant(ctx, g.Granter, g.Grantee, genAuth, g.Grant.Expiration)
+				err = keepers.AuthzKeeper.SaveGrant(ctx, g.Grantee, g.Granter, genAuth, g.Grant.Expiration)
 				if err != nil {
 					return nil, err
 				}
