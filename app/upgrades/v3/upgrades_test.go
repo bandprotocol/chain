@@ -136,7 +136,6 @@ func postUpgradeChecks(s *UpgradeTestSuite) {
 			s.Require().Equal("/band.oracle.v1.MsgActivate", auth.MsgTypeURL())
 		}
 	}
-
 }
 
 func (s *UpgradeTestSuite) ConfirmUpgradeSucceeded(upgradeName string, upgradeHeight int64) {
