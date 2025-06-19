@@ -21,6 +21,7 @@ import (
 	"github.com/bandprotocol/chain/v3/app/upgrades"
 	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3"
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 type UpgradeTestSuite struct {
@@ -49,7 +50,7 @@ func (s *UpgradeTestSuite) SetupTest() {
 		reporter := sdk.AccAddress("1000000001")
 		expUnix := time.Unix(32518321013, 0)
 
-		err = s.app.AuthzKeeper.SaveGrant(s.ctx, v.Address, reporter, authz.NewGenericAuthorization("/oracle.v1.MsgReportData"), &expUnix)
+		err = s.app.AuthzKeeper.SaveGrant(s.ctx, reporter, v.Address, authz.NewGenericAuthorization("/oracle.v1.MsgReportData"), &expUnix)
 		s.Require().NoError(err)
 	}
 
@@ -130,10 +131,11 @@ func postUpgradeChecks(s *UpgradeTestSuite) {
 		})
 		s.Require().NoError(err)
 
+		s.Require().Equal(1, len(grants.Grants))
 		for _, grant := range grants.Grants {
 			auth, err := grant.GetAuthorization()
 			s.Require().NoError(err)
-			s.Require().Equal("/band.oracle.v1.MsgActivate", auth.MsgTypeURL())
+			s.Require().Equal(sdk.MsgTypeURL(&oracletypes.MsgReportData{}), auth.MsgTypeURL())
 		}
 	}
 }
