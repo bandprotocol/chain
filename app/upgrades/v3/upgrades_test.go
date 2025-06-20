@@ -15,11 +15,13 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 
 	band "github.com/bandprotocol/chain/v3/app"
 	"github.com/bandprotocol/chain/v3/app/upgrades"
 	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3"
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 type UpgradeTestSuite struct {
@@ -43,6 +45,12 @@ func (s *UpgradeTestSuite) SetupTest() {
 	// Activate validators
 	for _, v := range bandtesting.Validators {
 		err := s.app.OracleKeeper.Activate(s.ctx, v.ValAddress)
+		s.Require().NoError(err)
+
+		reporter := sdk.AccAddress("1000000001")
+		expUnix := time.Unix(32518321013, 0)
+
+		err = s.app.AuthzKeeper.SaveGrant(s.ctx, reporter, v.Address, authz.NewGenericAuthorization("/oracle.v1.MsgReportData"), &expUnix)
 		s.Require().NoError(err)
 	}
 
@@ -113,6 +121,22 @@ func postUpgradeChecks(s *UpgradeTestSuite) {
 		Equal(5*24*time.Hour, *govParams.MaxDepositPeriod)
 	s.Require().
 		Equal(5*24*time.Hour, *govParams.VotingPeriod)
+
+	for _, v := range bandtesting.Validators {
+		reporter := sdk.AccAddress("1000000001")
+
+		grants, err := s.app.AuthzKeeper.Grants(s.ctx, &authz.QueryGrantsRequest{
+			Granter: v.Address.String(),
+			Grantee: reporter.String(),
+		})
+		s.Require().NoError(err)
+
+		s.Require().Equal(1, len(grants.Grants))
+
+		auth, err := grants.Grants[0].GetAuthorization()
+		s.Require().NoError(err)
+		s.Require().Equal(sdk.MsgTypeURL(&oracletypes.MsgReportData{}), auth.MsgTypeURL())
+	}
 }
 
 func (s *UpgradeTestSuite) ConfirmUpgradeSucceeded(upgradeName string, upgradeHeight int64) {
