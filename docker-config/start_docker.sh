@@ -134,11 +134,11 @@ sleep 10
 
 for v in {1..4}
 do
-    rm -rf ~/.yoda
-    yoda config chain-id bandchain
-    yoda config node tcp://multi-validator$v-node:26657
-    yoda config validator $(bandd keys show validator$v -a --bech val --keyring-backend test)
-    yoda config executor "rest:https://asia-southeast2-band-playground.cloudfunctions.net/test-runtime-executor?timeout=10s"
+    rm -rf ~/.yoda3
+    yoda3 config chain-id bandchain
+    yoda3 config node tcp://multi-validator$v-node:26657
+    yoda3 config validator $(bandd keys show validator$v -a --bech val --keyring-backend test)
+    yoda3 config executor "rest:https://asia-southeast2-band-playground.cloudfunctions.net/test-runtime-executor?timeout=10s"
 
     # activate validator
     echo "y" | bandd tx oracle activate --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
@@ -149,23 +149,23 @@ do
     for i in $(eval echo {1..4})
     do
         # add reporter key
-        yoda keys add reporter$i
+        yoda3 keys add reporter$i
     done
 
     # send band tokens to reporters
-    echo "y" | bandd tx bank multi-send validator$v $(yoda keys list -a) 1000000uband --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
+    echo "y" | bandd tx bank multi-send validator$v $(yoda3 keys list -a) 1000000uband --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
 
     # wait for sending band tokens transaction success
     sleep 4
 
     # add reporter to bandchain
-    echo "y" | bandd tx oracle add-reporters $(yoda keys list -a) --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
+    echo "y" | bandd tx oracle add-reporters $(yoda3 keys list -a) --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
 
     # wait for adding reporter transaction success
     sleep 4
 
-    docker create --network chain_bandchain --name bandchain-yoda${v} band-validator:latest yoda r
-    docker cp ~/.yoda bandchain-yoda${v}:/root/.yoda
+    docker create --network chain_bandchain --name bandchain-yoda${v} band-validator:latest yoda3 r
+    docker cp ~/.yoda3 bandchain-yoda${v}:/root/.yoda3
     docker start bandchain-yoda${v}
 done
 
