@@ -50,7 +50,13 @@ func (s *UpgradeTestSuite) SetupTest() {
 		reporter := sdk.AccAddress("1000000001")
 		expUnix := time.Unix(32518321013, 0)
 
-		err = s.app.AuthzKeeper.SaveGrant(s.ctx, reporter, v.Address, authz.NewGenericAuthorization("/oracle.v1.MsgReportData"), &expUnix)
+		err = s.app.AuthzKeeper.SaveGrant(
+			s.ctx,
+			reporter,
+			v.Address,
+			authz.NewGenericAuthorization("/oracle.v1.MsgReportData"),
+			&expUnix,
+		)
 		s.Require().NoError(err)
 	}
 
@@ -116,11 +122,11 @@ func postUpgradeChecks(s *UpgradeTestSuite) {
 	s.Require().
 		Equal(sdk.Coins{sdk.NewCoin("uband", sdkmath.NewInt(5000*1000000))}, sdk.Coins(govParams.ExpeditedMinDeposit))
 	s.Require().
-		Equal(1*24*time.Hour, *govParams.ExpeditedVotingPeriod)
+		Equal(5*time.Minute, *govParams.ExpeditedVotingPeriod)
 	s.Require().
-		Equal(5*24*time.Hour, *govParams.MaxDepositPeriod)
+		Equal(15*time.Minute, *govParams.MaxDepositPeriod)
 	s.Require().
-		Equal(5*24*time.Hour, *govParams.VotingPeriod)
+		Equal(15*time.Minute, *govParams.VotingPeriod)
 
 	for _, v := range bandtesting.Validators {
 		reporter := sdk.AccAddress("1000000001")
