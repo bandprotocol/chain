@@ -44,7 +44,7 @@ all: install
 
 install: go.sum
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/bandd
-	go install -mod=readonly $(BUILD_FLAGS) ./cmd/yoda
+	go install -mod=readonly $(BUILD_FLAGS) ./cmd/yoda3
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/cylinder
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/grogu
 
@@ -59,11 +59,11 @@ release: go.sum
 	env GOOS=windows GOARCH=amd64 \
 		go build -mod=readonly -o ./build/bandd_windows_amd64 $(BUILD_FLAGS) ./cmd/bandd
 	env GOOS=linux GOARCH=amd64 \
-		go build -mod=readonly -o ./build/yoda_linux_amd64 $(BUILD_FLAGS) ./cmd/yoda
+		go build -mod=readonly -o ./build/yoda3_linux_amd64 $(BUILD_FLAGS) ./cmd/yoda3
 	env GOOS=darwin GOARCH=amd64 \
-		go build -mod=readonly -o ./build/yoda_darwin_amd64 $(BUILD_FLAGS) ./cmd/yoda
+		go build -mod=readonly -o ./build/yoda3_darwin_amd64 $(BUILD_FLAGS) ./cmd/yoda3
 	env GOOS=windows GOARCH=amd64 \
-		go build -mod=readonly -o ./build/yoda_windows_amd64 $(BUILD_FLAGS) ./cmd/yoda
+		go build -mod=readonly -o ./build/yoda3_windows_amd64 $(BUILD_FLAGS) ./cmd/yoda3
 
 mocks:
 	@go install go.uber.org/mock/mockgen@latest

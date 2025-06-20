@@ -12,7 +12,7 @@ const (
 	DefaultMaxAskCount             = uint64(16)
 	DefaultMaxCalldataSize         = uint64(512) // 512B
 	DefaultMaxReportDataSize       = uint64(512) // 512B
-	DefaultExpirationBlockCount    = uint64(100)
+	DefaultExpirationBlockCount    = uint64(300)
 	DefaultBaseRequestGas          = uint64(50000)
 	DefaultPerValidatorRequestGas  = uint64(0)
 	DefaultSamplingTryCount        = uint64(3)
