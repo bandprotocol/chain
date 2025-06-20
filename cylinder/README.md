@@ -71,10 +71,10 @@ The cylinder program can be installed via cloning the [Github repository](https:
 ```sh
 cd ~
 
-# Clone BandChain version v3.x.x; TODO: fix BandChain version
+# Clone BandChain version v3.0.1;
 git clone https://github.com/bandprotocol/chain
 cd chain
-git fetch && git checkout v3.x.x
+git fetch && git checkout v3.0.1
 
 # Install binaries to $GOPATH/bin
 make install
@@ -110,14 +110,13 @@ cylinder config node $RPC_URL --home $CYLINDER_HOME_PATH
 cylinder config granter $(bandd keys show $WALLET_NAME -a --keyring-backend test) --home $CYLINDER_HOME_PATH
 cylinder config gas-prices "0uband" --home $CYLINDER_HOME_PATH
 cylinder config max-messages 10 --home $CYLINDER_HOME_PATH
-cylinder config broadcast-timeout "5m" --home $CYLINDER_HOME_PATH
+cylinder config broadcast-timeout "1m" --home $CYLINDER_HOME_PATH
 cylinder config rpc-poll-interval "1s" --home $CYLINDER_HOME_PATH
 cylinder config max-try 5 --home $CYLINDER_HOME_PATH
-cylinder config min-de 100 --home $CYLINDER_HOME_PATH
 cylinder config gas-adjust-start 1.6 --home $CYLINDER_HOME_PATH
 cylinder config gas-adjust-step 0.2 --home $CYLINDER_HOME_PATH
 cylinder config random-secret "$(openssl rand -hex 32)" --home $CYLINDER_HOME_PATH
-cylinder config checking-de-interval "1m" --home $CYLINDER_HOME_PATH
+cylinder config check-de-interval "1m" --home $CYLINDER_HOME_PATH
 
 cylinder keys add signer1 --home $CYLINDER_HOME_PATH
 cylinder keys add signer2 --home $CYLINDER_HOME_PATH
@@ -129,20 +128,20 @@ below is the meaning of the configuration of the system
 
 ```go
 type Config struct {
-	ChainID          	string        		// ChainID of the target chain
-	NodeURI          	string        		// Remote RPC URI of BandChain node to connect to
-	Granter          	string        		// The granter address
-	GasPrices        	string        		// Gas prices of the transaction
-	LogLevel         	string        		// Log level of the logger
-	MaxMessages      	uint64        		// The maximum number of messages in a transaction
-	BroadcastTimeout 	time.Duration 		// The time that cylinder will wait for tx commit
-	RPCPollInterval  	time.Duration 		// The duration of rpc poll interval
-	MaxTry           	uint64        		// The maximum number of tries to submit a report transaction
-	MinDE            	uint64        		// The minimum number of DE
-	GasAdjustStart   	float64       		// The start value of gas adjustment
-	GasAdjustStep    	float64       		// The increment step of gas adjustment
-	RandomSecret     	tss.Scalar    		// The secret value that is used for random D,E
-	CheckingDEInterval 	time.Duration  		// The interval for updating DE
+	ChainID             string        `mapstructure:"chain-id"`              // ChainID of the target chain
+	NodeURI             string        `mapstructure:"node"`                  // Remote RPC URI of BandChain node to connect to
+	Granter             string        `mapstructure:"granter"`               // The granter address
+	GasPrices           string        `mapstructure:"gas-prices"`            // Gas prices of the transaction
+	LogLevel            string        `mapstructure:"log-level"`             // Log level of the logger
+	BroadcastTimeout    time.Duration `mapstructure:"broadcast-timeout"`     // The time that cylinder will wait for tx commit
+	RPCPollInterval     time.Duration `mapstructure:"rpc-poll-interval"`     // The duration of rpc poll interval
+	MaxTry              uint64        `mapstructure:"max-try"`               // The maximum number of tries to submit a report transaction
+	GasAdjustStart      float64       `mapstructure:"gas-adjust-start"`      // The start value of gas adjustment
+	GasAdjustStep       float64       `mapstructure:"gas-adjust-step"`       // The increment step of gas adjustment
+	RandomSecret        tss.Scalar    `mapstructure:"random-secret"`         // The secret value that is used for random D,E
+	CheckDEInterval     time.Duration `mapstructure:"check-de-interval"`     // The interval for updating DE
+	CheckStatusInterval time.Duration `mapstructure:"check-status-interval"` // The interval for checking the status of the member
+	MetricsListenAddr   string        `mapstructure:"metrics-listen-addr"`   // Address to use for metrics server
 }
 ```
 
