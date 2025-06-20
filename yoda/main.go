@@ -69,7 +69,7 @@ func init() {
 		panic(err)
 	}
 
-	DefaultYodaHome = filepath.Join(userHomeDir, ".yoda")
+	DefaultYodaHome = filepath.Join(userHomeDir, ".yoda3")
 }
 
 func Main() {
@@ -78,7 +78,7 @@ func Main() {
 
 	ctx := &Context{}
 	rootCmd := &cobra.Command{
-		Use:   "yoda",
+		Use:   "yoda3",
 		Short: "BandChain oracle daemon to subscribe and response to oracle requests",
 	}
 
