@@ -18,11 +18,8 @@ cylinder config chain-id bandchain --home $HOME_PATH
 # add member to cylinder config
 cylinder config granter $(bandd keys show $KEY -a --keyring-backend test) --home $HOME_PATH
 
-# setup max-messages to cylinder config
-cylinder config max-messages 10 --home $HOME_PATH
-
 # setup broadcast-timeout to cylinder config
-cylinder config broadcast-timeout "5m" --home $HOME_PATH
+cylinder config broadcast-timeout "1m" --home $HOME_PATH
 
 # setup rpc-poll-interval to cylinder config
 cylinder config rpc-poll-interval "1s" --home $HOME_PATH
@@ -32,9 +29,6 @@ cylinder config max-try 5 --home $HOME_PATH
 
 # setup gas-prices to cylinder config
 cylinder config gas-prices "0uband" --home $HOME_PATH
-
-# setup min-de to cylinder config
-cylinder config min-de 100 --home $HOME_PATH
 
 # setup gas-adjust-start to cylinder config
 cylinder config gas-adjust-start 1.6 --home $HOME_PATH
