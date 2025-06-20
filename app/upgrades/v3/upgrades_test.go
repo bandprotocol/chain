@@ -132,11 +132,10 @@ func postUpgradeChecks(s *UpgradeTestSuite) {
 		s.Require().NoError(err)
 
 		s.Require().Equal(1, len(grants.Grants))
-		for _, grant := range grants.Grants {
-			auth, err := grant.GetAuthorization()
-			s.Require().NoError(err)
-			s.Require().Equal(sdk.MsgTypeURL(&oracletypes.MsgReportData{}), auth.MsgTypeURL())
-		}
+
+		auth, err := grants.Grants[0].GetAuthorization()
+		s.Require().NoError(err)
+		s.Require().Equal(sdk.MsgTypeURL(&oracletypes.MsgReportData{}), auth.MsgTypeURL())
 	}
 }
 
