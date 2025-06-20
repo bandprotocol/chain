@@ -2,6 +2,7 @@ package v3
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	cmttypes "github.com/cometbft/cometbft/types"
@@ -18,6 +19,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -175,6 +177,50 @@ func CreateUpgradeHandler(
 		err = keepers.FeedsKeeper.SetParams(ctx, feedParams)
 		if err != nil {
 			return nil, err
+		}
+
+		type GrantInfo struct {
+			Granter sdk.AccAddress
+			Grantee sdk.AccAddress
+			Grant   authz.Grant
+		}
+
+		var grants []GrantInfo
+		keepers.AuthzKeeper.IterateGrants(ctx, func(granterAddr, granteeAddr sdk.AccAddress, grant authz.Grant) bool {
+			grants = append(grants, GrantInfo{
+				Granter: granterAddr,
+				Grantee: granteeAddr,
+				Grant:   grant,
+			})
+
+			return false
+		})
+
+		for _, g := range grants {
+			auth, err := g.Grant.GetAuthorization()
+			if err != nil {
+				return nil, err
+			}
+
+			msgTypeURL := auth.MsgTypeURL()
+
+			// Check if author is a generic authorization and oracle messages
+			if genAuth, ok := auth.(*authz.GenericAuthorization); ok && strings.HasPrefix(msgTypeURL, "/oracle.v1.") {
+				// Delete the old grant
+				err = keepers.AuthzKeeper.DeleteGrant(ctx, g.Grantee, g.Granter, msgTypeURL)
+				if err != nil {
+					return nil, err
+				}
+
+				newMsgTypeURL := strings.Replace(msgTypeURL, "/oracle.v1.", "/band.oracle.v1.", 1)
+				genAuth.Msg = newMsgTypeURL
+
+				// Save the new grant
+				err = keepers.AuthzKeeper.SaveGrant(ctx, g.Grantee, g.Granter, genAuth, g.Grant.Expiration)
+				if err != nil {
+					return nil, err
+				}
+			}
 		}
 
 		return vm, nil
