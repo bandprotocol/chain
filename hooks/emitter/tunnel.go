@@ -20,6 +20,7 @@ func (h *Hook) emitSetTunnel(ctx sdk.Context, tunnelID uint64) {
 		"fee_payer":     tunnel.FeePayer,
 		"total_deposit": tunnel.TotalDeposit.String(),
 		"status":        tunnel.IsActive,
+		"status_since":  tunnel.CreatedAt * int64(time.Second),
 		"last_interval": latestSignalPrice.LastInterval * int64(time.Second),
 		"creator":       tunnel.Creator,
 		"created_at":    tunnel.CreatedAt * int64(time.Second),
@@ -110,6 +111,14 @@ func (h *Hook) emitSetTunnelPacket(
 	}
 }
 
+func (h *Hook) emitSetTunnelHistoricalProducePacketFail(ctx sdk.Context, tunnelID uint64, reason string) {
+	h.Write("SET_TUNNEL_HISTORICAL_PRODUCE_PACKET_FAIL", common.JsDict{
+		"tunnel_id": tunnelID,
+		"timestamp": ctx.BlockTime().UnixNano(),
+		"reason":    reason,
+	})
+}
+
 // handleTunnelMsgCreateTunnel implements emitter handler for MsgCreateTunnel.
 func (h *Hook) handleTunnelMsgCreateTunnel(
 	ctx sdk.Context,
@@ -193,5 +202,14 @@ func (h *Hook) handleTunnelEventTypeDeactivateTunnel(ctx sdk.Context, evMap comm
 	tunnelIDs := evMap[types.EventTypeDeactivateTunnel+"."+types.AttributeKeyTunnelID]
 	for _, tunnelID := range tunnelIDs {
 		h.emitUpdateTunnelStatus(ctx, common.Atoui(tunnelID))
+	}
+}
+
+// handleTunnelEventTypeProducePacketFail implements emitter handler for EventTypeProducePacketFail.
+func (h *Hook) handleTunnelEventTypeProducePacketFail(ctx sdk.Context, evMap common.EvMap) {
+	tunnelIDs := evMap[types.EventTypeProducePacketFail+"."+types.AttributeKeyTunnelID]
+	reasons := evMap[types.EventTypeProducePacketFail+"."+types.AttributeKeyReason]
+	for idx, tunnelID := range tunnelIDs {
+		h.emitSetTunnelHistoricalProducePacketFail(ctx, common.Atoui(tunnelID), reasons[idx])
 	}
 }

@@ -253,6 +253,8 @@ func (h *Hook) handleBeginBlockEndBlockEvent(
 		h.handleTunnelEventTypeActivateTunnel(ctx, evMap)
 	case tunneltypes.EventTypeDeactivateTunnel:
 		h.handleTunnelEventTypeDeactivateTunnel(ctx, evMap)
+	case tunneltypes.EventTypeProducePacketFail:
+		h.handleTunnelEventTypeProducePacketFail(ctx, evMap)
 	default:
 		break
 	}

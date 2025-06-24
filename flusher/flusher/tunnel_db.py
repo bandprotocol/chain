@@ -57,7 +57,9 @@ tunnel_deposits = sa.Table(
 tunnel_historical_deposits = sa.Table(
     "tunnel_historical_deposits",
     metadata,
-    Column("transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), primary_key=True),
+    Column(
+        "transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), primary_key=True
+    ),
     Column("tunnel_id", sa.Integer, sa.ForeignKey("tunnels.id"), index=True),
     Column("depositor_id", sa.Integer, sa.ForeignKey("accounts.id"), index=True),
     Column("deposit_type", CustomDepositType),
@@ -90,4 +92,12 @@ tunnel_packet_prices = sa.Table(
         ["tunnel_id", "sequence"],
         ["tunnel_packets.tunnel_id", "tunnel_packets.sequence"],
     ),
+)
+
+tunnel_historical_produce_packet_fails = sa.Table(
+    "tunnel_historical_produce_packet_fails",
+    metadata,
+    Column("tunnel_id", sa.Integer, sa.ForeignKey("tunnels.id"), primary_key=True),
+    Column("timestamp", CustomDateTime, primary_key=True),
+    Column("reason", sa.String),
 )
