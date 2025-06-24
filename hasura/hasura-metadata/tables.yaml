@@ -1153,6 +1153,13 @@
       using:
         foreign_key_constraint_on: tunnel_id
 - table:
+    name: tunnel_historical_produce_packet_fails
+    schema: public
+  object_relationships:
+    - name: tunnel
+      using:
+        foreign_key_constraint_on: tunnel_id
+- table:
     name: tunnel_historical_signal_deviations
     schema: public
   object_relationships:
@@ -1215,6 +1222,13 @@
           column: tunnel_id
           table:
             name: tunnel_historical_deposits
+            schema: public
+    - name: tunnel_historical_produce_packet_fails
+      using:
+        foreign_key_constraint_on:
+          column: tunnel_id
+          table:
+            name: tunnel_historical_produce_packet_fails
             schema: public
     - name: tunnel_historical_signal_deviations
       using:
