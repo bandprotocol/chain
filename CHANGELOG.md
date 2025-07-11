@@ -1,5 +1,9 @@
 # Changelog
 
+## [v3.0.2](https://github.com/bandprotocol/chain/releases/tag/v3.0.2)
+
+* (chain) Use iavl v1.2.6
+
 ## [v3.0.1](https://github.com/bandprotocol/chain/releases/tag/v3.0.1)
 
 * (chain) Fix syncing interval trigger for tunnels
