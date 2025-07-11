@@ -1,4 +1,4 @@
-package v3_0_1_rc1_testnet
+package v3_1
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 
 	"github.com/bandprotocol/chain/v3/app/keepers"
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 )
 
 func CreateUpgradeHandler(
@@ -20,6 +21,11 @@ func CreateUpgradeHandler(
 		ctx := sdk.UnwrapSDKContext(c)
 
 		vm, err := mm.RunMigrations(ctx, configurator, fromVM)
+		if err != nil {
+			return nil, err
+		}
+
+		err = keepers.BandtssKeeper.SetParams(ctx, bandtsstypes.DefaultParams())
 		if err != nil {
 			return nil, err
 		}

@@ -13,8 +13,8 @@ const (
 	DefaultMinTransitionDuration   time.Duration = time.Hour * 24     // 1 days
 	DefaultMaxTransitionDuration   time.Duration = time.Hour * 24 * 7 // 7 days
 	// compute the bandtss reward following the allocation to Oracle. If the Oracle reward amounts to 70%,
-	// the bandtss reward will be determined from the remaining 2%, which is 2% * 30% = 0.6%.
-	DefaultRewardPercentage = uint64(2)
+	// the bandtss reward will be determined from the remaining 1%, which is 1% * 30% = 0.3%.
+	DefaultRewardPercentage = uint64(1)
 )
 
 // DefaultFeePerSigner is the default value for the signing request fee per signer.
