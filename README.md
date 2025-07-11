@@ -55,7 +55,7 @@ Use `git` to retrieve BandChain from the [official repo](https://github.com/band
 
 ```bash
 git clone https://github.com/bandprotocol/chain
-cd chain && git checkout v3.0.1
+cd chain && git checkout v3.1.0
 make install
 ```
 
@@ -66,7 +66,7 @@ Using `bandd version` command to verify that your `bandd` has been built success
 ```
 name: bandchain
 server_name: bandd
-version: 3.0.1
+version: 3.1.0
 build_tags: netgo,ledger
 go: go version go1.24.2 darwin/amd64
 build_deps:
