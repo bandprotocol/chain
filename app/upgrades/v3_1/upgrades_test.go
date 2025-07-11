@@ -15,7 +15,7 @@ import (
 
 	band "github.com/bandprotocol/chain/v3/app"
 	"github.com/bandprotocol/chain/v3/app/upgrades"
-	"github.com/bandprotocol/chain/v3/app/upgrades/v3_rc3"
+	"github.com/bandprotocol/chain/v3/app/upgrades/v3_1"
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
 )
 
@@ -31,7 +31,7 @@ func TestKeeperTestSuite(t *testing.T) {
 }
 
 func (s *UpgradeTestSuite) SetupTest() {
-	bandtesting.SetCustomUpgrades([]upgrades.Upgrade{v3_rc3.Upgrade})
+	bandtesting.SetCustomUpgrades([]upgrades.Upgrade{v3_1.Upgrade})
 
 	dir := testutil.GetTempDir(s.T())
 	s.app = bandtesting.SetupWithCustomHome(false, dir)
@@ -48,7 +48,7 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 	preUpgradeChecks(s)
 
 	upgradeHeight := int64(2)
-	s.ConfirmUpgradeSucceeded(v3_rc3.UpgradeName, upgradeHeight)
+	s.ConfirmUpgradeSucceeded(v3_1.UpgradeName, upgradeHeight)
 
 	postUpgradeChecks(s)
 }
