@@ -1,4 +1,4 @@
-package v3_0_1_rc1_testnet
+package v3_1
 
 import (
 	storetypes "cosmossdk.io/store/types"
@@ -7,7 +7,7 @@ import (
 )
 
 // UpgradeName defines the on-chain upgrade name.
-const UpgradeName = "v3_0_1_rc1_testnet"
+const UpgradeName = "v3_1"
 
 var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
