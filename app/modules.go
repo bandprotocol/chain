@@ -177,7 +177,7 @@ func appModules(
 	}
 }
 
-// ModuleBasics defines the module BasicManager that is in charge of setting up basic,
+// newBasicManagerFromManager defines the module BasicManager that is in charge of setting up basic,
 // non-dependant module elements, such as codec registration
 // and genesis verification.
 func newBasicManagerFromManager(app *BandApp) module.BasicManager {

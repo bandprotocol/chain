@@ -133,7 +133,7 @@ func initConfig(homePath string) (*context.Config, error) {
 	return &cfg, nil
 }
 
-// InitLog initializes the logger for the context.
+// initLogger initializes the logger for the context.
 func initLogger(logLevel string) (*logger.Logger, error) {
 	allowLevel, err := log.ParseLogLevel(logLevel)
 	if err != nil {
