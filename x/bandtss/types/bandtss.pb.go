@@ -146,7 +146,7 @@ func (m *Member) GetSince() time.Time {
 	return time.Time{}
 }
 
-// CuurentGroup is a bandtss current group information.
+// CurrentGroup is a bandtss current group information.
 type CurrentGroup struct {
 	// group_id is the ID of the current group.
 	GroupID github_com_bandprotocol_chain_v3_pkg_tss.GroupID `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3,casttype=github.com/bandprotocol/chain/v3/pkg/tss.GroupID" json:"group_id,omitempty"`

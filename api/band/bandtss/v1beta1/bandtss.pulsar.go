@@ -3254,7 +3254,7 @@ func (x *Member) GetSince() *timestamppb.Timestamp {
 	return nil
 }
 
-// CuurentGroup is a bandtss current group information.
+// CurrentGroup is a bandtss current group information.
 type CurrentGroup struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
