@@ -205,6 +205,8 @@ func keysListCmd(ctx *cylinderctx.Context) *cobra.Command {
 						} else {
 							s = ":x:"
 						}
+					} else {
+						fmt.Printf("Error querying grantee status for %s: %+v\n", address.String(), err)
 					}
 					emoji.Printf("%s%s => %s\n", s, key.Name, address.String())
 				}

@@ -48,6 +48,9 @@ install: go.sum
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/cylinder
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/grogu
 
+cylinder: go.sum
+	go install -mod=readonly $(BUILD_FLAGS) ./cmd/cylinder
+
 release: go.sum
 	env GOOS=linux GOARCH=amd64 \
 		go build -mod=readonly -o ./build/bandd_linux_amd64 $(BUILD_FLAGS) ./cmd/bandd
