@@ -24,7 +24,7 @@ message Member {
   google.protobuf.Timestamp since = 4 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
 }
 
-// CuurentGroup is a bandtss current group information.
+// CurrentGroup is a bandtss current group information.
 message CurrentGroup {
   // group_id is the ID of the current group.
   uint64 group_id = 1
