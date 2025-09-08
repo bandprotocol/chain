@@ -2,6 +2,7 @@ package yoda
 
 import (
 	"encoding/hex"
+	"slices"
 	"strconv"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -62,14 +63,7 @@ func handleRequest(c *Context, l *Logger, id types.RequestID) {
 		return
 	}
 
-	hasMe := false
-	for _, val := range req.RequestedValidators {
-		if val == c.validator.String() {
-			hasMe = true
-			break
-		}
-	}
-	if !hasMe {
+	if !slices.Contains(req.RequestedValidators, c.validator.String()) {
 		l.Debug(":next_track_button: Skip request not related to this validator")
 		return
 	}
