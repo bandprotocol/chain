@@ -21,7 +21,7 @@ func TestParseSignalDeviations(t *testing.T) {
 	require.Equal(t, signalDeviations, result.SignalDeviations)
 }
 
-// Helper function to create a temporary file with signal info JSON content
+// createTempSignalDeviationFile is a helper function to create a temporary file with signal info JSON content
 func createTempSignalDeviationFile(signalDeviations []SignalDeviation) (string, func()) {
 	file, err := os.CreateTemp("", "signalDeviations*.json")
 	if err != nil {

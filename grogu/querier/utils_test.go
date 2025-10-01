@@ -20,7 +20,7 @@ type MockResponse struct {
 	Value string
 }
 
-// Mock gRPC function generator
+// generateMockFuncWithBlockHeight is a mock gRPC function generator
 func generateMockFuncWithBlockHeight(blockHeight string) QueryFunction[MockRequest, MockResponse] {
 	return func(ctx context.Context, in *MockRequest, opts ...grpc.CallOption) (*MockResponse, error) {
 		var header *metadata.MD
