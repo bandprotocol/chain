@@ -1,5 +1,9 @@
 # Changelog
 
+## [v3.1.1](https://github.com/bandprotocol/chain/releases/tag/v3.1.1)
+
+* (chain) Use CometBFT v0.38.19
+
 ## [v3.1.0](https://github.com/bandprotocol/chain/releases/tag/v3.1.0)
 
 * (chain) Use Cosmos SDK v0.50.14 / iavl v1.2.6
