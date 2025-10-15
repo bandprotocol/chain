@@ -133,6 +133,7 @@ func encodeUvarint(value uint64) []byte {
 // 	return b
 // }
 
+// parseTime parses time in RFC3339Nano format.
 func parseTime(str string) time.Time {
 	var layout string
 	if len(str) == 29 {
@@ -169,6 +170,7 @@ func encodeFieldNumberAndType3(num uint32, typ uint8) []byte {
 	return encodeUvarint((uint64(num) << 3) | uint64(typ))
 }
 
+// convertVarIntToBytes converts an int64 to a byte slice using variable-length encoding.
 func convertVarIntToBytes(orig int64) []byte {
 	var buf [binary.MaxVarintLen64]byte
 	n := binary.PutVarint(buf[:], orig)

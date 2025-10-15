@@ -266,6 +266,7 @@ func simulationModules(
 	}
 }
 
+// orderBeginBlockers returns the order of the begin blockers.
 func orderBeginBlockers() []string {
 	return []string{
 		capabilitytypes.ModuleName,
