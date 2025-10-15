@@ -57,7 +57,7 @@ func (q queryServer) CurrentFeeds(
 	}, nil
 }
 
-// IsFeeder queries if the given address is a feeder feeder of the validator
+// IsFeeder queries if the given address is a feeder of the validator
 func (q queryServer) IsFeeder(
 	c context.Context,
 	req *types.QueryIsFeederRequest,

@@ -2,6 +2,7 @@ package bandrng
 
 import (
 	"math"
+	"slices"
 )
 
 // safeAdd performs the addition operation on two uint64 integers, but panics if overflow.
@@ -46,8 +47,8 @@ func ChooseSome(rng *Rng, weights []uint64, cnt int) []int {
 	for round := 0; round < cnt; round++ {
 		chosen := ChooseOne(rng, availableWeights)
 		chosenIndexes[round] = availableIndexes[chosen]
-		availableWeights = append(availableWeights[:chosen], availableWeights[chosen+1:]...)
-		availableIndexes = append(availableIndexes[:chosen], availableIndexes[chosen+1:]...)
+		availableWeights = slices.Delete(availableWeights, chosen, chosen+1)
+		availableIndexes = slices.Delete(availableIndexes, chosen, chosen+1)
 	}
 	return chosenIndexes
 }
