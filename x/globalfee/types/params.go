@@ -17,7 +17,7 @@ func DefaultParams() Params {
 	return Params{MinimumGasPrices: sdk.DecCoins{}}
 }
 
-// this requires the fee non-negative
+// validateMinimumGasPrices checks that the minimum gas prices are non-negative
 func validateMinimumGasPrices(i interface{}) error {
 	v, ok := i.(sdk.DecCoins)
 	if !ok {

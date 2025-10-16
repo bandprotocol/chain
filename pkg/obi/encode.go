@@ -6,7 +6,7 @@ import (
 	"reflect"
 )
 
-// Encode uses obi encoding scheme to encode the given input into bytes.
+// encodeImpl uses obi encoding scheme to encode the given input into bytes.
 func encodeImpl(v interface{}) ([]byte, error) {
 	rv := reflect.ValueOf(v)
 	switch rv.Kind() {

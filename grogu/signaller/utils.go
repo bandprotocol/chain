@@ -15,7 +15,7 @@ import (
 
 // isDeviated checks if the deviation between the old price and the new price
 // exceeds a given threshold in basis points.
-
+//
 // Parameters:
 // - deviationBasisPoint: the allowable deviation in basis points (1/10000th)
 // - oldPrice: the original price
