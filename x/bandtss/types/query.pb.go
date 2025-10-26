@@ -621,7 +621,7 @@ func (m *QueryIncomingGroupResponse) GetStatus() types.GroupStatus {
 	return types.GROUP_STATUS_UNSPECIFIED
 }
 
-// QuerySingingRequest is the request type for the Query/Signing RPC method.
+// QuerySigningRequest is the request type for the Query/Signing RPC method.
 type QuerySigningRequest struct {
 	// signing_id is the ID of the signing request.
 	SigningId uint64 `protobuf:"varint,1,opt,name=signing_id,json=signingId,proto3" json:"signing_id,omitempty"`

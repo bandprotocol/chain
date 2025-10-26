@@ -117,7 +117,7 @@ message QueryMembersResponse {
   repeated Member members = 1 [(gogoproto.nullable) = false];
 }
 
-// QueryIsSignerRequest is request type for the Query/IsGrantee RPC method.
+// QueryIsGranteeRequest is request type for the Query/IsGrantee RPC method.
 message QueryIsGranteeRequest {
   // granter is a granter address
   string granter = 1;

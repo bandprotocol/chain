@@ -358,7 +358,7 @@ func (m *RawRequest) GetCalldata() []byte {
 	return nil
 }
 
-// RawRequest is the data structure for storing raw reporter in the storage.
+// RawReport is the data structure for storing raw reporter in the storage.
 type RawReport struct {
 	// ExternalID is an ID of the raw request
 	ExternalID ExternalID `protobuf:"varint,1,opt,name=external_id,json=externalId,proto3,casttype=ExternalID" json:"external_id,omitempty"`

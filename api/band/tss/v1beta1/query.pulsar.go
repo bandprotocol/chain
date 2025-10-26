@@ -10401,7 +10401,7 @@ func (x *QueryMembersResponse) GetMembers() []*Member {
 	return nil
 }
 
-// QueryIsSignerRequest is request type for the Query/IsGrantee RPC method.
+// QueryIsGranteeRequest is request type for the Query/IsGrantee RPC method.
 type QueryIsGranteeRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
