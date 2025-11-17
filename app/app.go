@@ -493,7 +493,7 @@ func (app *BandApp) RegisterTendermintService(clientCtx client.Context) {
 	cmtservice.RegisterTendermintService(clientCtx, app.BaseApp.GRPCQueryRouter(), app.interfaceRegistry, app.Query)
 }
 
-// configure store loader that checks if version == upgradeHeight and applies store upgrades
+// setupUpgradeStoreLoaders configures store loader that checks if version == upgradeHeight and applies store upgrades
 func (app *BandApp) setupUpgradeStoreLoaders() {
 	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
 	if err != nil {
@@ -511,7 +511,7 @@ func (app *BandApp) setupUpgradeStoreLoaders() {
 	}
 }
 
-// set all upgrade handlers
+// setupUpgradeHandlers sets all upgrade handlers
 func (app *BandApp) setupUpgradeHandlers() {
 	for _, upgrade := range Upgrades {
 		app.UpgradeKeeper.SetUpgradeHandler(

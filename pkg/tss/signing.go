@@ -40,7 +40,7 @@ func checkLagrangeInput(mid MemberID, memberList []MemberID) (bool, error) {
 	return optimizedable, nil
 }
 
-// ComputeLagrangeCoefficientOp calculates the Lagrange coefficient with optimization for a given member ID and total number of members.
+// computeLagrangeCoefficientOp calculates the Lagrange coefficient with optimization for a given member ID and total number of members.
 // Note: Currently, supports a maximum mid at 20. Caller must validate the input by themselves
 func computeLagrangeCoefficientOp(mid MemberID, memberList []MemberID) Scalar {
 	var mids []int64

@@ -3,7 +3,6 @@ package proof
 import (
 	"encoding/base64"
 	"encoding/binary"
-	"encoding/hex"
 	"reflect"
 	"time"
 
@@ -12,7 +11,7 @@ import (
 	gogotypes "github.com/cosmos/gogoproto/types"
 )
 
-// Copied from https://github.com/cometbft/cometbft/blob/v0.37.2/types/encoding_helper.go
+// cdcEncode implementation is copied from https://github.com/cometbft/cometbft/blob/v0.37.2/types/encoding_helper.go
 func cdcEncode(item interface{}) []byte {
 	if item != nil && !isTypedNil(item) && !isEmpty(item) {
 		switch item := item.(type) {
@@ -51,6 +50,7 @@ func cdcEncode(item interface{}) []byte {
 	return nil
 }
 
+// isTypedNil checks if the given interface is a typed nil.
 // Go lacks a simple and safe way to see if something is a typed nil.
 // See:
 //   - https://dave.cheney.net/2017/08/09/typed-nils-in-go-2
@@ -66,7 +66,7 @@ func isTypedNil(o interface{}) bool {
 	}
 }
 
-// Returns true if it has zero length.
+// isEmpty returns true if it has zero length.
 func isEmpty(o interface{}) bool {
 	rv := reflect.ValueOf(o)
 	switch rv.Kind() {
@@ -125,14 +125,15 @@ func encodeUvarint(value uint64) []byte {
 // 	return u64
 // }
 
-func mustDecodeString(hexstr string) []byte {
-	b, err := hex.DecodeString(hexstr)
-	if err != nil {
-		panic(err)
-	}
-	return b
-}
+// func mustDecodeString(hexstr string) []byte {
+// 	b, err := hex.DecodeString(hexstr)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	return b
+// }
 
+// parseTime parses time in RFC3339Nano format.
 func parseTime(str string) time.Time {
 	var layout string
 	if len(str) == 29 {
@@ -152,23 +153,24 @@ func encodeTime(t time.Time) []byte {
 	s := t.Unix()
 	// skip if default/zero value:
 	if s != 0 {
-		bz = append(bz, encodeFieldNumberAndTyp3(1, 0)...)
+		bz = append(bz, encodeFieldNumberAndType3(1, 0)...)
 		bz = append(bz, encodeUvarint(uint64(s))...)
 	}
 	ns := int32(t.Nanosecond()) // this int64 -> int32 cast is safe (nanos are in [0, 999999999])
 	// skip if default/zero value:
 	if ns != 0 {
-		bz = append(bz, encodeFieldNumberAndTyp3(2, 0)...)
+		bz = append(bz, encodeFieldNumberAndType3(2, 0)...)
 		bz = append(bz, encodeUvarint(uint64(ns))...)
 	}
 	return bz
 }
 
-// Write field key.
-func encodeFieldNumberAndTyp3(num uint32, typ uint8) []byte {
+// encodeFieldNumberAndType3 Write field key.
+func encodeFieldNumberAndType3(num uint32, typ uint8) []byte {
 	return encodeUvarint((uint64(num) << 3) | uint64(typ))
 }
 
+// convertVarIntToBytes converts an int64 to a byte slice using variable-length encoding.
 func convertVarIntToBytes(orig int64) []byte {
 	var buf [binary.MaxVarintLen64]byte
 	n := binary.PutVarint(buf[:], orig)

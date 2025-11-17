@@ -268,6 +268,7 @@ func simulationModules(
 	}
 }
 
+// orderBeginBlockers returns the order of the begin blockers.
 func orderBeginBlockers() []string {
 	return []string{
 		capabilitytypes.ModuleName,
@@ -302,6 +303,8 @@ func orderBeginBlockers() []string {
 }
 
 /*
+orderEndBlockers returns the order of the end blockers.
+
 Interchain Security Requirements:
 - provider.EndBlock gets validator updates from the staking module;
 thus, staking.EndBlock must be executed before provider.EndBlock;
@@ -344,6 +347,7 @@ func orderEndBlockers() []string {
 }
 
 /*
+orderInitBlockers returns the order of init blockers.
 NOTE: The genutils module must occur after staking so that pools are
 properly initialized with tokens from genesis accounts.
 NOTE: The genutils module must also occur after auth so that it can access the params from auth.
