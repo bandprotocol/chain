@@ -530,7 +530,7 @@ func (m *QueryRequestResponse) GetSigning() *SigningResult {
 	return nil
 }
 
-// QueryPendingRequestRequest is request type for the Query/PendingRequests RPC
+// QueryPendingRequestsRequest is request type for the Query/PendingRequests RPC
 // method.
 type QueryPendingRequestsRequest struct {
 	// ValidatorAddress is address of a validator
@@ -577,7 +577,7 @@ func (m *QueryPendingRequestsRequest) GetValidatorAddress() string {
 	return ""
 }
 
-// QueryPendingRequestResponse is response type for the Query/PendingRequests
+// QueryPendingRequestsResponse is response type for the Query/PendingRequests
 // RPC method.
 type QueryPendingRequestsResponse struct {
 	// RequestIDs is a list of pending request IDs assigned to the given validator

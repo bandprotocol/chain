@@ -136,7 +136,7 @@ message QueryIncomingGroupResponse {
   band.tss.v1beta1.GroupStatus status = 5;
 }
 
-// QuerySingingRequest is the request type for the Query/Signing RPC method.
+// QuerySigningRequest is the request type for the Query/Signing RPC method.
 message QuerySigningRequest {
   // signing_id is the ID of the signing request.
   uint64 signing_id = 1;

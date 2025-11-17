@@ -12942,7 +12942,7 @@ func (x *RawRequest) GetCalldata() []byte {
 	return nil
 }
 
-// RawRequest is the data structure for storing raw reporter in the storage.
+// RawReport is the data structure for storing raw reporter in the storage.
 type RawReport struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

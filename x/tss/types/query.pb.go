@@ -408,7 +408,7 @@ func (m *QueryMembersResponse) GetMembers() []Member {
 	return nil
 }
 
-// QueryIsSignerRequest is request type for the Query/IsGrantee RPC method.
+// QueryIsGranteeRequest is request type for the Query/IsGrantee RPC method.
 type QueryIsGranteeRequest struct {
 	// granter is a granter address
 	Granter string `protobuf:"bytes,1,opt,name=granter,proto3" json:"granter,omitempty"`
