@@ -45,7 +45,7 @@ import (
 // BandAppChainID hardcoded chainID for simulation
 const BandAppChainID = "simulation-app"
 
-// Get flags every time the simulator is run
+// init gets flags every time the simulator is run
 func init() {
 	simcli.GetSimulatorFlags()
 }
