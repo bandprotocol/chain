@@ -61,7 +61,7 @@ message RawRequest {
   bytes calldata = 3;
 }
 
-// RawRequest is the data structure for storing raw reporter in the storage.
+// RawReport is the data structure for storing raw reporter in the storage.
 message RawReport {
   option (gogoproto.equal) = true;
   // ExternalID is an ID of the raw request

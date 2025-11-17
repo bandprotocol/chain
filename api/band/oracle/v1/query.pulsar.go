@@ -13751,7 +13751,7 @@ func (x *QueryRequestResponse) GetSigning() *SigningResult {
 	return nil
 }
 
-// QueryPendingRequestRequest is request type for the Query/PendingRequests RPC
+// QueryPendingRequestsRequest is request type for the Query/PendingRequests RPC
 // method.
 type QueryPendingRequestsRequest struct {
 	state         protoimpl.MessageState
@@ -13789,7 +13789,7 @@ func (x *QueryPendingRequestsRequest) GetValidatorAddress() string {
 	return ""
 }
 
-// QueryPendingRequestResponse is response type for the Query/PendingRequests
+// QueryPendingRequestsResponse is response type for the Query/PendingRequests
 // RPC method.
 type QueryPendingRequestsResponse struct {
 	state         protoimpl.MessageState

@@ -8067,7 +8067,7 @@ func (x *QueryIncomingGroupResponse) GetStatus() v1beta11.GroupStatus {
 	return v1beta11.GroupStatus(0)
 }
 
-// QuerySingingRequest is the request type for the Query/Signing RPC method.
+// QuerySigningRequest is the request type for the Query/Signing RPC method.
 type QuerySigningRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
