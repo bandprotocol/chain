@@ -13,6 +13,7 @@ import (
 
 	"cosmossdk.io/log"
 
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -88,7 +89,8 @@ func Main() {
 		runCmd(ctx),
 		version.NewVersionCommand(),
 	)
-	rootCmd.PersistentPreRunE = func(_ *cobra.Command, _ []string) error {
+
+	rootCmd.PersistentPreRunE = func(c *cobra.Command, _ []string) error {
 		home, err := rootCmd.PersistentFlags().GetString(flags.FlagHome)
 		if err != nil {
 			return err
@@ -131,8 +133,30 @@ func Main() {
 		if err != nil {
 			return err
 		}
-		return initConfig(ctx)
+
+		// read config
+		if err := initConfig(ctx); err != nil {
+			return err
+		}
+
+		// set up client context if nodeURI is provided
+		if cfg.NodeURI != "" {
+			clientCtx := client.GetClientContextFromCmd(c)
+
+			newClient, err := client.NewClientFromNode(cfg.NodeURI)
+			if err != nil {
+				return fmt.Errorf("couldn't get client from nodeURI: %v", err)
+			}
+
+			clientCtx = clientCtx.WithNodeURI(cfg.NodeURI).WithClient(newClient)
+			if err := client.SetCmdClientContext(c, clientCtx); err != nil {
+				return err
+			}
+		}
+
+		return nil
 	}
+
 	rootCmd.PersistentFlags().String(flags.FlagHome, DefaultYodaHome, "home directory")
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
