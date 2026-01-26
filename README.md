@@ -8,7 +8,7 @@
 <p align="center">
 BandChain - Decentralized Data Delivery Network<br/><br/>
 
-<a href="https://pkg.go.dev/badge/github.com/bandprotocol/chain">
+<a href="https://pkg.go.dev/github.com/bandprotocol/chain">
     <img src="https://pkg.go.dev/badge/github.com/bandprotocol/chain">
 </a>
 <a href="https://goreportcard.com/badge/github.com/bandprotocol/chain">
