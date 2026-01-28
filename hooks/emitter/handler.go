@@ -155,6 +155,9 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 	case *tunneltypes.MsgTriggerTunnel:
 		tunnelSenderFeesMap := getTunnelSenderFeesMap(ctx, *h, events)
 		h.handleTunnelMsgTriggerTunnel(ctx, msg, evMap, tunnelSenderFeesMap)
+		h.handleTSSEventCreateSigning(ctx, evMap)
+		h.handleTSSEventRequestSignature(ctx, evMap)
+		h.handleBandtssEventSigningRequestCreated(ctx, evMap)
 	default:
 		break
 	}
