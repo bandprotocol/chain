@@ -416,6 +416,11 @@ func (h *Hook) AfterBeginBlock(ctx sdk.Context, req *abci.RequestFinalizeBlock, 
 	}
 	totalSupply := make([]string, 0)
 	h.bankKeeper.IterateTotalSupply(ctx, func(coin sdk.Coin) bool {
+		// Only emit uband supply for now
+		if coin.Denom != "uband" {
+			return false
+		}
+
 		totalSupply = append(totalSupply, coin.String())
 		return true
 	})
