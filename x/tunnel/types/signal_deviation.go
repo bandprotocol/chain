@@ -69,7 +69,8 @@ func IsDeviationOutOfRangeLegacy(
 func IsDeviationOutOfRange(
 	signalDeviation SignalDeviation,
 	maxDeviationBPS uint64,
-	minDeviationBPS uint64) bool {
+	minDeviationBPS uint64,
+) bool {
 	return signalDeviation.HardDeviationBPS < minDeviationBPS ||
 		signalDeviation.HardDeviationBPS > maxDeviationBPS ||
 		signalDeviation.SoftDeviationBPS > signalDeviation.HardDeviationBPS

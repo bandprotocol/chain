@@ -3,10 +3,13 @@ package types_test
 import (
 	"testing"
 
-	"github.com/bandprotocol/chain/v3/x/tunnel/types"
-	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 // mockContext returns a sdk.Context with the given chainID and blockHeight
