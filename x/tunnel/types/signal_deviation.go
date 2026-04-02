@@ -30,7 +30,7 @@ func ValidateSignalDeviations(
 
 	// validate min and max deviation
 	for _, signalDeviation := range signalDeviations {
-		if ctx.BlockHeader().ChainID == "bandchain" || (ctx.BlockHeader().ChainID == "band-v3-testnet-1" && ctx.BlockHeight() > 39836000) {
+		if ctx.BlockHeader().ChainID == "bandchain" || (ctx.BlockHeader().ChainID == "band-v3-testnet-1" && ctx.BlockHeight() > 39985000) {
 			if IsDeviationOutOfRange(signalDeviation, maxDeviationBPS, minDeviationBPS) {
 				return ErrDeviationOutOfRange.Wrapf(
 					"min %d, max %d, got %d, %d",
