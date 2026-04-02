@@ -1,6 +1,6 @@
 module github.com/bandprotocol/chain/v3
 
-go 1.24.2
+go 1.25.0
 
 require (
 	cosmossdk.io/api v0.7.6
@@ -48,7 +48,7 @@ require (
 	github.com/stretchr/testify v1.11.1
 	go.uber.org/mock v0.6.0
 	golang.org/x/crypto v0.46.0
-	golang.org/x/text v0.33.0
+	golang.org/x/text v0.35.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250804133106-a7a43d27e69b
 	google.golang.org/grpc v1.76.0
 	google.golang.org/protobuf v1.36.11
@@ -218,7 +218,7 @@ require (
 	golang.org/x/exp v0.0.0-20250128182459-e0ece0dbea4c // indirect
 	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/oauth2 v0.30.0 // indirect
-	golang.org/x/sync v0.19.0 // indirect
+	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.39.0 // indirect
 	golang.org/x/term v0.38.0 // indirect
 	golang.org/x/time v0.12.0 // indirect
