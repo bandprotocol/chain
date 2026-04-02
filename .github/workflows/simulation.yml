@@ -13,7 +13,7 @@ jobs:
           check-latest: true
       - name: Install runsim
         run: go install github.com/cosmos/tools/cmd/runsim@v1.0.0
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: ~/go/bin
           key: ${{ runner.os }}-go-binary
@@ -28,7 +28,7 @@ jobs:
         with:
           go-version: "1.24.2"
           check-latest: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: ~/go/bin
           key: ${{ runner.os }}-go-binary
@@ -46,7 +46,7 @@ jobs:
         with:
           go-version: "1.24.2"
           check-latest: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: ~/go/bin
           key: ${{ runner.os }}-go-binary
@@ -64,7 +64,7 @@ jobs:
         with:
           go-version: "1.24.2"
           check-latest: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: ~/go/bin
           key: ${{ runner.os }}-go-binary
@@ -82,7 +82,7 @@ jobs:
         with:
           go-version: "1.24.2"
           check-latest: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: ~/go/bin
           key: ${{ runner.os }}-go-binary
