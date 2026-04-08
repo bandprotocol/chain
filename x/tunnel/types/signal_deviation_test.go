@@ -96,7 +96,7 @@ func TestValidateSignalDeviations(t *testing.T) {
 		},
 		{
 			name: "band-v3-testnet-1: legacy logic (height below threshold)",
-			ctx:  mockContext("band-v3-testnet-1", 39985000),
+			ctx:  mockContext("band-v3-testnet-1", 40571000),
 			signalDeviations: []types.SignalDeviation{
 				{SignalID: "CS:BTC-USD", HardDeviationBPS: 15, SoftDeviationBPS: 0},
 			},
@@ -105,7 +105,7 @@ func TestValidateSignalDeviations(t *testing.T) {
 		},
 		{
 			name: "band-v3-testnet-1: new logic (height above threshold)",
-			ctx:  mockContext("band-v3-testnet-1", 39985001),
+			ctx:  mockContext("band-v3-testnet-1", 40571001),
 			signalDeviations: []types.SignalDeviation{
 				{SignalID: "CS:BTC-USD", HardDeviationBPS: 15, SoftDeviationBPS: 0},
 			},
