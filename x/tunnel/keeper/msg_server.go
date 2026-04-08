@@ -35,7 +35,7 @@ func (k msgServer) CreateTunnel(
 	params := k.Keeper.GetParams(ctx)
 
 	// validate signal infos and interval
-	if err := types.ValidateSignalDeviations(msg.SignalDeviations, params.MaxSignals, params.MaxDeviationBPS, params.MinDeviationBPS); err != nil {
+	if err := types.ValidateSignalDeviations(ctx, msg.SignalDeviations, params.MaxSignals, params.MaxDeviationBPS, params.MinDeviationBPS); err != nil {
 		return nil, err
 	}
 
@@ -164,7 +164,7 @@ func (k msgServer) UpdateSignalsAndInterval(
 	params := k.Keeper.GetParams(ctx)
 
 	// validate signal infos and interval
-	if err := types.ValidateSignalDeviations(msg.SignalDeviations, params.MaxSignals, params.MaxDeviationBPS, params.MinDeviationBPS); err != nil {
+	if err := types.ValidateSignalDeviations(ctx, msg.SignalDeviations, params.MaxSignals, params.MaxDeviationBPS, params.MinDeviationBPS); err != nil {
 		return nil, err
 	}
 
