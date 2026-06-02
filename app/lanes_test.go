@@ -54,7 +54,9 @@ func (s *AppTestSuite) SetupTest() {
 	dir := testutil.GetTempDir(s.T())
 	s.app = bandtesting.SetupWithCustomHome(false, dir)
 	s.txConfig = moduletestutil.MakeTestTxConfig()
-	ctx := s.app.NewUncachedContext(false, cmtproto.Header{})
+	ctx := s.app.NewUncachedContext(false, cmtproto.Header{
+		Time: time.Now(),
+	})
 
 	// Activate validators
 	for _, v := range bandtesting.Validators {
@@ -114,7 +116,7 @@ func (s *AppTestSuite) SetupTest() {
 	)
 	s.Require().NoError(err)
 
-	_, err = s.app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: s.app.LastBlockHeight() + 1})
+	_, err = s.app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: s.app.LastBlockHeight() + 1, Time: ctx.BlockTime()})
 	s.Require().NoError(err)
 
 	_, err = s.app.Commit()

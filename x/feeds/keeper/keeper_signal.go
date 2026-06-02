@@ -156,7 +156,11 @@ func (k Keeper) LockVoterPower(
 	voter sdk.AccAddress,
 	signals []types.Signal,
 ) error {
-	sumPower := types.SumPower(signals)
+	sumPower, err := types.SumPower(signals)
+	if err != nil {
+		return err
+	}
+
 	if err := k.restakeKeeper.SetLockedPower(ctx, voter, types.ModuleName, math.NewInt(sumPower)); err != nil {
 		return err
 	}

@@ -42,6 +42,11 @@ func (m *MsgSubmitSignalPrices) ValidateBasic() error {
 		return errorsmod.Wrap(err, "invalid validator address")
 	}
 
+	// Timestamp must be a positive Unix timestamp
+	if m.Timestamp <= 0 {
+		return sdkerrors.ErrInvalidRequest.Wrap("timestamp must be positive")
+	}
+
 	// Map to track signal IDs for duplicate check
 	signalIDSet := make(map[string]struct{})
 
