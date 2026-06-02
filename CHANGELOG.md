@@ -1,5 +1,16 @@
 # Changelog
 
+## [v3.1.4](https://github.com/bandprotocol/chain/releases/tag/v3.1.4)
+
+* (bump) Use CometBFT v0.38.23
+* (bump) Use go-owasm v0.3.2
+* (chain) update sum power logic
+
+## [v3.1.3](https://github.com/bandprotocol/chain/releases/tag/v3.1.3)
+
+* (bump) Update dependency versions
+* (chain) Allow soft deviation in tunnel to no longer be restricted by parameters
+
 ## [v3.1.2](https://github.com/bandprotocol/chain/releases/tag/v3.1.2)
 
 * (bump) Use CometBFT v0.38.21
