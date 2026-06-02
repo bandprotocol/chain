@@ -54,7 +54,9 @@ func (s *AppTestSuite) SetupTest() {
 	dir := testutil.GetTempDir(s.T())
 	s.app = bandtesting.SetupWithCustomHome(false, dir)
 	s.txConfig = moduletestutil.MakeTestTxConfig()
-	ctx := s.app.NewUncachedContext(false, cmtproto.Header{})
+	ctx := s.app.NewUncachedContext(false, cmtproto.Header{
+		Time: time.Now(),
+	})
 
 	// Activate validators
 	for _, v := range bandtesting.Validators {
