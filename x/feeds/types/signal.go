@@ -1,5 +1,7 @@
 package types
 
+import "math"
+
 // NewSignal creates a new signal
 func NewSignal(id string, power int64) Signal {
 	return Signal{
@@ -35,10 +37,15 @@ func (s *Signal) Validate() error {
 	return nil
 }
 
-// SumPower sums power from a list of signals
-func SumPower(signals []Signal) (sum int64) {
+// SumPower sums power from a list of signals.
+// It returns ErrInvalidSignal if the total power would overflow int64.
+func SumPower(signals []Signal) (int64, error) {
+	var sum int64
 	for _, signal := range signals {
+		if signal.Power > 0 && sum > math.MaxInt64-signal.Power {
+			return 0, ErrInvalidSignal.Wrap("total signal power overflows int64")
+		}
 		sum += signal.Power
 	}
-	return
+	return sum, nil
 }
