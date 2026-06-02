@@ -59,7 +59,7 @@ require (
 require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-sql-driver/mysql v1.8.1
-	github.com/lib/pq v1.10.9
+	github.com/lib/pq v1.12.0
 	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/segmentio/kafka-go v0.4.47
@@ -195,7 +195,6 @@ require (
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
-	github.com/lib/pq v1.12.0 // indirect
 	github.com/linxGnu/grocksdb v1.9.3 // indirect
 	github.com/manifoldco/promptui v0.9.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
@@ -210,8 +209,8 @@ require (
 	github.com/oasisprotocol/curve25519-voi v0.0.0-20230904125328-1f23a7beb09a // indirect
 	github.com/oklog/run v1.1.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
-	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/petermattis/goid v0.0.0-20250813065127-a731cc31b4fe // indirect
+	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
