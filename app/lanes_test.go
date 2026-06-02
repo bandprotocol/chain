@@ -116,7 +116,7 @@ func (s *AppTestSuite) SetupTest() {
 	)
 	s.Require().NoError(err)
 
-	_, err = s.app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: s.app.LastBlockHeight() + 1})
+	_, err = s.app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: s.app.LastBlockHeight() + 1, Time: ctx.BlockTime()})
 	s.Require().NoError(err)
 
 	_, err = s.app.Commit()
