@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+* (chain) Require the governance module account to create or edit data sources and oracle scripts
+
 ## [v3.1.4](https://github.com/bandprotocol/chain/releases/tag/v3.1.4)
 
 * (bump) Use CometBFT v0.38.23

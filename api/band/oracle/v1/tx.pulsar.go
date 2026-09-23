@@ -9096,10 +9096,11 @@ type MsgCreateDataSource struct {
 	Fee []*v1beta1.Coin `protobuf:"bytes,4,rep,name=fee,proto3" json:"fee,omitempty"`
 	// Treasury is the account address who receive data source fee from requester.
 	Treasury string `protobuf:"bytes,5,opt,name=treasury,proto3" json:"treasury,omitempty"`
-	// Owner is the account address who is allowed to make further changes to the
-	// data source.
+	// Owner is the account address recorded as the owner of the data source.
+	// Changes to the data source go through governance regardless of owner.
 	Owner string `protobuf:"bytes,6,opt,name=owner,proto3" json:"owner,omitempty"`
-	// Sender is the signer of this message.
+	// Sender is the signer of this message. Must be the governance module
+	// account.
 	Sender string `protobuf:"bytes,7,opt,name=sender,proto3" json:"sender,omitempty"`
 }
 
@@ -9220,11 +9221,11 @@ type MsgEditDataSource struct {
 	Fee []*v1beta1.Coin `protobuf:"bytes,5,rep,name=fee,proto3" json:"fee,omitempty"`
 	// Treasury is the address who receive data source fee from requester.
 	Treasury string `protobuf:"bytes,6,opt,name=treasury,proto3" json:"treasury,omitempty"`
-	// Owner is the address who is allowed to make further changes to the data
-	// source.
+	// Owner is the address recorded as the owner of the data source. Changes to
+	// the data source go through governance regardless of owner.
 	Owner string `protobuf:"bytes,7,opt,name=owner,proto3" json:"owner,omitempty"`
-	// Sender is the signer of this message. Must be the current data source's
-	// owner.
+	// Sender is the signer of this message. Must be the governance module
+	// account.
 	Sender string `protobuf:"bytes,8,opt,name=sender,proto3" json:"sender,omitempty"`
 }
 
@@ -9348,10 +9349,11 @@ type MsgCreateOracleScript struct {
 	SourceCodeUrl string `protobuf:"bytes,4,opt,name=source_code_url,json=sourceCodeUrl,proto3" json:"source_code_url,omitempty"`
 	// Code is the oracle WebAssembly binary code. Can be raw of gzip compressed.
 	Code []byte `protobuf:"bytes,5,opt,name=code,proto3" json:"code,omitempty"`
-	// Owner is the address who is allowed to make further changes to the oracle
-	// script.
+	// Owner is the address recorded as the owner of the oracle script. Changes
+	// to the oracle script go through governance regardless of owner.
 	Owner string `protobuf:"bytes,6,opt,name=owner,proto3" json:"owner,omitempty"`
-	// Sender is the signer of this message.
+	// Sender is the signer of this message. Must be the governance module
+	// account.
 	Sender string `protobuf:"bytes,7,opt,name=sender,proto3" json:"sender,omitempty"`
 }
 
@@ -9471,11 +9473,11 @@ type MsgEditOracleScript struct {
 	SourceCodeUrl string `protobuf:"bytes,5,opt,name=source_code_url,json=sourceCodeUrl,proto3" json:"source_code_url,omitempty"`
 	// Code is the oracle WebAssembly binary code. Can be raw of gzip compressed.
 	Code []byte `protobuf:"bytes,6,opt,name=code,proto3" json:"code,omitempty"`
-	// Owner is an account address who is allowed to make further changes to the
-	// oracle script.
+	// Owner is the address recorded as the owner of the oracle script. Changes
+	// to the oracle script go through governance regardless of owner.
 	Owner string `protobuf:"bytes,7,opt,name=owner,proto3" json:"owner,omitempty"`
-	// Sender is an account address who sign this message. Must be the current
-	// oracle script's owner.
+	// Sender is the signer of this message. Must be the governance module
+	// account.
 	Sender string `protobuf:"bytes,8,opt,name=sender,proto3" json:"sender,omitempty"`
 }
 
