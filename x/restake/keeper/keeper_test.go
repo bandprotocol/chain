@@ -112,7 +112,9 @@ func (suite *KeeperTestSuite) SetupTest() {
 	key := storetypes.NewKVStoreKey(types.StoreKey)
 	suite.storeKey = key
 	testCtx := testutil.DefaultContextWithDB(suite.T(), key, storetypes.NewTransientStoreKey("transient_test"))
-	suite.ctx = testCtx.Ctx.WithBlockHeader(tmproto.Header{Time: tmtime.Now()})
+	// Set TxBytes so the staking hooks run their locked-power check, which applies
+	// within a transaction context.
+	suite.ctx = testCtx.Ctx.WithBlockHeader(tmproto.Header{Time: tmtime.Now()}).WithTxBytes([]byte("test-tx"))
 	encCfg := moduletestutil.MakeTestEncodingConfig()
 	moduleAccount := authtypes.NewEmptyModuleAccount(types.ModuleName)
 

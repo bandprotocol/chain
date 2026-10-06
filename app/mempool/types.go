@@ -36,6 +36,10 @@ func NewLaneTxMatchFn(msgs []sdk.Msg, onlyFree bool) TxMatchFn {
 			if err != nil {
 				return false
 			}
+			// A MsgExec with no inner messages matches nothing (at any depth).
+			if len(subMsgs) == 0 {
+				return false
+			}
 			for _, m := range subMsgs {
 				if !matchMsgFn(m) {
 					return false
