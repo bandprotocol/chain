@@ -286,8 +286,8 @@ github.com/axelarnetwork/utils v0.0.0-20230706045331-b7aacc1f4a2f h1:Q0Qh79MuZ/P
 github.com/axelarnetwork/utils v0.0.0-20230706045331-b7aacc1f4a2f/go.mod h1:7N7/Qo5WOm8HnwCtWvQs7T5QQLwVoLU/v+KkMLrvxiA=
 github.com/bandprotocol/bothan/bothan-api/client/go-client v0.1.0 h1:AqFN9aFULbbZ0KhuPiDrZr/kD9rSbuQTHkBsqXtTBEk=
 github.com/bandprotocol/bothan/bothan-api/client/go-client v0.1.0/go.mod h1:asjZU5T9egDCL3xN90Ilsu8TXaq606c68nWVscsV/js=
-github.com/bandprotocol/go-owasm v0.3.2 h1:+lGPoI/EEC103JZEM98tWHULmm2tvjSp+NrO5crmmgY=
-github.com/bandprotocol/go-owasm v0.3.2/go.mod h1:mPt4Za8JYYWxnEvY5+FLJB1yiGirYZGVySxOrAWQioo=
+github.com/bandprotocol/go-owasm v0.3.3 h1:1sriDia9ftmminO6M+8u95MYE9hfye+R5CjH9rjKoKI=
+github.com/bandprotocol/go-owasm v0.3.3/go.mod h1:mPt4Za8JYYWxnEvY5+FLJB1yiGirYZGVySxOrAWQioo=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
