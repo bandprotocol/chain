@@ -53,6 +53,13 @@ func (h Hooks) BeforeDelegationSharesModified(_ context.Context, _ sdk.AccAddres
 func (h Hooks) BeforeDelegationRemoved(ctx context.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
+	// The locked-power check applies to delegation changes made within a
+	// transaction (TxBytes set). Changes made outside a transaction context
+	// (empty TxBytes) are not subject to it.
+	if len(sdkCtx.TxBytes()) == 0 {
+		return nil
+	}
+
 	delegated, err := h.k.stakingKeeper.GetDelegatorBonded(sdkCtx, delAddr)
 	if err != nil {
 		return err
@@ -83,6 +90,11 @@ func (h Hooks) BeforeDelegationRemoved(ctx context.Context, delAddr sdk.AccAddre
 // AfterDelegationModified checks if after delegation is modified, the locked power is still less than total delegation
 func (h Hooks) AfterDelegationModified(ctx context.Context, delAddr sdk.AccAddress, _ sdk.ValAddress) error {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
+
+	// The locked-power check applies only within a transaction context (TxBytes set).
+	if len(sdkCtx.TxBytes()) == 0 {
+		return nil
+	}
 
 	// get total delegation
 	delegated, err := h.k.stakingKeeper.GetDelegatorBonded(sdkCtx, delAddr)
