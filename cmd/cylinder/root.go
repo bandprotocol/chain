@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/hex"
+	"fmt"
 	"os"
 	"path"
 	"path/filepath"
@@ -15,6 +16,7 @@ import (
 
 	"cosmossdk.io/log"
 
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/version"
@@ -90,7 +92,7 @@ func createPersistentPreRunE(rootCmd *cobra.Command, ctx *context.Context) func(
 	cmd *cobra.Command,
 	args []string,
 ) error {
-	return func(_ *cobra.Command, _ []string) error {
+	return func(c *cobra.Command, _ []string) error {
 		// create home directory
 		home, err := rootCmd.PersistentFlags().GetString(flags.FlagHome)
 		if err != nil {
@@ -142,7 +144,27 @@ func createPersistentPreRunE(rootCmd *cobra.Command, ctx *context.Context) func(
 		}
 		*ctx = *newCtx
 
-		return initConfig(ctx, rootCmd)
+		if err := initConfig(ctx, rootCmd); err != nil {
+			return err
+		}
+
+		// set up client context if nodeURI is provided
+		if ctx.Config.NodeURI != "" {
+			clientCtx := client.GetClientContextFromCmd(c)
+
+			newClient, err := client.NewClientFromNode(ctx.Config.NodeURI)
+			if err != nil {
+				return fmt.Errorf("couldn't get client from nodeURI: %v", err)
+			}
+
+			clientCtx = clientCtx.WithNodeURI(ctx.Config.NodeURI).WithClient(newClient)
+
+			if err := client.SetCmdClientContext(c, clientCtx); err != nil {
+				return err
+			}
+		}
+
+		return nil
 	}
 }
 
