@@ -67,12 +67,19 @@ func CreateLanes(app *BandApp) []*mempool.Lane {
 		app.Logger(),
 		app.txConfig.TxEncoder(),
 		"oracleRequestLane",
-		mempool.NewLaneTxMatchFn(
+		mempool.NewLaneTxMatchFnWithPredicates(
 			[]sdk.Msg{
 				&oracletypes.MsgRequestData{},
-				&channeltypes.MsgRecvPacket{}, // TODO: Only match oracle request packet
+				&channeltypes.MsgRecvPacket{},
 			},
 			false,
+			mempool.MsgMatchPredicate{
+				Msg: &channeltypes.MsgRecvPacket{},
+				Predicate: func(msg sdk.Msg) bool {
+					recvPacket, ok := msg.(*channeltypes.MsgRecvPacket)
+					return ok && recvPacket.Packet.DestinationPort == oracletypes.PortID
+				},
+			},
 		),
 		math.LegacyMustNewDecFromStr("0.1"),
 		math.LegacyMustNewDecFromStr("0.1"),

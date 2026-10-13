@@ -5,6 +5,7 @@
 * (bump) Use go-owasm v0.3.3
 * (restake) Apply the locked-power check only within a transaction context
 * (mempool) Ignore authz MsgExec with no inner messages in lane matching
+* (mempool) Match only oracle IBC receive packets in the oracle request lane
 
 ## [v3.1.4](https://github.com/bandprotocol/chain/releases/tag/v3.1.4)
 
