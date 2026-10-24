@@ -45,13 +45,13 @@ We recommend the following for running a BandChain Validator:
 
 **Step 1. Install Golang**
 
-Go v1.24+ or higher is required for BandChain.
+Go 1.24.2 or later is required for BandChain (see [`go.mod`](go.mod)).
 
 If you haven't already, install Golang by following the [official docs](https://golang.org/doc/install). Make sure that your GOPATH and GOBIN environment variables are properly set up.
 
 **Step 2. Get BandChain source code**
 
-Use `git` to retrieve BandChain from the [official repo](https://github.com/bandprotocol/chain), and checkout the master branch, which contains the latest stable release. That should install the `bandd` binary.
+Use `git` to retrieve BandChain from the [official repo](https://github.com/bandprotocol/chain). The example below checks out the `v3.1.0` release tag and installs the `bandd` binary. Select the release tag required by your network before running `make install`.
 
 ```bash
 git clone https://github.com/bandprotocol/chain
