@@ -8,6 +8,13 @@
     - name: transaction
       using:
         foreign_key_constraint_on: transaction_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: accounts
     schema: public
@@ -188,6 +195,13 @@
           table:
             name: votes
             schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: bandtss_group_transitions
     schema: public
@@ -207,6 +221,13 @@
     - name: tss_signing
       using:
         foreign_key_constraint_on: tss_signing_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: bandtss_historical_current_groups
     schema: public
@@ -220,6 +241,13 @@
     - name: tss_group
       using:
         foreign_key_constraint_on: current_tss_group_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: bandtss_members
     schema: public
@@ -230,6 +258,13 @@
     - name: tss_group
       using:
         foreign_key_constraint_on: tss_group_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: bandtss_signings
     schema: public
@@ -251,6 +286,13 @@
           table:
             name: requests
             schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: blocks
     schema: public
@@ -329,6 +371,13 @@
           table:
             name: validator_votes
             schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: channels
     schema: public
@@ -367,6 +416,13 @@
           remote_table:
             name: relayer_tx_stat_days
             schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: connections
     schema: public
@@ -389,6 +445,13 @@
           table:
             name: interchain_accounts
             schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: counterparty_chains
     schema: public
@@ -400,9 +463,23 @@
           table:
             name: connections
             schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: current_prices
     schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: data_source_requests
     schema: public
@@ -410,6 +487,13 @@
     - name: data_source
       using:
         foreign_key_constraint_on: data_source_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: data_source_requests_per_days
     schema: public
@@ -417,9 +501,23 @@
     - name: data_source
       using:
         foreign_key_constraint_on: data_source_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: data_source_statistic_last_1_day
     schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: data_sources
     schema: public
@@ -456,6 +554,13 @@
           table:
             name: related_data_source_oracle_scripts
             schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: delegations
     schema: public
@@ -466,9 +571,23 @@
     - name: validator
       using:
         foreign_key_constraint_on: validator_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: delegations_view
     schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: deposits
     schema: public
@@ -482,6 +601,13 @@
     - name: transaction
       using:
         foreign_key_constraint_on: tx_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: feeds_feeders
     schema: public
@@ -489,12 +615,33 @@
     - name: account
       using:
         foreign_key_constraint_on: feeder_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: feeds_historical_prices
     schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: feeds_reference_source_configs
     schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: feeds_signal_prices_txs
     schema: public
@@ -508,9 +655,23 @@
     - name: validator
       using:
         foreign_key_constraint_on: validator_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: feeds_signal_total_powers
     schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: feeds_validator_prices
     schema: public
@@ -521,6 +682,13 @@
     - name: validator
       using:
         foreign_key_constraint_on: validator_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: feeds_voter_signals
     schema: public
@@ -528,6 +696,13 @@
     - name: account
       using:
         foreign_key_constraint_on: account_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: historical_bonded_token_on_validators
     schema: public
@@ -535,9 +710,23 @@
     - name: validator
       using:
         foreign_key_constraint_on: validator_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: historical_oracle_statuses
     schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: incoming_packets
     schema: public
@@ -558,6 +747,13 @@
     - name: transaction
       using:
         foreign_key_constraint_on: tx_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: interchain_accounts
     schema: public
@@ -568,9 +764,23 @@
     - name: connection
       using:
         foreign_key_constraint_on: connection_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: non_validator_vote_proposals_view
     schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: oracle_script_requests
     schema: public
@@ -578,6 +788,13 @@
     - name: oracle_script
       using:
         foreign_key_constraint_on: oracle_script_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: oracle_script_requests_per_days
     schema: public
@@ -585,15 +802,43 @@
     - name: oracle_script
       using:
         foreign_key_constraint_on: oracle_script_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: oracle_script_statistic_last_1_day
     schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: oracle_script_statistic_last_1_month
     schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: oracle_script_statistic_last_1_week
     schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: oracle_scripts
     schema: public
@@ -630,6 +875,13 @@
           table:
             name: requests
             schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: outgoing_packets
     schema: public
@@ -650,9 +902,23 @@
     - name: transaction
       using:
         foreign_key_constraint_on: tx_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: proposal_total_votes
     schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: proposals
     schema: public
@@ -696,6 +962,13 @@
           table:
             name: votes
             schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: raw_reports
     schema: public
@@ -720,6 +993,13 @@
           remote_table:
             name: reports
             schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: raw_requests
     schema: public
@@ -741,6 +1021,13 @@
           remote_table:
             name: raw_reports
             schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: redelegations
     schema: public
@@ -754,6 +1041,13 @@
     - name: validator_by_validator_src_id
       using:
         foreign_key_constraint_on: validator_src_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: related_data_source_oracle_scripts
     schema: public
@@ -764,6 +1058,13 @@
     - name: oracle_script
       using:
         foreign_key_constraint_on: oracle_script_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: relayer_tx_stat_days
     schema: public
@@ -778,6 +1079,13 @@
           remote_table:
             name: channels
             schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: reporters
     schema: public
@@ -785,6 +1093,13 @@
     - name: account
       using:
         foreign_key_constraint_on: reporter_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: reports
     schema: public
@@ -812,9 +1127,23 @@
           remote_table:
             name: raw_reports
             schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: request_count_per_days
     schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: requests
     schema: public
@@ -853,6 +1182,13 @@
           table:
             name: val_requests
             schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: restake_historical_stakes
     schema: public
@@ -860,6 +1196,13 @@
     - name: account
       using:
         foreign_key_constraint_on: account_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: restake_locks
     schema: public
@@ -873,6 +1216,13 @@
     - name: transaction
       using:
         foreign_key_constraint_on: transaction_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: restake_vaults
     schema: public
@@ -884,9 +1234,23 @@
           table:
             name: restake_locks
             schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: tracking
     schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: transactions
     schema: public
@@ -993,6 +1357,13 @@
           table:
             name: votes
             schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: tss_assigned_members
     schema: public
@@ -1016,6 +1387,13 @@
     - name: tss_signing
       using:
         foreign_key_constraint_on: tss_signing_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: tss_groups
     schema: public
@@ -1069,6 +1447,13 @@
           table:
             name: tss_signings
             schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: tss_members
     schema: public
@@ -1090,6 +1475,13 @@
           remote_table:
             name: tss_assigned_members
             schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: tss_signings
     schema: public
@@ -1129,6 +1521,13 @@
           table:
             name: tss_assigned_members
             schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: tunnel_deposits
     schema: public
@@ -1139,6 +1538,13 @@
     - name: tunnel
       using:
         foreign_key_constraint_on: tunnel_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: tunnel_historical_deposits
     schema: public
@@ -1152,6 +1558,13 @@
     - name: tunnel
       using:
         foreign_key_constraint_on: tunnel_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: tunnel_historical_produce_packet_fails
     schema: public
@@ -1159,6 +1572,13 @@
     - name: tunnel
       using:
         foreign_key_constraint_on: tunnel_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: tunnel_historical_signal_deviations
     schema: public
@@ -1166,6 +1586,13 @@
     - name: tunnel
       using:
         foreign_key_constraint_on: tunnel_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: tunnel_packet_prices
     schema: public
@@ -1180,6 +1607,13 @@
           remote_table:
             name: tunnel_packets
             schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: tunnel_packets
     schema: public
@@ -1198,6 +1632,13 @@
           remote_table:
             name: tunnel_packet_prices
             schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: tunnels
     schema: public
@@ -1244,6 +1685,13 @@
           table:
             name: tunnel_packets
             schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: unbonding_delegations
     schema: public
@@ -1257,6 +1705,13 @@
     - name: validator
       using:
         foreign_key_constraint_on: validator_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: val_requests
     schema: public
@@ -1267,24 +1722,73 @@
     - name: validator
       using:
         foreign_key_constraint_on: validator_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: validator_last_10000_votes
     schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: validator_last_1000_votes
     schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: validator_last_100_votes
     schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: validator_last_250_votes
     schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: validator_report_count
     schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: validator_vote_proposals_view
     schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: validator_votes
     schema: public
@@ -1295,6 +1799,13 @@
     - name: validator
       using:
         foreign_key_constraint_on: consensus_address
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: validators
     schema: public
@@ -1389,9 +1900,23 @@
           table:
             name: validator_votes
             schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: voter_power_aggregate
     schema: public
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
 - table:
     name: votes
     schema: public
@@ -1405,3 +1930,10 @@
     - name: transaction
       using:
         foreign_key_constraint_on: tx_id
+  select_permissions:
+    - role: anonymous
+      permission:
+        columns: '*'
+        filter: {}
+        limit: 1000
+        allow_aggregations: true
