@@ -19,7 +19,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/axelarnetwork/utils v0.0.0-20230706045331-b7aacc1f4a2f
 	github.com/bandprotocol/bothan/bothan-api/client/go-client v0.1.0
-	github.com/bandprotocol/go-owasm v0.3.2
+	github.com/bandprotocol/go-owasm v0.3.3
 	github.com/bytecodealliance/wasmtime-go/v20 v20.0.0
 	github.com/cometbft/cometbft v0.38.23
 	github.com/cometbft/cometbft-db v0.14.2

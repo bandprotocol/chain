@@ -4,6 +4,12 @@
 
 * (chain) Require the governance module account to create or edit data sources and oracle scripts
 
+## [v3.1.5](https://github.com/bandprotocol/chain/releases/tag/v3.1.5)
+
+* (bump) Use go-owasm v0.3.3
+* (restake) Apply the locked-power check only within a transaction context
+* (mempool) Ignore authz MsgExec with no inner messages in lane matching
+
 ## [v3.1.4](https://github.com/bandprotocol/chain/releases/tag/v3.1.4)
 
 * (bump) Use CometBFT v0.38.23

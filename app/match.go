@@ -50,6 +50,11 @@ func isValidMsgSubmitSignalPrices(
 			return false
 		}
 
+		// A MsgExec with no inner messages matches nothing.
+		if len(msgs) == 0 {
+			return false
+		}
+
 		grantee, err := sdk.AccAddressFromBech32(msg.Grantee)
 		if err != nil {
 			return false
@@ -143,6 +148,11 @@ func isValidTSSTxMsg(
 			return false
 		}
 
+		// A MsgExec with no inner messages matches nothing.
+		if len(msgs) == 0 {
+			return false
+		}
+
 		grantee, err := sdk.AccAddressFromBech32(msg.Grantee)
 		if err != nil {
 			return false
@@ -209,6 +219,11 @@ func isValidMsgReportData(
 	case *authz.MsgExec:
 		msgs, err := msg.GetMessages()
 		if err != nil {
+			return false
+		}
+
+		// A MsgExec with no inner messages matches nothing.
+		if len(msgs) == 0 {
 			return false
 		}
 
