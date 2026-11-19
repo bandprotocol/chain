@@ -12,28 +12,19 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/bandprotocol/chain/v3/testing/testdata"
 	"github.com/bandprotocol/chain/v3/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 // Simulation operation weights constants
 const (
-	OpWeightMsgRequestData        = "op_weight_msg_request_data"
-	OpWeightMsgReportData         = "op_weight_msg_report_data"
-	OpWeightMsgCreateDataSource   = "op_weight_msg_create_data_source"
-	OpWeightMsgEditDataSource     = "op_weight_msg_edit_data_source"
-	OpWeightMsgCreateOracleScript = "op_weight_msg_create_oracle_script"
-	OpWeightMsgEditOracleScript   = "op_weight_msg_edit_oracle_script"
-	OpWeightMsgActivate           = "op_weight_msg_activate"
+	OpWeightMsgRequestData = "op_weight_msg_request_data"
+	OpWeightMsgReportData  = "op_weight_msg_report_data"
+	OpWeightMsgActivate    = "op_weight_msg_activate"
 
-	DefaultWeightMsgRequestData        int = 100
-	DefaultWeightMsgReportData         int = 100
-	DefaultWeightMsgCreateDataSource   int = 100
-	DefaultWeightMsgEditDataSource     int = 100
-	DefaultWeightMsgCreateOracleScript int = 100
-	DefaultWeightMsgEditOracleScript   int = 100
-	DefaultWeightMsgActivate           int = 100
+	DefaultWeightMsgRequestData int = 100
+	DefaultWeightMsgReportData  int = 100
+	DefaultWeightMsgActivate    int = 100
 )
 
 type BankKeeper interface {
@@ -50,13 +41,9 @@ func WeightedOperations(
 	k keeper.Keeper,
 ) simulation.WeightedOperations {
 	var (
-		weightMsgRequestData        int
-		weightMsgReportData         int
-		weightMsgCreateDataSource   int
-		weightMsgEditDataSource     int
-		weightMsgCreateOracleScript int
-		weightMsgEditOracleScript   int
-		weightMsgActivate           int
+		weightMsgRequestData int
+		weightMsgReportData  int
+		weightMsgActivate    int
 	)
 
 	appParams.GetOrGenerate(OpWeightMsgRequestData, &weightMsgRequestData, nil,
@@ -68,30 +55,6 @@ func WeightedOperations(
 	appParams.GetOrGenerate(OpWeightMsgReportData, &weightMsgReportData, nil,
 		func(_ *rand.Rand) {
 			weightMsgReportData = DefaultWeightMsgReportData
-		},
-	)
-
-	appParams.GetOrGenerate(OpWeightMsgCreateDataSource, &weightMsgCreateDataSource, nil,
-		func(_ *rand.Rand) {
-			weightMsgCreateDataSource = DefaultWeightMsgCreateDataSource
-		},
-	)
-
-	appParams.GetOrGenerate(OpWeightMsgEditDataSource, &weightMsgEditDataSource, nil,
-		func(_ *rand.Rand) {
-			weightMsgEditDataSource = DefaultWeightMsgEditDataSource
-		},
-	)
-
-	appParams.GetOrGenerate(OpWeightMsgCreateOracleScript, &weightMsgCreateOracleScript, nil,
-		func(_ *rand.Rand) {
-			weightMsgCreateOracleScript = DefaultWeightMsgCreateOracleScript
-		},
-	)
-
-	appParams.GetOrGenerate(OpWeightMsgEditOracleScript, &weightMsgEditOracleScript, nil,
-		func(_ *rand.Rand) {
-			weightMsgEditOracleScript = DefaultWeightMsgEditOracleScript
 		},
 	)
 
@@ -109,22 +72,6 @@ func WeightedOperations(
 		simulation.NewWeightedOperation(
 			weightMsgReportData,
 			SimulateMsgReportData(ak, bk, sk, k),
-		),
-		simulation.NewWeightedOperation(
-			weightMsgCreateDataSource,
-			SimulateMsgCreateDataSource(ak, bk, sk, k),
-		),
-		simulation.NewWeightedOperation(
-			weightMsgEditDataSource,
-			SimulateMsgEditDataSource(ak, bk, sk, k),
-		),
-		simulation.NewWeightedOperation(
-			weightMsgCreateOracleScript,
-			SimulateMsgCreateOracleScript(ak, bk, sk, k),
-		),
-		simulation.NewWeightedOperation(
-			weightMsgEditOracleScript,
-			SimulateMsgEditOracleScript(ak, bk, sk, k),
 		),
 		simulation.NewWeightedOperation(
 			weightMsgActivate,
@@ -286,165 +233,6 @@ func SimulateMsgReportData(
 			RequestID:  rid,
 			RawReports: rawReports,
 			Validator:  sdk.ValAddress(simAccount.Address).String(),
-		}
-
-		txCtx := BuildOperationInput(r, app, ctx, &msg, simAccount, ak, bk, sk, nil)
-
-		return simulation.GenAndDeliverTxWithRandFees(txCtx)
-	}
-}
-
-// SimulateMsgCreateDataSource generates a MsgCreateDataSource with random values
-func SimulateMsgCreateDataSource(
-	ak types.AccountKeeper,
-	bk simulation.BankKeeper,
-	sk types.StakingKeeper,
-	keeper keeper.Keeper,
-) simtypes.Operation {
-	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
-		simAccount, _ := simtypes.RandomAcc(r, accs)
-		ownerAccount, _ := simtypes.RandomAcc(r, accs)
-		treaAccount, _ := simtypes.RandomAcc(r, accs)
-
-		// Generate create data source message
-		msg := types.MsgCreateDataSource{
-			Sender:      simAccount.Address.String(),
-			Name:        simtypes.RandStringOfLength(r, 10),
-			Description: simtypes.RandStringOfLength(r, 100),
-			Executable:  []byte(simtypes.RandStringOfLength(r, 100)),
-			Fee:         sdk.NewCoins(sdk.NewInt64Coin("uband", 0)),
-			Treasury:    treaAccount.Address.String(),
-			Owner:       ownerAccount.Address.String(),
-		}
-
-		txCtx := BuildOperationInput(r, app, ctx, &msg, simAccount, ak, bk, sk, nil)
-
-		return simulation.GenAndDeliverTxWithRandFees(txCtx)
-	}
-}
-
-// SimulateMsgEditDataSource generates a MsgEditDataSource with random values
-func SimulateMsgEditDataSource(
-	ak types.AccountKeeper,
-	bk simulation.BankKeeper,
-	sk types.StakingKeeper,
-	keeper keeper.Keeper,
-) simtypes.Operation {
-	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
-		msgType := sdk.MsgTypeURL(&types.MsgEditDataSource{})
-		var simAccount simtypes.Account
-		ownerAccount, _ := simtypes.RandomAcc(r, accs)
-		treaAccount, _ := simtypes.RandomAcc(r, accs)
-
-		// Get available data source that is owned by our account
-		dCount := keeper.GetDataSourceCount(ctx)
-		did := types.DataSourceID(0)
-		for i := uint64(1); i <= dCount; i++ {
-			os, _ := keeper.GetDataSource(ctx, types.DataSourceID(i))
-			acc, ok := simtypes.FindAccount(accs, sdk.MustAccAddressFromBech32(os.Owner))
-			if ok {
-				simAccount = acc
-				did = types.DataSourceID(i)
-				break
-			}
-		}
-
-		if did == 0 {
-			return simtypes.NoOpMsg(
-				types.ModuleName,
-				msgType,
-				"no data source available",
-			), nil, nil
-		}
-
-		// Generate edit data source message
-		msg := types.MsgEditDataSource{
-			Sender:       simAccount.Address.String(),
-			DataSourceID: did,
-			Name:         simtypes.RandStringOfLength(r, 10),
-			Description:  simtypes.RandStringOfLength(r, 100),
-			Executable:   []byte(simtypes.RandStringOfLength(r, 100)),
-			Fee:          sdk.NewCoins(sdk.NewInt64Coin("uband", 0)),
-			Treasury:     treaAccount.Address.String(),
-			Owner:        ownerAccount.Address.String(),
-		}
-
-		txCtx := BuildOperationInput(r, app, ctx, &msg, simAccount, ak, bk, sk, nil)
-
-		return simulation.GenAndDeliverTxWithRandFees(txCtx)
-	}
-}
-
-// SimulateMsgCreateOracleScript generates a MsgCreateOracleScript with random values
-func SimulateMsgCreateOracleScript(
-	ak types.AccountKeeper,
-	bk simulation.BankKeeper,
-	sk types.StakingKeeper,
-	keeper keeper.Keeper,
-) simtypes.Operation {
-	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
-		simAccount, _ := simtypes.RandomAcc(r, accs)
-		ownerAccount, _ := simtypes.RandomAcc(r, accs)
-
-		// Generate create oracle script message
-		msg := types.MsgCreateOracleScript{
-			Sender:        simAccount.Address.String(),
-			Name:          simtypes.RandStringOfLength(r, 10),
-			Description:   simtypes.RandStringOfLength(r, 100),
-			Schema:        simtypes.RandStringOfLength(r, 100),
-			SourceCodeURL: simtypes.RandStringOfLength(r, 100),
-			Code:          testdata.Wasm1,
-			Owner:         ownerAccount.Address.String(),
-		}
-
-		txCtx := BuildOperationInput(r, app, ctx, &msg, simAccount, ak, bk, sk, nil)
-
-		return simulation.GenAndDeliverTxWithRandFees(txCtx)
-	}
-}
-
-// SimulateMsgEditOracleScript generates a MsgEditOracleScript with random values
-func SimulateMsgEditOracleScript(
-	ak types.AccountKeeper,
-	bk simulation.BankKeeper,
-	sk types.StakingKeeper,
-	keeper keeper.Keeper,
-) simtypes.Operation {
-	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
-		msgType := sdk.MsgTypeURL(&types.MsgEditOracleScript{})
-		var simAccount simtypes.Account
-
-		// Get available oracle script that we will edit it
-		oCount := keeper.GetOracleScriptCount(ctx)
-		oid := types.OracleScriptID(0)
-		for i := uint64(1); i <= oCount; i++ {
-			os, _ := keeper.GetOracleScript(ctx, types.OracleScriptID(i))
-			acc, ok := simtypes.FindAccount(accs, sdk.MustAccAddressFromBech32(os.Owner))
-			if ok {
-				simAccount = acc
-				oid = types.OracleScriptID(i)
-				break
-			}
-		}
-
-		if oid == 0 {
-			return simtypes.NoOpMsg(
-				types.ModuleName,
-				msgType,
-				"no oracle script available",
-			), nil, nil
-		}
-
-		// Generate edit oracle script message
-		msg := types.MsgEditOracleScript{
-			Sender:         simAccount.Address.String(),
-			OracleScriptID: oid,
-			Name:           simtypes.RandStringOfLength(r, 10),
-			Description:    simtypes.RandStringOfLength(r, 100),
-			Schema:         simtypes.RandStringOfLength(r, 100),
-			SourceCodeURL:  simtypes.RandStringOfLength(r, 100),
-			Code:           testdata.Wasm1,
-			Owner:          simAccount.Address.String(),
 		}
 
 		txCtx := BuildOperationInput(r, app, ctx, &msg, simAccount, ak, bk, sk, nil)
