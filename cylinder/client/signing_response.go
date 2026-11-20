@@ -18,13 +18,23 @@ func NewSigningResponse(gr *types.QuerySigningResponse) *SigningResponse {
 }
 
 // GetMemberIDs returns all assigned member's id of the assigned members
+// It returns nil if the signing has no current attempt (e.g. it already expired on chain).
 func (sr SigningResponse) GetMemberIDs() []tss.MemberID {
+	if sr.SigningResult.CurrentSigningAttempt == nil {
+		return nil
+	}
+
 	assignedMembers := types.AssignedMembers(sr.SigningResult.CurrentSigningAttempt.AssignedMembers)
 	return assignedMembers.MemberIDs()
 }
 
 // GetAssignedMember returns assigned member of the specific address
 func (sr SigningResponse) GetAssignedMember(address string) (types.AssignedMember, error) {
+	// The chain drops the current attempt once a signing expires, so a late query has none.
+	if sr.SigningResult.CurrentSigningAttempt == nil {
+		return types.AssignedMember{}, fmt.Errorf("signing %d has no current attempt", sr.SigningResult.Signing.ID)
+	}
+
 	for _, am := range sr.SigningResult.CurrentSigningAttempt.AssignedMembers {
 		if am.Address == address {
 			return am, nil

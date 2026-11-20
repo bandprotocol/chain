@@ -2,6 +2,7 @@ package signing
 
 import (
 	"fmt"
+	"sync/atomic"
 	"time"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -163,10 +164,11 @@ func (s *Signing) handleSigning(sid tss.SigningID) {
 	}
 
 	// Send MsgSigning
-	s.reqID += 1
+	// handleSigning runs in one goroutine per signing, so reqID must be updated atomically.
+	reqID := atomic.AddUint64(&s.reqID, 1)
 	s.context.MsgRequestCh <- msg.NewRequest(
 		msg.RequestTypeSubmitSignature,
-		s.reqID,
+		reqID,
 		types.NewMsgSubmitSignature(sid, group.MemberID, sig, s.context.Config.Granter),
 		3,
 	)

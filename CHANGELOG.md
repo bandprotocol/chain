@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+* (cylinder) Fix data races in DE cache and signing request IDs, and handle signings without a current attempt
 * (bump) Use go-owasm v0.3.3
 * (restake) Apply the locked-power check only within a transaction context
 * (mempool) Ignore authz MsgExec with no inner messages in lane matching
