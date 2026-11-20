@@ -347,7 +347,6 @@ func (u *UpdateDE) listenMsgResponses() {
 			u.deCounter.AfterDEsRejected(lenDEs)
 			u.logger.Debug(":eyes: deCounter after AfterDEsRejected [listenMsgResponses]: %s", u.deCounter.String())
 		}
-
 	}
 }
 
