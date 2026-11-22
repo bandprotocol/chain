@@ -28,6 +28,7 @@ type BankKeeper interface {
 	SendCoinsFromModuleToModule(ctx context.Context, senderModule, recipientModule string, amt sdk.Coins) error
 	SendCoins(ctx context.Context, from, to sdk.AccAddress, amt sdk.Coins) error
 	SpendableCoins(ctx context.Context, addr sdk.AccAddress) sdk.Coins
+	BlockedAddr(addr sdk.AccAddress) bool
 }
 
 // StakingKeeper defines the expected staking keeper.

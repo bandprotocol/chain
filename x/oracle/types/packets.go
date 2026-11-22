@@ -47,6 +47,12 @@ func (p OracleRequestPacketData) ValidateBasic() error {
 	if p.ExecuteGas <= 0 {
 		return ErrInvalidOwasmGas.Wrapf("invalid execute gas: %d", p.ExecuteGas)
 	}
+	if p.PrepareGas > MaximumOwasmGas {
+		return ErrInvalidOwasmGas.Wrapf("prepare gas (%d) exceed %d", p.PrepareGas, MaximumOwasmGas)
+	}
+	if p.ExecuteGas > MaximumOwasmGas {
+		return ErrInvalidOwasmGas.Wrapf("execute gas (%d) exceed %d", p.ExecuteGas, MaximumOwasmGas)
+	}
 	if p.PrepareGas+p.ExecuteGas > MaximumOwasmGas {
 		return ErrInvalidOwasmGas.Wrapf(
 			"sum of prepare gas and execute gas (%d) exceed %d",

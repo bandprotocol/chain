@@ -226,7 +226,11 @@ func (k Keeper) CollectFee(
 
 		fee := sdk.NewCoins()
 		for _, c := range ds.Fee {
-			c.Amount = c.Amount.Mul(math.NewInt(int64(askCount)))
+			amount, err := c.Amount.SafeMul(math.NewIntFromUint64(askCount))
+			if err != nil {
+				return nil, types.ErrNotEnoughFee.Wrapf("invalid fee for data source %d: %s", r.DataSourceID, err)
+			}
+			c.Amount = amount
 			fee = fee.Add(c)
 		}
 

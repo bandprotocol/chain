@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+* (oracle) Tighten request and data source parameter validation
+* (tunnel) Validate signal ID length
 * (bump) Use go-owasm v0.3.3
 * (restake) Apply the locked-power check only within a transaction context
 * (mempool) Ignore authz MsgExec with no inner messages in lane matching

@@ -486,10 +486,21 @@ func (m *MsgUpdateParams) ValidateBasic() error {
 	return nil
 }
 
-// validateUniqueSignalIDs checks if the SignalIDs in the given slice are unique
+// validateUniqueSignalIDs checks that the SignalIDs in the given slice are non-empty, within the
+// feeds module's signal ID length, and unique.
 func validateUniqueSignalIDs(signalDeviations []SignalDeviation) error {
 	signalIDMap := make(map[string]bool)
 	for _, sd := range signalDeviations {
+		if sd.SignalID == "" {
+			return sdkerrors.ErrInvalidRequest.Wrap("signal ID cannot be empty")
+		}
+		if uint64(len(sd.SignalID)) > feedstypes.MaxSignalIDCharacters {
+			return sdkerrors.ErrInvalidRequest.Wrapf(
+				"signal ID too long: maximum %d characters, got %d",
+				feedstypes.MaxSignalIDCharacters,
+				len(sd.SignalID),
+			)
+		}
 		if _, found := signalIDMap[sd.SignalID]; found {
 			return sdkerrors.ErrInvalidRequest.Wrapf("duplicate signal ID: %s", sd.SignalID)
 		}

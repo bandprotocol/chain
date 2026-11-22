@@ -110,6 +110,11 @@ func (k msgServer) CreateDataSource(
 		return nil, err
 	}
 
+	// Treasury must be a regular account.
+	if k.bankKeeper.BlockedAddr(treasury) {
+		return nil, types.ErrInvalidTreasury.Wrapf("%s is a blocked address", msg.Treasury)
+	}
+
 	id := k.AddDataSource(ctx, types.NewDataSource(
 		owner, msg.Name, msg.Description, k.AddExecutableFile(msg.Executable), msg.Fee, treasury,
 	))
@@ -151,6 +156,11 @@ func (k msgServer) EditDataSource(
 	treasury, err := sdk.AccAddressFromBech32(msg.Treasury)
 	if err != nil {
 		return nil, err
+	}
+
+	// Treasury must be a regular account.
+	if k.bankKeeper.BlockedAddr(treasury) {
+		return nil, types.ErrInvalidTreasury.Wrapf("%s is a blocked address", msg.Treasury)
 	}
 
 	// unzip if it's a zip file
