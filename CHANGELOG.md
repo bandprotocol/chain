@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [v3.2.0](https://github.com/bandprotocol/chain/releases/tag/v3.2.0)
 
 * (chain) Require the governance module account to create or edit data sources and oracle scripts
 
