@@ -29,27 +29,20 @@ func newFeeCollector(bankKeeper types.BankKeeper, feeLimit sdk.Coins, payer sdk.
 }
 
 func (coll *feeCollector) Collect(ctx sdk.Context, coins sdk.Coins, treasury sdk.AccAddress) error {
-	// Compare each fee with the remaining limit before adding it to the collected amount.
-	for _, c := range coins {
+	coll.collected = coll.collected.Add(coins...)
+
+	// If found any collected coin that exceed limit then return error
+	for _, c := range coll.collected {
 		limitAmt := coll.limit.AmountOf(c.Denom)
-		collectedAmt := coll.collected.AmountOf(c.Denom)
-		if c.Amount.GT(limitAmt.Sub(collectedAmt)) {
-			required, err := collectedAmt.SafeAdd(c.Amount)
-			requiredStr := required.String()
-			if err != nil {
-				requiredStr = "out of range"
-			}
+		if c.Amount.GT(limitAmt) {
 			return types.ErrNotEnoughFee.Wrapf(
-				"require: %s%s, max: %s%s",
-				requiredStr,
-				c.Denom,
+				"require: %s, max: %s%s",
+				c.String(),
 				limitAmt.String(),
 				c.Denom,
 			)
 		}
 	}
-
-	coll.collected = coll.collected.Add(coins...)
 
 	// Actual send coins
 	return coll.bankKeeper.SendCoins(ctx, coll.payer, treasury, coins)

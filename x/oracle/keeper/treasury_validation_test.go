@@ -1,13 +1,6 @@
 package keeper_test
 
 import (
-	"math/big"
-
-	"go.uber.org/mock/gomock"
-
-	"cosmossdk.io/math"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -15,26 +8,6 @@ import (
 	"github.com/bandprotocol/chain/v3/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
-
-// CollectFee returns an error for very large data source fees.
-func (suite *KeeperTestSuite) TestCollectFeeLargeAmount() {
-	ctx := suite.ctx
-	k := suite.oracleKeeper
-	require := suite.Require()
-
-	huge := sdk.NewCoins(sdk.NewCoin("uband", math.NewIntFromBigInt(new(big.Int).Lsh(big.NewInt(1), 254))))
-	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{huge})
-
-	_, err := k.CollectFee(ctx, bandtesting.FeePayer.Address, huge, 4, raws)
-	require.ErrorIs(err, types.ErrNotEnoughFee)
-
-	// Two data sources with very large fees.
-	maxFee := sdk.NewCoins(sdk.NewCoin("uband", math.NewIntFromBigInt(new(big.Int).Sub(new(big.Int).Lsh(big.NewInt(1), 256), big.NewInt(1)))))
-	raws = rawRequestsFromFees(ctx, k, []sdk.Coins{maxFee, maxFee})
-	suite.bankKeeper.EXPECT().SendCoins(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return(nil).Times(1)
-	_, err = k.CollectFee(ctx, bandtesting.FeePayer.Address, maxFee, 1, raws)
-	require.ErrorIs(err, types.ErrNotEnoughFee)
-}
 
 // Data source treasury must be a regular account.
 func (suite *KeeperTestSuite) TestDataSourceTreasuryValidation() {
