@@ -2,6 +2,7 @@ package de
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
@@ -30,7 +31,11 @@ type UpdateDE struct {
 	maxDESizeOnChain uint64
 	receiver         msg.ResponseReceiver
 	reqID            uint64
-	cacheDEs         map[uint64]int64
+
+	// cacheDEs is written by the main worker loop and read/deleted by listenMsgResponses,
+	// which runs in its own goroutine, so every access must hold cacheDEsMu.
+	cacheDEsMu sync.Mutex
+	cacheDEs   map[uint64]int64
 }
 
 var _ cylinder.Worker = &UpdateDE{}
@@ -129,7 +134,7 @@ func (u *UpdateDE) updateDE(numNewDE int64) error {
 		}
 
 		u.reqID += 1
-		u.cacheDEs[u.reqID] = size
+		u.setCacheDE(u.reqID, size)
 		u.context.PriorityMsgRequestCh <- msg.NewRequest(
 			msg.RequestTypeUpdateDE,
 			u.reqID,
@@ -320,7 +325,7 @@ func (u *UpdateDE) getDECount() (uint64, int64, error) {
 // listenMsgResponses listens to the MsgResponseReceiver channel and handle properly.
 func (u *UpdateDE) listenMsgResponses() {
 	for res := range u.receiver.ResponseCh {
-		lenDEs := u.cacheDEs[res.Request.ID]
+		lenDEs := u.popCacheDE(res.Request.ID)
 
 		if res.Success {
 			u.logger.Info(":smiling_face_with_sunglasses: Successfully submitted DEs ReqID: %d", res.Request.ID)
@@ -342,9 +347,26 @@ func (u *UpdateDE) listenMsgResponses() {
 			u.deCounter.AfterDEsRejected(lenDEs)
 			u.logger.Debug(":eyes: deCounter after AfterDEsRejected [listenMsgResponses]: %s", u.deCounter.String())
 		}
-
-		delete(u.cacheDEs, res.Request.ID)
 	}
+}
+
+// setCacheDE records the number of DEs submitted under the given request ID.
+func (u *UpdateDE) setCacheDE(reqID uint64, size int64) {
+	u.cacheDEsMu.Lock()
+	defer u.cacheDEsMu.Unlock()
+
+	u.cacheDEs[reqID] = size
+}
+
+// popCacheDE returns and removes the number of DEs submitted under the given request ID.
+func (u *UpdateDE) popCacheDE(reqID uint64) int64 {
+	u.cacheDEsMu.Lock()
+	defer u.cacheDEsMu.Unlock()
+
+	size := u.cacheDEs[reqID]
+	delete(u.cacheDEs, reqID)
+
+	return size
 }
 
 // GetResponseReceivers returns the message response receivers of the worker.

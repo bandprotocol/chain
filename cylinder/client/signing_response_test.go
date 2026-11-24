@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/bandprotocol/chain/v3/cylinder/client"
 	"github.com/bandprotocol/chain/v3/pkg/tss"
@@ -107,4 +108,17 @@ func TestGetAssignedMember(t *testing.T) {
 			assert.Equal(t, test.expectedValue, assignedMember)
 		})
 	}
+}
+
+// An expired signing has no current attempt; the helpers must not panic.
+func TestSigningResponseWithoutCurrentAttempt(t *testing.T) {
+	sr := client.NewSigningResponse(&types.QuerySigningResponse{
+		SigningResult: types.SigningResult{},
+	})
+
+	require.NotPanics(t, func() {
+		require.Nil(t, sr.GetMemberIDs())
+		_, err := sr.GetAssignedMember("band1xyz")
+		require.Error(t, err)
+	})
 }
