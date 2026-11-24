@@ -23,6 +23,18 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 
 var _ types.MsgServer = msgServer{}
 
+// checkAuthority returns an error if the given sender is not the module's authority (the gov module account).
+func (k msgServer) checkAuthority(sender string) error {
+	if k.authority != sender {
+		return govtypes.ErrInvalidSigner.Wrapf(
+			"invalid authority; expected %s, got %s",
+			k.authority,
+			sender,
+		)
+	}
+	return nil
+}
+
 func (k msgServer) RequestData(
 	goCtx context.Context,
 	msg *types.MsgRequestData,
@@ -91,6 +103,11 @@ func (k msgServer) CreateDataSource(
 ) (*types.MsgCreateDataSourceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	// only the governance module account can create data sources
+	if err := k.checkAuthority(msg.Sender); err != nil {
+		return nil, err
+	}
+
 	// unzip if it's a zip file
 	if gzip.IsGzipped(msg.Executable) {
 		var err error
@@ -128,24 +145,13 @@ func (k msgServer) EditDataSource(
 ) (*types.MsgEditDataSourceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	dataSource, err := k.GetDataSource(ctx, msg.DataSourceID)
-	if err != nil {
+	// only the governance module account can edit data sources
+	if err := k.checkAuthority(msg.Sender); err != nil {
 		return nil, err
 	}
 
-	owner, err := sdk.AccAddressFromBech32(dataSource.Owner)
-	if err != nil {
+	if _, err := k.GetDataSource(ctx, msg.DataSourceID); err != nil {
 		return nil, err
-	}
-
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return nil, err
-	}
-
-	// sender must be the owner of data source
-	if !owner.Equals(sender) {
-		return nil, types.ErrEditorNotAuthorized
 	}
 
 	treasury, err := sdk.AccAddressFromBech32(msg.Treasury)
@@ -185,6 +191,11 @@ func (k msgServer) CreateOracleScript(
 ) (*types.MsgCreateOracleScriptResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	// only the governance module account can create oracle scripts
+	if err := k.checkAuthority(msg.Sender); err != nil {
+		return nil, err
+	}
+
 	// unzip if it's a zip file
 	if gzip.IsGzipped(msg.Code) {
 		var err error
@@ -222,28 +233,18 @@ func (k msgServer) EditOracleScript(
 ) (*types.MsgEditOracleScriptResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	oracleScript, err := k.GetOracleScript(ctx, msg.OracleScriptID)
-	if err != nil {
+	// only the governance module account can edit oracle scripts
+	if err := k.checkAuthority(msg.Sender); err != nil {
 		return nil, err
 	}
 
-	owner, err := sdk.AccAddressFromBech32(oracleScript.Owner)
-	if err != nil {
+	if _, err := k.GetOracleScript(ctx, msg.OracleScriptID); err != nil {
 		return nil, err
-	}
-
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return nil, err
-	}
-
-	// sender must be the owner of oracle script
-	if !owner.Equals(sender) {
-		return nil, types.ErrEditorNotAuthorized
 	}
 
 	// unzip if it's a zip file
 	if gzip.IsGzipped(msg.Code) {
+		var err error
 		msg.Code, err = gzip.Uncompress(msg.Code, types.MaxWasmCodeSize)
 		if err != nil {
 			return nil, types.ErrUncompressionFailed.Wrap(err.Error())
@@ -294,12 +295,8 @@ func (k msgServer) UpdateParams(
 	goCtx context.Context,
 	msg *types.MsgUpdateParams,
 ) (*types.MsgUpdateParamsResponse, error) {
-	if k.authority != msg.Authority {
-		return nil, govtypes.ErrInvalidSigner.Wrapf(
-			"invalid authority; expected %s, got %s",
-			k.authority,
-			msg.Authority,
-		)
+	if err := k.checkAuthority(msg.Authority); err != nil {
+		return nil, err
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)

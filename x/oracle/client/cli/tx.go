@@ -172,13 +172,18 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-l
 func GetCmdCreateDataSource() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create-data-source (--name [name]) (--description [description]) (--script [path-to-script]) (--owner [owner]) (--treasury [treasury]) (--fee [fee])",
-		Short: "Create a new data source",
+		Short: "Create a new data source (must be executed by governance)",
 		Args:  cobra.NoArgs,
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Create a new data source that will be used by oracle scripts.
+This message must be executed by the governance module account, so the command is meant to be
+used with --generate-only to produce the message of a governance proposal.
 Example:
-$ %s tx oracle create-data-source --name coingecko-price --description "The script that queries crypto price from cryptocompare" --script ../price.sh --owner band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --treasury band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --fee 10uband --from mykey
+$ %s tx oracle create-data-source --name coingecko-price --description "The script that queries crypto price from cryptocompare" --script ../price.sh --owner band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --treasury band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --fee 10uband --from <gov module address> --generate-only > msg.json
+
+Embed the generated message in a governance proposal and submit it with `+"`"+`%s tx gov submit-proposal`+"`"+`.
 `,
+				version.AppName,
 				version.AppName,
 			),
 		),
@@ -268,13 +273,18 @@ $ %s tx oracle create-data-source --name coingecko-price --description "The scri
 func GetCmdEditDataSource() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "edit-data-source [id] (--name [name]) (--description [description]) (--script [path-to-script]) (--owner [owner]) (--treasury [treasury]) (--fee [fee])",
-		Short: "Edit data source",
+		Short: "Edit data source (must be executed by governance)",
 		Args:  cobra.ExactArgs(1),
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Edit an existing data source. The caller must be the current data source's owner.
+			fmt.Sprintf(`Edit an existing data source.
+This message must be executed by the governance module account, so the command is meant to be
+used with --generate-only to produce the message of a governance proposal.
 Example:
-$ %s tx oracle edit-data-source 1 --name coingecko-price --description The script that queries crypto price from cryptocompare --script ../price.sh --owner band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --treasury band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --fee 10uband --from mykey
+$ %s tx oracle edit-data-source 1 --name coingecko-price --description The script that queries crypto price from cryptocompare --script ../price.sh --owner band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --treasury band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --fee 10uband --from <gov module address> --generate-only > msg.json
+
+Embed the generated message in a governance proposal and submit it with `+"`"+`%s tx gov submit-proposal`+"`"+`.
 `,
+				version.AppName,
 				version.AppName,
 			),
 		),
@@ -372,13 +382,18 @@ $ %s tx oracle edit-data-source 1 --name coingecko-price --description The scrip
 func GetCmdCreateOracleScript() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create-oracle-script (--name [name]) (--description [description]) (--script [path-to-script]) (--owner [owner]) (--schema [schema]) (--url [source-code-url])",
-		Short: "Create a new oracle script that will be used by data requests.",
+		Short: "Create a new oracle script that will be used by data requests (must be executed by governance).",
 		Args:  cobra.NoArgs,
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Create a new oracle script that will be used by data requests.
+This message must be executed by the governance module account, so the command is meant to be
+used with --generate-only to produce the message of a governance proposal.
 Example:
-$ %s tx oracle create-oracle-script --name eth-price --description "Oracle script for getting Ethereum price" --script ../eth_price.wasm --owner band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --from mykey
+$ %s tx oracle create-oracle-script --name eth-price --description "Oracle script for getting Ethereum price" --script ../eth_price.wasm --owner band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --from <gov module address> --generate-only > msg.json
+
+Embed the generated message in a governance proposal and submit it with `+"`"+`%s tx gov submit-proposal`+"`"+`.
 `,
+				version.AppName,
 				version.AppName,
 			),
 		),
@@ -458,13 +473,18 @@ $ %s tx oracle create-oracle-script --name eth-price --description "Oracle scrip
 func GetCmdEditOracleScript() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "edit-oracle-script [id] (--name [name]) (--description [description]) (--script [path-to-script]) (--owner [owner]) (--schema [schema]) (--url [source-code-url])",
-		Short: "Edit an existing oracle script that will be used by data requests.",
+		Short: "Edit an existing oracle script that will be used by data requests (must be executed by governance).",
 		Args:  cobra.ExactArgs(1),
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Edit an existing oracle script that will be used by data requests.
+This message must be executed by the governance module account, so the command is meant to be
+used with --generate-only to produce the message of a governance proposal.
 Example:
-$ %s tx oracle edit-oracle-script 1 --name eth-price --description "Oracle script for getting Ethereum price" --script ../eth_price.wasm --owner band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --from mykey
+$ %s tx oracle edit-oracle-script 1 --name eth-price --description "Oracle script for getting Ethereum price" --script ../eth_price.wasm --owner band15d4apf20449ajvwycq8ruaypt7v6d345n9fpt9 --from <gov module address> --generate-only > msg.json
+
+Embed the generated message in a governance proposal and submit it with `+"`"+`%s tx gov submit-proposal`+"`"+`.
 `,
+				version.AppName,
 				version.AppName,
 			),
 		),

@@ -102,21 +102,6 @@ func InitializeBenchmarkApp(tb testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 
 	var txs [][]byte
 
-	// create oracle script
-	oCode, err := GetBenchmarkWasm()
-	require.NoError(tb, err)
-	txs = append(
-		txs,
-		bandtesting.GenSequenceOfTxs(ba.TxEncoder, ba.TxConfig, GenMsgCreateOracleScript(ba.Sender, oCode), ba.Sender, sdk.Coins{sdk.NewInt64Coin("uband", 1)}, math.MaxInt64, 1)[0],
-	)
-
-	// create data source
-	dCode := []byte("hello")
-	txs = append(
-		txs,
-		bandtesting.GenSequenceOfTxs(ba.TxEncoder, ba.TxConfig, GenMsgCreateDataSource(ba.Sender, dCode), ba.Sender, sdk.Coins{sdk.NewInt64Coin("uband", 1)}, math.MaxInt64, 1)[0],
-	)
-
 	// activate oracle
 	txs = append(
 		txs,
@@ -148,13 +133,31 @@ func InitializeBenchmarkApp(tb testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 	_, err = ba.Commit()
 	require.NoError(tb, err)
 
-	oid, err := GetFirstAttributeOfLastEventValue(res.TxResults[0].Events)
+	// Creating an oracle script and a data source is gated behind governance, so they are
+	// inserted directly through the keeper instead of being broadcast as txs.
+	oCode, err := GetBenchmarkWasm()
 	require.NoError(tb, err)
-	ba.Oid = uint64(oid)
+	oFilename, err := ba.OracleKeeper.AddOracleScriptFile(oCode)
+	require.NoError(tb, err)
+	ba.Oid = uint64(ba.OracleKeeper.AddOracleScript(ba.Ctx, oracletypes.NewOracleScript(
+		ba.Sender.Address,
+		"test",
+		"test",
+		oFilename,
+		"test",
+		"test",
+	)))
 
-	did, err := GetFirstAttributeOfLastEventValue(res.TxResults[1].Events)
-	require.NoError(tb, err)
-	ba.Did = uint64(did)
+	dCode := []byte("hello")
+	dFilename := ba.OracleKeeper.AddExecutableFile(dCode)
+	ba.Did = uint64(ba.OracleKeeper.AddDataSource(ba.Ctx, oracletypes.NewDataSource(
+		ba.Sender.Address,
+		"test",
+		"test",
+		dFilename,
+		sdk.Coins{},
+		ba.Sender.Address,
+	)))
 
 	return ba
 }

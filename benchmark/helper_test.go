@@ -102,34 +102,6 @@ func GenMsgSend(
 	return []sdk.Msg{&msg}
 }
 
-func GenMsgCreateOracleScript(sender *bandtesting.AccountWithNumSeq, code []byte) []sdk.Msg {
-	msg := oracletypes.MsgCreateOracleScript{
-		Name:          "test",
-		Description:   "test",
-		Schema:        "test",
-		SourceCodeURL: "test",
-		Code:          code,
-		Owner:         sender.Address.String(),
-		Sender:        sender.Address.String(),
-	}
-
-	return []sdk.Msg{&msg}
-}
-
-func GenMsgCreateDataSource(sender *bandtesting.AccountWithNumSeq, code []byte) []sdk.Msg {
-	msg := oracletypes.MsgCreateDataSource{
-		Name:        "test",
-		Description: "test",
-		Executable:  code,
-		Fee:         sdk.Coins{},
-		Treasury:    sender.Address.String(),
-		Owner:       sender.Address.String(),
-		Sender:      sender.Address.String(),
-	}
-
-	return []sdk.Msg{&msg}
-}
-
 func GenMsgActivate(account *bandtesting.AccountWithNumSeq) []sdk.Msg {
 	msg := oracletypes.MsgActivate{
 		Validator: account.ValAddress.String(),

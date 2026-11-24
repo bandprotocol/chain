@@ -1670,12 +1670,14 @@ func (s *AppTestSuite) TestFillRemainingProposal() {
 	resp, err := s.app.PrepareProposal(prepareReq)
 	require.NoError(err)
 	require.NotNil(resp)
-	require.Equal(42, len(resp.Txs))
+	// Block gas is 50M. The feeds lane takes 50% (25 feeds txs at 1M), the default lane takes
+	// 30% (3 bank sends at 5M), and the remaining 10M is filled with 10 more feeds txs.
+	require.Equal(38, len(resp.Txs))
 
 	var expectedTxBytes [][]byte
 	expectedTxBytes = append(
-		append(append(append(expectedTxBytes, feedsTxBytes[:25]...), bankSendTxBytes[0]), feedsTxBytes[25:]...),
-		bankSendTxBytes[1],
+		append(append(expectedTxBytes, feedsTxBytes[:25]...), bankSendTxBytes...),
+		feedsTxBytes[25:35]...,
 	)
 	require.Equal(expectedTxBytes, resp.Txs)
 }

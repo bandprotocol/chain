@@ -97,14 +97,16 @@ func CreateLanes(app *BandApp) []*mempool.Lane {
 	)
 
 	// defaultLane handles all other transactions.
-	// Each transaction has a gas limit of 10%, and the total gas limit for the lane is 10%.
+	// Each transaction has a gas limit of 30%, and the total gas limit for the lane is 30%.
+	// The per-transaction limit must leave room for governance proposals that carry an
+	// oracle script, since gov stores the whole payload in state on submission.
 	defaultLane := mempool.NewLane(
 		app.Logger(),
 		app.txConfig.TxEncoder(),
 		"defaultLane",
 		DefaultLaneMatchHandler(),
-		math.LegacyMustNewDecFromStr("0.1"),
-		math.LegacyMustNewDecFromStr("0.1"),
+		math.LegacyMustNewDecFromStr("0.3"),
+		math.LegacyMustNewDecFromStr("0.3"),
 		sdkmempool.DefaultPriorityMempool(),
 		nil,
 	)
