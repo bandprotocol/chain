@@ -78,6 +78,12 @@ func (m MsgRequestData) ValidateBasic() error {
 	if m.ExecuteGas <= 0 {
 		return ErrInvalidOwasmGas.Wrapf("invalid execute gas: %d", m.ExecuteGas)
 	}
+	if m.PrepareGas > MaximumOwasmGas {
+		return ErrInvalidOwasmGas.Wrapf("prepare gas (%d) exceed %d", m.PrepareGas, MaximumOwasmGas)
+	}
+	if m.ExecuteGas > MaximumOwasmGas {
+		return ErrInvalidOwasmGas.Wrapf("execute gas (%d) exceed %d", m.ExecuteGas, MaximumOwasmGas)
+	}
 	if m.PrepareGas+m.ExecuteGas > MaximumOwasmGas {
 		return ErrInvalidOwasmGas.Wrapf(
 			"sum of prepare gas and execute gas (%d) exceed %d",

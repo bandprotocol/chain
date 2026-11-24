@@ -1,6 +1,7 @@
 package types_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -46,6 +47,13 @@ func TestMsgCreateTunnel_ValidateBasic(t *testing.T) {
 	msg.Creator = "invalidCreator"
 	err = msg.ValidateBasic()
 	require.Error(t, err)
+
+	// Signal ID longer than the feeds limit is rejected
+	msg.Creator = sdk.AccAddress([]byte("creator1")).String()
+	msg.SignalDeviations = []types.SignalDeviation{
+		{SignalID: strings.Repeat("a", int(feedstypes.MaxSignalIDCharacters)+1), SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
+	}
+	require.Error(t, msg.ValidateBasic())
 }
 
 // ====================================
@@ -104,6 +112,20 @@ func TestMsgUpdateSignalsAndInterval_ValidateBasic(t *testing.T) {
 	msg.SignalDeviations = []types.SignalDeviation{}
 	err = msg.ValidateBasic()
 	require.Error(t, err)
+
+	// Signal ID at the feeds limit is accepted
+	msg.SignalDeviations = []types.SignalDeviation{
+		{SignalID: strings.Repeat("a", int(feedstypes.MaxSignalIDCharacters)), SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
+	}
+	require.NoError(t, msg.ValidateBasic())
+
+	// Signal ID longer than the feeds limit is rejected
+	msg.SignalDeviations[0].SignalID = strings.Repeat("a", int(feedstypes.MaxSignalIDCharacters)+1)
+	require.Error(t, msg.ValidateBasic())
+
+	// Empty signal ID is rejected
+	msg.SignalDeviations[0].SignalID = ""
+	require.Error(t, msg.ValidateBasic())
 }
 
 // ====================================

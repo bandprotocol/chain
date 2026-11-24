@@ -59,3 +59,25 @@ func TestGetBytesResponsePacket(t *testing.T) {
 		res.GetBytes(),
 	)
 }
+
+func TestOracleRequestPacketDataGasValidation(t *testing.T) {
+	newPacket := func(prepareGas, executeGas uint64) OracleRequestPacketData {
+		return OracleRequestPacketData{
+			ClientID:       "test",
+			OracleScriptID: 1,
+			Calldata:       []byte("calldata"),
+			AskCount:       1,
+			MinCount:       1,
+			FeeLimit:       sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(10000))),
+			PrepareGas:     prepareGas,
+			ExecuteGas:     executeGas,
+		}
+	}
+
+	require.NoError(t, newPacket(MaximumOwasmGas-1, 1).ValidateBasic())
+	require.Error(t, newPacket(MaximumOwasmGas, 1).ValidateBasic())
+	require.Error(t, newPacket(MaximumOwasmGas+1, 1).ValidateBasic())
+	require.Error(t, newPacket(1, MaximumOwasmGas+1).ValidateBasic())
+	require.Error(t, newPacket(^uint64(0), 1).ValidateBasic())
+	require.Error(t, newPacket(1, ^uint64(0)).ValidateBasic())
+}
