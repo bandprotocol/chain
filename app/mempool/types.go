@@ -20,11 +20,35 @@ type TxWithInfo struct {
 
 type TxMatchFn func(sdk.Context, sdk.Tx) bool
 
+// MsgMatchPredicate applies an additional match condition to a message type.
+type MsgMatchPredicate struct {
+	Msg       sdk.Msg
+	Predicate func(sdk.Msg) bool
+}
+
 func NewLaneTxMatchFn(msgs []sdk.Msg, onlyFree bool) TxMatchFn {
+	return NewLaneTxMatchFnWithPredicates(msgs, onlyFree)
+}
+
+// NewLaneTxMatchFnWithPredicates returns a lane matcher that applies optional
+// predicates to matching message types. Predicates are also applied to messages
+// nested in authz.MsgExec.
+func NewLaneTxMatchFnWithPredicates(
+	msgs []sdk.Msg,
+	onlyFree bool,
+	predicates ...MsgMatchPredicate,
+) TxMatchFn {
 	msgTypes := make([]reflect.Type, len(msgs))
 
 	for i, msg := range msgs {
 		msgTypes[i] = reflect.TypeOf(msg)
+	}
+
+	msgPredicates := make(map[reflect.Type]func(sdk.Msg) bool, len(predicates))
+	for _, predicate := range predicates {
+		if predicate.Predicate != nil {
+			msgPredicates[reflect.TypeOf(predicate.Msg)] = predicate.Predicate
+		}
 	}
 
 	var matchMsgFn func(sdk.Msg) bool
@@ -47,7 +71,13 @@ func NewLaneTxMatchFn(msgs []sdk.Msg, onlyFree bool) TxMatchFn {
 			}
 			return true
 		} else {
-			return slices.Contains(msgTypes, reflect.TypeOf(msg))
+			msgType := reflect.TypeOf(msg)
+			if !slices.Contains(msgTypes, msgType) {
+				return false
+			}
+
+			predicate, ok := msgPredicates[msgType]
+			return !ok || predicate(msg)
 		}
 	}
 

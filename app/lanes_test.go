@@ -17,6 +17,7 @@ import (
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 
 	band "github.com/bandprotocol/chain/v3/app"
 	"github.com/bandprotocol/chain/v3/app/mempool"
@@ -1168,6 +1169,33 @@ func (s *AppTestSuite) TestOracleRequestLaneWrappedMsgExceedGas() {
 		5000001,
 		sdk.Coins{sdk.NewInt64Coin("uband", 12501)},
 	)
+}
+
+func (s *AppTestSuite) TestNonOracleRecvPacketMatchesDefaultLaneWhenOracleRequestLaneBlocked() {
+	lanes := band.CreateLanes(s.app)
+	oracleRequestLane := lanes[3]
+	oracleRequestLane.SetBlocked(true)
+
+	makeTx := func(destinationPort string) sdk.Tx {
+		txBuilder := s.txConfig.NewTxBuilder()
+		s.Require().NoError(txBuilder.SetMsgs(&channeltypes.MsgRecvPacket{
+			Packet: channeltypes.Packet{DestinationPort: destinationPort},
+		}))
+		return txBuilder.GetTx()
+	}
+
+	oracleTx := makeTx(oracletypes.PortID)
+	otherIBCTx := makeTx("transfer")
+	firstMatchingLane := func(tx sdk.Tx) int {
+		for i, lane := range lanes {
+			if lane.Match(s.ctx, tx) {
+				return i
+			}
+		}
+		return -1
+	}
+	s.Require().Equal(3, firstMatchingLane(oracleTx), "oracle packets should route to oracleRequestLane")
+	s.Require().Equal(4, firstMatchingLane(otherIBCTx), "non-oracle packets should route to defaultLane")
 }
 
 // -----------------------------------------------
